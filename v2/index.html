@@ -1705,7 +1705,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 23:40";   // подставляется при публикации
+const BUILD="28.09 23:56";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2910,7 +2910,8 @@ function autoEps(S,who,today){
   const covered=x=>(S.ep||[]).some(e=>sameIll(e.dx,x.p)&&e.d1<=x.d&&(!e.d2||e.d2>=x.d));
   const isSym=p=>(S.cat||[]).some(c=>sameIll(c.n,p));   // «Температура» в поводе — симптом, не болезнь
   const out=[];
-  for(const x of (S.log||[]).filter(x=>x.p&&x.d).sort((a,b)=>a.d.localeCompare(b.d))){
+  const named=p=>/[a-zа-яё]{2}/i.test(p)&&!/^(не установлен|не уточн|без диагноза|нет$)/i.test(String(p).trim());   // «—» и «не установлено» — не болезнь
+  for(const x of (S.log||[]).filter(x=>x.p&&x.d&&named(x.p)).sort((a,b)=>a.d.localeCompare(b.d))){
     if(covered(x)||isSym(x.p)) continue;
     const e=out.find(e=>sameIll(e.dx,x.p)&&rxDays(e.last,x.d)<=15);
     if(e){ e.last=x.d; if(!e.sym.includes(x.n)) e.sym.push(x.n); continue; }
@@ -2922,7 +2923,7 @@ function autoEps(S,who,today){
 // незакрытые болезни, свежие первыми; «закрыть?» — если 30 дней ни симптомов, ни начала
 function openEps(S,today){
   const last=e=>((S.log||[]).filter(x=>sameIll(x.p,e.dx)&&x.d>=e.d1).map(x=>x.d).sort().pop())||e.d1;
-  return (S.ep||[]).filter(e=>!e.d2).sort((a,b)=>b.d1.localeCompare(a.d1))
+  return (S.ep||[]).filter(e=>!e.d2&&/[a-zа-яё]{2}/i.test(e.dx||"")).sort((a,b)=>b.d1.localeCompare(a.d1))   // без названия в «Сейчас болеет» не показываем
     .map(e=>Object.assign({},e,{stale:rxDays(last(e),today)>30}));
 }
 // болезни на выбор для приёма: сначала те, в дни которых был приём, затем остальные незакрытые
@@ -3457,6 +3458,8 @@ function docFill(inputId,kind,map,state){
       log(kind==="visit"?"Читаю заключение…":"Читаю рецепт…");
       const res=await entriesApi("analyze_document",{kind,person:cur,text:p.text||undefined,files:p.files.length?p.files:undefined});
       let n=0; for(const [k,id] of Object.entries(map)){ const v=(res.fields||{})[k], el=document.getElementById(id); if(v&&el){ el.value=v; n++; } }
+      if(kind==="med"&&Array.isArray(res.meds)&&state.onMeds){ state.onMeds(res.meds);   // в рецепте несколько лекарств — у каждого свои поля
+        log(`Нашёл лекарств: ${res.meds.length} — ${esc(res.meds.map(m=>m.title).join(", "))}. Проверьте и сохраните.${state.files.length?" Фото приложится к каждому.":""}`,"ok"); return; }
       log(`Заполнено полей: ${n}. Проверьте и сохраните.${state.files.length?" Фото приложено — откроется из карточки.":""}`,"ok");
     }catch(err){ log(err.message==="limit"?"На сегодня распознаваний больше нет (30 в сутки). Заполните вручную.":"Не получилось прочитать. Переснимите при хорошем свете или заполните вручную.","wa"); }
   });
@@ -3711,6 +3714,7 @@ function medForm(entryId,ctx){
       ${entryId?"":docPick("mFile","Фото рецепта — необязательно")+`<p class="hint" style="margin:-4px 0 8px">Фото прочитаем и заполним поля ниже — проверьте их. Само фото сохранится вместе с лекарством, его можно открыть из карточки.</p>`}
       ${fld("mN","Название",ex.title,'autocomplete="off"')}${fld("mDose","Дозировка",ex.dose,'placeholder="например, 5 мл"')}
       ${fld("mHow","Как принимать",ex.how,'placeholder="2 раза в день после еды, 5 дней"')}
+      <div id="mMore"></div>
       ${fld("mDoc","Кто назначил",ex.doc||(ctx?ctx.visit.who:""))}${fld("mD","Дата назначения",ex.d||(ctx?ctx.visit.d:today),'type="date"')}
       <div class="fld"><label>Статус</label><div class="vsw" id="mSt">${[["назначено","Назначено"],["начали","Принимаем"],["отменено","Отменено"]]
         .map(([k,t])=>`<button type="button" data-st="${k}" class="${k===st?"on":""}">${t}</button>`).join("")}</div></div>
@@ -3731,7 +3735,18 @@ function medForm(entryId,ctx){
   const mDays=document.getElementById("mDays"), mTo=document.getElementById("mTo"), mFrom=document.getElementById("mFrom");
   mDays.oninput=()=>{ const n=+mDays.value; if(n>0&&mFrom.value) mTo.value=rxTo(mFrom.value,n); };
   mTo.oninput=()=>{ if(mTo.value&&mFrom.value) mDays.value=rxDays(mFrom.value,mTo.value); };
-  const mst={files:[]}; if(!entryId) docFill("mFile","med",{title:"mN",dose:"mDose",how:"mHow",doc:"mDoc",d:"mD"},mst);
+  const mst={files:[],more:[]};
+  // остальные лекарства с фото рецепта (первое — в полях выше): свои название, дозировка и схема, галочка «добавить»
+  mst.onMeds=meds=>{ mst.more=meds.slice(1).map(m=>({title:m.title||"",dose:m.dose||"",how:m.how||"",on:true}));
+    document.getElementById("mMore").innerHTML=mst.more.length?`<h3 class="eph">Ещё на фото — ${mst.more.length}</h3>`+mst.more.map((m,i)=>`<div class="medmore" data-mi="${i}" style="border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px">
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><input type="checkbox" data-k="on" checked style="width:auto">Добавить это лекарство</label>
+      ${fld("mmN"+i,"Название",m.title)}${fld("mmDose"+i,"Дозировка",m.dose)}${fld("mmHow"+i,"Как принимать",m.how)}</div>`).join(""):"";
+    const box=document.getElementById("mMore");
+    box.oninput=box.onchange=e=>{ const w=e.target.closest("[data-mi]"); if(!w) return; const m=mst.more[+w.dataset.mi], id=e.target.id||"";
+      if(e.target.dataset.k==="on") m.on=e.target.checked; else if(id.startsWith("mmN")) m.title=e.target.value.trim();
+      else if(id.startsWith("mmDose")) m.dose=e.target.value.trim(); else if(id.startsWith("mmHow")) m.how=e.target.value.trim(); };
+  };
+  if(!entryId) docFill("mFile","med",{title:"mN",dose:"mDose",how:"mHow",doc:"mDoc",d:"mD"},mst);
   let status=st;
   document.getElementById("mSt").addEventListener("click",e=>{ const b=e.target.closest("[data-st]"); if(!b) return; status=b.dataset.st;
     document.querySelectorAll("#mSt button").forEach(x=>x.classList.toggle("on",x===b));
@@ -3743,9 +3758,13 @@ function medForm(entryId,ctx){
     if(status==="начали"&&!v("mFrom")){ log("Укажите, с какой даты принимаем.","er"); return; }
     if(status==="начали"&&v("mTo")&&v("mTo")<v("mFrom")){ log("Дата окончания раньше начала.","er"); return; }
     document.getElementById("mOk").disabled=true;
-    const ok=await entrySave("med",{title:v("mN"),dose:v("mDose"),how:v("mHow"),doc:v("mDoc"),d:v("mD"),status,
-      from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):"",
-      ...(ctx?{visit:ctx.visit,ep:ctx.ep||"",epDx:ctx.epDx||""}:ex.visit?{visit:ex.visit,ep:ex.ep||"",epDx:ex.epDx||""}:{})},entryId||null,log,mst.files);
+    const common={doc:v("mDoc"),d:v("mD"),status,from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):"",
+      ...(ctx?{visit:ctx.visit,ep:ctx.ep||"",epDx:ctx.epDx||""}:ex.visit?{visit:ex.visit,ep:ex.ep||"",epDx:ex.epDx||""}:{})};
+    const more=entryId?[]:mst.more.filter(m=>m.on&&m.title);
+    try{ for(const m of more) await entriesApi("entry_add",{person:cur,kind:"med",data:{title:m.title,dose:m.dose,how:m.how,...common},...(mst.files.length?{files:mst.files}:{})});
+      if(more.length) mst.more.forEach(m=>{ if(more.includes(m)) m.on=false; }); }   // повторное «Сохранить» после сбоя не задвоит
+    catch(e){ log("Не сохранилось: "+(e.message||"ошибка")+". Попробуйте ещё раз.","er"); document.getElementById("mOk").disabled=false; return; }
+    const ok=await entrySave("med",{title:v("mN"),dose:v("mDose"),how:v("mHow"),...common},entryId||null,log,mst.files);
     if(!ok) document.getElementById("mOk").disabled=false;
   });
 }
