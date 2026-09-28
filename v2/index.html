@@ -1010,6 +1010,12 @@ function medsKpi(d,k){
 }
 // Прививки в ленту: у объекта {v,d,note} — все даты из d; у строки [инфекция, текст] — даты после
 // отметки дозы (V1, R2, RV) или «от». Иначе «вопрос снят 13.09.2026» стал бы прививкой
+// строка раздела «Прививки» на Обзоре: запись бывает списком [инфекция, отметка, статус] и объектом {v, d, note, st}
+// (так внесены прививки Ани) — без этого на Обзоре выходило «undefined»
+function vacRow(x){
+  if(Array.isArray(x)) return [x[0]||"",x[1]||"",x[2]||"ok"];
+  x=x||{}; return [x.v||x.n||"",[x.d,x.note].filter(Boolean).join(" — "),x.st||"ok"];
+}
 function vacEvents(d){
   const out=[], iso=(a,b,c)=>`${c}-${b}-${a}`;
   (d.vac||[]).forEach(x=>{
@@ -1665,7 +1671,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 09:31";   // подставляется при публикации
+const BUILD="28.09 17:14";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3963,14 +3969,14 @@ function render(){
         <td style="width:46%"><b>${esc(a.t)}</b></td><td class="muted">${esc(a.w)}</td></tr>`).join("")}
       </tbody></table></div></div>`:""})()}
 
-    ${d.vac?(()=>{const flag=d.vac.filter(x=>x[2]==="bad").length,warn=d.vac.filter(x=>x[2]==="warn").length;
+    ${d.vac?(()=>{const V=d.vac.map(vacRow),flag=V.filter(x=>x[2]==="bad").length,warn=V.filter(x=>x[2]==="warn").length;
       return `<details class="card">
       <summary>Прививки<span class="sum-cnt">${d.vac.length}</span>${
         flag?`<span class="pill s-bad">просрочено ${flag}</span>`:""}${
         warn?`<span class="pill s-warn">нужно решить ${warn}</span>`:""}</summary>
       ${d.vacNote?`<div class="muted" style="margin:-6px 0 12px">${esc(d.vacNote)}</div>`:""}
       <div class="tw"><table><thead><tr><th>Инфекция</th><th>Последняя отметка</th><th></th></tr></thead><tbody>
-      ${d.vac.map(x=>`<tr><td><b>${esc(x[0])}</b></td><td>${esc(x[1])}</td>
+      ${V.map(x=>`<tr><td><b>${esc(x[0])}</b></td><td>${esc(x[1])}</td>
         <td><span class="pill s-${x[2]||"ok"}">${x[2]==="warn"?"нужно решить":x[2]==="bad"?"просрочено":"закрыто"}</span></td></tr>`).join("")}
       </tbody></table></div>
     </details>`})():""}
