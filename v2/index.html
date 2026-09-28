@@ -983,6 +983,12 @@ function medStart(m){
   const x=String(m.how||"").match(/(\d{2})\.(\d{2})\.(\d{4})/);
   return x?`${x[3]}-${x[2]}-${x[1]}`:null;
 }
+// что показать про курс (ТЗ-004 блок 9): «принимаем с 27.09 по 03.10» → после 03.10 «закончили 03.10» само
+function medState(m,today){
+  const dd=x=>ru(x).slice(0,5), a=m.from||"";
+  if(m.to&&m.to<today) return {active:false,text:"закончили "+dd(m.to)};
+  return {active:true,text:"принимаем"+(a?" с "+dd(a):"")+(m.to?" по "+dd(m.to):"")};
+}
 function medActive(m){
   const a=medStart(m); if(!a) return false;
   const t=new Date().toISOString().slice(0,10);
@@ -1342,6 +1348,9 @@ function markVal(txt){
   return worst;
 }
 
+// шапка и кнопка «Все записи» карточки (ТЗ-004 блок 4): у приёма с сайта нет статуса и системы — без «undefined» и «null»
+function recBadge(r){ return ST[r.st]?TYPE[r.t]+" · "+ST[r.st]:TYPE[r.t]; }
+function recGoAll(r){ const n=r.sys?sysName(r.sys):""; return n?`<button class="gobtn" data-f="${r.sys}" data-close="1">Все записи: ${esc(n)} →</button>`:""; }
 function openRec(i,showSer){
   const D=DATA[cur], r=D.rec[i]; if(!r)return;
   const o=organOf(r.sys);
@@ -1377,7 +1386,7 @@ function openRec(i,showSer){
   document.getElementById("modal").innerHTML=`
     <div class="mbox" role="dialog" aria-modal="true">
       <button class="mclose" data-close="1" aria-label="Закрыть">✕</button>
-      <div class="pill s-${r.st}" style="margin-bottom:8px">${TYPE[r.t]} · ${ST[r.st]}</div>
+      <div class="pill s-${r.st||"none"}" style="margin-bottom:8px">${recBadge(r)}</div>
       <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}</h3>
       <div class="muted" style="margin-bottom:14px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
       <table style="margin-bottom:6px">${rows.map(([k,v])=>`<tr><td class="muted" style="width:38%">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
@@ -1410,10 +1419,10 @@ function openRec(i,showSer){
         </tbody></table></div>`:""}
 
       ${r.full?`<h3 style="font-size:14px;margin:18px 0 6px">Что в заключении целиком</h3>
-        <div class="legend" style="margin:0 0 8px"><span><i style="background:var(--ok)"></i>в норме</span>
+        ${r.full.some(f=>Array.isArray(f)&&f.length>2)?`<div class="legend" style="margin:0 0 8px"><span><i style="background:var(--ok)"></i>в норме</span>
           <span><i style="background:var(--warn)"></i>на границе или чуть вне</span>
           <span><i style="background:var(--bad)"></i>вне нормы</span>
-          <span class="muted">без цвета — норма в документе не указана</span></div>
+          <span class="muted">без цвета — норма в документе не указана</span></div>`:""}
         <div class="tw"><table><tbody>${r.full.map(f=>Array.isArray(f)
           ?(()=>{const mk=markVal(f[2]?f[1]+" "+f[2]:f[1]);   // норма часто лежит в комментарии — читаем оба поля
             return `<tr><td class="muted" style="width:42%">${esc(f[0])}</td><td><b${mk?` style="color:${mk.c}" title="${esc(mk.why)}"`:""}>${esc(f[1])}</b>${f[2]?` <span class="muted" style="font-weight:400">${esc(f[2])}</span>`:""}</td></tr>`;})()
@@ -1449,7 +1458,7 @@ function openRec(i,showSer){
         График появится, когда будет вторая сдача.</div>`:""}
 
       ${o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:""}
-      <button class="gobtn" data-f="${r.sys}" data-close="1">Все записи: ${esc(sysName(r.sys))} →</button>
+      ${recGoAll(r)}
     </div>`;
   document.getElementById("modal").classList.add("on");
   document.getElementById("modal").scrollTop=0;
@@ -1645,8 +1654,10 @@ function human(n){
 function byPovod(list){
   const g={};
   list.forEach(x=>{const k=x.p||"__none__"; (g[k]=g[k]||[]).push(x)});
+  // самый свежий повод сверху (ТЗ-004 блок 1): раньше сортировали по числу случаев
+  const last=v=>v.reduce((m,x)=>x.d>m?x.d:m,"");
   return Object.entries(g).map(([k,v])=>({p:k==="__none__"?"":k,list:v}))
-    .sort((a,b)=>b.list.length-a.list.length||(a.p?1:-1));
+    .sort((a,b)=>last(b.list).localeCompare(last(a.list)));
 }
 function logLines(list,eps){
   const find=x=>(eps||[]).find(e=>e.d1===x.d&&(e.dx||"")===(x.p||""));
@@ -1671,7 +1682,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 17:14";   // подставляется при публикации
+const BUILD="28.09 22:16";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2837,6 +2848,12 @@ function attachSuggest(inputId,items,opt){
 const today0=()=>new Date().toISOString().slice(0,10);
 
 // форма: свободный симптом, без привязки к болезни
+// «Кашель, сопли» → ["Кашель","Сопли"] (ТЗ-004 блок 2): каждый симптом — своя запись
+function symNames(text){
+  const seen=new Set();
+  return String(text||"").split(/[,;]+/).map(x=>x.trim()).filter(Boolean)
+    .map(x=>x[0].toUpperCase()+x.slice(1)).filter(x=>{ const k=x.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; });
+}
 function newSymForm(){
   const d=DATA[cur], S=d.sym||{cat:[],log:[],ep:[]};
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
@@ -2848,7 +2865,7 @@ function newSymForm(){
       <div class="fld"><label for="nsDate">Когда</label>
         <input id="nsDate" type="date" value="${today0()}"></div>
       <div class="fld"><label for="nsName">Что беспокоит?</label>
-        <p class="hint">Подсказки — после двух букв; можно вписать новое</p>
+        <p class="hint">Подсказки — после двух букв; несколько — через запятую: «кашель, сопли»</p>
         <input id="nsName" list="nsList" placeholder="например, Изжога" autocomplete="off">
         <datalist id="nsList">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
       <div class="fld"><label for="nsInt">Сила, 1–10</label>
@@ -2875,28 +2892,30 @@ function newSymForm(){
   attachSuggest("nsPov",[],{groups:[{t:"Ещё болеет",items:[...new Set(openEps.filter(Boolean))]},{t:"Прошедшие",items:[...new Set(closedEps.filter(Boolean))]}]});
   const log=(t,c)=>{const e=document.getElementById("nsLog"); if(e) e.innerHTML+=`<div class="${c||""}">${t}</div>`;};
   document.getElementById("nsOk").addEventListener("click",async ()=>{
-    const nm=(document.getElementById("nsName").value||"").trim();
+    const names=symNames(document.getElementById("nsName").value);
     const dt=(document.getElementById("nsDate").value||"").trim();
-    if(!nm){ log("Впишите название симптома.","er"); return; }
+    if(!names.length){ log("Впишите название симптома.","er"); return; }
     if(!dt){ log("Укажите дату.","er"); return; }
     const inten=(document.getElementById("nsInt").value||"").trim();
     const val=(document.getElementById("nsVal").value||"").trim();
     const med=(document.getElementById("nsMed").value||"").trim();
     const pov=(document.getElementById("nsPov").value||"").trim();
     const note=[(document.getElementById("nsNote").value||"").trim(), val?("измерено: "+val):""].filter(Boolean).join(". ");
-    document.getElementById("nsOk").disabled=true;
-    const c=S.cat.find(z=>z.n===nm);
-    ovAdd({who:cur,d:dt,n:nm,p:pov,sys:c?c.sys:"other",i:inten?+inten:null,f:note,m:med});
-    render();
-    log("✓ Записано и уже видно в книжке.","ok");
-    if(window.__MK_KEY){                                   // v2: симптом уходит прямо в общую базу
-      try{ await mkApi("symptom_add",{person:cur,d:dt,n:nm,sys:c?c.sys:null,i:inten||null,f:note,m:med,p:pov});
-        log("Сохранено в базе — видно на всех устройствах.","ok"); }
-      catch(e){ log("В базу не ушло: "+(e.message||"ошибка")+". Запись осталась в книжке на этом устройстве.","wa"); }
-    } else {
-      await sendRow(INBOX,[today0(),d.short,"",dt,pov,nm,inten,note+(med?" | лечили: "+med:""),"нет"],log);
+    document.getElementById("nsOk").disabled=true;          // до конца сохранения — второе нажатие не создаёт дубль (ТЗ-004 блок 3)
+    let ok=true;
+    for(const nm of names){
+      const c=S.cat.find(z=>z.n===nm);
+      ovAdd({who:cur,d:dt,n:nm,p:pov,sys:c?c.sys:"other",i:inten?+inten:null,f:note,m:med});
+      if(window.__MK_KEY){                                   // v2: симптом уходит прямо в общую базу
+        try{ await mkApi("symptom_add",{person:cur,d:dt,n:nm,sys:c?c.sys:null,i:inten||null,f:note,m:med,p:pov}); }
+        catch(e){ ok=false; log("«"+esc(nm)+"» в базу не ушло: "+(e.message||"ошибка")+". Запись осталась в книжке на этом устройстве.","wa"); }
+      } else {
+        await sendRow(INBOX,[today0(),d.short,"",dt,pov,nm,inten,note+(med?" | лечили: "+med:""),"нет"],log);
+      }
     }
-    document.getElementById("nsOk").disabled=false;
+    render();
+    log("✓ Записано: "+esc(names.join(", ").toLowerCase())+".","ok");
+    if(ok) setTimeout(closeModal,900); else document.getElementById("nsOk").disabled=false;
   });
 }
 
@@ -3083,7 +3102,7 @@ function entriesInto(D,rows){
     if(e.kind==="med"){
       // «назначено» — ещё не принимаем (plan); «начали» — с даты from; «отменено» — stopped
       const st=x.status||"назначено";
-      (P.meds=P.meds||[]).push({n:x.title||x.n||"лекарство",plan:st==="назначено"?1:0,from:st==="назначено"?"":(x.from||""),
+      (P.meds=P.meds||[]).push({n:x.title||x.n||"лекарство",plan:st==="назначено"?1:0,from:st==="назначено"?"":(x.from||""),till:x.to?ru(x.to):"",
         to:x.to||"",stopped:st==="отменено"?(x.stopped||x.d||""):"",how:[x.dose,x.how].filter(Boolean).join(" · "),
         why:[pv?`назначено на приёме: ${pv.who||"врач"}${pv.doc?" "+pv.doc:""} ${pv.d?ru(pv.d):""}`.trim():x.doc?`назначил(а) ${x.doc}${x.d?" "+ru(x.d):""}`:"",q,from].filter(Boolean).join(" · "),entry:e.id,data:x});
       continue;
@@ -3283,7 +3302,7 @@ function docFill(inputId,kind,map,state){
       log(kind==="visit"?"Читаю заключение…":"Читаю рецепт…");
       const res=await entriesApi("analyze_document",{kind,person:cur,text:p.text||undefined,files:p.files.length?p.files:undefined});
       let n=0; for(const [k,id] of Object.entries(map)){ const v=(res.fields||{})[k], el=document.getElementById(id); if(v&&el){ el.value=v; n++; } }
-      log(`Заполнено полей: ${n}. Проверьте и сохраните.`,"ok");
+      log(`Заполнено полей: ${n}. Проверьте и сохраните.${state.files.length?" Фото приложено — откроется из карточки.":""}`,"ok");
     }catch(err){ log(err.message==="limit"?"На сегодня распознаваний больше нет (30 в сутки). Заполните вручную.":"Не получилось прочитать. Переснимите при хорошем свете или заполните вручную.","wa"); }
   });
 }
@@ -3520,17 +3539,25 @@ function medForm(entryId){
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>${entryId?"Лекарство":"Новое лекарство"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. «Назначено» — ещё не начали; «Принимаем» — с какой даты.</div>
     <div class="addform">
-      ${entryId?"":docPick("mFile","Фото рецепта — необязательно")}
+      ${entryId?"":docPick("mFile","Фото рецепта — необязательно")+`<p class="hint" style="margin:-4px 0 8px">Фото прочитаем и заполним поля ниже — проверьте их. Само фото сохранится вместе с лекарством, его можно открыть из карточки.</p>`}
       ${fld("mN","Название",ex.title,'autocomplete="off"')}${fld("mDose","Дозировка",ex.dose,'placeholder="например, 5 мл"')}
       ${fld("mHow","Как принимать",ex.how,'placeholder="2 раза в день после еды, 5 дней"')}
       ${fld("mDoc","Кто назначил",ex.doc)}${fld("mD","Дата назначения",ex.d||today,'type="date"')}
       <div class="fld"><label>Статус</label><div class="vsw" id="mSt">${[["назначено","Назначено"],["начали","Принимаем"],["отменено","Отменено"]]
         .map(([k,t])=>`<button type="button" data-st="${k}" class="${k===st?"on":""}">${t}</button>`).join("")}</div></div>
-      <div class="fld" id="mFromF"${st==="начали"?"":' hidden'}><label for="mFrom">Принимаем с</label><input id="mFrom" type="date" value="${esc(ex.from||today)}"></div>
+      <div class="fld" id="mFromF"${st==="начали"?"":' hidden'}><label for="mFrom">Принимаем с</label><input id="mFrom" type="date" value="${esc(ex.from||today)}">
+        <div class="row" style="gap:8px;margin-top:8px">
+          <label style="flex:1">Сколько дней<input id="mDays" type="number" min="1" max="365" placeholder="необязательно" value="${ex.from&&ex.to?rxDays(ex.from,ex.to):""}"></label>
+          <label style="flex:1">По какое число<input id="mTo" type="date" value="${esc(ex.to||"")}"></label></div>
+        <p class="hint">После этой даты лекарство само уйдёт в «закончили». Не знаете — оставьте пустым.</p></div>
       <div class="fld" id="mStopF"${st==="отменено"?"":' hidden'}><label for="mStop">Отменено</label><input id="mStop" type="date" value="${esc(ex.stopped||today)}"></div>
       <div class="row"><button class="btn" id="mOk">Сохранить</button><button class="btn sec" data-close>Отмена</button></div>
       <div id="mLog" class="formlog"></div></div></div>`;
   attachSuggest("mN",[],{groups:medSugGroups(d)});
+  // «сколько дней» ⇄ «по какое число» (включительно), как у лечения болезни
+  const mDays=document.getElementById("mDays"), mTo=document.getElementById("mTo"), mFrom=document.getElementById("mFrom");
+  mDays.oninput=()=>{ const n=+mDays.value; if(n>0&&mFrom.value) mTo.value=rxTo(mFrom.value,n); };
+  mTo.oninput=()=>{ if(mTo.value&&mFrom.value) mDays.value=rxDays(mFrom.value,mTo.value); };
   const mst={files:[]}; if(!entryId) docFill("mFile","med",{title:"mN",dose:"mDose",how:"mHow",doc:"mDoc",d:"mD"},mst);
   let status=st;
   document.getElementById("mSt").addEventListener("click",e=>{ const b=e.target.closest("[data-st]"); if(!b) return; status=b.dataset.st;
@@ -3541,9 +3568,10 @@ function medForm(entryId){
     const v=id=>(document.getElementById(id).value||"").trim();
     if(!v("mN")){ log("Впишите название.","er"); return; }
     if(status==="начали"&&!v("mFrom")){ log("Укажите, с какой даты принимаем.","er"); return; }
+    if(status==="начали"&&v("mTo")&&v("mTo")<v("mFrom")){ log("Дата окончания раньше начала.","er"); return; }
     document.getElementById("mOk").disabled=true;
     const ok=await entrySave("med",{title:v("mN"),dose:v("mDose"),how:v("mHow"),doc:v("mDoc"),d:v("mD"),status,
-      from:status==="начали"?v("mFrom"):"",stopped:status==="отменено"?v("mStop"):""},entryId||null,log,mst.files);
+      from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):""},entryId||null,log,mst.files);
     if(!ok) document.getElementById("mOk").disabled=false;
   });
 }
@@ -3915,7 +3943,7 @@ function render(){
         // сверху — что идёт или запланировано; законченное и «не принимает» — свёрнуто ниже
         const now=d.meds.filter(x=>x.plan||medActive(x)), past=d.meds.filter(x=>!(x.plan||medActive(x)));
         const row=x=>`<tr><td><b>${esc(x.n)}</b>${x.entry?` <button class="addsym editmed" data-entry="${x.entry}" title="Изменить: статус, дозировка">✎</button>`:""}${x.stopped?` <span class="pill s-none">отменено ${ru(x.stopped)}</span>`:""}${x.plan?` <span class="pill s-warn">запланирован</span>`:medActive(x)?` <span class="pill s-ok">идёт</span>`:medStart(x)&&x.to?` <span class="pill s-none">закончен</span>`:""}
-        ${x.plan?`<div class="muted" style="font-size:12px">${/^\d{4}-\d{2}-\d{2}$/.test(String(x.plan))?"с "+ru(x.plan):"дата старта не назначена"}</div>`:medStart(x)?`<div class="muted" style="font-size:12px">начат ${ru(medStart(x))}</div>`:""}</td><td>${esc(x.how)}</td>
+        ${x.plan?`<div class="muted" style="font-size:12px">${/^\d{4}-\d{2}-\d{2}$/.test(String(x.plan))?"с "+ru(x.plan):"дата старта не назначена"}</div>`:medStart(x)?`<div class="muted" style="font-size:12px">${x.entry&&x.from?medState(x,new Date().toISOString().slice(0,10)).text:"начат "+ru(medStart(x))}</div>`:""}</td><td>${esc(x.how)}</td>
         <td style="white-space:nowrap">${esc(x.till||"—")}</td><td class="muted">${esc(x.why||"")}</td></tr>`;
         const head=`<thead><tr><th>Что</th><th>Схема</th><th>До какой даты</th><th>Зачем</th></tr></thead>`;
         return (now.length?`<div class="tw"><table>${head}<tbody>${now.map(row).join("")}</tbody></table></div>`:`<div class="muted">${d.meds.length?"Сейчас ничего не принимает.":"Постоянной терапии нет."}</div>`)
