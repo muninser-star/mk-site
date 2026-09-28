@@ -325,6 +325,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .ins-v .muted{white-space:normal;max-width:190px;display:block;margin-top:2px}
 .ins-row.stale{opacity:.6;border-style:dashed}
 .ins-row[data-rec]{cursor:pointer}
+.linkbtn{background:none;border:0;padding:0;margin-left:4px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .ins-row[data-rec]:hover{border-color:var(--ink);background:var(--accentbg)}
 .ins-row[data-rec]>div:first-child b::after{content:"›";margin-left:6px;color:var(--muted);font-weight:400}
 .ins-d{font-size:14px;font-weight:700;white-space:nowrap;min-width:56px;text-align:right}
@@ -1705,7 +1706,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 23:56";   // подставляется при публикации
+const BUILD="29.09 00:22";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2976,6 +2977,36 @@ function epCard(epId){
     epCard(ep.id); toast(`«${esc(ep.dx)}» закрыта: ${epSpan({...ep,d2:today},today).text}`);
   };
 }
+// проверка названия лекарства (ошибка 29.09: с фото пришло «Мирамистен»). Сначала справочник семьи и то, что уже давали:
+// опечатка в 1–2 буквы в первом слове → известное название. Не нашлось — справка нейросети: правильное название или «не лекарство»
+function medLev(a,b){ const m=a.length,n=b.length, d=Array.from({length:m+1},(_,i)=>[i]); for(let j=1;j<=n;j++) d[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); return d[m][n]; }
+// "" — не знаю; иначе название, каким оно должно быть
+function medFix(name,known){
+  const low=t=>String(t||"").toLowerCase().replace(/ё/g,"е").trim(), w1=t=>low(t).split(/[\s,(]+/)[0]||"";
+  const nm=String(name||"").trim(), first=w1(nm); if(first.length<5) return "";
+  const exact=(known||[]).find(k=>low(k)===low(nm)); if(exact) return exact;
+  if((known||[]).some(k=>w1(k)===first)) return "";                 // «Гексорал Верде» при «Гексорал» — вариант, не опечатка
+  const lim=first.length>=8?2:1, best={};
+  for(const k of known||[]){ const kw=String(k).trim().split(/[\s,(]+/)[0], dist=medLev(first,w1(k)); if(dist<=lim) (best[dist]=best[dist]||new Set()).add(kw); }
+  const top=Object.keys(best).sort()[0]; if(!top||best[top].size!==1) return "";   // два похожих — не угадываем
+  return [...best[top]][0]+nm.slice(nm.split(/[\s,(]/)[0].length);
+}
+// {st:"ok"|"fixed"|"unknown"|"skip", name, from}
+async function medCheck(name,d){
+  const nm=String(name||"").trim(); if(!nm) return {st:"skip",name:nm};
+  const known=[...medSugGroups(d).flatMap(g=>g.items),...(typeof MEDREF!=="undefined"?Object.keys(MEDREF):[])];
+  const f=medFix(nm,known); if(f) return f.toLowerCase()===nm.toLowerCase()?{st:"ok",name:f}:{st:"fixed",name:f,from:nm};
+  const w1=t=>String(t||"").toLowerCase().replace(/ё/g,"е").split(/[\s,(]+/)[0];
+  if(known.some(k=>w1(k)===w1(nm))) return {st:"ok",name:nm};
+  if(!window.__MK_KEY) return {st:"skip",name:nm};
+  try{ const i=(await mkApi("med_info",{name:nm})).info||{};
+    if(i.unknown) return {st:"unknown",name:nm};
+    if(i.name&&w1(i.name)!==w1(nm)) return {st:"fixed",name:String(i.name).split(/[\s,(]/)[0]+nm.slice(nm.split(/[\s,(]/)[0].length),from:nm};
+    return {st:"ok",name:nm}; }catch(e){ return {st:"skip",name:nm}; }
+}
+const medChkHtml=c=>c.st==="fixed"?`<p class="hint" style="color:var(--ok);margin:4px 0 0">Исправлено: на фото «${esc(c.from)}» <button type="button" class="linkbtn" data-undo="${esc(c.from)}">вернуть как было</button></p>`
+  :c.st==="unknown"?`<p class="hint" style="color:var(--bad);margin:4px 0 0">⚠ Такого лекарства не нашёл — сверьте название с рецептом</p>`:"";
 // справка о препарате (ТЗ-004 блок 10): из справочника семьи, иначе — от нейросети через mk → med_info (кэш на всех)
 async function medInfoHtml(name){
   const ref=typeof MEDREF!=="undefined"?Object.keys(MEDREF).find(k=>sameIll(k,name)||String(name).toLowerCase().startsWith(k.toLowerCase())):null;
@@ -3727,9 +3758,12 @@ function medForm(entryId,ctx){
       <div class="row"><button class="btn" id="mOk">Сохранить</button><button class="btn sec" data-close>Отмена</button></div>
       <div id="mLog" class="formlog"></div></div></div>`;
   attachSuggest("mN",[],{groups:medSugGroups(d)});
-  const mN=document.getElementById("mN"), mInfo=document.createElement("div"); mN.closest(".fld").appendChild(mInfo);
+  const mN=document.getElementById("mN"), mInfo=document.createElement("div"), mChk=document.createElement("div"); mN.closest(".fld").append(mChk,mInfo);
   let infoFor="";
+  mChk.onclick=e=>{ const b=e.target.closest("[data-undo],[data-fixto]"); if(!b) return; mN.value=b.dataset.undo||b.dataset.fixto; mChk.innerHTML=""; mst.mainBad=false; mN.dispatchEvent(new Event("change")); };
   mN.addEventListener("change",async ()=>{ const nm=mN.value.trim(); if(!nm||nm===infoFor) return; infoFor=nm;
+    medCheck(nm,d).then(c=>{ if(mN.value.trim()!==nm) return; mst.mainBad=c.st==="unknown"; mst.warned=false;   // введённое руками не меняем — предлагаем
+      mChk.innerHTML=c.st==="fixed"?`<p class="hint" style="margin:4px 0 0">Похоже на «${esc(c.name)}» <button type="button" class="linkbtn" data-fixto="${esc(c.name)}">исправить</button></p>`:medChkHtml(c); });
     mInfo.innerHTML=`<div class="muted" style="font-size:12.5px;margin-top:6px">Ищу справку…</div>`; mInfo.innerHTML=await medInfoHtml(nm); });
   // «сколько дней» ⇄ «по какое число» (включительно), как у лечения болезни
   const mDays=document.getElementById("mDays"), mTo=document.getElementById("mTo"), mFrom=document.getElementById("mFrom");
@@ -3737,14 +3771,21 @@ function medForm(entryId,ctx){
   mTo.oninput=()=>{ if(mTo.value&&mFrom.value) mDays.value=rxDays(mFrom.value,mTo.value); };
   const mst={files:[],more:[]};
   // остальные лекарства с фото рецепта (первое — в полях выше): свои название, дозировка и схема, галочка «добавить»
-  mst.onMeds=meds=>{ mst.more=meds.slice(1).map(m=>({title:m.title||"",dose:m.dose||"",how:m.how||"",on:true}));
-    document.getElementById("mMore").innerHTML=mst.more.length?`<h3 class="eph">Ещё на фото — ${mst.more.length}</h3>`+mst.more.map((m,i)=>`<div class="medmore" data-mi="${i}" style="border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px">
-      <label style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><input type="checkbox" data-k="on" checked style="width:auto">Добавить это лекарство</label>
-      ${fld("mmN"+i,"Название",m.title)}${fld("mmDose"+i,"Дозировка",m.dose)}${fld("mmHow"+i,"Как принимать",m.how)}</div>`).join(""):"";
+  // названия с фото проверяем до показа: опечатку исправляем (с пометкой), неизвестное — без галочки и с предупреждением
+  mst.onMeds=async meds=>{ const chk=await Promise.all(meds.map(m=>medCheck(m.title,d)));
+    if(chk[0]&&chk[0].st==="fixed") mN.value=chk[0].name; mChk.innerHTML=chk[0]?medChkHtml(chk[0]):""; mst.mainBad=!!chk[0]&&chk[0].st==="unknown";
+    mst.more=meds.slice(1).map((m,i)=>{ const c=chk[i+1]; return {title:c.name||m.title||"",dose:m.dose||"",how:m.how||"",on:c.st!=="unknown",bad:c.st==="unknown",c}; });
+    document.getElementById("mMore").innerHTML=mst.more.length?`<h3 class="eph">Ещё на фото — ${mst.more.length}</h3>`+mst.more.map((m,i)=>`<div class="medmore" data-mi="${i}" style="border:1px solid var(--${m.bad?"bad":"line"});border-radius:12px;padding:10px 12px;margin:0 0 10px">
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><input type="checkbox" data-k="on"${m.bad?"":" checked"} style="width:auto">Добавить это лекарство</label>
+      ${fld("mmN"+i,"Название",m.title)}<div class="mmchk">${medChkHtml(m.c)}</div>${fld("mmDose"+i,"Дозировка",m.dose)}${fld("mmHow"+i,"Как принимать",m.how)}</div>`).join(""):"";
     const box=document.getElementById("mMore");
     box.oninput=box.onchange=e=>{ const w=e.target.closest("[data-mi]"); if(!w) return; const m=mst.more[+w.dataset.mi], id=e.target.id||"";
       if(e.target.dataset.k==="on") m.on=e.target.checked; else if(id.startsWith("mmN")) m.title=e.target.value.trim();
-      else if(id.startsWith("mmDose")) m.dose=e.target.value.trim(); else if(id.startsWith("mmHow")) m.how=e.target.value.trim(); };
+      else if(id.startsWith("mmDose")) m.dose=e.target.value.trim(); else if(id.startsWith("mmHow")) m.how=e.target.value.trim();
+      if(e.type==="change"&&id.startsWith("mmN")) medCheck(m.title,d).then(c=>{ m.bad=c.st==="unknown"; w.querySelector(".mmchk").innerHTML=c.st==="fixed"
+        ?`<p class="hint" style="margin:4px 0 0">Похоже на «${esc(c.name)}» <button type="button" class="linkbtn" data-fixto="${esc(c.name)}">исправить</button></p>`:medChkHtml(c); }); };
+    box.onclick=e=>{ const b=e.target.closest("[data-undo],[data-fixto]"); if(!b) return; const w=b.closest("[data-mi]"), m=mst.more[+w.dataset.mi], inp=w.querySelector('[id^="mmN"]');
+      inp.value=m.title=b.dataset.undo||b.dataset.fixto; w.querySelector(".mmchk").innerHTML=""; };
   };
   if(!entryId) docFill("mFile","med",{title:"mN",dose:"mDose",how:"mHow",doc:"mDoc",d:"mD"},mst);
   let status=st;
@@ -3757,6 +3798,9 @@ function medForm(entryId,ctx){
     if(!v("mN")){ log("Впишите название.","er"); return; }
     if(status==="начали"&&!v("mFrom")){ log("Укажите, с какой даты принимаем.","er"); return; }
     if(status==="начали"&&v("mTo")&&v("mTo")<v("mFrom")){ log("Дата окончания раньше начала.","er"); return; }
+    const badMore=entryId?[]:mst.more.filter(m=>m.on&&m.bad);
+    if((mst.mainBad||badMore.length)&&!mst.warned){ mst.warned=true;
+      log(`Не нашёл такое лекарство: «${esc([mst.mainBad?v("mN"):"",...badMore.map(m=>m.title)].filter(Boolean).join("», «"))}». Сверьте с рецептом; если название верное — нажмите «Сохранить» ещё раз.`,"er"); return; }
     document.getElementById("mOk").disabled=true;
     const common={doc:v("mDoc"),d:v("mD"),status,from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):"",
       ...(ctx?{visit:ctx.visit,ep:ctx.ep||"",epDx:ctx.epDx||""}:ex.visit?{visit:ex.visit,ep:ex.ep||"",epDx:ex.epDx||""}:{})};
