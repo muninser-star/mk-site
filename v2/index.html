@@ -794,7 +794,7 @@ const SYSRU={lung:"Лёгкие и дыхание",uro:"Мочеполовая �
   endo:"Углеводный обмен",vit:"Витамины и гормоны",thyro:"Щитовидная железа",neuro:"Неврология",
   psy:"Психоэмоциональное состояние",sleep:"Сон и режим",teeth:"Зубы и дёсны",gen:"Наследственность",
   fit:"Активность",ortho:"Опорно-двигательный аппарат",allergy:"Аллергия",imm:"Иммунитет"};
-function sysName(sys){if(LNK[sys])return LNK[sys].name;const o=organOf(sys);return o?o.name:(SYSRU[sys]||sys)}
+function sysName(sys){if(!sys)return "Без системы";if(LNK[sys])return LNK[sys].name;const o=organOf(sys);return o?o.name:(SYSRU[sys]||sys)}
 
 function sysNameIn(k,sys){const o=DATA[k].organs.find(o=>o.sys===sys);return o?o.name:sys}
 // весь текст записи одной строкой — по нему и ищем
@@ -1261,7 +1261,7 @@ function tableRows(list,opt){
         ${r.t==="lab"?`<div class="muted" style="font-size:12.5px">Было: ${prevCell(r)}</div>`:""}</td>
       ${showSys?`<td><span class="tag">${esc(sysName(r.sys))}</span></td>`:""}
       <td>${r.res?hl(r.res):"<span class='muted'>—</span>"}</td>
-      <td><span class="pill s-${r.st}">${ST[r.st]}</span></td>
+      <td><span class="pill s-${r.st||"none"}">${ST[r.st]||ST.none}</span></td>
     </tr>`).join("")}</tbody></table></div>`;
 }
 
@@ -1363,7 +1363,7 @@ function openRec(i,showSer){
   const D=DATA[cur], r=D.rec[i]; if(!r)return;
   const o=organOf(r.sys);
   const rows=[
-    ["Дата",ru(r.d)],["Тип",TYPE[r.t]],["Система",sysName(r.sys)],
+    ["Дата",ru(r.d)],["Тип",TYPE[r.t]],["Система",r.sys?sysName(r.sys):""],
     ["Врач / источник",r.who],["Учреждение",r.place&&r.place!=="—"?r.place:""],
     ["Значение",r.v],["Норма",r.n],["Результат, заключение",r.res],["Статус",ST[r.st]]
   ].filter(x=>x[1]);
@@ -1480,7 +1480,7 @@ function filterBar(){
   const used=[...new Set(d.rec.map(r=>r.sys))];
   return `<div class="filters">
     <button data-f="" class="${sysFilter?"":"on"}">Все системы</button>
-    ${used.map(s=>`<button data-f="${s}" class="${sysFilter===s?"on":""}">${esc(sysName(s))}</button>`).join("")}
+    ${used.filter(Boolean).map(s=>`<button data-f="${s}" class="${sysFilter===s?"on":""}">${esc(sysName(s))}</button>`).join("")}
   </div>`;
 }
 
@@ -1693,7 +1693,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 22:49";   // подставляется при публикации
+const BUILD="28.09 23:05";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2631,6 +2631,7 @@ function ovApply(){
   });
   for(const k of Object.keys(DATA)){
     const S=DATA[k].sym; if(!S||!S.ep) continue;
+    const AE=autoEps(S,k,localDay()); if(AE.length){ S.ep.push(...AE); S.ep.sort((x,y)=>y.d1.localeCompare(x.d1)); }
     const EE=(o.epEdits||[]).filter(x=>x.who===k).sort((a,b)=>(a.ts||0)-(b.ts||0));
     if(EE.length) S.ep=applyEpEdits(S.ep,EE);
     for(const e of S.ep){ const r=(o.rxSet||{})[k+"|"+e.id]; if(r) e.rx=r.list; }
@@ -2888,6 +2889,22 @@ function epLinks(P,ep,today){
     visits:(P.rec||[]).filter(r=>r.t==="visit"&&(r.ep===ep.id||(!r.ep&&r.epDx&&sameIll(r.epDx,ep.dx)&&r.d>=ep.d1&&r.d<=end))),
     meds:(P.meds||[]).filter(m=>m.ep===ep.id)
   };
+}
+// болезни из журнала: симптомы с поводом-болезнью, которых не покрывает ни одна болезнь, — на любом устройстве, не только там,
+// где сохраняли форму. Только идущие случаи (последний симптом не старше 15 дней): старые поводы-симптомы не трогаем (Денис 28.09).
+// id постоянный (человек, начало, название), чтобы «Закрыть болезнь» и правки находили его и после перезагрузки
+function autoEps(S,who,today){
+  const covered=x=>(S.ep||[]).some(e=>sameIll(e.dx,x.p)&&e.d1<=x.d&&(!e.d2||e.d2>=x.d));
+  const isSym=p=>(S.cat||[]).some(c=>sameIll(c.n,p));   // «Температура» в поводе — симптом, не болезнь
+  const out=[];
+  for(const x of (S.log||[]).filter(x=>x.p&&x.d).sort((a,b)=>a.d.localeCompare(b.d))){
+    if(covered(x)||isSym(x.p)) continue;
+    const e=out.find(e=>sameIll(e.dx,x.p)&&rxDays(e.last,x.d)<=15);
+    if(e){ e.last=x.d; if(!e.sym.includes(x.n)) e.sym.push(x.n); continue; }
+    out.push({dx:x.p,d1:x.d,last:x.d,sym:[x.n]});
+  }
+  return out.filter(e=>rxDays(e.last,today)<=15).map(e=>({id:`${who}-ep-auto-${e.d1}-${String(e.dx).toLowerCase().replace(/\(.*$/,"").replace(/[^a-zа-яё0-9]+/g,"")}`,
+    d1:e.d1,d2:"",dx:e.dx,as:"",ab:0,sym:e.sym.join(", "),t:"",tmax:null,rx:[],auto:1}));
 }
 // незакрытые болезни, свежие первыми; «закрыть?» — если 30 дней ни симптомов, ни начала
 function openEps(S,today){
@@ -4979,7 +4996,7 @@ document.addEventListener("click",e=>{
   const mw=e.target.closest("[data-medwho]");
   if(mw){cur=mw.dataset.medwho;tab="sym";symSel=null;sysFilter=null;closeModal();render();window.scrollTo({top:0});return}
   const md=e.target.closest("[data-med]"); if(md){medSel=md.dataset.med||null;symSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
-  const sm=e.target.closest("[data-sym]"); if(sm){symSel=sm.dataset.sym||null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
+  const sm=e.target.closest("[data-sym]"); if(sm){if(sm.closest(".modal"))closeModal();symSel=sm.dataset.sym||null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
   const t=e.target.closest("[data-t]"); if(t){tab=t.dataset.t==="card"?CARD[0][0]:t.dataset.t;sysFilter=null;symSel=null;medSel=null;insSel=null;render();window.scrollTo({top:0});return}
   const cp=e.target.closest("[data-copy]");
   if(cp){ e.stopPropagation();
@@ -5107,7 +5124,8 @@ if(window.__MK_KEY) entriesPull().then(ch=>{ if(ch) render(); });  // запис
     for (const r2 of rows) {
       const P = j.data[r2.person]; if (!P || !P.sym) continue;
       const log = P.sym.log = P.sym.log || [];
-      if (log.some(x => x.d === r2.occurred_on && x.n === r2.symptom)) continue;   // уже есть в книжке
+      const same = log.find(x => x.d === r2.occurred_on && x.n === r2.symptom);
+      if (same) { if (!same.p && r2.reason) same.p = r2.reason; continue; }   // уже есть; повод берём из дубля, если у первой строки его нет
       log.push({ d: r2.occurred_on, n: r2.symptom, sys: r2.sys || "other", i: r2.intensity ?? null, v: r2.value_num ?? null,
         u: r2.unit || "", f: r2.feeling || "", m: r2.med || "", h: r2.helped || "", p: r2.reason || "" });
     }
