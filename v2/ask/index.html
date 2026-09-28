@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Спросить медкнижку</title>
+<!-- Данных в странице нет: вопрос уходит в функцию mk, она ищет по базе и просит модель
+     ответить строго по найденному. Доступ — по коду из ссылки, как и у остальных экранов v2. -->
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#16202a;--muted:#5d6b7a;--line:#e2e8ee;--accent:#2b5fd9;--accentbg:#eef3fd;
+  --ok:#2e9d68;--warn:#d38b12;--bad:#d64545}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12171d;--card:#1a222b;--ink:#e6edf3;--muted:#9fb0c0;--line:#2a3541;
+  --accent:#6f9bff;--accentbg:#1d2a40}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.embed .wrap{padding:0 0 12px}
+.embed header{display:none}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+header h1{font-size:19px;margin:0;flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.muted{color:var(--muted)}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button:disabled{opacity:.55;cursor:default}
+textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.ask{display:flex;gap:8px;margin-top:8px}
+.ask button{flex:none;padding:10px 18px}
+.hints{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.hints button{font-size:12.5px;padding:5px 10px;color:var(--muted)}
+.ans{white-space:pre-wrap;font-size:15px}
+.ans b{font-weight:700}
+.ans .ref{display:inline-block;min-width:20px;text-align:center;font-size:11.5px;font-weight:700;color:var(--accent);
+  background:var(--accentbg);border-radius:5px;padding:0 5px;cursor:pointer}
+.srcs{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.src{border-top:1px solid var(--line);padding:8px 0;font-size:13.5px}
+.src:first-of-type{border-top:0}
+.src .h{display:flex;gap:8px;align-items:baseline;cursor:pointer}
+.src .n{font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accentbg);border-radius:5px;padding:0 6px}
+.src .t{font-weight:600;flex:1}
+.src .meta{font-size:12px;color:var(--muted)}
+.src .body{display:none;white-space:pre-wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.src.open .body{display:block}
+.spin{width:30px;height:30px;border:4px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;margin:14px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{color:var(--bad);font-size:13.5px}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.qa{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.past{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 2px 8px}
+.card.closed .body-a{display:none}
+.card.closed .q{cursor:pointer;margin-bottom:0}
+.qdate{font-size:12px;color:var(--muted);font-weight:400}
+.fixbar{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fixbar button{font-size:13px;padding:6px 10px}
+.fixhint{background:#fff6e5;border:1px solid #f0d49a;border-radius:10px;padding:8px 10px;font-size:13.5px;margin-top:12px;color:#7a5200}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fixhint{background:#2e2615;border-color:#5b4a22;color:#f0d49a}}
+.fixed{color:var(--ok);font-size:13.5px;font-weight:600}
+.fixform{display:flex;gap:8px;margin-top:8px;width:100%}
+.fixform input{flex:1}
+.q{font-weight:700;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="card muted">Загрузка…</div></div>
+<script type="module">
+const SB_URL = "https://cuhplpukqhdfutcymtmv.supabase.co";
+const SB_KEY = "sb_publishable_ILfqT6mCyHBOu6BVVRxHKQ_0bPQtNi3";
+const KEY_LS = "mk2_key";
+if (new URLSearchParams(location.search).get("embed")) document.documentElement.classList.add("embed");
+let KEY = (() => { try { return localStorage.getItem(KEY_LS) || ""; } catch (e) { return ""; } })();
+(() => { const u = new URL(location.href), k = u.searchParams.get("k");
+  if (k) { KEY = k; try { localStorage.setItem(KEY_LS, k); } catch (e) {} u.searchParams.delete("k"); history.replaceState(null, "", u.pathname + u.search + u.hash); } })();
+
+const PEOPLE = [["", "Вся семья"], ["denis", "Денис"], ["anya", "Аня"], ["dima", "Дима"], ["danya", "Даня"]];
+const NAME = Object.fromEntries(PEOPLE);
+const KIND = { passport: "паспорт", razbor: "разбор", record: "запись приёма", lab_series: "ряд анализа", series: "ряд",
+  symptom: "симптом", episode: "эпизод болезни", task: "дело", med: "препарат", diagnoses: "диагноз", family: "семейный анамнез",
+  vac: "прививка", diary: "дневник питания", diet_week: "питание за неделю", body: "замеры тела", history: "история болезней",
+  note: "заметка", ref: "справочник", organs: "органы", nutrition: "питание", nutrition_plan: "план питания", recipe: "рецепт" };
+const HINTS = ["Что у Димы с железом?", "Какие анализы пора сдать?", "Что говорили про головные боли Димы?",
+  "Чем лечили Даню от обструкции?", "Что с моей печенью?", "Какие прививки Дане не сделаны?"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ru = d => d ? d.split("-").reverse().join(".") : "";
+const app = document.getElementById("app");
+const qs = new URLSearchParams(location.search);
+// разговоры хранятся в базе (ТЗ-003 блок 1): при открытии подгружаем свои последние 50 — «Прошлые вопросы»
+let person = PEOPLE.some(([k]) => k === qs.get("p")) ? qs.get("p") : "";
+let busy = false, fixOpen = null;
+let hist = [];
+const fromRow = r => ({ id: r.id, q: r.question, person: r.person || "", answer: r.answer || null, no_data: !r.answer,
+  sources: r.sources || [], at: r.created_at, flag: r.flag, flag_note: r.flag_note, open: false });
+async function loadHistory() {
+  try { const r = await api("ask_history"); hist = (r.rows || []).map(fromRow); paint(); } catch (e) { /* без истории страница работает как раньше */ }
+}
+
+async function api(action, payload = {}, retry = true) {
+  let r;
+  try { r = await fetch(`${SB_URL}/functions/v1/mk`, { method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SB_KEY, "x-mk-key": KEY }, body: JSON.stringify({ action, ...payload }) }); }
+  catch (e) { throw new Error("Нет соединения. Проверьте интернет."); }
+  // 546 — Supabase не хватило ресурсов (бывает под нагрузкой, ~1 на 400 запросов): один повтор через 1,5 с
+  if (r.status === 546 && retry) { await new Promise(z => setTimeout(z, 1500)); return api(action, payload, false); }
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { try { localStorage.removeItem(KEY_LS); } catch (e) {} KEY = ""; throw new Error("Код доступа не подошёл — откройте ссылку с кодом."); }
+  if (!r.ok || j.status !== "ok") throw new Error(j.code === "upstream" ? "Сервис ответов сейчас недоступен. Попробуйте ещё раз."
+    : j.code === "config" ? "Сервис ответов не настроен." : "Не получилось ответить. Попробуйте переформулировать вопрос.");
+  return j;
+}
+// ответ, после которого стоит поправить медкнижку: «в медкнижке этого нет» или ничего не нашлось (ТЗ-003 блок 2)
+function askNeedsFix(answer) {
+  if (!answer || !String(answer).trim()) return true;
+  return /в медкнижке (этого|такого|об этом|про это|пока)?\s*(нет|не записано|не нашлось)|нет в медкнижке|в записях (этого )?нет/i.test(String(answer).slice(0, 400));
+}
+// ответ модели: жирный текст, списки и ссылки [1] на источники
+function fmt(t) {
+  return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/\[(\d{1,2})\]/g, (m, n) => `<span class="ref" data-ref="${n}">${n}</span>`);
+}
+function view() {
+  app.innerHTML = `
+  <header><h1>Спросить медкнижку</h1></header>
+  ${KEY ? `<div class="card">
+    <div class="chips" id="ppl">${PEOPLE.map(([k, n]) => `<button data-p="${k}" class="${k === person ? "on" : ""}">${n}</button>`).join("")}</div>
+    <textarea id="q" rows="2" placeholder="Например: что у Димы с ферритином и что уже пробовали?"></textarea>
+    <div class="ask"><button class="primary" id="go" style="flex:1">Спросить</button></div>
+    ${hist.some(h => h.open) ? "" : `<div class="hints">${HINTS.map(h => `<button data-h="${esc(h)}">${esc(h)}</button>`).join("")}</div>`}
+    <div class="note">Отвечает по вашим записям: паспорта здоровья, разборы, приёмы, анализы, симптомы, питание.
+      Общих медицинских советов не даёт и диагнозов не ставит — под ответом всегда видно, из каких записей он собран.</div>
+  </div>
+  <div id="out"></div>`
+  : `<div class="card"><div class="muted">Откройте на этом устройстве ссылку с кодом доступа — дальше страница его запомнит.</div>
+     <input id="kc" placeholder="или вставьте код сюда" style="margin:10px 0">
+     <button class="primary" id="kgo" style="width:100%">Открыть</button></div>`}`;
+  if (!KEY) { document.getElementById("kgo").onclick = () => {
+      const v = document.getElementById("kc").value.trim().replace(/^.*[?&]k=/, "").replace(/[&#].*$/, "");
+      if (!v) return; try { localStorage.setItem(KEY_LS, v); } catch (e) {} KEY = v; view(); }; return; }
+  document.getElementById("ppl").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return;
+    person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); };
+  const q = document.getElementById("q");
+  document.getElementById("go").onclick = () => ask(q.value.trim());
+  q.onkeydown = e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) ask(q.value.trim()); };
+  const hints = document.querySelector(".hints");
+  if (hints) hints.onclick = e => { const b = e.target.closest("[data-h]"); if (b) { q.value = b.dataset.h; ask(b.dataset.h); } };
+  paint();
+  loadHistory();
+}
+function card(h, hi) {
+  const flagged = h.flag === "fix";
+  const fixUi = !h.id || h.error ? "" : flagged
+    ? `<div class="fixbar"><span class="fixed">📌 отмечено — поправим</span>${h.flag_note ? `<span class="muted" style="font-size:13px">«${esc(h.flag_note)}»</span>` : ""}
+        <button data-unfix="${hi}">Снять отметку</button></div>`
+    : `${askNeedsFix(h.answer) ? `<div class="fixhint">Похоже, в медкнижке этого нет. Отметить, чтобы поправили?</div>` : ""}
+       <div class="fixbar">${fixOpen === hi
+         ? `<div class="fixform"><input id="fixnote" placeholder="Что не так или чего не хватает (необязательно)"><button class="primary" data-fixgo="${hi}">Отметить</button></div>`
+         : `<button data-fix="${hi}">📌 Поправить медкнижку</button>`}</div>`;
+  return `<div class="card${h.open ? "" : " closed"}" data-card="${hi}">
+    <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person ? ` <span class="muted" style="font-weight:400">· ${esc(NAME[h.person])}</span>` : ""}
+      ${h.at ? `<span class="qdate">· ${esc(ru(String(h.at).slice(0, 10)))}</span>` : ""}${flagged && !h.open ? ' <span class="fixed" style="font-size:12px">📌</span>' : ""}</div>
+    <div class="body-a">
+    ${h.error ? `<div class="err">${esc(h.error)}</div>`
+      : h.no_data ? `<div class="muted">В медкнижке по этому вопросу ничего не нашлось.</div>`
+      : `<div class="ans" data-h="${hi}">${fmt(h.answer)}</div>
+         ${h.sources.length ? `<div class="srcs"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники${h.sources.some(s => s.content) ? " — нажмите, чтобы раскрыть" : ""}</div>
+         ${h.sources.map(s => `<div class="src" data-n="${s.n}"><div class="h"><span class="n">${s.n}</span>
+           <span class="t">${esc(s.title)}</span></div>
+           <div class="meta">${esc(NAME[s.person] || "семья")}${s.kind ? " · " + esc(KIND[s.kind] || s.kind) : ""}${s.doc_date ? " · " + ru(s.doc_date) : ""}${s.source ? " · " + esc(s.source) : ""}</div>
+           ${s.content ? `<div class="body">${esc(s.content.split("\n").slice(1).join("\n"))}</div>` : ""}</div>`).join("")}</div>` : ""}`}
+    ${fixUi}
+    </div></div>`;
+}
+function paint() {
+  const out = document.getElementById("out"); if (!out) return;
+  out.innerHTML = (busy ? `<div class="card"><div class="q">${esc(busy)}</div><div class="spin"></div>
+      <div class="muted" style="text-align:center">Ищу в медкнижке и собираю ответ…</div></div>` : "")
+    + (!busy && !hist.length ? `<div class="past">Прошлые вопросы</div><div class="muted" style="padding:0 2px">Здесь появятся ваши вопросы.</div>` : "")
+    + hist.map((h, hi) => (hi === hist.findIndex(x => !x.open) && hist.some(x => !x.open) ? `<div class="past">Прошлые вопросы</div>` : "") + card(h, hi)).join("");
+  out.onclick = async e => {
+    const tg = e.target.closest("[data-toggle]");
+    if (tg && tg.closest(".card.closed")) { hist[+tg.dataset.toggle].open = true; paint(); return; }
+    const fx = e.target.closest("[data-fix]"); if (fx) { fixOpen = +fx.dataset.fix; paint(); document.getElementById("fixnote")?.focus(); return; }
+    const go = e.target.closest("[data-fixgo]"), un = e.target.closest("[data-unfix]");
+    if (go || un) { const h = hist[+(go || un).dataset[go ? "fixgo" : "unfix"]]; const note = go ? (document.getElementById("fixnote")?.value || "").trim() : "";
+      (go || un).disabled = true;
+      try { await api(go ? "ask_flag" : "ask_unflag", { id: h.id, note });
+        Object.assign(h, go ? { flag: "fix", flag_note: note || null } : { flag: null, flag_note: null }); fixOpen = null; }
+      catch (err) { alert(err.message); }
+      paint(); return; }
+    const ref = e.target.closest("[data-ref]");
+    if (ref) { const card = ref.closest(".card"), s = card.querySelector(`.src[data-n="${ref.dataset.ref}"]`);
+      if (s) { s.classList.add("open"); s.scrollIntoView({ block: "center", behavior: "smooth" }); } return; }
+    const src = e.target.closest(".src .h"); if (src) src.parentElement.classList.toggle("open");
+  };
+}
+async function ask(q) {
+  if (!q || busy) return;
+  busy = q;
+  document.querySelector(".hints")?.remove();
+  paint();
+  const item = { q, person, open: true, at: new Date().toISOString() };
+  try { const r = await api("ask", { question: q, person: person || null });
+    Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data }); }
+  catch (e) { item.error = e.message; }
+  busy = false; hist.unshift(item); fixOpen = null; paint();
+  if (!KEY) view();
+}
+view();
+</script>
+</body>
+</html>
