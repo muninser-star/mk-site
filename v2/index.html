@@ -584,6 +584,13 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .docbody{padding:0 10px 10px}
 .docq{font-size:12.5px;margin-top:6px;font-style:italic}
 .docsrc{white-space:pre-wrap;font-size:13.5px;margin-top:6px}
+.eplink{cursor:pointer;color:var(--accent)}
+.medinfo{background:var(--accentbg);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13.5px;line-height:1.5}
+.eph{font-size:14px;margin:16px 0 6px}
+.eplist{margin:0;padding-left:18px} .eplist li{margin:3px 0} .eplist li.row{cursor:pointer}
+.nowill{border-left:4px solid var(--warn)}
+.nowill .ill{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+.nowill .ill:first-of-type{border-top:0}
 .docchk{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0}
 .addform select{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;max-width:100%}
 @media (prefers-reduced-motion: reduce){ .docpart{transition:none} }
@@ -809,6 +816,7 @@ function searchIn(k){
   const R={
     rec:d.rec.filter(r=>hit(recHay(r,k))),
     dx :d.diagnoses.filter(x=>hit([x.n,x.c,x.y,x.s,sn(x.sys)].join(" "))),
+    ep :((d.sym||{}).ep||[]).filter(e=>hit([e.dx,e.sym,e.t,e.d1,ru(e.d1)].join(" "))),   // болезни (ТЗ-004 блок 6)
     rs :(d.resolved||[]).filter(x=>hit([x.n,x.y,x.s].join(" "))),
     at :at,
     org:d.organs.filter(o=>hit([o.name,o.txt,o.sh].join(" "))),
@@ -817,7 +825,7 @@ function searchIn(k){
     nev:(d.never||[]).filter(n=>hit(n)),
     kpi:kpiLive(d).filter(x=>hit([x.lab,x.val,x.sub||""].join(" ")))
   };
-  R.total=R.rec.length+R.dx.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
+  R.total=R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
   return R;
 }
 // последние n значений того же показателя ДО указанной даты
@@ -1065,7 +1073,7 @@ function timeline(d){
       ${days.map(dd=>`<div class="tl-d"><div class="tl-date">${esc(dayName(dd))}</div>
         ${byDay[dd].map(e=>{
           const lines=tlLines(e);
-          return `<div class="tl-e${e.id!=null?" click":""}"${e.id!=null?` data-rec="${e.id}"`:""}>
+          return `<div class="tl-e${e.id!=null||e.k==="ep"?" click":""}"${e.id!=null?` data-rec="${e.id}"`:e.k==="ep"?` data-epcard="${esc(e.r.id)}"`:""}>
             <div class="tl-h"><span class="tl-i">${e.ic||TL_ICON[e.k]||"•"}</span>
               <b>${hl(e.t)}</b>
               ${e.st?`<span class="pill s-${e.st}">${ST[e.st]}</span>`:""}
@@ -1389,6 +1397,9 @@ function openRec(i,showSer){
       <div class="pill s-${r.st||"none"}" style="margin-bottom:8px">${recBadge(r)}</div>
       <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}</h3>
       <div class="muted" style="margin-bottom:14px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
+      ${r.t==="visit"?(()=>{ const ep=r.ep?((D.sym||{}).ep||[]).find(e=>e.id===r.ep):null;   // ТЗ-004 блоки 7, 8, 11
+        return `<div class="row addform" style="gap:8px;margin:-6px 0 12px">${ep?`<span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span>`:r.epDx?`<span class="tag" style="font-size:13px;padding:4px 10px">🩹 ${esc(r.epDx)}</span>`:""}
+          <button class="btn sec addrx" data-ri="${i}" style="font-size:13px;padding:5px 12px">＋ Назначение</button></div>`; })():""}
       <table style="margin-bottom:6px">${rows.map(([k,v])=>`<tr><td class="muted" style="width:38%">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
       ${(()=>{ const row=p=>`<tr class="row" data-rec="${idOf(p)}"${p===r?' style="background:var(--accentbg)"':''}>
           <td><b>${esc(p.title)}</b>${p.ser?' <span class="tag">график</span>':''}</td>
@@ -1682,7 +1693,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 22:16";   // подставляется при публикации
+const BUILD="28.09 22:49";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2854,6 +2865,98 @@ function symNames(text){
   return String(text||"").split(/[,;]+/).map(x=>x.trim()).filter(Boolean)
     .map(x=>x[0].toUpperCase()+x.slice(1)).filter(x=>{ const k=x.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; });
 }
+// ── Болезнь — центр истории (ТЗ-004 блоки 5–8, 11). Болезнь = эпизод sym.ep: начало, конец, симптомы, приёмы, лекарства ──
+function plural(n,one,few,many){ const a=n%10,b=n%100; return a===1&&b!==11?one:a>=2&&a<=4&&(b<10||b>=20)?few:many; }
+function epSpan(ep,today){
+  const days=rxDays(ep.d1,ep.d2||today);
+  return ep.d2?{open:false,days,text:`длилась ${days} ${plural(days,"день","дня","дней")}`}:{open:true,days,text:`идёт ${days}-й день`};
+}
+// «Круп (J05.0, …)» и «круп» — одна болезнь: без регистра, кода МКБ и пояснений в скобках
+function sameIll(a,b){
+  const k=x=>String(x||"").toLowerCase().replace(/ё/g,"е").replace(/\(.*$/,"").replace(/[^a-zа-я0-9]+/g," ").trim();
+  return !!k(a)&&k(a)===k(b);
+}
+// открытая на эту дату болезнь с таким названием; закрытая раньше — это прошлый случай, новый круп — новая болезнь
+function findOpenEp(eps,name,date){
+  return (eps||[]).filter(e=>sameIll(e.dx,name)&&e.d1<=date&&(!e.d2||e.d2>=date)).sort((a,b)=>b.d1.localeCompare(a.d1))[0]||null;
+}
+// что связано с болезнью: симптомы с этим поводом в её датах, приёмы и лекарства, привязанные к ней
+function epLinks(P,ep,today){
+  const end=ep.d2||today;
+  return {
+    sym:((P.sym||{}).log||[]).filter(x=>sameIll(x.p,ep.dx)&&x.d>=ep.d1&&x.d<=end).sort((a,b)=>a.d.localeCompare(b.d)),
+    visits:(P.rec||[]).filter(r=>r.t==="visit"&&(r.ep===ep.id||(!r.ep&&r.epDx&&sameIll(r.epDx,ep.dx)&&r.d>=ep.d1&&r.d<=end))),
+    meds:(P.meds||[]).filter(m=>m.ep===ep.id)
+  };
+}
+// незакрытые болезни, свежие первыми; «закрыть?» — если 30 дней ни симптомов, ни начала
+function openEps(S,today){
+  const last=e=>((S.log||[]).filter(x=>sameIll(x.p,e.dx)&&x.d>=e.d1).map(x=>x.d).sort().pop())||e.d1;
+  return (S.ep||[]).filter(e=>!e.d2).sort((a,b)=>b.d1.localeCompare(a.d1))
+    .map(e=>Object.assign({},e,{stale:rxDays(last(e),today)>30}));
+}
+// новая болезнь с сайта — тем же путём, что форма «Новая болезнь»: сразу в книжке, в базу — через приёмник записей
+function epCreate(name,d1){
+  const d=DATA[cur], ts=Date.now(), id=`${cur}-ep-${d1}-new${ts}`, today=localDay();
+  const o=ovLoad(); o.eps=[...(o.eps||[]),{who:cur,id,d1,d2:"",dx:name,ab:0,sym:"",t:""}]; ovSave(o); ovApply();
+  inboxSend(NEWEP,[today,d.short,name,d1,"","нет","","","нет",id]);
+  return id;
+}
+// карточка болезни: сроки, симптомы, приёмы, лекарства — с переходами (ТЗ-004 блоки 5, 11)
+function epCard(epId){
+  const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
+  const today=localDay(), sp=epSpan(ep,today), L=epLinks(d,ep,today);
+  const li=(items,f)=>items.length?`<ul class="eplist">${items.map(f).join("")}</ul>`:`<div class="muted">—</div>`;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+    <div class="pill s-${sp.open?"warn":"none"}" style="margin-bottom:8px">Болезнь · ${sp.open?"идёт":"закрыта"}</div>
+    <h2 style="margin:0 0 4px">${esc(ep.dx||"Без диагноза")}</h2>
+    <div class="muted" style="margin-bottom:12px">${ru(ep.d1)}${ep.d2?" – "+ru(ep.d2):""} · <b>${sp.text}</b></div>
+    <div class="row addform" style="gap:8px;margin-bottom:10px">${sp.open?`<button class="btn" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}
+      <button class="btn sec editep" data-ep="${esc(ep.id)}">✎ Изменить</button></div>
+    <h3 class="eph">🩹 Симптомы — ${L.sym.length}</h3>
+    ${li(L.sym,x=>`<li><span class="medlink" data-sym="${esc(x.n)}">${esc(x.n)}</span> <span class="muted">· ${ru(x.d)}${x.m?" · "+esc(x.m):""}</span></li>`)}
+    <h3 class="eph">🩺 Приёмы — ${L.visits.length}</h3>
+    ${li(L.visits,r=>`<li class="row" data-rec="${idOf(r)}"><b>${esc(r.title)}</b> <span class="muted">· ${ru(r.d)}</span> →</li>`)}
+    <h3 class="eph">💊 Лекарства</h3>
+    ${(ep.rx&&ep.rx.length)||L.meds.length?`<ul class="eplist">${(ep.rx||[]).filter(r=>r.m).map(r=>`<li>${esc(rxText([r],today))}</li>`).join("")}
+      ${L.meds.map(m=>`<li><b>${esc(m.n)}</b> <span class="muted">· ${esc(m.why||"")}</span></li>`).join("")}</ul>`:`<div class="muted">—</div>`}
+    ${ep.t?`<h3 class="eph">Как протекало</h3><div>${esc(ep.t)}</div>`:""}
+  </div>`;
+  const cl=document.getElementById("epClose");
+  if(cl) cl.onclick=()=>{
+    const o=ovLoad(), ts=Date.now(), rec={dx:ep.dx,d1:ep.d1,d2:today,sym:ep.sym||"",t:ep.t||"",ab:ep.ab?1:0};
+    o.epEdits=[...(o.epEdits||[]),{who:cur,id:ep.id,rec,ts}]; ovSave(o); ovApply(); render();
+    inboxSend(EDITS,[today,d.short,ep.id,ep.d1,"Болезнь целиком",JSON.stringify({id:ep.id,ts}),JSON.stringify({...rec,ts}),"нет"]);
+    epCard(ep.id); toast(`«${esc(ep.dx)}» закрыта: ${epSpan({...ep,d2:today},today).text}`);
+  };
+}
+// справка о препарате (ТЗ-004 блок 10): из справочника семьи, иначе — от нейросети через mk → med_info (кэш на всех)
+async function medInfoHtml(name){
+  const ref=typeof MEDREF!=="undefined"?Object.keys(MEDREF).find(k=>sameIll(k,name)||String(name).toLowerCase().startsWith(k.toLowerCase())):null;
+  if(ref){ const r=MEDREF[ref]; return `<div class="medinfo"><b>${esc(ref)}</b> — ${esc(r.c||"")}${r.t?`<div>${esc(r.t)}</div>`:""}</div>`; }
+  if(!window.__MK_KEY) return "";
+  try{ const j=await mkApi("med_info",{name}); const i=j.info||{};
+    if(i.unknown) return `<div class="medinfo muted">Справки по «${esc(name)}» нет — проверьте название.</div>`;
+    return `<div class="medinfo"><div class="muted" style="font-size:12px">Справка, не назначение</div>
+      ${i.substance?`<div><b>Вещество:</b> ${esc(i.substance)}</div>`:""}${i.group?`<div><b>Группа:</b> ${esc(i.group)}</div>`:""}
+      ${i.uses?`<div><b>От чего:</b> ${esc(i.uses)}</div>`:""}${i.limits?`<div><b>Ограничения:</b> ${esc(i.limits)}</div>`:""}</div>`;
+  }catch(e){ return ""; }
+}
+// карточка лекарства: справка, схема, кто назначил, болезнь (ТЗ-004 блоки 10, 11)
+async function medCard(i){
+  const d=DATA[cur], m=(d.meds||[])[i]; if(!m) return;
+  const ep=m.ep?((d.sym||{}).ep||[]).find(e=>e.id===m.ep):null;
+  modal.className="modal on";
+  const head=`<div class="mbox"><button class="mclose" data-close>✕</button>
+    <div class="pill s-${medActive(m)?"ok":"none"}" style="margin-bottom:8px">Лекарство · ${m.plan?"назначено":medActive(m)?"принимаем":"не принимаем"}</div>
+    <h2 style="margin:0 0 6px">${esc(m.n)}</h2>
+    ${m.how?`<div>${esc(m.how)}</div>`:""}${m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
+    ${ep?`<div style="margin-top:8px"><span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span></div>`:""}`;
+  modal.innerHTML=head+`<div id="mInfo" class="muted" style="margin-top:12px">Ищу справку…</div></div>`;
+  const box=document.getElementById("mInfo"), html=await medInfoHtml(m.n);
+  if(box) box.outerHTML=html||`<div class="muted" style="margin-top:12px">Справки нет.</div>`;
+}
 function newSymForm(){
   const d=DATA[cur], S=d.sym||{cat:[],log:[],ep:[]};
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
@@ -2901,6 +3004,12 @@ function newSymForm(){
     const med=(document.getElementById("nsMed").value||"").trim();
     const pov=(document.getElementById("nsPov").value||"").trim();
     const note=[(document.getElementById("nsNote").value||"").trim(), val?("измерено: "+val):""].filter(Boolean).join(". ");
+    // повод — это болезнь; симптом в поле повода — подсказка (второе нажатие сохраняет как есть) (ТЗ-004 блок 5)
+    const symAsPov=pov&&!(S.ep||[]).some(e=>sameIll(e.dx,pov))&&names.concat(S.cat.map(x=>x.n)).some(n=>sameIll(n,pov));
+    if(symAsPov&&!newSymForm._warned){ newSymForm._warned=1;
+      log(`«${esc(pov)}» — это симптом, а не болезнь. Впишите болезнь (например, ОРВИ) или оставьте повод пустым. Нажмите «Записать» ещё раз, чтобы сохранить как есть.`,"wa"); return; }
+    newSymForm._warned=0;
+    if(pov&&!symAsPov&&!findOpenEp(S.ep,pov,dt)){ epCreate(pov,dt); log(`Открыта болезнь «${esc(pov)}» с ${ru(dt)} — закроете, когда пройдёт.`,"ok"); }
     document.getElementById("nsOk").disabled=true;          // до конца сохранения — второе нажатие не создаёт дубль (ТЗ-004 блок 3)
     let ok=true;
     for(const nm of names){
@@ -3102,9 +3211,10 @@ function entriesInto(D,rows){
     if(e.kind==="med"){
       // «назначено» — ещё не принимаем (plan); «начали» — с даты from; «отменено» — stopped
       const st=x.status||"назначено";
-      (P.meds=P.meds||[]).push({n:x.title||x.n||"лекарство",plan:st==="назначено"?1:0,from:st==="назначено"?"":(x.from||""),till:x.to?ru(x.to):"",
+      const vis=x.visit||null;   // назначено на приёме (ТЗ-004 блок 8)
+      (P.meds=P.meds||[]).push({ep:x.ep||null,epDx:x.epDx||"",visit:vis,n:x.title||x.n||"лекарство",plan:st==="назначено"?1:0,from:st==="назначено"?"":(x.from||""),till:x.to?ru(x.to):"",
         to:x.to||"",stopped:st==="отменено"?(x.stopped||x.d||""):"",how:[x.dose,x.how].filter(Boolean).join(" · "),
-        why:[pv?`назначено на приёме: ${pv.who||"врач"}${pv.doc?" "+pv.doc:""} ${pv.d?ru(pv.d):""}`.trim():x.doc?`назначил(а) ${x.doc}${x.d?" "+ru(x.d):""}`:"",q,from].filter(Boolean).join(" · "),entry:e.id,data:x});
+        why:[vis?`назначил: ${vis.who||"врач"}${vis.d?" "+ru(vis.d):""}${x.epDx?" · по "+x.epDx:""}`:pv?`назначено на приёме: ${pv.who||"врач"}${pv.doc?" "+pv.doc:""} ${pv.d?ru(pv.d):""}`.trim():x.doc?`назначил(а) ${x.doc}${x.d?" "+ru(x.d):""}`:"",q,from].filter(Boolean).join(" · "),entry:e.id,data:x});
       continue;
     }
     if(e.kind==="lab"&&Array.isArray(x.items)){
@@ -3117,11 +3227,12 @@ function entriesInto(D,rows){
     }
     const full=x.full||(e.kind==="visit"?[["ЖАЛОБЫ",x.complaints],["ОСМОТР",x.exam],["ДИАГНОЗ",[x.dx,x.mkb?`(${x.mkb})`:""].filter(Boolean).join(" ")],
       ["НАЗНАЧЕНИЯ",x.rx],["РЕКОМЕНДАЦИИ",x.recs],["СЛЕДУЮЩИЙ ВИЗИТ",x.next?ru(x.next):""],["ВРАЧ",[x.doc,x.place].filter(Boolean).join(", ")],
-      ["НАЗНАЧЕНО НА ЭТОМ ПРИЁМЕ",live.filter(c=>c.parent_id===e.id).map(c=>c.kind==="med"?`💊 ${(c.data||{}).title||""}`:`📌 ${(c.data||{}).what||""}`).join("; ")]]
+      ["НАЗНАЧЕНО НА ЭТОМ ПРИЁМЕ",live.filter(c=>c.parent_id===e.id||(c.kind==="med"&&((c.data||{}).visit||{}).entry===e.id)).map(c=>c.kind==="med"?`💊 ${(c.data||{}).title||""}`:`📌 ${(c.data||{}).what||""}`).join("; ")]]
       .filter(f=>f[1]):[]);
     (P.rec=P.rec||[]).push({t:e.kind==="lab"?"lab":e.kind==="visit"?"visit":"note",d:x.d||String(e.created_at).slice(0,10),
       title:x.title||(e.kind==="visit"?`${x.who||"Врач"}: приём`:"Запись"),who:x.who||"",place:x.place||"",sys:x.sys||null,st:x.st||"",v:x.v||"",n:x.n||"",
-      res:[x.res||x.dx||x.text||"",q,from].filter(Boolean).join(" · "),from,full,files:e.files||[],entry:e.id,source:e.source_id||null});
+      res:[x.res||x.dx||x.text||"",q,from].filter(Boolean).join(" · "),from,full,files:e.files||[],entry:e.id,source:e.source_id||null,
+      ep:x.ep||null,epDx:x.epDx||""});
   }
   for(const k of Object.keys(D)) if(D[k].rec) D[k].rec.sort((a,b)=>b.d.localeCompare(a.d));
 }
@@ -3511,7 +3622,13 @@ function visitForm(){
     <div class="ctx">Для <b>${esc(d.short)}</b>. Сфотографируйте заключение — поля заполнятся сами, вы проверите. Или впишите вручную.</div>
     <div class="addform">
       ${docPick("vFile","Фото или PDF заключения")}
-      ${fld("vD","Дата",today,'type="date"')}${fld("vWho","Специалист","",'placeholder="например, педиатр"')}
+      ${fld("vD","Дата",today,'type="date"')}
+      <div class="fld"><label for="vEp">По какой болезни</label>
+        <select id="vEp"><option value="auto">По диагнозу из заключения — найду или открою сама</option>
+          ${openEps(d.sym||{},today).map(e=>`<option value="${esc(e.id)}">${esc(e.dx)} — с ${ru(e.d1)}</option>`).join("")}
+          <option value="none">Плановый осмотр — без болезни</option></select>
+        <p class="hint">Приём попадёт в карточку болезни, назначения — к ней же</p></div>
+      ${fld("vWho","Специалист","",'placeholder="например, педиатр"')}
       ${fld("vDoc","Врач","",'placeholder="ФИО — необязательно"')}${fld("vPlace","Клиника","")}
       ${fldA("vCompl","Жалобы","")}${fldA("vExam","Осмотр","")}
       ${fld("vDx","Диагноз","")}${fld("vMkb","Код МКБ","",'placeholder="только если он есть в заключении"')}
@@ -3526,23 +3643,30 @@ function visitForm(){
     if(!v("vD")){ log("Укажите дату.","er"); return; }
     if(!v("vWho")){ log("Укажите специалиста.","er"); return; }
     document.getElementById("vOk").disabled=true;
+    // болезнь приёма (ТЗ-004 блок 7): выбранная, найденная по диагнозу или новая
+    const S=d.sym||{}, pick=v("vEp"), dx=v("vDx").replace(/\s*\(.*$/,"").trim();
+    let ep=null;
+    if(pick!=="auto"&&pick!=="none") ep=(S.ep||[]).find(e=>e.id===pick)||null;
+    if(pick==="auto"&&dx&&!/здоров/i.test(dx)){ ep=findOpenEp(S.ep,dx,v("vD")); if(!ep){ const id=epCreate(dx,v("vD")); ep=((DATA[cur].sym||{}).ep||[]).find(e=>e.id===id)||{id,dx}; log(`Открыта болезнь «${esc(dx)}» с ${ru(v("vD"))}.`,"ok"); } }
     const ok=await entrySave("visit",{d:v("vD"),who:v("vWho"),doc:v("vDoc"),place:v("vPlace"),complaints:v("vCompl"),exam:v("vExam"),
-      dx:v("vDx"),mkb:v("vMkb"),rx:v("vRx"),recs:v("vRecs"),next:v("vNext")},null,log,vst.files);
+      dx:v("vDx"),mkb:v("vMkb"),rx:v("vRx"),recs:v("vRecs"),next:v("vNext"),ep:ep?ep.id:"",epDx:ep?ep.dx:""},null,log,vst.files);
     if(!ok) document.getElementById("vOk").disabled=false;
   });
 }
-function medForm(entryId){
+function medForm(entryId,ctx){
   const d=DATA[cur], today=localDay();
+  ctx=ctx||null;   // {visit:{who,d,entry}, ep, epDx} — назначение с приёма (ТЗ-004 блок 8)
   const ex=entryId?((d.meds||[]).find(m=>m.entry===entryId)||{}).data||{}:{};
   const st=ex.status||"назначено";
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>${entryId?"Лекарство":"Новое лекарство"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. «Назначено» — ещё не начали; «Принимаем» — с какой даты.</div>
     <div class="addform">
+      ${ctx?`<div class="ctx" style="margin:0 0 10px">Назначение с приёма: <b>${esc(ctx.visit.who||"врач")}, ${ru(ctx.visit.d)}</b>${ctx.epDx?` · по <b>${esc(ctx.epDx)}</b>`:""}</div>`:""}
       ${entryId?"":docPick("mFile","Фото рецепта — необязательно")+`<p class="hint" style="margin:-4px 0 8px">Фото прочитаем и заполним поля ниже — проверьте их. Само фото сохранится вместе с лекарством, его можно открыть из карточки.</p>`}
       ${fld("mN","Название",ex.title,'autocomplete="off"')}${fld("mDose","Дозировка",ex.dose,'placeholder="например, 5 мл"')}
       ${fld("mHow","Как принимать",ex.how,'placeholder="2 раза в день после еды, 5 дней"')}
-      ${fld("mDoc","Кто назначил",ex.doc)}${fld("mD","Дата назначения",ex.d||today,'type="date"')}
+      ${fld("mDoc","Кто назначил",ex.doc||(ctx?ctx.visit.who:""))}${fld("mD","Дата назначения",ex.d||(ctx?ctx.visit.d:today),'type="date"')}
       <div class="fld"><label>Статус</label><div class="vsw" id="mSt">${[["назначено","Назначено"],["начали","Принимаем"],["отменено","Отменено"]]
         .map(([k,t])=>`<button type="button" data-st="${k}" class="${k===st?"on":""}">${t}</button>`).join("")}</div></div>
       <div class="fld" id="mFromF"${st==="начали"?"":' hidden'}><label for="mFrom">Принимаем с</label><input id="mFrom" type="date" value="${esc(ex.from||today)}">
@@ -3554,6 +3678,10 @@ function medForm(entryId){
       <div class="row"><button class="btn" id="mOk">Сохранить</button><button class="btn sec" data-close>Отмена</button></div>
       <div id="mLog" class="formlog"></div></div></div>`;
   attachSuggest("mN",[],{groups:medSugGroups(d)});
+  const mN=document.getElementById("mN"), mInfo=document.createElement("div"); mN.closest(".fld").appendChild(mInfo);
+  let infoFor="";
+  mN.addEventListener("change",async ()=>{ const nm=mN.value.trim(); if(!nm||nm===infoFor) return; infoFor=nm;
+    mInfo.innerHTML=`<div class="muted" style="font-size:12.5px;margin-top:6px">Ищу справку…</div>`; mInfo.innerHTML=await medInfoHtml(nm); });
   // «сколько дней» ⇄ «по какое число» (включительно), как у лечения болезни
   const mDays=document.getElementById("mDays"), mTo=document.getElementById("mTo"), mFrom=document.getElementById("mFrom");
   mDays.oninput=()=>{ const n=+mDays.value; if(n>0&&mFrom.value) mTo.value=rxTo(mFrom.value,n); };
@@ -3571,7 +3699,8 @@ function medForm(entryId){
     if(status==="начали"&&v("mTo")&&v("mTo")<v("mFrom")){ log("Дата окончания раньше начала.","er"); return; }
     document.getElementById("mOk").disabled=true;
     const ok=await entrySave("med",{title:v("mN"),dose:v("mDose"),how:v("mHow"),doc:v("mDoc"),d:v("mD"),status,
-      from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):""},entryId||null,log,mst.files);
+      from:status==="начали"?v("mFrom"):"",to:status==="начали"?v("mTo"):"",stopped:status==="отменено"?v("mStop"):"",
+      ...(ctx?{visit:ctx.visit,ep:ctx.ep||"",epDx:ctx.epDx||""}:ex.visit?{visit:ex.visit,ep:ex.ep||"",epDx:ex.epDx||""}:{})},entryId||null,log,mst.files);
     if(!ok) document.getElementById("mOk").disabled=false;
   });
 }
@@ -3901,6 +4030,10 @@ function render(){
       <h2>${esc(d.name)}</h2>
       <div class="muted">${d.dob} · ${yrs(d.age)} · ${esc(d.note)}</div>
     </div>
+    ${(()=>{ const O=openEps(d.sym||{},localDay()); if(!O.length) return "";   // ТЗ-004 блок 6: незакрытые болезни — сразу видно
+      return `<div class="card nowill"><h2>Сейчас болеет</h2>${O.map(e=>`<div class="ill" data-epcard="${esc(e.id)}">
+        <span><b>${esc(e.dx||"Без диагноза")}</b> <span class="muted">с ${ru(e.d1)}</span></span>
+        <span class="muted">${esc(epSpan(e,localDay()).text)}${e.stale?' · <b style="color:var(--warn)">закрыть?</b>':""} →</span></div>`).join("")}</div>`; })()}
 
     ${d.nutrition?`<div class="card">${nutChart()}</div>
     <div class="card">${nutForm()}</div>
@@ -3942,9 +4075,9 @@ function render(){
       ${(()=>{
         // сверху — что идёт или запланировано; законченное и «не принимает» — свёрнуто ниже
         const now=d.meds.filter(x=>x.plan||medActive(x)), past=d.meds.filter(x=>!(x.plan||medActive(x)));
-        const row=x=>`<tr><td><b>${esc(x.n)}</b>${x.entry?` <button class="addsym editmed" data-entry="${x.entry}" title="Изменить: статус, дозировка">✎</button>`:""}${x.stopped?` <span class="pill s-none">отменено ${ru(x.stopped)}</span>`:""}${x.plan?` <span class="pill s-warn">запланирован</span>`:medActive(x)?` <span class="pill s-ok">идёт</span>`:medStart(x)&&x.to?` <span class="pill s-none">закончен</span>`:""}
+        const row=x=>`<tr><td><b class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</b>${x.entry?` <button class="addsym editmed" data-entry="${x.entry}" title="Изменить: статус, дозировка">✎</button>`:""}${x.stopped?` <span class="pill s-none">отменено ${ru(x.stopped)}</span>`:""}${x.plan?` <span class="pill s-warn">запланирован</span>`:medActive(x)?` <span class="pill s-ok">идёт</span>`:medStart(x)&&x.to?` <span class="pill s-none">закончен</span>`:""}
         ${x.plan?`<div class="muted" style="font-size:12px">${/^\d{4}-\d{2}-\d{2}$/.test(String(x.plan))?"с "+ru(x.plan):"дата старта не назначена"}</div>`:medStart(x)?`<div class="muted" style="font-size:12px">${x.entry&&x.from?medState(x,new Date().toISOString().slice(0,10)).text:"начат "+ru(medStart(x))}</div>`:""}</td><td>${esc(x.how)}</td>
-        <td style="white-space:nowrap">${esc(x.till||"—")}</td><td class="muted">${esc(x.why||"")}</td></tr>`;
+        <td style="white-space:nowrap">${esc(x.till||"—")}</td><td class="muted">${esc(x.why||"")}${x.ep&&((d.sym||{}).ep||[]).some(e=>e.id===x.ep)?` <span class="eplink" data-epcard="${esc(x.ep)}">болезнь →</span>`:""}</td></tr>`;
         const head=`<thead><tr><th>Что</th><th>Схема</th><th>До какой даты</th><th>Зачем</th></tr></thead>`;
         return (now.length?`<div class="tw"><table>${head}<tbody>${now.map(row).join("")}</tbody></table></div>`:`<div class="muted">${d.meds.length?"Сейчас ничего не принимает.":"Постоянной терапии нет."}</div>`)
           +(past.length?`<details style="margin-top:10px"><summary>Закончены и не принимает — ${past.length}</summary><div class="tw"><table>${head}<tbody>${past.map(row).join("")}</tbody></table></div></details>`:"");
@@ -4126,7 +4259,8 @@ function render(){
         ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
           const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
           return `<tr${g.p?"":' style="background:var(--nonebg)"'}>
-            <td><b>${g.p?esc(g.p):"Без диагноза — отмечал, не лечил"}</b></td>
+            <td>${(()=>{ const ep=g.p?((DATA[cur].sym||{}).ep||[]).filter(e=>sameIll(e.dx,g.p)).sort((x,y)=>y.d1.localeCompare(x.d1))[0]:null;
+              return ep?`<b class="eplink" data-epcard="${esc(ep.id)}">${esc(g.p)} →</b>`:`<b>${g.p?esc(g.p):"Без диагноза — отмечал, не лечил"}</b>`; })()}</td>
             <td style="text-align:center"><b>${g.list.length}</b></td>
             <td class="muted">${per}</td>
             <td class="muted">${medLinks(meds)}</td></tr>`;}).join("")}
@@ -4165,7 +4299,7 @@ function render(){
           <div class="tw" style="margin-top:10px"><table><thead><tr><th>Болезнь</th><th>Начало</th><th>Конец</th><th>Длилось</th><th>Симптомы</th><th>Чем лечили</th><th>Как протекало</th></tr></thead><tbody>
           ${E.map(x=>{const o=epOpen(x,today), dd=epDays(x,today), sy=epSyms(x,S.log);
             return `<tr class="eprow"${o?' style="background:var(--badbg)"':""}>
-              <td><b>${esc(x.dx||"без диагноза")}</b>${x.pending?' <span class="pend" title="Изменено в книжке, ещё не в медкарте">●</span>':""}
+              <td><b class="eplink" data-epcard="${esc(x.id)}">${esc(x.dx||"без диагноза")}</b>${x.pending?' <span class="pend" title="Изменено в книжке, ещё не в медкарте">●</span>':""}
                 <button class="addsym editep" data-ep="${esc(x.id)}" title="Изменить болезнь">✎</button>
                 ${x.ab?' <span class="tag2" style="background:var(--warnbg);color:var(--warn)">антибиотик</span>':""}
                 ${x.as?`<div class="muted" style="font-size:12px">записано как «${esc(x.as)}»</div>`:""}</td>
@@ -4732,6 +4866,10 @@ function render(){
           <button class="gobtn" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
       ${query?`
+      ${S.ep.length?`<div class="card" id="s-ep"><h2>Болезни — ${S.ep.length}</h2><div class="tw"><table><tbody>
+        ${S.ep.map(e=>`<tr class="row" data-epcard="${esc(e.id)}"><td><b>${hl(e.dx||"Без диагноза")}</b></td>
+          <td class="muted">${ru(e.d1)}${e.d2?" – "+ru(e.d2):""}</td><td class="muted">${esc(epSpan(e,localDay()).text)} →</td></tr>`).join("")}
+        </tbody></table></div></div>`:""}
       ${S.dx.length?`<div class="card" id="s-dx"><h2>Диагнозы — ${S.dx.length}</h2><div class="tw"><table>
         <thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th><th></th></tr></thead><tbody>
         ${S.dx.map(x=>`<tr class="row" ${x.sys?`data-sys="${x.sys}"`:`data-dxname="${esc(x.n)}"`}><td><b>${hl(x.n)}</b></td>
@@ -4851,6 +4989,10 @@ document.addEventListener("click",e=>{
       setTimeout(()=>{cell.innerHTML=was},1500);
     }).catch(()=>{});
     return }
+  const mcd=e.target.closest("[data-medcard]"); if(mcd){ e.stopPropagation(); medCard(+mcd.dataset.medcard); return; }
+  const ax=e.target.closest(".addrx"); if(ax){ e.stopPropagation(); const r=DATA[cur].rec[+ax.dataset.ri]; if(!r) return;
+    medForm(null,{visit:{who:r.who||r.title,d:r.d,entry:r.entry||null},ep:r.ep||"",epDx:r.epDx||""}); return; }
+  const ec=e.target.closest("[data-epcard]"); if(ec&&!e.target.closest(".editep,.addsym")){ epCard(ec.dataset.epcard); return; }
   const r=e.target.closest("[data-rec]"); if(r){openRec(+r.dataset.rec,r.dataset.ser||undefined);return}
   const dn=e.target.closest("[data-dxname]"); if(dn){ window.__hlDx=dn.dataset.dxname; query=""; const qi=document.getElementById("q"); if(qi) qi.value="";
     tab="dx"; sysFilter=null; render(); document.getElementById("hlDx")?.scrollIntoView({block:"center",behavior:"smooth"}); return }
