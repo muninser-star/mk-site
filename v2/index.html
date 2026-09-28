@@ -1399,7 +1399,11 @@ function openRec(i,showSer){
       <div class="muted" style="margin-bottom:14px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
       ${r.t==="visit"?(()=>{ const ep=r.ep?((D.sym||{}).ep||[]).find(e=>e.id===r.ep):null;   // ТЗ-004 блоки 7, 8, 11
         return `<div class="row addform" style="gap:8px;margin:-6px 0 12px">${ep?`<span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span>`:r.epDx?`<span class="tag" style="font-size:13px;padding:4px 10px">🩹 ${esc(r.epDx)}</span>`:""}
-          <button class="btn sec addrx" data-ri="${i}" style="font-size:13px;padding:5px 12px">＋ Назначение</button></div>`; })():""}
+          <button class="btn sec addrx" data-ri="${i}" style="font-size:13px;padding:5px 12px">＋ Назначение</button></div>
+        ${r.entry&&r.data?(()=>{ const ch=epChoices((D.sym||{}).ep,r.d,localDay());   // приём с сайта — болезнь можно выбрать или сменить
+          return `<div class="fld addform" style="margin:-4px 0 12px"><label for="recEp">По какой болезни был приём</label>
+            <select id="recEp"><option value="">— не связан с болезнью</option>${ch.map(e=>`<option value="${esc(e.id)}"${e.id===r.ep?" selected":""}>${esc(e.dx)} — с ${ru(e.d1)}${e.d2?" по "+ru(e.d2):""}</option>`).join("")}</select>
+            <div id="recEpLog" class="formlog"></div></div>`; })():""}`; })():""}
       <table style="margin-bottom:6px">${rows.map(([k,v])=>`<tr><td class="muted" style="width:38%">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
       ${(()=>{ const row=p=>`<tr class="row" data-rec="${idOf(p)}"${p===r?' style="background:var(--accentbg)"':''}>
           <td><b>${esc(p.title)}</b>${p.ser?' <span class="tag">график</span>':''}</td>
@@ -1472,6 +1476,14 @@ function openRec(i,showSer){
       ${recGoAll(r)}
     </div>`;
   document.getElementById("modal").classList.add("on");
+  const recEp=document.getElementById("recEp");
+  if(recEp) recEp.onchange=async()=>{
+    const ep=((D.sym||{}).ep||[]).find(e=>e.id===recEp.value)||null, lg=document.getElementById("recEpLog");
+    try{ await entriesApi("entry_update",{id:r.entry,data:{...r.data,ep:ep?ep.id:"",epDx:ep?ep.dx:""}});
+      await entriesPull(); render(); const n=DATA[cur].rec.findIndex(x=>x.entry===r.entry); if(n>=0) openRec(n);
+      toast(ep?`Приём связан с болезнью «${esc(ep.dx)}»`:"Связь с болезнью снята"); }
+    catch(e){ if(lg) lg.innerHTML=`<div class="er">Не сохранилось: ${esc(e.message||"ошибка")}</div>`; }
+  };
   document.getElementById("modal").scrollTop=0;
 }
 
@@ -1693,7 +1705,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="28.09 23:32";   // подставляется при публикации
+const BUILD="28.09 23:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2913,6 +2925,11 @@ function openEps(S,today){
   return (S.ep||[]).filter(e=>!e.d2).sort((a,b)=>b.d1.localeCompare(a.d1))
     .map(e=>Object.assign({},e,{stale:rxDays(last(e),today)>30}));
 }
+// болезни на выбор для приёма: сначала те, в дни которых был приём, затем остальные незакрытые
+function epChoices(eps,date,today){
+  const cov=(eps||[]).filter(e=>e.d1<=date&&(e.d2||today)>=date).sort((a,b)=>b.d1.localeCompare(a.d1));
+  return [...cov,...(eps||[]).filter(e=>!e.d2&&!cov.includes(e)).sort((a,b)=>b.d1.localeCompare(a.d1))];
+}
 // новая болезнь с сайта — тем же путём, что форма «Новая болезнь»: сразу в книжке, в базу — через приёмник записей
 function epCreate(name,d1){
   const d=DATA[cur], ts=Date.now(), id=`${cur}-ep-${d1}-new${ts}`, today=localDay();
@@ -2926,6 +2943,7 @@ function epMeds(ep,L,today){
   const out=[], seen=new Set(), add=(n,t)=>{ n=String(n||"").trim().replace(/[,;.\s]+$/,""); const k=key(n); if(!k||seen.has(k)) return; seen.add(k); out.push({n,t}); };
   for(const r of (ep.rx||[]).filter(r=>r.m)) add(r.m,rxText([r],today).slice(String(r.m).length).trim());
   for(const m of L.meds||[]) add(m.n,m.why||"");
+  for(const v of L.visits||[]) String((v.data||{}).rx||"").split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])|\n/).forEach(n=>add(n,`назначил ${v.who||"врач"} ${ru(v.d)}`));   // «НАЗНАЧЕНИЯ» связанного приёма
   for(const x of (L.sym||[]).slice().sort((a,b)=>a.d.localeCompare(b.d))) String(x.m||"").split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])/).forEach(n=>add(n,`из записи симптома ${ru(x.d)}`));
   return out;
 }
@@ -3258,7 +3276,7 @@ function entriesInto(D,rows){
     (P.rec=P.rec||[]).push({t:e.kind==="lab"?"lab":e.kind==="visit"?"visit":"note",d:x.d||String(e.created_at).slice(0,10),
       title:x.title||(e.kind==="visit"?`${x.who||"Врач"}: приём`:"Запись"),who:x.who||"",place:x.place||"",sys:x.sys||null,st:x.st||"",v:x.v||"",n:x.n||"",
       res:[x.res||x.dx||x.text||"",q,from].filter(Boolean).join(" · "),from,full,files:e.files||[],entry:e.id,source:e.source_id||null,
-      ep:x.ep||null,epDx:x.epDx||""});
+      ep:x.ep||null,epDx:x.epDx||"",data:x});
   }
   for(const k of Object.keys(D)) if(D[k].rec) D[k].rec.sort((a,b)=>b.d.localeCompare(a.d));
 }
@@ -3650,7 +3668,7 @@ function visitForm(){
       ${docPick("vFile","Фото или PDF заключения")}
       ${fld("vD","Дата",today,'type="date"')}
       <div class="fld"><label for="vEp">По какой болезни</label>
-        <select id="vEp"><option value="auto">По диагнозу из заключения — найду или открою сама</option>
+        <select id="vEp"><option value="auto">Найду сама: по диагнозу или по датам болезни</option>
           ${openEps(d.sym||{},today).map(e=>`<option value="${esc(e.id)}">${esc(e.dx)} — с ${ru(e.d1)}</option>`).join("")}
           <option value="none">Плановый осмотр — без болезни</option></select>
         <p class="hint">Приём попадёт в карточку болезни, назначения — к ней же</p></div>
@@ -3674,6 +3692,7 @@ function visitForm(){
     let ep=null;
     if(pick!=="auto"&&pick!=="none") ep=(S.ep||[]).find(e=>e.id===pick)||null;
     if(pick==="auto"&&dx&&!/здоров/i.test(dx)){ ep=findOpenEp(S.ep,dx,v("vD")); if(!ep){ const id=epCreate(dx,v("vD")); ep=((DATA[cur].sym||{}).ep||[]).find(e=>e.id===id)||{id,dx}; log(`Открыта болезнь «${esc(dx)}» с ${ru(v("vD"))}.`,"ok"); } }
+    if(!ep&&pick==="auto"){ const c=epChoices(S.ep,v("vD"),localDay()).filter(e=>e.d1<=v("vD")); if(c.length===1) ep=c[0]; }   // без диагноза — болезнь, в дни которой был приём
     const ok=await entrySave("visit",{d:v("vD"),who:v("vWho"),doc:v("vDoc"),place:v("vPlace"),complaints:v("vCompl"),exam:v("vExam"),
       dx:v("vDx"),mkb:v("vMkb"),rx:v("vRx"),recs:v("vRecs"),next:v("vNext"),ep:ep?ep.id:"",epDx:ep?ep.dx:""},null,log,vst.files);
     if(!ok) document.getElementById("vOk").disabled=false;
