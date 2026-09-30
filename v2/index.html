@@ -1400,7 +1400,9 @@ function openRec(i,showSer){
       <div class="muted" style="margin-bottom:14px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
       ${r.t==="visit"?(()=>{ const ep=r.ep?((D.sym||{}).ep||[]).find(e=>e.id===r.ep):null;   // ТЗ-004 блоки 7, 8, 11
         return `<div class="row addform" style="gap:8px;margin:-6px 0 12px">${ep?`<span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span>`:r.epDx?`<span class="tag" style="font-size:13px;padding:4px 10px">🩹 ${esc(r.epDx)}</span>`:""}
-          <button class="btn sec addrx" data-ri="${i}" style="font-size:13px;padding:5px 12px">＋ Назначение</button></div>
+          <button class="btn sec addrx" data-ri="${i}" style="font-size:13px;padding:5px 12px">＋ Назначение</button>
+          ${recEditable(r)?`<button class="btn sec" data-editvisit="${r.entry}" style="font-size:13px;padding:5px 12px">✎ Изменить</button>`:""}
+          ${r.entry?`<button class="btn sec" data-delentry="${r.entry}" style="font-size:13px;padding:5px 12px;color:var(--bad)!important">Удалить</button>`:""}</div>
         ${r.entry&&r.data?(()=>{ const ch=epChoices((D.sym||{}).ep,r.d,localDay());   // приём с сайта — болезнь можно выбрать или сменить
           return `<div class="fld addform" style="margin:-4px 0 12px"><label for="recEp">По какой болезни был приём</label>
             <select id="recEp"><option value="">— не связан с болезнью</option>${ch.map(e=>`<option value="${esc(e.id)}"${e.id===r.ep?" selected":""}>${esc(e.dx)} — с ${ru(e.d1)}${e.d2?" по "+ru(e.d2):""}</option>`).join("")}</select>
@@ -1706,7 +1708,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="29.09 00:22";   // подставляется при публикации
+const BUILD="30.09 23:37";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -1840,7 +1842,8 @@ function nutChart(){
 }
 if(typeof document!=="undefined"&&!window.__wrangeBound){
   window.__wrangeBound=1;
-  document.addEventListener("click",e=>{const b=e.target.closest("[data-wrange]"); if(!b) return; nutSET("wrange",b.dataset.wrange); render();});
+  document.addEventListener("input",e=>{ if(e.target&&e.target.id==="visitQ"){ visitQ=e.target.value; const b=document.getElementById("vtab"); if(b) b.innerHTML=visitsTable(DATA[cur].rec.filter(r=>r.t==="visit"),DATA[cur]); } });
+document.addEventListener("click",e=>{const b=e.target.closest("[data-wrange]"); if(!b) return; nutSET("wrange",b.dataset.wrange); render();});
 }
 // форма замера — одна на все экраны
 // ── Прогресс по метрикам. Значения обновляются при недельном разборе, вес — сам из замеров
@@ -2939,6 +2942,35 @@ function epCreate(name,d1){
   inboxSend(NEWEP,[today,d.short,name,d1,"","нет","","","нет",id]);
   return id;
 }
+// «Посещения» (ТЗ-008 блок 3): врач · болезнь · что назначено · следующий визит — без системы
+function visitRow(r,eps){
+  const x=r.data||{}, ep=r.ep?(eps||[]).find(e=>e.id===r.ep):null, ill=ep?ep.dx:(r.epDx||"");
+  const fullRx=(r.full||[]).find(f=>Array.isArray(f)&&/назначени/i.test(f[0]));
+  return {who:[r.who,x.doc].filter(Boolean).join(" · ")||String(r.title||"").replace(/:.*$/,""),ill:ill||"",epId:ep?ep.id:"",
+    rx:x.rx||(fullRx?fullRx[1]:"")||"",next:x.next||""};
+}
+function visitFilter(list,q,eps){
+  const t=String(q||"").toLowerCase().trim(); if(!t) return list;
+  return list.filter(r=>{ const v=visitRow(r,eps); return [v.who,r.title,v.ill].join(" ").toLowerCase().includes(t); });
+}
+let visitQ="";
+function visitsTable(list,d){
+  const eps=(d.sym||{}).ep||[], L=visitFilter(list,visitQ,eps);
+  if(!L.length) return `<div class="empty">${list.length?"Ничего не найдено":"Посещений пока нет"}</div>`;
+  return `<div class="tw"><table><thead><tr><th>Дата</th><th>Врач</th><th>Болезнь</th><th>Что назначено</th><th>Следующий визит</th></tr></thead><tbody>
+    ${L.map(r=>{ const v=visitRow(r,eps); return `<tr class="row" data-rec="${idOf(r)}">
+      <td class="muted" style="white-space:nowrap">${ru(r.d)}</td><td><b>${hl(v.who)}</b></td>
+      <td>${v.epId?`<span class="medlink" data-epcard="${esc(v.epId)}">${hl(v.ill)}</span>`:(v.ill?hl(v.ill):"<span class='muted'>—</span>")}</td>
+      <td>${v.rx?hl(String(v.rx).slice(0,140)):"<span class='muted'>—</span>"}</td>
+      <td class="muted" style="white-space:nowrap">${v.next?ru(v.next):"—"}</td></tr>`; }).join("")}</tbody></table></div>`;
+}
+// поля формы приёма из сохранённой записи (ТЗ-008 блок 2); пустая дата — сегодня
+function visitFormData(x,today){ x=x||{}; return {d:x.d||today,who:x.who||"",doc:x.doc||"",place:x.place||"",complaints:x.complaints||"",exam:x.exam||"",
+  dx:x.dx||"",mkb:x.mkb||"",rx:x.rx||"",recs:x.recs||"",next:x.next||"",ep:x.ep||""}; }
+// правка — только у приёма, добавленного с сайта; запись из книжки на Маке исправляется там
+function recEditable(r){ return !!(r&&r.entry&&r.t==="visit"&&r.data); }
+// дата приёма после распознавания: пустая — сегодня, с подсказкой (ТЗ-008 блок 1)
+function visitDateFix(f,today){ const o=Object.assign({},f); if(!o.d){ o.d=today; o.hint="Дата приёма в документе не найдена — поставили сегодня, проверьте"; } return o; }
 // лекарства болезни: курсы болезни, лекарства с сайта, препараты из записей симптомов — каждое один раз (по первому слову названия)
 function epMeds(ep,L,today){
   const key=n=>String(n||"").toLowerCase().replace(/ё/g,"е").trim().split(/[^a-zа-я0-9-]+/)[0];
@@ -3263,7 +3295,7 @@ function entriesInto(D,rows){
     if(s.pts.some(p=>p[0]===dd)) return;
     s.pts=[...s.pts,[dd,v]].sort((a,b)=>key(a[0]).localeCompare(key(b[0]))); };
   // блок 14: части одного документа — визит и то, что на нём назначено (parent_id); у каждой — цитата из документа
-  const live=(rows||[]).filter(e=>e.status==="saved"), byId={};
+  const live=(rows||[]).filter(e=>e.status==="saved"&&!(typeof window!=="undefined"&&window.__delPending&&window.__delPending.has(e.id))), byId={};
   live.forEach(e=>{ byId[e.id]=e; });
   const visitOf=e=>{ const v=e.parent_id&&byId[e.parent_id]; return v&&v.kind==="visit"?v.data||{}:null; };
   const quoteOf=e=>e.quote?`из документа: «${String(e.quote).slice(0,160)}${String(e.quote).length>160?"…":""}»`:"";
@@ -3477,18 +3509,51 @@ function privacyOk(){ try{ if(localStorage.getItem(PRIV_KEY)) return true; }catc
   if(!confirm("Фото или файл уйдёт на распознавание во внешний сервис (Polza.AI). Сохраняется только то, что вы проверите и подтвердите. Продолжить?")) return false;
   try{ localStorage.setItem(PRIV_KEY,"1"); }catch(e){} return true; }
 // фото заключения или рецепта → поля формы; заполняются только найденные, остальное — руками. Файлы уходят в запись (state.files)
-const docPick=(id,label)=>`<div class="fld"><label for="${id}">${label}</label><input id="${id}" type="file" accept="image/*,application/pdf" multiple></div><div id="${id}Log" class="formlog"></div>`;
+// ТЗ-008 блок 4: две кнопки — камера и файл; список приложенного (до 10), «убрать» у каждого, распознавание по кнопке
+function docListAdd(list,files,max){ max=max||10; const add=[...files]; const room=Math.max(0,max-list.length);
+  return {list:[...list,...add.slice(0,room)],over:add.length>room}; }
+function docListRemove(list,i){ return list.filter((_,k)=>k!==i); }
+const pickHtml=(id,label,goText)=>`<div class="fld"><label>${label}</label>
+    <div class="row addform" style="gap:8px"><button type="button" class="btn sec" data-pickcam="${id}" hidden>📷 Сфотографировать</button><button type="button" class="btn sec" data-pickfile="${id}">📎 Выбрать файл</button></div>
+    <input id="${id}" type="file" accept="image/*,application/pdf" multiple hidden>
+    <input id="${id}Cam" type="file" accept="image/*" capture="environment" hidden>
+    <div id="${id}List" class="doclist"></div>
+    ${goText?`<button type="button" class="btn" id="${id}Go" hidden style="margin-top:8px">${goText}</button>`:""}</div>`;
+const PICKS={};
+function pickFiles(id){ return (PICKS[id]&&PICKS[id].list)||[]; }
+// onChange(list) вызывается после каждого изменения списка
+function pickInit(id,onChange){
+  const st=PICKS[id]={list:[]}, box=document.getElementById(id+"List"), go=document.getElementById(id+"Go");
+  const cam=document.querySelector(`[data-pickcam="${id}"]`), hasCam=(navigator.maxTouchPoints||0)>0||matchMedia("(pointer:coarse)").matches;
+  if(cam&&hasCam) cam.hidden=false;
+  const draw=()=>{ box.innerHTML=st.list.map((f,i)=>`<div class="row" style="gap:8px;align-items:center;margin-top:6px">
+      ${/^image\//.test(f.type||"")?`<img src="${URL.createObjectURL(f)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px">`:"<span>📄</span>"}
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name||"снимок")}</span>
+      <button type="button" class="addsym" data-pickdel="${id}" data-i="${i}" title="Убрать">✕</button></div>`).join("")
+      +(st.list.length?`<div class="hint" style="margin-top:6px">Приложено: ${st.list.length}${st.over?" — больше 10 файлов нельзя":""}</div>`:"");
+    if(go) go.hidden=!st.list.length; onChange&&onChange(st.list); };
+  const take=e=>{ const r=docListAdd(st.list,e.target.files||[]); st.list=r.list; st.over=r.over; e.target.value=""; draw(); };
+  document.getElementById(id).addEventListener("change",take); document.getElementById(id+"Cam").addEventListener("change",take);
+  document.querySelector(`[data-pickfile="${id}"]`).onclick=()=>document.getElementById(id).click();
+  if(cam) cam.onclick=()=>document.getElementById(id+"Cam").click();
+  box.addEventListener("click",e=>{ const b=e.target.closest("[data-pickdel]"); if(!b) return; st.list=docListRemove(st.list,+b.dataset.i); st.over=false; draw(); });
+  return {go:go};
+}
+const docPick=(id,label)=>pickHtml(id,label,"Распознать")+`<div id="${id}Log" class="formlog"></div>`;
 function docFill(inputId,kind,map,state){
   const log=(t,c)=>{ const e=document.getElementById(inputId+"Log"); if(e) e.innerHTML=t?`<div class="${c||""}">${t}</div>`:""; };
-  document.getElementById(inputId).addEventListener("change",async e=>{
-    const fl=e.target.files; if(!fl||!fl.length) return;
+  pickInit(inputId);
+  document.getElementById(inputId+"Go").addEventListener("click",async ()=>{
+    const fl=pickFiles(inputId); if(!fl.length) return;
     if(!window.__MK_KEY){ log("Нет связи с базой — откройте медкнижку по своей ссылке.","er"); return; }
     if(!privacyOk()) return;
     try{
       const p=await prepareDocs(fl,t=>log(t)); state.files=p.keep;
       log(kind==="visit"?"Читаю заключение…":"Читаю рецепт…");
       const res=await entriesApi("analyze_document",{kind,person:cur,text:p.text||undefined,files:p.files.length?p.files:undefined});
-      let n=0; for(const [k,id] of Object.entries(map)){ const v=(res.fields||{})[k], el=document.getElementById(id); if(v&&el){ el.value=v; n++; } }
+      const fx=kind==="visit"?visitDateFix(res.fields||{},localDay()):(res.fields||{}); if(kind==="visit") res.fields=fx;
+      let n=0; for(const [k,id] of Object.entries(map)){ const v=fx[k], el=document.getElementById(id); if(v&&el){ el.value=v; n++; } }
+      if(fx.hint){ const h=document.getElementById(inputId+"Log"); if(h) setTimeout(()=>{ h.insertAdjacentHTML("beforeend",`<div class="wa">${esc(fx.hint)}</div>`); },0); }
       if(kind==="med"&&Array.isArray(res.meds)&&state.onMeds){ state.onMeds(res.meds);   // в рецепте несколько лекарств — у каждого свои поля
         log(`Нашёл лекарств: ${res.meds.length} — ${esc(res.meds.map(m=>m.title).join(", "))}. Проверьте и сохраните.${state.files.length?" Фото приложится к каждому.":""}`,"ok"); return; }
       log(`Заполнено полей: ${n}. Проверьте и сохраните.${state.files.length?" Фото приложено — откроется из карточки.":""}`,"ok");
@@ -3501,7 +3566,7 @@ function labForm(){
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Анализ</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Фото бланка или PDF — до 10 файлов. Показатели распознаются, вы проверяете и сохраняете.</div>
     <div class="addform">
-      <div class="fld"><input id="labFiles" type="file" accept="image/*,application/pdf" multiple></div>
+      ${pickHtml("labFiles","Фото бланка или PDF","Распознать")}
       <div class="row" style="margin-top:6px"><button class="btn sec" id="labManual">Заполнить вручную</button></div>
       <div id="labStat" class="formlog"></div><div id="labReview"></div></div></div>`;
   const stat=(t,c)=>{ document.getElementById("labStat").innerHTML=`<div class="${c||""}">${t}</div>`; };
@@ -3539,8 +3604,9 @@ function labForm(){
     draw();
   };
   document.getElementById("labManual").onclick=()=>{ stat(""); review({date:localDay(),lab:"",items:[{name:"",value:"",unit:"",norm:"",confidence:1}]}); };
-  document.getElementById("labFiles").addEventListener("change",async e=>{
-    const fl=e.target.files; if(!fl||!fl.length) return;
+  pickInit("labFiles");
+  document.getElementById("labFilesGo").addEventListener("click",async ()=>{
+    const fl=pickFiles("labFiles"); if(!fl.length) return;
     if(!window.__MK_KEY){ stat("Нет связи с базой — откройте медкнижку по своей ссылке.","er"); return; }
     if(!privacyOk()) return;
     try{
@@ -3603,7 +3669,7 @@ function docForm(){
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Документ или текст</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и дела и разложу по разделам — вы проверите.</div>
     <div class="addform">
-      <div class="fld"><label for="docFiles">Фото или PDF — до 10 файлов</label><input id="docFiles" type="file" accept="image/*,application/pdf" multiple></div>
+      ${pickHtml("docFiles","Фото или PDF — до 10 файлов")}
       <div class="fld"><label for="docText">…или текст</label><textarea id="docText" rows="3" placeholder="Например: Даня кашлял ночью, дали Пульмикорт, врач сказал сдать ОАК"></textarea></div>
       <div class="row"><button class="btn" id="docGo">Разобрать</button><button class="btn sec" data-close>Отмена</button></div>
       <div id="docLog" class="formlog"></div>
@@ -3676,8 +3742,9 @@ function docForm(){
       el.querySelector(".dt").textContent=docTitle(p);
     };
   };
+  pickInit("docFiles");
   document.getElementById("docGo").onclick=async ()=>{
-    const fl=document.getElementById("docFiles").files, typed=(document.getElementById("docText").value||"").trim();
+    const fl=pickFiles("docFiles"), typed=(document.getElementById("docText").value||"").trim();
     if(!(fl&&fl.length)&&!typed){ log("Добавьте файл или напишите текст.","er"); return; }
     if(!window.__MK_KEY){ log("Нет связи с базой — откройте медкнижку по своей ссылке.","er"); return; }
     if(fl&&fl.length&&!privacyOk()) return;
@@ -3693,32 +3760,34 @@ function docForm(){
     go.disabled=false;
   };
 }
-function visitForm(){
+function visitForm(entryId){
   const d=DATA[cur], today=localDay();
+  const old=entryId?(d.rec||[]).find(r=>r.entry===entryId):null, X=visitFormData(old&&old.data,today);
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Визит врача</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>${entryId?"Приём врача — изменить":"Визит врача"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Сфотографируйте заключение — поля заполнятся сами, вы проверите. Или впишите вручную.</div>
     <div class="addform">
-      ${docPick("vFile","Фото или PDF заключения")}
-      ${fld("vD","Дата",today,'type="date"')}
+      ${entryId?"":docPick("vFile","Фото или PDF заключения")}
+      ${fld("vD","Дата",X.d,'type="date"')}
       <div class="fld"><label for="vEp">По какой болезни</label>
-        <select id="vEp"><option value="auto">Найду сама: по диагнозу или по датам болезни</option>
-          ${openEps(d.sym||{},today).map(e=>`<option value="${esc(e.id)}">${esc(e.dx)} — с ${ru(e.d1)}</option>`).join("")}
-          <option value="none">Плановый осмотр — без болезни</option></select>
+        <select id="vEp"><option value="auto"${entryId?"":" selected"}>Найду сама: по диагнозу или по датам болезни</option>
+          ${((d.sym||{}).ep||[]).filter(e=>!e.d2||e.id===X.ep).sort((a,b)=>b.d1.localeCompare(a.d1)).map(e=>`<option value="${esc(e.id)}"${e.id===X.ep?" selected":""}>${esc(e.dx)} — с ${ru(e.d1)}</option>`).join("")}
+          <option value="none"${entryId&&!X.ep?" selected":""}>Плановый осмотр — без болезни</option></select>
         <p class="hint">Приём попадёт в карточку болезни, назначения — к ней же</p></div>
-      ${fld("vWho","Специалист","",'placeholder="например, педиатр"')}
-      ${fld("vDoc","Врач","",'placeholder="ФИО — необязательно"')}${fld("vPlace","Клиника","")}
-      ${fldA("vCompl","Жалобы","")}${fldA("vExam","Осмотр","")}
-      ${fld("vDx","Диагноз","")}${fld("vMkb","Код МКБ","",'placeholder="только если он есть в заключении"')}
-      ${fldA("vRx","Назначения","")}${fldA("vRecs","Рекомендации","")}${fld("vNext","Следующий визит","",'type="date"')}
+      ${fld("vWho","Специалист",X.who,'placeholder="например, педиатр"')}
+      ${fld("vDoc","Врач",X.doc,'placeholder="ФИО — необязательно"')}${fld("vPlace","Клиника",X.place)}
+      ${fldA("vCompl","Жалобы",X.complaints)}${fldA("vExam","Осмотр",X.exam)}
+      ${fld("vDx","Диагноз",X.dx)}${fld("vMkb","Код МКБ",X.mkb,'placeholder="только если он есть в заключении"')}
+      ${fldA("vRx","Назначения",X.rx)}${fldA("vRecs","Рекомендации",X.recs)}${fld("vNext","Следующий визит",X.next,'type="date"')}
       <div class="row"><button class="btn" id="vOk">Сохранить</button><button class="btn sec" data-close>Отмена</button></div>
       <div id="vLog" class="formlog"></div></div></div>`;
   const log=(t,c)=>{const e=document.getElementById("vLog"); if(e) e.innerHTML=`<div class="${c||""}">${t}</div>`;};
   const vst={files:[]};
-  docFill("vFile","visit",{d:"vD",who:"vWho",doc:"vDoc",place:"vPlace",complaints:"vCompl",exam:"vExam",dx:"vDx",mkb:"vMkb",rx:"vRx",recs:"vRecs",next:"vNext"},vst);
+  if(!entryId) docFill("vFile","visit",{d:"vD",who:"vWho",doc:"vDoc",place:"vPlace",complaints:"vCompl",exam:"vExam",dx:"vDx",mkb:"vMkb",rx:"vRx",recs:"vRecs",next:"vNext"},vst);
   document.getElementById("vOk").addEventListener("click",async ()=>{
     const v=id=>(document.getElementById(id).value||"").trim();
     if(!v("vD")){ log("Укажите дату.","er"); return; }
+    if(v("vNext")&&v("vNext")<=v("vD")){ log("Следующий визит не может быть в день приёма или раньше.","er"); return; }
     if(!v("vWho")){ log("Укажите специалиста.","er"); return; }
     document.getElementById("vOk").disabled=true;
     // болезнь приёма (ТЗ-004 блок 7): выбранная, найденная по диагнозу или новая
@@ -3728,7 +3797,7 @@ function visitForm(){
     if(pick==="auto"&&dx&&!/здоров/i.test(dx)){ ep=findOpenEp(S.ep,dx,v("vD")); if(!ep){ const id=epCreate(dx,v("vD")); ep=((DATA[cur].sym||{}).ep||[]).find(e=>e.id===id)||{id,dx}; log(`Открыта болезнь «${esc(dx)}» с ${ru(v("vD"))}.`,"ok"); } }
     if(!ep&&pick==="auto"){ const c=epChoices(S.ep,v("vD"),localDay()).filter(e=>e.d1<=v("vD")); if(c.length===1) ep=c[0]; }   // без диагноза — болезнь, в дни которой был приём
     const ok=await entrySave("visit",{d:v("vD"),who:v("vWho"),doc:v("vDoc"),place:v("vPlace"),complaints:v("vCompl"),exam:v("vExam"),
-      dx:v("vDx"),mkb:v("vMkb"),rx:v("vRx"),recs:v("vRecs"),next:v("vNext"),ep:ep?ep.id:"",epDx:ep?ep.dx:""},null,log,vst.files);
+      dx:v("vDx"),mkb:v("vMkb"),rx:v("vRx"),recs:v("vRecs"),next:v("vNext"),ep:ep?ep.id:"",epDx:ep?ep.dx:""},entryId||null,log,vst.files);
     if(!ok) document.getElementById("vOk").disabled=false;
   });
 }
@@ -4968,8 +5037,10 @@ function render(){
       </div>`:""}
       <div class="card" id="s-rec">
         <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?tlEvents(d).length:list.length}</span></h2>
-        ${filterBar()}
-        ${tab==="all"&&!sysFilter?timeline(d):tableRows(list,{showType:tab==="all"})}
+        ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
+          <div id="vtab">${visitsTable(list,d)}</div>`
+        :`${filterBar()}
+        ${tab==="all"&&!sysFilter?timeline(d):tableRows(list,{showType:tab==="all"})}`}
         ${(!list.length&&sysFilter&&other)?`<div style="text-align:center;margin-top:10px">
           <button class="gobtn" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
@@ -5097,6 +5168,11 @@ document.addEventListener("click",e=>{
       setTimeout(()=>{cell.innerHTML=was},1500);
     }).catch(()=>{});
     return }
+  const ev=e.target.closest("[data-editvisit]"); if(ev){ visitForm(+ev.dataset.editvisit); return; }
+  const de=e.target.closest("[data-delentry]"); if(de){ const id=+de.dataset.delentry; closeModal();
+    (window.__delPending=window.__delPending||new Set()).add(id); entriesInto(DATA,window.__entries||[]); render();
+    const job=laterUnlessUndo(async()=>{ try{ await entriesApi("entry_delete",{id}); }catch(err){} window.__delPending.delete(id); await entriesPull(); render(); },10000);
+    toast("Запись удалена","Отменить",()=>{ job.cancel(); window.__delPending.delete(id); entriesInto(DATA,window.__entries||[]); render(); }); return; }
   const mcd=e.target.closest("[data-medcard]"); if(mcd){ e.stopPropagation(); medCard(+mcd.dataset.medcard); return; }
   const ax=e.target.closest(".addrx"); if(ax){ e.stopPropagation(); const r=DATA[cur].rec[+ax.dataset.ri]; if(!r) return;
     medForm(null,{visit:{who:r.who||r.title,d:r.d,entry:r.entry||null},ep:r.ep||"",epDx:r.epDx||""}); return; }
