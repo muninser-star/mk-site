@@ -11,6 +11,8 @@
 <title>Медкнижка v2</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://cuhplpukqhdfutcymtmv.supabase.co" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
 <style>
 :root{
   /* токены оформления — как в референсе редизайна (ТЗ-001 блок 13) */
@@ -608,6 +610,91 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .card:hover,.hero-card:hover,.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover,.who button:hover{transform:none!important}
 }
+/* «Месяц» — полоса из 30 дней (ТЗ-010 блок 8) */
+.mrow2{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.mrow2:first-of-type{border-top:0}
+.mrow2-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-bottom:8px}
+.mcells{display:grid;grid-template-columns:repeat(30,1fr);gap:2px}
+.mcells i{display:block;height:18px;border-radius:4px;background:var(--seg)}
+.mcells i.ok{background:var(--ok)}.mcells i.warn{background:var(--warn)}.mcells i.bad{background:var(--bad)}
+@media (max-width:420px){.mcells{gap:1px}.mcells i{height:22px;border-radius:2px}}
+/* карточки анализа и исследования: свёрнутые секции (ТЗ-010 блоки 12–13) */
+.fold{border:0;border-top:1px solid var(--line);border-radius:0;background:none;padding:0;margin:2px 0 0;box-shadow:none}.fold:last-of-type{border-bottom:1px solid var(--line)}
+.fold>summary{cursor:pointer;padding:11px 0;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:10px}
+.fold>summary::-webkit-details-marker{display:none}.fold>summary::after{content:"＋";color:var(--muted);flex:none}.fold[open]>summary::after{content:"−"}
+.fold-b{padding:0 0 12px;font-size:14px;line-height:1.5}
+.labvals{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;font-size:22px;letter-spacing:-.4px;margin:2px 0}
+.verdict-line{margin:6px 0 12px;color:var(--ink)}
+.figs{margin:0 0 4px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.figs li{background:var(--bg);border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.35}
+@media (min-width:700px){.figs{grid-template-columns:repeat(3,1fr)}}
+.acts{background:var(--bg);border-radius:16px;padding:14px;margin-top:14px}.act+.act{margin-top:10px}.act div{font-size:14px;margin-top:2px}
+/* ── Новый дизайн (04.10.2026): токены и компоненты из Разработка/Дизайн. Слой поверх старых стилей:
+   имена переменных прежние, значения — из токены.css; чёрная главная кнопка и активная вкладка, карточки 20px без рамок ── */
+:root{
+  --font:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bg:#f3f5f7; --card:#fff; --ink:#101518; --muted:#5c7384; --line:#e7ebef;
+  --ok:#137a26; --warn:#b84400; --bad:#d4122a; --none:#9db0be;
+  --okbg:#e6f6e9; --warnbg:#fff0e5; --badbg:#ffe9ec; --nonebg:#eef1f4;
+  --primary:#0f7fcc; --primary-hover:#0c6bb0; --on-accent:#fff;
+  --accent:#0f7fcc; --accentbg:#e5f3fd; --seg:#e7ebef; --seghover:#dae1e7; --field:#f3f5f7;
+  --radius:20px; --btn:#080a0c; --btn-hover:#29343d; --on-btn:#f6f8f9;
+  --shadow:none; --shadow-md:0 4px 16px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.04); --shadow-lg:0 16px 32px -8px rgba(0,0,0,.24);
+  --grad-hero:radial-gradient(60% 120% at 100% 100%,#ff4791 0%,transparent 60%),radial-gradient(50% 100% at 0% 100%,#1c2a8c 0%,transparent 60%),radial-gradient(40% 90% at 60% 0%,#d65bd9 0%,transparent 60%),linear-gradient(120deg,#2a2f8f,#b23fc4 55%,#ff6fa8);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#101518;--card:#181f25;--ink:#f6f8f9;--muted:#9db0be;--line:#2b363f;
+    --ok:#4cd964;--warn:#fe8a4a;--bad:#ff6b7a;--none:#5c7384;
+    --okbg:#12331b;--warnbg:#3a2410;--badbg:#3d1a1f;--nonebg:#212a31;
+    --primary:#52baff;--primary-hover:#8ad2ff;--on-accent:#101518;--accent:#52baff;--accentbg:#0f2d44;--seg:#212a31;--seghover:#2b363f;--field:#212a31;
+    --btn:#f6f8f9;--btn-hover:#dae1e7;--on-btn:#101518;--shadow-md:0 4px 16px rgba(0,0,0,.5);}
+}
+body{font-family:var(--font);letter-spacing:-.2px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+header{border-bottom:0;padding:10px 16px}
+h1{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.who{background:var(--seg);border-radius:var(--r-pill,9999px)}
+.who button{border-radius:9999px}
+.who button.on{background:var(--btn);color:var(--on-btn);box-shadow:none}
+#q{border-radius:12px;background:var(--bg);border-color:transparent}
+#q:focus{border-color:var(--accent);outline:0}
+nav{border-bottom:0;padding:6px 16px 10px;gap:6px}
+nav button{border:0;border-radius:9999px;padding:8px 16px;font-weight:500;color:var(--ink);background:transparent}
+nav button:hover{background:var(--seg)}
+nav button.on{background:var(--btn);color:var(--on-btn);border:0}
+main{padding-top:16px}
+.card,details.card{border:0;border-radius:20px;padding:20px;box-shadow:none}
+.card:hover,details.card:hover{box-shadow:none}
+h2{font-size:13px;letter-spacing:.04em;font-weight:600}
+.phead h2{font-size:26px;font-weight:600;letter-spacing:-.4px}
+.kpi,.mt,.chg,.soonitem{background:var(--bg);border:0;border-radius:16px}
+.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover{transform:none;box-shadow:none;background:var(--seg)}
+.kpi .val,.mt-v{font-weight:600;letter-spacing:-.4px}
+.mbox{border-radius:20px;box-shadow:var(--shadow-lg)}
+.modal{background:rgba(8,10,12,.5)}
+.addsheet{border-radius:24px 24px 0 0}
+th{font-weight:500;text-transform:none;font-size:12px;letter-spacing:0}
+td,th{border-color:var(--line)}
+.pill,.tag,.tag2{border-radius:9999px}
+.tag{padding:2px 10px}
+.filters button,.subnav button{border-radius:9999px;border:0;background:var(--seg);color:var(--ink)}
+.filters button.on,.subnav button.on{background:var(--btn);color:var(--on-btn)}
+.ptabs{background:var(--seg);border-radius:9999px}
+.ptabs button{border-radius:9999px}
+.ptabs button.on{background:var(--btn);color:var(--on-btn);box-shadow:none}
+#addBtn{background:var(--btn);color:var(--on-btn);border-radius:12px}
+#addBtn:hover{background:var(--btn-hover)}
+.gobtn,.addform .btn,.wbox button,[style*="background:var(--accent)"]{background:var(--btn)!important;color:var(--on-btn)!important;box-shadow:none;border-radius:12px}
+.addform .btn:hover:not([disabled]),.wbox button:hover,.gobtn:hover{background:var(--btn-hover)!important}
+.addform .btn.sec{background:var(--seg)!important;color:var(--ink)!important}
+.addform input,.addform textarea,.addform select,.wbox input,.lockbox input{border-radius:12px;background:var(--bg);border:1px solid transparent}
+.addform input:focus,.addform textarea:focus,.addform select:focus{border-color:var(--accent);background:var(--card)}
+.toast{border-radius:16px;background:var(--btn);color:var(--on-btn)}
+.tip:hover,.tip:focus{background:var(--btn);color:var(--on-btn)}
+.vsw button{border-radius:9999px;border:0;background:var(--seg);color:var(--ink)}
+.vsw button.on{background:var(--btn);color:var(--on-btn)}
+a,.medlink,.symlink,.linkbtn{color:var(--accent)}
+.empty{color:var(--muted)}
+@media (max-width:520px){ .card,details.card{padding:16px;border-radius:20px} main{padding-left:12px;padding-right:12px} }
 </style>
 </head>
 <body>
@@ -635,7 +722,7 @@ const DATA = window.__MK_DATA;   // v2: данные приходят из Supab
 const ST={ok:"норма",warn:"внимание",bad:"проблема",none:"не проверяли"};
 const TYPE={visit:"Посещение",instr:"Исследование",lab:"Анализ"};
 let cur="denis", tab="home", sysFilter=null, query="", taskIdx=null, insSel=null;
-let symView="list", symSel=null, medSel=null;
+let symView="list", symSel=null, medSel=null;   // виды: list · ill · month (ТЗ-010 блок 8)
 let todoAll=false;   // «все записи»: снимает лимит 15 и показывает закрытые (зелёные)
 
 const el=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild};
@@ -955,6 +1042,7 @@ function idOf(r){return DATA[cur].rec.indexOf(r)}   // это ИНДЕКС: у �
 // Проверять только через !=null — на «e.id?» верхняя запись в ленте переставала открываться (21.09.2026)
 
 // ── Таймлайн: месяц → день → события. Записи, симптомы и старты препаратов в одной ленте
+const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"]];
 const TL_ICON={vac:"💉",visit:"👨‍⚕️",lab:"🧪",instr:"🩻",sym:"🤒",ep:"🩹",note:"📝",med:"💊",medend:"🏁",own:"⭐",meas:"⚖️"};
 const TL_KIND={vac:"прививка",visit:"приём",lab:"анализ",instr:"исследование",sym:"симптом",ep:"болезнь",note:"заметка",med:"начало курса",medend:"конец курса",own:"своё решение",meas:"замер"};
 const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
@@ -976,9 +1064,7 @@ function tlLines(e){
   }
   if(e.k==="ep") return [ (r.d2?`${ru(r.d1)} – ${ru(r.d2)}`:`с ${ru(r.d1)}, ещё болеет`)+(r.sym?` · ${esc(r.sym)}`:""),
       ...(r.rx&&r.rx.length?[`лечили: ${esc(rxText(r.rx,localDay()))}`]:[]), ...(r.t?[esc(String(r.t).slice(0,140))]:[]) ];
-  if(e.k==="sym") return [ (r.i!=null?`интенсивность ${r.i}`:"") + (r.m?`${r.i!=null?" · ":""}лечили: ${esc(r.m)}`:"") ].filter(Boolean)
-    .concat(r.f?[esc(String(r.f).slice(0,140))]:[])
-    .concat(r.pend?['<b style="color:var(--warn)">записано с телефона, ещё не разобрано</b>']:[]);
+  if(e.k==="sym") return symTlLines(r,(((DATA[cur]||{}).sym||{}).ep||[]).find(x=>x.d1===r.d&&(x.dx||"")===(r.p||"")));
   if(e.k==="own") return (r.l||[]).map(esc);
   if(e.k==="vac") return [esc(String(r.note||"").slice(0,160))].filter(Boolean);
   if(e.k==="meas") return [ [r.fat?`жир ${String(r.fat).replace(".",",")} %`:"", r.water?`вода ${String(r.water).replace(".",",")} %`:""].filter(Boolean).join(" · ") ].filter(Boolean);
@@ -1063,8 +1149,9 @@ function tlEvents(d){
   });
   return out.sort((a,b)=>b.d.localeCompare(a.d)||a.k.localeCompare(b.k));
 }
+let tlKind="all";
 function timeline(d){
-  const ev=tlEvents(d);
+  const ev=tlKindFilter(tlEvents(d),tlKind);
   if(!ev.length) return `<div class="empty">Ничего не найдено</div>`;
   const byMonth={}; ev.forEach(e=>(byMonth[monthKey(e.d)]=byMonth[monthKey(e.d)]||[]).push(e));
   const months=Object.keys(byMonth).sort().reverse();
@@ -1358,6 +1445,65 @@ function markVal(txt){
   return worst;
 }
 
+// ── Цвет статуса (ТЗ-010 блок 10): норма — зелёным, внимание и проблема — как раньше; без статуса — цвет текста
+function statusColor(st){ return st==="ok"?"var(--ok)":st==="warn"?"var(--warn)":st==="bad"?"var(--bad)":"var(--ink)"; }
+// первое предложение, не длиннее max; длинное режется по границе слова с «…»
+function firstSentence(t,max){
+  t=String(t==null?"":t).replace(/\s+/g," ").trim(); if(!t) return "";
+  const m=t.match(/^.*?[.!?](?=\s|$)/); let s=m?m[0]:t;
+  if(s.length>max){ s=s.slice(0,max+1); const k=s.lastIndexOf(" "); s=(k>0?s.slice(0,k):s.slice(0,max)).replace(/[\s,;:.—-]+$/,"")+"…"; }
+  return s;
+}
+// оригиналы бланков за дату записи (ТЗ-010 блок 11): папка и имена; нет файла — null, блока нет
+function recOriginals(D,r){
+  const F=D&&D.files, list=F&&F.d&&F.d[r.d];
+  return list&&list.length?{dir:F.dir,list:list}:null;
+}
+// ── Карточка анализа (ТЗ-010 блок 12): модель без разметки
+function labCardModel(D,r){
+  const RANK={bad:3,warn:2,ok:1,none:0};
+  const all=(D.rec||[]).filter(x=>x.t==="lab"&&x.d===r.d).sort((a,b)=>(a.st==="ok")-(b.st==="ok")||String(a.title).localeCompare(String(b.title)));
+  let same=all.filter(x=>x.sys===r.sys); if(!same.length) same=[r];
+  const other=all.filter(x=>x.sys!==r.sys);
+  const off=same.filter(x=>x.st!=="ok").length;
+  const status=same.reduce((w,x)=>(RANK[x.st]||0)>(RANK[w]||0)?x.st:w,same[0].st||"none");
+  const vals=same.map(x=>x.v).filter(Boolean);
+  const hist=(D.rec||[]).filter(x=>x.t==="lab"&&x.title===r.title).sort((a,b)=>b.d.localeCompare(a.d));
+  const pv=other.slice(0,3).map(x=>`${x.title} ${x.v||""} → ${ST[x.st]||ST.none}`.replace(/\s+→/," →").replace(/\s{2,}/," "));
+  return {
+    title:r.title, date:r.d, status, values:vals.slice(0,3), moreValues:Math.max(0,vals.length-3),
+    summary:`${same.length} ${plural(same.length,"показатель","показателя","показателей")}`+(off?`, ${off} вне нормы`:", все в норме"),
+    verdict:firstSentence(r.res,140),
+    table:same.map(x=>({title:x.title,v:x.v||"",n:x.n||"",st:x.st||"none",rec:x})),
+    related:other.length?{preview:pv.join(", ")+(other.length>3?` +${other.length-3}`:""),rows:other}:null,
+    hist:hist.length>1?hist:null, baseline:r.t==="lab"&&hist.length===1,
+    details:{place:r.place&&r.place!=="—"?r.place:"",norm:r.n||""}
+  };
+}
+// «ЧСС 81 при норме 0,5–1,2 мс. PQ 150 мс (норма 90–160)» → по строке на цифру; запятая в числах не рвёт строку
+function splitFigures(t){
+  return String(t||"").split(/\.\s+(?=[A-ZА-ЯЁa-z])/).map(x=>x.trim().replace(/\.$/,"")).filter(Boolean);
+}
+// ── Карточка исследования (ТЗ-010 блок 13): из уже записанных разделов r.full, ничего не выводится заново
+function instrCardModel(r){
+  const F=(r.full||[]).filter(f=>Array.isArray(f)&&f[1]);
+  const clean=l=>String(l).replace(/^[\s🟢🔴🟡⚠️]+/u,"").trim();
+  const low=l=>clean(l).toLowerCase();
+  const sentence=l=>{ const c=clean(l).toLowerCase(); return c.charAt(0).toUpperCase()+c.slice(1); };
+  const used=new Set(), pick=re=>F.find(f=>!used.has(f)&&re.test(String(f[0]).toLowerCase()));
+  const figs=F.find(f=>/^цифры/i.test(clean(f[0]))); if(figs) used.add(figs);
+  const main=[]; F.forEach(f=>{ if(main.length<3&&(/^\s*🟢/u.test(f[0])||/^главное/i.test(clean(f[0])))){ used.add(f);
+    main.push({title:clean(f[0]).replace(/^главное\s*[—–:-]?\s*/i,"")||"Главное",text:String(f[1])}); } });
+  const act=(re,kind)=>{ const f=pick(re); if(!f) return null; used.add(f); return {kind,title:sentence(f[0]),text:String(f[1]),red:/🔴/u.test(f[0])}; };
+  const dont=act(/не делать/,"dont"), watch=act(/следить/,"watch"), when=act(/срок|контрол/,"when");
+  return {
+    header:{title:r.title,date:r.d,st:r.st,verdict:firstSentence(r.res,160)},
+    figures:figs?splitFigures(figs[1]):[], main,
+    actions:{watch,dont,when},
+    more:F.filter(f=>!used.has(f)).map(f=>({title:sentence(f[0]),text:String(f[1])}))
+  };
+}
+
 // шапка и кнопка «Все записи» карточки (ТЗ-004 блок 4): у приёма с сайта нет статуса и системы — без «undefined» и «null»
 function recBadge(r){ return ST[r.st]?TYPE[r.t]+" · "+ST[r.st]:TYPE[r.t]; }
 function recGoAll(r){ const n=r.sys?sysName(r.sys):""; return n?`<button class="gobtn" data-f="${r.sys}" data-close="1">Все записи: ${esc(n)} →</button>`:""; }
@@ -1393,7 +1539,71 @@ function openRec(i,showSer){
   } else ser=D.series.filter(s=>s.sys===r.sys);
   const noSer=r.t==="lab"&&!ser.length;
 
-  document.getElementById("modal").innerHTML=`
+  // общие куски карточек анализа и исследования (ТЗ-010 блоки 11–13)
+  const fold=(sum,body)=>`<details class="fold"><summary>${sum}</summary><div class="fold-b">${body}</div></details>`;
+  const fullRows=f=>`<div class="tw"><table><tbody>${f.map(x=>Array.isArray(x)
+    ?(()=>{const mk=markVal(x[2]?x[1]+" "+x[2]:x[1]);
+      return `<tr><td class="muted" style="width:42%">${esc(x[0])}</td><td><b${mk?` style="color:${mk.c}" title="${esc(mk.why)}"`:""}>${esc(x[1])}</b>${x[2]?` <span class="muted" style="font-weight:400">${esc(x[2])}</span>`:""}</td></tr>`;})()
+    :`<tr><td colspan="2">${esc(x)}</td></tr>`).join("")}</tbody></table></div>`;
+  const origHtml=(()=>{   // оригиналы бланков: в книжке только имя файла, сам файл лежит в папке и в облаке
+    const o=recOriginals(D,r); if(!o) return "";
+    return `<h3 style="font-size:14px;margin:18px 0 6px">Оригинал${o.list.length>1?"ы":""} за ${ru(r.d)} — ${o.list.length}</h3>
+    <div class="muted" style="font-size:12.5px;margin-bottom:6px">Папка «${esc(o.dir)}», она же в облаке Mail.ru.
+      Нажмите — имя скопируется, по нему бланк находится поиском в приложении</div>
+    <div class="tw"><table><tbody>${o.list.map(f=>`<tr class="row" data-copy="${esc(f)}"><td>📄 <b>${esc(f)}</b></td></tr>`).join("")}</tbody></table></div>`; })();
+  const filesHtml=(r.files&&r.files.length?`<h3 style="font-size:14px;margin:18px 0 6px">Бланк</h3>
+    ${r.files.map((f,i)=>`<button class="btn sec" data-origfile="${esc(f)}" style="margin:0 6px 6px 0">📄 Открыть бланк${r.files.length>1?" "+(i+1):""}</button>`).join("")}`:"")
+    +(r.source&&!(r.files&&r.files.length)?`<h3 style="font-size:14px;margin:18px 0 6px">Откуда запись</h3>
+    <button class="btn sec" data-source="${esc(r.source)}">📄 Исходный текст</button><div class="docsrc muted"></div>`:"");
+  const sameDayHtml=sameDay.length?`<div class="tw"><table><thead><tr><th>Что</th><th>Тип</th><th>Результат</th><th>Статус</th></tr></thead><tbody>
+    ${sameDay.map(x=>`<tr class="row" data-rec="${idOf(x)}"><td><b>${esc(x.title)}</b>${x.full?' <span class="tag">заключение целиком</span>':''}</td>
+      <td class="muted" style="white-space:nowrap">${TYPE[x.t]}</td><td class="muted">${esc(x.res||x.v||"—")}</td>
+      <td><span class="pill s-${x.st}">${ST[x.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"";
+  const serHtml=ser.length?ser.map(sr=>`${sr.unit?`<div class="muted" style="font-size:13px">${esc(sr.unit)}</div>`:""}${chart(sr)}`).join(""):"";
+  const shell=inner=>`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть">✕</button>${inner}</div>`;
+  const head=(st,sub)=>`<div class="pill s-${st||"none"}" style="margin-bottom:8px">${recBadge(Object.assign({},r,{st}))}</div>
+    <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>`;
+  let cardHtml=null;
+  if(r.t==="lab"){            // ТЗ-010 блок 12: шапка и ключевые показатели видны, остальное свёрнуто
+    const M=labCardModel(D,r);
+    const row=p=>`<tr class="row" data-rec="${idOf(p.rec)}"${p.rec===r?' style="background:var(--accentbg)"':''}><td><b>${esc(p.title)}</b>${p.rec.ser?' <span class="tag">график</span>':''}</td>
+      <td><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td><td class="muted">${esc(p.n||"")}</td>
+      <td><span class="pill s-${p.st}">${ST[p.st]||ST.none}</span></td></tr>`;
+    const rel=M.related?fold(`В тот же день: ${esc(M.related.preview)}`,`<div class="tw"><table><thead><tr><th>Показатель</th><th>Результат</th><th>Было раньше</th><th>Статус</th></tr></thead><tbody>
+      ${M.related.rows.map(p=>`<tr class="row" data-rec="${idOf(p)}"><td><b>${esc(p.title)}</b></td><td><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td><td style="font-size:13px">${prevCell(p)}</td>
+      <td><span class="pill s-${p.st}">${ST[p.st]||ST.none}</span></td></tr>`).join("")}</tbody></table></div>`):"";
+    const concl=(r.full&&r.full.length)?fold("Заключение",fullRows(r.full)):"";
+    const dyn=(M.hist||ser.length)?fold(`Динамика${M.hist?` — ${M.hist.length} значений`:""}`,
+      (M.hist?`<div class="tw"><table><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th><th></th></tr></thead><tbody>
+        ${M.hist.map(h=>`<tr${h===r?' style="background:var(--accentbg)"':''}><td class="muted">${ru(h.d)}</td><td><b>${esc(h.v||"—")}</b></td><td class="muted">${esc(h.n||"—")}</td>
+        <td><span class="pill s-${h.st}">${ST[h.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"")+serHtml):"";
+    const det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm]].filter(x=>x[1]);
+    const detHtml=(det.length||M.baseline)?fold("Подробнее",(det.length?`<table>${det.map(([k,v])=>`<tr><td class="muted" style="width:42%">${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table>`:"")
+      +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка. Вторая сдача превратит цифру в направление.</div>`:"")):"";
+    cardHtml=shell(`${head(M.status)}
+      <div class="labvals">${M.values.map(v=>`<b>${esc(v)}</b>`).join("")}${M.moreValues?`<span class="muted">+${M.moreValues}</span>`:""}</div>
+      <div class="muted" style="margin-bottom:6px">${esc(M.summary)}</div>
+      ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
+      <div class="tw"><table><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>
+      ${origHtml}${filesHtml}${rel}${concl}${dyn}${detHtml}
+      ${sameDay.length?fold(`В этот же день — ещё ${sameDay.length}`,sameDayHtml):""}
+      ${recGoAll(r)}`);
+  } else if(r.t==="instr"){   // ТЗ-010 блок 13: что сейчас и что делать — сверху, лекция — по желанию
+    const M=instrCardModel(r), A=M.actions;
+    const act=a=>a?`<div class="act"><b>${a.red?'<span class="red-dot">●</span> ':""}${esc(a.title)}</b><div>${esc(a.text)}</div></div>`:"";
+    cardHtml=shell(`${head(r.st)}
+      ${M.header.verdict?`<p class="verdict-line">${esc(M.header.verdict)}</p>`:""}
+      ${M.figures.length?`<h3 style="font-size:14px;margin:14px 0 6px">Ключевые цифры</h3><ul class="figs">${M.figures.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
+      ${M.main.length?`<h3 style="font-size:14px;margin:14px 0 6px">Главное</h3>${M.main.map(x=>fold(esc(x.title),esc(x.text))).join("")}`:""}
+      ${(A.watch||A.dont||A.when)?`<div class="acts"><h3 style="font-size:14px;margin:0 0 6px">Что делать</h3>${act(A.watch)}${act(A.dont)}${act(A.when)}</div>`:""}
+      ${M.more.length?`<h3 style="font-size:14px;margin:14px 0 6px">Подробнее</h3>${M.more.map(x=>fold(esc(x.title),esc(x.text))).join("")}`:""}
+      ${serHtml?`<h3 style="font-size:14px;margin:18px 0 4px">Динамика${ser[0]?": "+esc(ser[0].name):""}</h3>${serHtml}`:""}
+      ${sameDay.length?`<h3 style="font-size:14px;margin:18px 0 6px">В этот же день — ещё ${sameDay.length}</h3>${sameDayHtml}`:""}
+      ${origHtml}${filesHtml}
+      ${o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:""}
+      ${recGoAll(r)}`);
+  }
+  document.getElementById("modal").innerHTML=cardHtml||`
     <div class="mbox" role="dialog" aria-modal="true">
       <button class="mclose" data-close="1" aria-label="Закрыть">✕</button>
       <div class="pill s-${r.st||"none"}" style="margin-bottom:8px">${recBadge(r)}</div>
@@ -1411,7 +1621,7 @@ function openRec(i,showSer){
       <table style="margin-bottom:6px">${rows.map(([k,v])=>`<tr><td class="muted" style="width:38%">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
       ${(()=>{ const row=p=>`<tr class="row" data-rec="${idOf(p)}"${p===r?' style="background:var(--accentbg)"':''}>
           <td><b>${esc(p.title)}</b>${p.ser?' <span class="tag">график</span>':''}</td>
-          <td style="white-space:nowrap"><b style="color:var(--${p.st==='ok'?'ink':p.st})">${esc(p.v||"—")}</b></td>
+          <td style="white-space:nowrap"><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td>
           <td style="font-size:13px">${prevCell(p)}</td>
           <td class="muted" style="white-space:nowrap">${esc(p.n||"")}</td>
           <td class="muted">${esc(p.res||"")}</td>
@@ -1505,6 +1715,48 @@ function filterBar(){
 const MON=["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
 function isoOf(dt){return dt.toISOString().slice(0,10)}
 function shiftDays(n){const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()-n);return t}
+// ── «Месяц» (ТЗ-010 блок 8): последние 30 дней, по строке на симптом, 30 клеток по дням
+function dayShift(iso,n){ const x=new Date(iso+"T12:00:00Z"); x.setUTCDate(x.getUTCDate()+n); return x.toISOString().slice(0,10); }
+function sevLevel(x){   // терпимо / мешает / сильно: тот же порог, что у кружков силы
+  if(x.v!=null&&x.u==="°C") return x.v>=38.9?"bad":x.v>=37.5?"warn":"ok";
+  if(x.i==null) return "ok";
+  return x.i>=7?"bad":x.i>=4?"warn":"ok";
+}
+function sevWord(x){ return {ok:"терпимо",warn:"мешает",bad:"сильно"}[sevLevel(x)]; }
+function monthRows(log,today,isRed){
+  const from=dayShift(today,-29), pf=dayShift(today,-59), pt=dayShift(today,-30), by={};
+  (log||[]).forEach(x=>{ if(x.d>=pf&&x.d<=today) (by[x.n]=by[x.n]||[]).push(x); });
+  const rank={ok:1,warn:2,bad:3};
+  return Object.keys(by).map(n=>{
+    const L=by[n], cur=L.filter(x=>x.d>=from), prev=L.filter(x=>x.d>=pf&&x.d<=pt);
+    if(!cur.length) return null;
+    const cells=Array(30).fill("");
+    cur.forEach(x=>{ const k=Math.round((Date.parse(x.d)-Date.parse(from))/864e5), lv=sevLevel(x);
+      if(k>=0&&k<30&&(!cells[k]||rank[lv]>rank[cells[k]])) cells[k]=lv; });
+    const ii=cur.map(x=>x.i).filter(v=>v!=null), avg=ii.length?Math.round(ii.reduce((a,b)=>a+b,0)/ii.length*10)/10:null;
+    const days=new Set(cur.map(x=>x.d)).size;
+    const trend=cur.length>prev.length?"up":cur.length<prev.length?"down":"same";
+    const last=cur.map(x=>x.d).sort().pop();
+    return {n,cells,days,avg,trend,last,red:!!(isRed&&isRed(n)),mid:avg!=null?intColor(avg):null};
+  }).filter(Boolean).sort((a,b)=>b.last.localeCompare(a.last)||(b.red-a.red));
+}
+// симптом в Ленте (ТЗ-010 блок 9): сила словом и цветом, повод, температура, препараты ссылками, комментарий
+function symTlLines(r,ep){
+  const w=sevOf(r), out=[];
+  const head=[ (w.t?`<span class="pill" style="background:${w.c}">${esc(sevWord(r))} · ${esc(w.t)}</span>`:""),
+    (r.p?`<span class="muted">повод: ${esc(r.p)}</span>`:"") ].filter(Boolean).join(" ");
+  if(head) out.push(head);
+  if(ep&&ep.tmax&&r.n!=="Температура") out.push(`<span class="pill" style="background:${sevOf({v:ep.tmax,u:"°C"}).c}" title="максимум за эпизод">🌡 до ${String(ep.tmax).replace(".",",")} °C</span>`);
+  if(r.m) out.push("💊 "+r.m.split(/,\s+/).map(t=>{ const one=t.trim().replace(/^(затем|и)\s+/i,""); if(!one) return "";
+    const key=one.replace(/\s+[\d(].*$/,"").trim()||one; return `<span class="medlink" data-med="${esc(key)}">${esc(one)}</span>`; }).filter(Boolean).join(", ")+(r.h?` — ${esc(r.h)}`:""));
+  if(r.f) out.push(esc(String(r.f).slice(0,140)));
+  if(r.pend) out.push('<b style="color:var(--warn)">записано с телефона, ещё не разобрано</b>');
+  return out;
+}
+function tlKindFilter(ev,kind){
+  const K={sym:["sym"],visit:["visit"],lab:["lab"],instr:["instr"],med:["med","medend"]}[kind];
+  return K?ev.filter(e=>K.includes(e.k)):ev;
+}
 function symAgg(list,from,to){
   const sel=list.filter(x=>x.d>=from&&x.d<=to);
   const ii=sel.map(x=>x.i).filter(v=>v!=null);
@@ -1709,7 +1961,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="04.10 20:41";   // подставляется при публикации
+const BUILD="04.10 21:03";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2777,7 +3029,7 @@ function gBackWhere(){
   try{ const o=JSON.parse(sessionStorage.getItem("gWhere")||"null");
     sessionStorage.removeItem("gWhere");
     if(!o) return false;
-    cur=o.cur||cur; tab=o.tab||tab; symView=o.symView||symView;
+    cur=o.cur||cur; tab=o.tab||tab; symView=({strip:"month",sum:"month",log:"list"}[o.symView])||o.symView||symView;
     symSel=o.symSel||null; medSel=o.medSel||null; return true;
   }catch(e){ return false; }
 }
@@ -2944,11 +3196,17 @@ function epCreate(name,d1){
   return id;
 }
 // «Посещения» (ТЗ-008 блок 3): врач · болезнь · что назначено · следующий визит — без системы
+// «Принимает сейчас»: только идущее или запланированное; законченное — в карточке болезни и в Ленте (ТЗ-010 блок 4)
+function medsSplit(meds){ return (meds||[]).filter(x=>x.plan||medActive(x)); }
 function visitRow(r,eps){
-  const x=r.data||{}, ep=r.ep?(eps||[]).find(e=>e.id===r.ep):null, ill=ep?ep.dx:(r.epDx||"");
-  const fullRx=(r.full||[]).find(f=>Array.isArray(f)&&/назначени/i.test(f[0]));
-  return {who:[r.who,x.doc].filter(Boolean).join(" · ")||String(r.title||"").replace(/:.*$/,""),ill:ill||"",epId:ep?ep.id:"",
-    rx:x.rx||(fullRx?fullRx[1]:"")||"",next:x.next||""};
+  const x=r.data||{}, ep=r.ep?(eps||[]).find(e=>e.id===r.ep):null, epIll=ep?ep.dx:(r.epDx||"");
+  const sec=re=>{ const f=(r.full||[]).find(f=>Array.isArray(f)&&re.test(f[0])); return f?String(f[1]||""):""; };
+  const fullRx=sec(/назначени/i);
+  const cut=t=>{ t=String(t||"").replace(/\s+/g," ").trim(); return t.length>80?t.slice(0,80)+"…":t; };
+  // что писать в столбце «Болезнь»: болезнь → жалобы → диагноз → система (ТЗ-010 блок 6); со второго шага — серый текст
+  const ill=epIll||cut(x.complaints||sec(/жалоб/i))||cut(x.dx||sec(/диагноз/i))||(r.sys?sysName(r.sys):"")||"";
+  return {who:[r.who,x.doc].filter(Boolean).join(" · ")||String(r.title||"").replace(/:.*$/,""),ill:ill,epId:ep?ep.id:"",
+    rx:x.rx||fullRx||"",next:x.next||""};
 }
 function visitFilter(list,q,eps){
   const t=String(q||"").toLowerCase().trim(); if(!t) return list;
@@ -2961,7 +3219,7 @@ function visitsTable(list,d){
   return `<div class="tw"><table><thead><tr><th>Дата</th><th>Врач</th><th>Болезнь</th><th>Что назначено</th><th>Следующий визит</th></tr></thead><tbody>
     ${L.map(r=>{ const v=visitRow(r,eps); return `<tr class="row" data-rec="${idOf(r)}">
       <td class="muted" style="white-space:nowrap">${ru(r.d)}</td><td><b>${hl(v.who)}</b></td>
-      <td>${v.epId?`<span class="medlink" data-epcard="${esc(v.epId)}">${hl(v.ill)}</span>`:(v.ill?hl(v.ill):"<span class='muted'>—</span>")}</td>
+      <td>${v.epId?`<span class="medlink" data-epcard="${esc(v.epId)}">${hl(v.ill)}</span>`:(v.ill?`<span class="muted">${hl(v.ill)}</span>`:"<span class='muted'>—</span>")}</td>
       <td>${v.rx?hl(String(v.rx).slice(0,140)):"<span class='muted'>—</span>"}</td>
       <td class="muted" style="white-space:nowrap">${v.next?ru(v.next):"—"}</td></tr>`; }).join("")}</tbody></table></div>`;
 }
@@ -4252,37 +4510,15 @@ function render(){
       <h2>Принимает сейчас</h2>
       ${(()=>{
         // сверху — что идёт или запланировано; законченное и «не принимает» — свёрнуто ниже
-        const now=d.meds.filter(x=>x.plan||medActive(x)), past=d.meds.filter(x=>!(x.plan||medActive(x)));
+        const now=medsSplit(d.meds);
         const row=x=>`<tr><td><b class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</b>${x.entry?` <button class="addsym editmed" data-entry="${x.entry}" title="Изменить: статус, дозировка">✎</button>`:""}${x.stopped?` <span class="pill s-none">отменено ${ru(x.stopped)}</span>`:""}${x.plan?` <span class="pill s-warn">запланирован</span>`:medActive(x)?` <span class="pill s-ok">идёт</span>`:medStart(x)&&x.to?` <span class="pill s-none">закончен</span>`:""}
         ${x.plan?`<div class="muted" style="font-size:12px">${/^\d{4}-\d{2}-\d{2}$/.test(String(x.plan))?"с "+ru(x.plan):"дата старта не назначена"}</div>`:medStart(x)?`<div class="muted" style="font-size:12px">${x.entry&&x.from?medState(x,new Date().toISOString().slice(0,10)).text:"начат "+ru(medStart(x))}</div>`:""}</td><td>${esc(x.how)}</td>
         <td style="white-space:nowrap">${esc(x.till||"—")}</td><td class="muted">${esc(x.why||"")}${x.ep&&((d.sym||{}).ep||[]).some(e=>e.id===x.ep)?` <span class="eplink" data-epcard="${esc(x.ep)}">болезнь →</span>`:""}</td></tr>`;
         const head=`<thead><tr><th>Что</th><th>Схема</th><th>До какой даты</th><th>Зачем</th></tr></thead>`;
-        return (now.length?`<div class="tw"><table>${head}<tbody>${now.map(row).join("")}</tbody></table></div>`:`<div class="muted">${d.meds.length?"Сейчас ничего не принимает.":"Постоянной терапии нет."}</div>`)
-          +(past.length?`<details style="margin-top:10px"><summary>Закончены и не принимает — ${past.length}</summary><div class="tw"><table>${head}<tbody>${past.map(row).join("")}</tbody></table></div></details>`:"");
+        return (now.length?`<div class="tw"><table>${head}<tbody>${now.map(row).join("")}</tbody></table></div>`:`<div class="muted">${d.meds.length?"Сейчас ничего не принимает.":"Постоянной терапии нет."}</div>`);
       })()}
 
     </div>`:""}
-
-    <div class="card">
-      <h2>Что проверяли — карта органов</h2>
-      <div class="body-wrap">
-        <div>${silhouette()}
-          <div class="legend">
-            <span><i style="background:var(--ok)"></i>норма</span>
-            <span><i style="background:var(--warn)"></i>есть вопросы</span>
-            <span><i style="background:var(--bad)"></i>серьёзно</span>
-            <span><i style="background:var(--none)"></i>не проверяли</span>
-          </div>
-          <div class="muted" style="font-size:12.5px;margin-top:8px">Нажмите на орган — откроются все записи по нему</div>
-        </div>
-        <div class="olist">${d.organs.map(o=>`
-          <div class="orow organ-row" data-sys="${o.sys}">
-            <span class="ic">${o.ic}</span>
-            <span class="dotmark" style="background:var(--${o.st==='none'?'none':o.st})"></span>
-            <span style="flex:1"><b>${esc(o.name)}</b><span>${esc(o.txt)}</span></span>
-          </div>`).join("")}</div>
-      </div>
-    </div>
 
     <div class="card">
       <h2>Посещения врачей и обследования — ${todoVisit.length}</h2>
@@ -4453,12 +4689,11 @@ function render(){
     // ---------- обзор: четыре представления ----------
     else {
       const sw=`<div class="vsw">
-        ${[["list","Симптомы"],["ill","Болезни"],["strip","Когда возвращалось"],["sum","Сводка"],["log","Журнал"]]
+        ${[["list","Симптомы"],["ill","Болезни"],["month","Месяц"]]
           .map(([k,t])=>`<button data-symview="${k}" class="${symView===k?"on":""}">${t}</button>`).join("")}
       </div>`;
       const intro=`<div class="card"><h2>Карта симптомов</h2>${sw}
-        <p class="muted" style="margin:0">Чтобы добавить запись, скажите мне обычными словами:
-        <i>«у Димы вчера болел живот на 6, дали Но-шпу, помогло»</i>. Интенсивность — от 1 до 10, можно не указывать.</p></div>`;
+        <button class="gobtn" id="symToFeed" style="margin-top:12px">Все записи симптомов → Лента</button></div>`;
 
       let body="";
       if(!S.log.length){
@@ -4492,41 +4727,17 @@ function render(){
           </tbody></table></div></div>`
         :`<p style="margin:0">Эпизодов болезней пока нет — добавьте первую кнопкой выше.</p></div>`);
       }
-      else if(symView==="strip"){
-        body=`<div class="card"><h2>Когда просыпалось и когда затихало</h2>
-          <p class="muted" style="margin:-4px 0 10px">Клетка — месяц, чем плотнее заливка, тем чаще. Пустая клетка — тишина.
-          Полосы прокручиваются вбок, шкала у всех общая. Нажмите название — откроется симптом целиком.
-          ${hiddenBefore(S.log)?`<br>Карта начинается с ${MAPFROM.slice(0,4)} года. Записей раньше: ${hiddenBefore(S.log)} — они есть в журнале и в карточке симптома.`:""}</p>
-          <div class="stripwrap">
-            ${seen.map(n=>`<div class="striprow"><div class="nm" data-sym="${esc(n)}">${esc(n)}</div><div>${monthStrip(byName[n],since)}</div></div>`).join("")}
-            <div class="striprow" style="border:0"><div class="nm"></div><div>${monthAxis(since)}</div></div>
-          </div></div>`;
-      }
-      else if(symView==="sum"){
-        const rows=seen.map(n=>{
-          const L=byName[n], a30=symAgg(L,d30,today), a90=symAgg(L,d90,today), prev=symAgg(L,d60,d30), c=catOf(n);
-          let tr='<span class="muted">—</span>';
-          if(a30.n||prev.n) tr=a30.n>prev.n?'<span class="trend-up">↑ чаще</span>':a30.n<prev.n?'<span class="trend-dn">↓ реже</span>':'<span class="muted">= так же</span>';
-          return `<tr class="symlink" data-sym="${esc(n)}"><td><b>${esc(n)}</b>${c.red?' <span class="red-dot">▲</span>':""}
-              <div class="muted" style="font-size:12px">${esc((organOf(c.sys)||{}).name||"")}</div></td>
-            <td style="text-align:center">${a30.n||'<span class="muted">0</span>'}</td>
-            <td style="text-align:center">${a30.avg!=null?`<span class="pill" style="background:${intColor(a30.avg)}">${String(a30.avg).replace(".",",")}</span>`:'<span class="muted">—</span>'}</td>
-            <td style="text-align:center">${a90.n||'<span class="muted">0</span>'}</td>
-            <td style="text-align:center">${tr}</td>
-            <td class="muted">${L[0].d.split("-").reverse().join(".")}<br><span style="font-size:12px">${lastAgo(L[0].d,today)}</span></td></tr>`;
-        }).join("");
-        body=`<div class="card"><h2>Сводка — 30 и 90 дней</h2>
-          <p class="muted" style="margin:-4px 0 10px">Тренд сравнивает последние 30 дней с предыдущими 30. Кружок — средняя интенсивность:
-          <span class="pill" style="background:var(--ok)">1–3</span> терпимо,
-          <span class="pill" style="background:var(--warn)">4–6</span> мешает,
-          <span class="pill" style="background:var(--bad)">7–10</span> сильно.</p>
-          <div class="tw"><table><thead><tr><th>Симптом</th><th style="text-align:center">30 дн.</th><th style="text-align:center">сила</th>
-            <th style="text-align:center">90 дн.</th><th style="text-align:center">тренд</th><th>последний раз</th></tr></thead>
-            <tbody>${rows}</tbody></table></div></div>`;
-      }
-      else if(symView==="log"){
-        body=`<div class="card"><h2>Журнал <span class="muted" style="text-transform:none">— ${S.log.length}</span></h2>
-          ${logLines(S.log,S.ep)}</div>`;
+      else if(symView==="month"){
+        const M=monthRows(S.log,today,n=>(catOf(n)||{}).red), TR={up:'<span class="trend-up">↑ чаще</span>',down:'<span class="trend-dn">↓ реже</span>',same:'<span class="muted">= так же</span>'};
+        body=`<div class="card"><h2>Месяц <span class="muted" style="text-transform:none">— последние 30 дней</span></h2>
+          <p class="muted" style="margin:-4px 0 10px">Клетка — день. Цвет — сила.</p>
+          ${M.length?M.map(r=>`<div class="mrow2" data-sym="${esc(r.n)}">
+            <div class="mrow2-h"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
+              <span class="muted">${r.days} ${plural(r.days,"день","дня","дней")} из 30</span>
+              ${r.avg!=null?`<span class="pill" style="background:${r.mid}">${String(r.avg).replace(".",",")}</span>`:""}
+              ${TR[r.trend]} <span class="muted">${lastAgo(r.last,today)}</span></div>
+            <div class="mcells">${r.cells.map(c=>`<i class="${c}"></i>`).join("")}</div></div>`).join(""):`<div class="muted">За последние 30 дней симптомов не было</div>`}
+          </div>`;
       }
       else {
         const rows=seen.map(n=>{
@@ -4951,7 +5162,7 @@ function render(){
           const c=labs.find(r=>r.title===nm&&r.d===dt);
           if(!c) return `<td><span class="muted">—</span></td>`;
           const mk=markVN(c.v,c.n);
-          const col=mk?mk.c:`var(--${c.st==='ok'?'ink':c.st})`;
+          const col=mk?mk.c:statusColor(c.st);
           return `<td><b style="color:${col}"${mk?` title="${esc(mk.why)}"`:""}>${esc(c.v||"—")}</b></td>`;
         }).join("")}</tr>`).join("")}
         </tbody></table></div></div>`;})():"";
@@ -5037,11 +5248,11 @@ function render(){
           ${others.map(x=>`<span class="tag" data-w="${x.k}" style="cursor:pointer;font-size:13px;padding:4px 10px">${DATA[x.k].short} — ${x.n} →</span>`).join(" ")}</div>`:""}
       </div>`:""}
       <div class="card" id="s-rec">
-        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?tlEvents(d).length:list.length}</span></h2>
+        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?tlKindFilter(tlEvents(d),tlKind).length:list.length}</span></h2>
         ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
           <div id="vtab">${visitsTable(list,d)}</div>`
         :`${filterBar()}
-        ${tab==="all"&&!sysFilter?timeline(d):tableRows(list,{showType:tab==="all"})}`}
+        ${tab==="all"&&!sysFilter?`<div class="filters" id="tlKinds">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="${tlKind===k?"on":""}">${t}</button>`).join("")}</div>`+timeline(d):tableRows(list,{showType:tab==="all"})}`}
         ${(!list.length&&sysFilter&&other)?`<div style="text-align:center;margin-top:10px">
           <button class="gobtn" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
@@ -5139,6 +5350,8 @@ document.addEventListener("click",e=>{
   if(ins){ insSel = insSel===ins.dataset.ins ? null : ins.dataset.ins; render(); return }
 
   const w=e.target.closest("[data-w]"); if(w){cur=w.dataset.w;insSel=null;sysFilter=null;symSel=null;medSel=null;symView="list";tab="home";closeModal();render();return}
+  const tk=e.target.closest("[data-tlk]"); if(tk){ tlKind=tk.dataset.tlk; render(); return; }
+  const toFeed=e.target.closest("#symToFeed"); if(toFeed){ tlKind="sym"; tab="all"; sysFilter=null; symSel=null; render(); window.scrollTo({top:0}); return; }
   const sv=e.target.closest("[data-symview]"); if(sv){symView=sv.dataset.symview;symSel=null;medSel=null;render();window.scrollTo({top:0});return}
   if(e.target.closest("#todoAll")){ todoAll=!todoAll; render(); return; }
   if(e.target.closest("#pendBar")){ showPending(); return; }
