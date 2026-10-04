@@ -1187,6 +1187,8 @@ nav.tabs{position:sticky;top:57px;z-index:19;border-bottom:0}
   .app-header .seg{order:5}
 }
 @media print{.app-header,.bottombar,.drawer-overlay,nav.tabs{display:none!important}}
+/* верхняя полоса вкладок не показывается на телефоне (ТЗ-011 блок 3) */
+@media (max-width:700px){ nav.tabs#nav{display:none} }
 /* ── Новый дизайн (04.10.2026): токены и компоненты из Разработка/Дизайн. Слой поверх старых стилей:
    имена переменных прежние, значения — из токены.css; чёрная главная кнопка и активная вкладка, карточки 20px без рамок ── */
 :root{
@@ -1235,6 +1237,7 @@ main{padding-top:16px}
 a,.medlink,.symlink,.linkbtn{color:var(--accent)}
 .empty{color:var(--muted)}
 @media (max-width:520px){ .card,details.card{padding:16px;border-radius:20px} main{padding-left:12px;padding-right:12px} }
+@media (max-width:700px){.tl-item .tl-meta{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}   /* Лента на телефоне: длинные строки в две (ТЗ-011 блок 1); полный текст — по нажатию на запись */
 </style>
 </head>
 <body>
@@ -1280,7 +1283,7 @@ const DATA = window.__MK_DATA;   // v2: данные приходят из Supab
 const ST={ok:"норма",warn:"внимание",bad:"проблема",none:"не проверяли"};
 const TYPE={visit:"Посещение",instr:"Исследование",lab:"Анализ"};
 let cur="denis", tab="home", sysFilter=null, query="", taskIdx=null, insSel=null;
-let symView="list", symSel=null, medSel=null;   // виды: list · ill · month (ТЗ-010 блок 8)
+let symView="main", symSel=null, medSel=null;   // виды страницы «Симптомы»: main (карта 30 дней + список) · ill (Болезни)
 let todoAll=false;   // «все записи»: снимает лимит 15 и показывает закрытые (зелёные)
 
 const el=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild};
@@ -1590,10 +1593,38 @@ function silhouette(){
 // ── Вкладки
 const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"],["visit","Посещения"],["instr","Исследования"],["lab","Анализы"],["dyn","Динамика"],["sym","Симптомы"],["dx","Диагнозы"],["anam","Анамнез"]];
 // Медкарта — один пункт верхнего меню, внутри разделы. Симптомы первыми
-const CARD=[["sym","Симптомы"],["visit","Посещения"],["instr","Исследования"],["lab","Анализы"],["dyn","Динамика"],["dx","Диагнозы"],["all","Лента"],["cal","Календарь"],["doc","Для врача"]];
-const CARDK=CARD.map(x=>x[0]);
+// ── Навигация (ТЗ-011 блоки 2–3): одно меню Медкарты и нижняя панель
+function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["visit","Посещения"],["lab","Анализы"],["instr","Исследования"],["dyn","Динамика"],["all","Лента"]]; }
+const CARD=cardTabs(), CARDK=["sym","visit","lab","instr","dyn","all"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
+// старые значения tab → {page, sub}; нужны ссылкам и карточкам, которые ставили прежние вкладки
+function legacyTab(t){
+  if(t==="ill") return {page:"card",sub:"ill"};
+  if(["sym","visit","lab","instr","dyn","all"].includes(t)) return {page:"card",sub:t};
+  if(t==="card") return {page:"card",sub:"sym"};
+  if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
+  if(t==="prof"||t==="ins") return {page:"profile",sub:t==="ins"?"insights":"about"};
+  if(t==="cal") return {page:"home",sub:"cal"};
+  if(t==="doc") return {page:"ask",sub:"brief"};
+  if(t==="nutr"||t==="diary") return {page:"nutr",sub:"today"};
+  if(["home","ask","sys","task"].includes(t)) return {page:t};
+  return {page:"home"};
+}
+function profTabs(){ return [["prof","О человеке"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"]]; }
+function nutrTabs(d){ return (d&&d.nutrition)?[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]:[]; }
+let nutSub="today";
+function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"AI-консультант"}]; }
+function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"]:["home","card","add","ask"]; }
+// перейти на страницу по старому или новому значению tab
+function goTab(t){
+  const m=legacyTab(t); sysFilter=null; symSel=null; medSel=null; insSel=null;
+  if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
+  else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo")?t:"dx";
+  else if(m.page==="home") tab=(m.sub==="cal")?"cal":"home";
+  else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
+  else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
+  else tab=m.page;
+}
 // «Дневник» — дневник питания по фото (страница v2), встроен отдельной вкладкой; только у тех, у кого есть план питания
-const TOP=[["home","Обзор"],["nutr","Питание"],["diary","📸 Дневник"],["card","Медкарта"],["anam","Анамнез"],["ask","🤖 Спросить"]];
 
 function idOf(r){return DATA[cur].rec.indexOf(r)}   // это ИНДЕКС: у самой свежей записи он 0.
 // Проверять только через !=null — на «e.id?» верхняя запись в ленте переставала открываться (21.09.2026)
@@ -1708,13 +1739,19 @@ function tlEvents(d){
   return out.sort((a,b)=>b.d.localeCompare(a.d)||a.k.localeCompare(b.k));
 }
 let tlKind="all";
+const TL_PAGE=15; let tlShown=TL_PAGE;   // сколько событий Ленты показано (ТЗ-011 блок 1); сбрасывается при смене человека, типа, фильтра, поиска
+const tlReset=()=>{ tlShown=TL_PAGE; };
+// порция ленты: самые свежие n событий и сколько осталось
+function timelinePage(events,n){ const items=(events||[]).slice(0,n); return {items,rest:Math.max(0,(events||[]).length-items.length)}; }
 function timeline(d){
-  const ev=tlKindFilter(tlEvents(d),tlKind);
-  if(!ev.length) return `<div class="empty">Ничего не найдено</div>`;
+  const all=tlKindFilter(tlEvents(d),tlKind);
+  if(!all.length) return `<div class="empty">Ничего не найдено</div>`;
+  const page=timelinePage(all,tlShown), ev=page.items;
+  const total={}; all.forEach(e=>{ const k=monthKey(e.d); total[k]=(total[k]||0)+1; });
   const byMonth={}; ev.forEach(e=>(byMonth[monthKey(e.d)]=byMonth[monthKey(e.d)]||[]).push(e));
   const short=iso=>{ const x=new Date(iso); return `${String(x.getDate()).padStart(2,"0")} ${MON[x.getMonth()]}`; };
   const icCls=k=>k==="visit"?" tl-ic--visit":(k==="med"||k==="medend")?" tl-ic--med":k==="sym"?" tl-ic--sym":"";
-  return Object.keys(byMonth).sort().reverse().map(mk=>`<div class="tl-group"><h3 class="tl-month">${esc(monthName(mk))} · ${byMonth[mk].length}</h3>
+  return Object.keys(byMonth).sort().reverse().map(mk=>`<div class="tl-group"><h3 class="tl-month">${esc(monthName(mk))} · ${total[mk]}</h3>
     ${byMonth[mk].map(e=>{
       const lines=tlLines(e), click=e.id!=null||e.k==="ep"||tlMedAttr(e);
       const acts=e.k==="sym"?`<span class="tl-act"><button class="addsym editrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Исправить запись">✎</button><button class="addsym delrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Удалить запись">✕</button></span>`
@@ -1723,7 +1760,8 @@ function timeline(d){
         <div class="tl-date">${short(e.d)}</div><div class="tl-ic${icCls(e.k)}">${e.ic||TL_ICON[e.k]||"•"}</div>
         <div><div class="tl-title">${hl(e.t)}${e.k==="med"&&e.r&&medActive(e.r)?' <span class="status status-ok">идёт</span>':""}${e.st?` <span class="status status-${e.st}">${ST[e.st]}</span>`:""}${acts}</div>
           <div class="tl-meta"><span class="tag${e.k==="sym"?"":" tag--gray"}">${TL_KIND[e.k]||""}</span>${e.sys&&e.sys!=="other"?" "+esc(sysName(e.sys)):""}</div>
-          ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`; }).join("")}</div>`).join("");
+          ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`; }).join("")}</div>`).join("")
+    +(page.rest?`<button class="btn btn-secondary btn-block" data-tlmore="1" style="margin-top:12px">Показать ещё ${Math.min(TL_PAGE,page.rest)}</button>`:"");
 }
 // ── Автоматические выводы. Считаются из рядов и записей, ничего не утверждают про причины
 function monthsAgo(d){ return (Date.now()-Date.parse(d))/2592e6 }
@@ -1845,8 +1883,7 @@ function insightsChanged(d){
                warn:"Изменились — сдвиг 10 % и больше, но в пределах нормы",
                bad:"Вне нормы — последнее значение за границей коридора"};
   const sel=insSel?(G[insSel]||[]):[];
-  return `<div class="card"><h2>🔎 Что изменилось</h2>
-    <div class="muted" style="margin:-6px 0 10px">Зелёная и жёлтая группы — по рядам динамики: сравниваются две последние точки ряда, даты у каждой строки свои и показаны рядом. Ряды из блока прогресса выше сюда не входят. Красная — по последним значениям всех анализов, даже если измерение было одно и ряда для него нет. Строки, где последнее измерение старше ${M} мес., показаны бледным и подписаны давностью. Считает страница, врач это не смотрел. Нажми на кружок, чтобы увидеть список.</div>
+  return `<div class="card"><h2>Что изменилось</h2>
     <div class="ins-c">
       <button class="ins-p s-ok${insSel==="ok"?" on":""}" data-ins="ok">🟢 ${ok} стабильно</button>
       <button class="ins-p s-warn${insSel==="warn"?" on":""}" data-ins="warn">🟡 ${wa} изменилось</button>
@@ -1882,8 +1919,7 @@ function insightsGaps(d){
     if(miss.length) g.push(`В заборе ${ru(big[0])} нет ${miss.length} показателей, которые были ${ru(big[1])}: <b>${esc(miss.slice(0,4).join(", "))}</b>${miss.length>4?" и др.":""}`);
   }
   if(!g.length) return "";
-  return `<div class="card"><h2>📌 Что стоит проверить</h2>
-    <div class="muted" style="margin:-6px 0 10px">Пробелы в данных, а не диагнозы. Список собирается сам.</div>
+  return `<div class="card"><h2>Что стоит проверить <span class="hint" tabindex="0" title="Пробелы в данных, а не диагнозы. Список собирается сам." aria-label="Пробелы в данных, а не диагнозы. Список собирается сам.">?</span></h2>
     <ul class="ins-g">${g.slice(0,8).map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
 }
 function tableRows(list,opt){
@@ -2503,7 +2539,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="04.10 22:20";   // подставляется при публикации
+const BUILD="05.10 01:45";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3551,17 +3587,6 @@ function delRecNow(who,a){
     DATA[who].sym._base&&0; ovApply(); render();
   });
 }
-function gWhere(){
-  try{ sessionStorage.setItem("gWhere",JSON.stringify({cur,tab,symView,symSel,medSel})); }catch(e){}
-}
-function gBackWhere(){
-  try{ const o=JSON.parse(sessionStorage.getItem("gWhere")||"null");
-    sessionStorage.removeItem("gWhere");
-    if(!o) return false;
-    cur=o.cur||cur; tab=o.tab||tab; symView=({strip:"month",sum:"month",log:"list"}[o.symView])||o.symView||symView;
-    symSel=o.symSel||null; medSel=o.medSel||null; return true;
-  }catch(e){ return false; }
-}
 function gSave(t,sec){
   try{ localStorage.setItem("gTok",JSON.stringify({t,exp:Date.now()+(sec-120)*1000})); }catch(e){}
 }
@@ -3791,8 +3816,10 @@ function epCard(epId){
       ${sec("Приёмы — "+L.visits.length,L.visits.length?L.visits.map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0"><div class="tl-date">${ru(r.d).slice(0,5)}</div><div class="tl-ic tl-ic--visit">🩺</div><div><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`)}
       ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">—</div>`)}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
+      ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
       <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button></div>
     </div></div>`;
+  const eh=document.getElementById("epHome"); if(eh) eh.onchange=()=>homeHideSet(cur,ep.id,!eh.checked);
   const cl=document.getElementById("epClose");
   if(cl) cl.onclick=()=>{
     const o=ovLoad(), ts=Date.now(), rec={dx:ep.dx,d1:ep.d1,d2:today,sym:ep.sym||"",t:ep.t||"",ab:ep.ab?1:0};
@@ -3904,7 +3931,7 @@ async function medOpen(name){
   const full=iso=>iso.split("-").reverse().join(".");
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
     <div class="status status-${M.state==="on"?"ok":M.state==="plan"?"warn":"none"}" style="margin-bottom:8px">${esc(M.stateText)}</div>
-    <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">💊 ${esc(M.name)}</h2>
+    <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(M.name)}</h2>
     ${m&&m.how?`<div>${esc(m.how)}</div>`:""}${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
     ${ep?`<div style="margin-top:8px"><span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span></div>`:""}
     ${M.conflict?`<div class="note" style="margin-top:10px;background:var(--warnbg);color:var(--warn)">В болезни — с ${full(M.conflict.ep)}, в списке «Принимает» — с ${full(M.conflict.meds)}. Уточните, какая дата верная.</div>`:""}
@@ -4279,6 +4306,61 @@ function measRows(k){
     if(yy) out.push({d:`${yy}-${mm}-${dd}`,n:s.name,v:p[1],u:s.unit||"",norm:s.norm?s.norm.join("-"):""}); }));
   return out;
 }
+// ── Главная (ТЗ-011 блоки 4, 8): что делать · за чем следим · что изменилось · что сейчас
+// ближайшее, что нужно сделать самому: записаться, сдать, спросить; привычки и «постоянно» — в «Все дела»
+function nextTodo(todo){ return (todo||[]).filter(x=>!x.self&&/^(записаться|записан|сдать|спросить)$/.test(x.tag)&&!/постоянно/i.test(x.when||"")); }
+function todoPreview(list,n){ return {items:list.slice(0,n),rest:Math.max(0,list.length-n)}; }
+// ближайшие визиты: из заранее запланированных и из «следующий визит» прошлых приёмов; на одну дату — одна строка, плановый визит главнее
+function upcomingVisits(d,plans,today){
+  const by={};
+  ((d&&d.rec)||[]).filter(r=>r.t==="visit"&&r.data&&r.data.next&&r.data.next>=today)
+    .forEach(r=>{ by[r.data.next]={date:r.data.next,src:"visit",title:r.who||r.title||"Визит"}; });
+  (plans||[]).filter(x=>x.status==="planned"&&x.planned_date&&x.planned_date>=today)
+    .forEach(x=>{ by[x.planned_date]={date:x.planned_date,src:"plan",title:x.specialty,plan:x.id}; });
+  return Object.keys(by).sort().slice(0,3).map(k=>by[k]);
+}
+// болезнь без названия — «Недомогание с 09.09»; давняя — «с ноября 2023», свежая — «идёт N-й день»
+function illLabel(ep,today){
+  const named=/[a-zа-яё]{2}/i.test(ep.dx||"")&&!/не установлен/i.test(ep.dx);
+  const days=rxDays(ep.d1,today), [y,m,dd]=ep.d1.split("-");
+  return {title:named?ep.dx:`Недомогание с ${dd}.${m}`,
+    span:days>60?`с ${MONTHS[+m-1]} ${y}`:`идёт ${days}-й день`, named};
+}
+// какие части главной показать; hidden — id болезней, скрытых с главной
+function homeBlocks(d,today,o){
+  const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2), shown=eps.filter(e=>!(o.hidden||[]).includes(e.id));
+  const now=shown.length||medsSplit(d.meds).length||upcomingVisits(d,o.plans,today).length;
+  return {blocks:["todo","watch",...((o.changes||[]).length?["changes"]:[]),...(now?["now"]:[])],hiddenCount:eps.length-shown.length};
+}
+// границы нормы из строки «110-140», «от 30», «до 5,2»
+function normRange(norm){
+  const n=s=>parseFloat(String(s).replace(",",".")), t=String(norm||"").replace(/\s/g,"").toLowerCase();
+  let m=t.match(/^(-?[\d.,]+)[-–—](-?[\d.,]+)$/); if(m) return {lo:n(m[1]),hi:n(m[2])};
+  m=t.match(/^(?:до|<|≤|<=)(-?[\d.,]+)$/); if(m) return {lo:null,hi:n(m[1])};
+  m=t.match(/^(?:от|>|≥|>=)(-?[\d.,]+)$/); if(m) return {lo:n(m[1]),hi:null};
+  return null;
+}
+// «лучше / хуже / без изменений» относительно нормы; dir — класс линии динамики (up красная, dn зелёная)
+function trendWord(prev,last,norm){
+  if(prev==null) return {word:"пока одно значение",dir:""};
+  const r=normRange(norm); if(!r) return {word:last===prev?"без изменений":"изменился",dir:""};
+  const dist=v=>r.lo!=null&&v<r.lo?r.lo-v:r.hi!=null&&v>r.hi?v-r.hi:0, a=dist(prev), b=dist(last);
+  return b<a?{word:"лучше",dir:"dn"}:b>a?{word:"хуже",dir:"up"}:{word:"без изменений",dir:""};
+}
+// что предложить следить, когда звёздочек нет: до n показателей вне нормы по последнему значению, свежие первыми
+function suggestWatch(rows,n){
+  const last={};
+  (rows||[]).filter(r=>r&&r.n&&r.d).forEach(r=>{ const k=favKey(r.n); if(!last[k]||r.d>last[k].d) last[k]=r; });
+  return Object.keys(last).filter(k=>{ const f=flagByNorm(last[k].v,last[k].norm); return f==="выше"||f==="ниже"; })
+    .sort((a,b)=>last[b].d.localeCompare(last[a].d)).slice(0,n);
+}
+// линия динамики для карточки показателя (pts — значения от старых к новым)
+function sparkSvg(pts,dir){
+  if(!pts||pts.length<2) return "";
+  const lo=Math.min(...pts), hi=Math.max(...pts), W=120, H=28, y=v=>hi===lo?H/2:H-3-(v-lo)/(hi-lo)*(H-6);
+  const xy=pts.map((v,i)=>[3+i*(W-6)/(pts.length-1),y(v)]);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="${dir||""}" pathLength="1" d="${xy.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ")}"/></svg>`;
+}
 // ── Избранные показатели (ТЗ-010 блок 2): звёздочка у показателя, строки на «Обзоре». Ключ — название строчными, «е» вместо «ё»
 function favKey(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
 // строки карточки «Избранное»: rows — значения человека (measRows); ключ без данных пропускается
@@ -4294,7 +4376,9 @@ function favRows(rows,keys){
     const f=flagByNorm(last.v,last.norm);
     const st=f==="выше"||f==="ниже"?"bad":f==="норма"?"ok":"none";
     out.push({key,name,v:String(last.v).replace(".",",")+(last.u?" "+last.u:""),d:last.d,st,word:st==="ok"?"норма":st==="bad"?f+" нормы":"без нормы",
-      prev:prev?String(prev.v).replace(".",","):""});
+      prev:prev?String(prev.v).replace(".",","):"",
+      pts:L.slice(0,6).reverse().map(r=>num(r.v)).filter(x=>x!=null),
+      trend:trendWord(prev?num(prev.v):null,num(last.v),last.norm)});
   }
   return out;
 }
@@ -4313,6 +4397,22 @@ async function favToggle(person,name){
   if(!window.__MK_KEY) return;
   try{ await mkApi("fav_toggle",{person,key}); }
   catch(e){ if(on&&/bad_request|400/.test(String(e.message||e))){ FAV[person]=was; favSave(); render(); toast("Этого показателя нет в записях — звёздочку не поставить"); } }
+}
+// ── Скрыть болезнь с главной (ТЗ-011 блок 6): свои у кода доступа; в книжке и Ленте болезнь остаётся
+const HIDK="mk_homehid";
+let HOMEHID=(()=>{ try{ return JSON.parse(localStorage.getItem(HIDK)||"{}")||{}; }catch(e){ return {}; } })();
+const homeHidSave=()=>{ try{ localStorage.setItem(HIDK,JSON.stringify(HOMEHID)); }catch(e){} };
+const homeHidden=p=>HOMEHID[p]||[];
+function homeHideLoad(){
+  if(!window.__MK_KEY||window.__hideLoading) return; window.__hideLoading=1;
+  mkApi("home_hide_list").then(j=>{ const next={}; (j.rows||[]).forEach(r=>(next[r.person]=next[r.person]||[]).push(r.ep_id)); HOMEHID=next; homeHidSave(); render(); }).catch(()=>{});
+}
+async function homeHideSet(person,ep,hidden){
+  const was=homeHidden(person).slice();
+  HOMEHID[person]=hidden?[...was.filter(x=>x!==ep),ep]:(ep?was.filter(x=>x!==ep):[]); homeHidSave(); render();
+  if(!window.__MK_KEY) return;
+  try{ await mkApi("home_hide_set",ep?{person,ep,hidden}:{person,hidden:false}); }
+  catch(e){ HOMEHID[person]=was; homeHidSave(); render(); toast("Не получилось сохранить — попробуйте ещё раз"); }
 }
 const favStar=(person,name)=>`<button class="favstar${isFav(person,favKey(name))?" on":""}" data-fav="${esc(name)}" aria-label="${isFav(person,favKey(name))?"Убрать из избранного":"В избранное"}" title="${isFav(person,favKey(name))?"Убрать из избранного":"В избранное"}">${isFav(person,favKey(name))?"★":"☆"}</button>`;
 
@@ -4342,6 +4442,39 @@ function requestHints(d,tagOf){
   return {questions:q,tests:t};
 }
 function planClean(list){ const seen=new Set(); return (list||[]).map(x=>typeof x==="string"?{t:x}:x).map(x=>({t:String(x.t||"").trim(),done:!!x.done})).filter(x=>{ const k=x.t.toLowerCase(); if(!x.t||seen.has(k)) return false; seen.add(k); return true; }); }
+// ── Подготовка к приёму (ТЗ-011 блок 10, этап 1): черновик из записанного, правилами; ФИО, полис, адрес не читаются
+// специальность по открытым болезням, диагнозам и симптомам за 90 дней: у какой специальности больше всего совпадений по системам
+function briefSpecialty(d,today){
+  const from=(()=>{ const x=new Date(today+"T12:00:00Z"); x.setUTCDate(x.getUTCDate()-90); return x.toISOString().slice(0,10); })();
+  const cnt={}; (d.diagnoses||[]).forEach(x=>x.sys&&(cnt[x.sys]=(cnt[x.sys]||0)+2));
+  ((d.sym||{}).log||[]).filter(x=>x.sys&&x.d>=from&&x.d<=today).forEach(x=>{ cnt[x.sys]=(cnt[x.sys]||0)+1; });
+  let best=null, score=0;
+  for(const sp of DOC_SPECS){ if(sp[2]==="all") continue; const n=sp[2].split(" ").reduce((a,k)=>a+(cnt[k]||0),0); if(n>score){ score=n; best=sp; } }
+  if(!best) return {spec:"ped",why:"Записей по системам нет — начните с педиатра или терапевта."};
+  const top=Object.keys(cnt).filter(k=>best[2].split(" ").includes(k)).sort((a,b)=>cnt[b]-cnt[a])[0];
+  return {spec:best[0],why:`Больше всего записано по системе «${sysName(top)}» — ${best[1].toLowerCase()}.`};
+}
+// {purpose, know, questions, tests, bring}: пункт — {t, source} (source — дата записи-основания); человек правит всё сам
+function briefDraft(d,key,today){
+  const yearAgo=(()=>{ const x=new Date(today+"T12:00:00Z"); x.setUTCFullYear(x.getUTCFullYear()-1); return x.toISOString().slice(0,10); })();
+  const S=d.sym||{}, eps=(S.ep||[]).filter(e=>!e.d2), named=e=>/[a-zа-яё]{2}/i.test(e.dx||"")&&!/не установлен/i.test(e.dx);
+  const h=requestHints(d,labelOf), sys=new Set(docSpecSys(key)), all=(DOC_SPECS.find(x=>x[0]===key)||DOC_SPECS[0])[2]==="all";
+  const item=(t,source)=>({t,source:source||""});
+  const syms=[...new Set((S.log||[]).filter(x=>x.d>=today.slice(0,8)+"01"&&x.d<=today&&(all||sys.has(x.sys))).map(x=>x.n))].slice(0,5);
+  const purpose=[eps.length?eps.map(e=>named(e)?`${e.dx} (с ${ru(e.d1)})`:`недомогание с ${ru(e.d1)}`).join("; "):"",syms.length?"Симптомы за месяц: "+syms.join(", "):""].filter(Boolean).join(". ");
+  const meds=(d.meds||[]).filter(m=>!m.plan&&!(m.stopped&&m.stopped<=today)&&m.from&&m.from<=today&&(!m.to||m.to>=today));
+  const out=(d.rec||[]).filter(r=>r.t==="lab"&&r.v&&r.n&&r.d>=yearAgo&&(all||sys.has(r.sys))&&flagByNorm(String(r.v).match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",r.n)).sort((a,b)=>b.d.localeCompare(a.d));
+  const seen=new Set(), outU=out.filter(r=>{ const k=favKey(r.title); if(seen.has(k)) return false; seen.add(k); return true; }).slice(0,6);
+  const visits=(d.rec||[]).filter(r=>r.t==="visit"&&r.d>=yearAgo&&r.d<=today).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,3);
+  const know=[...meds.map(m=>item(`Принимает: ${m.n}${m.how?" — "+m.how:""}`,m.from)),
+    ...outU.map(r=>item(`${r.title}: ${r.v} (норма ${r.n})`,r.d)),
+    ...visits.map(r=>item(`Приём ${ru(r.d)}: ${r.who||r.title||"врач"}`,r.d))];
+  const questions=[...h.questions.map(t=>item(t)),...eps.filter(named).map(e=>item(`Как долго ждать улучшения при «${e.dx}» и когда нужен повторный приём?`,e.d1))];
+  const tests=[...h.tests.map(t=>item(t)),...outU.map(r=>item(`Обсудить повторный анализ: ${r.title}`,r.d))];
+  const bring=["Результаты анализов и исследований","Список лекарств, которые принимает сейчас","Направления и выписки с прошлых приёмов"].map(t=>item(t));
+  const uniq=l=>{ const k=new Set(); return l.filter(x=>{ const z=x.t.toLowerCase(); if(k.has(z)) return false; k.add(z); return true; }); };
+  return {purpose,know,questions:uniq(questions),tests:uniq(tests),bring};
+}
 // набор для документа: только то, что записано; личные данные (СНИЛС, паспорт, адрес, полис) не читаются никогда
 function doctorPack(d,key,today,opt){
   opt=opt||{};
@@ -4423,6 +4556,21 @@ function docHtml(P,d){
   o+=`<p class="muted docfoot">Составлено из медкнижки семьи Опалинских. Не заменяет заключение врача.</p>`;
   return o;
 }
+let BRIEFS=null;   // заявки на разбор семейного врача; null — ещё не загружены
+function briefsLoad(force){
+  if(!window.__MK_KEY||(BRIEFS&&!force)||window.__briefLoading) return; window.__briefLoading=1;
+  mkApi("brief_list").then(j=>{ BRIEFS=j.rows||[]; window.__briefLoading=0; render(); }).catch(()=>{ window.__briefLoading=0; BRIEFS=BRIEFS||[]; });
+}
+// заявка этого человека и специальности: ждёт разбора или готовый разбор
+function briefBlock(){
+  briefsLoad(); const L=(BRIEFS||[]).filter(x=>x.person===cur&&x.specialty===docSt.spec&&x.status!=="failed");
+  const r=L.find(x=>x.status==="done"), w=L.find(x=>x.status==="new");
+  if(r){ const res=r.result||{};
+    return `<div class="card"><h2>Разбор семейного врача от ${ru(String(r.done_at||r.created_at).slice(0,10))}</h2>
+      ${(res.versions||[]).length?`<h3 style="font-size:14px">Возможные причины</h3><ul>${res.versions.map(v=>`<li>${esc(v)}</li>`).join("")}</ul>`:""}
+      ${(res.sections||[]).map(x=>`<h3 style="font-size:14px">${esc(x.title)}</h3><ul>${x.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`).join("")}</div>`; }
+  return w?`<div class="muted" style="margin:8px 0">Ждёт разбора — отправлено ${ru(w.created_at.slice(0,10))}</div>`:"";
+}
 function docTab(m){
   const d=DATA[cur], R=docReq(), have=docSysHave(d);
   const spec=DOC_SPECS.find(x=>x[0]===docSt.spec)||DOC_SPECS[0], base=docSpecSys(spec[0]);
@@ -4436,8 +4584,7 @@ function docTab(m){
     const P=doctorPack(d,spec[0],localDay(),{systems:sysAll,req:rq});
     out=`<div class="card" id="docout"><div class="docbar"><button class="btn btn-primary btn-block" data-dock="print" style="margin:0">Скачать PDF</button></div>${docHtml(P,d)}</div>`;
   }
-  m.innerHTML=plansBlock()+`<div class="card nodoc"><h2>Для врача</h2>
-    <div class="muted" style="margin:-6px 0 12px">Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется.</div>
+  m.innerHTML=plansBlock()+`<div class="card nodoc" style="border-color:var(--warn)"><b>Нужна консультация врача.</b> Черновик собран из записанного и не заменяет приём.</div>${briefBlock()}<div class="card nodoc"><h2>Для врача <span class="hint" tabindex="0" title="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется." aria-label="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется.">?</span></h2>
     <div class="addform" id="docForm">
       <div class="fld"><label for="docWho">Кто</label><select id="docWho">${people.map(k=>`<option value="${k}"${k===cur?" selected":""}>${esc(DATA[k].short)}</option>`).join("")}</select></div>
       <div class="fld"><label for="docSpec">Специальность</label><select id="docSpec">${DOC_SPECS.map(s=>`<option value="${s[0]}"${s[0]===spec[0]?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
@@ -4447,7 +4594,7 @@ function docTab(m){
       ${ta("docQ","Вопросы к врачу",rq.questions,"по строке на вопрос")}${chips(hints.questions,"docQ")}
       ${ta("docT","Какие анализы и исследования нужны",rq.tests,"по строке: ферритин, ЭКГ контроль…")}${chips(hints.tests,"docT")}
       ${ta("docO","Что ещё нужно от визита",rq.other,"рецепт, справка, направление…")}
-      <div class="row"><button class="btn btn-primary" data-dock="prep">Подготовить</button><button class="btn btn-secondary" data-dock="clear">Очистить запрос</button></div>
+      <div class="row"><button class="btn btn-primary" data-dock="auto">Собрать черновик за меня</button><button class="btn btn-secondary" data-dock="prep">Показать документ</button><button class="btn btn-secondary" data-dock="askdoc">Попросить семейного врача</button><button class="btn btn-secondary" data-dock="clear">Очистить запрос</button></div>
     </div></div>${out}`;
 }
 function docRead(){   // поля формы → черновик в браузере (в базу не уходит)
@@ -4456,6 +4603,12 @@ function docRead(){   // поля формы → черновик в брауз�
 }
 function docClick(e){
   const b=e.target.closest("[data-dock],[data-docchip],[data-docsys]"); if(!b) return false;
+  if(b.dataset.dock==="auto"){ const d=DATA[cur], today=localDay(), sp=briefSpecialty(d,today); docSt.spec=sp.spec; docSt.sys=null;
+    const dr=briefDraft(d,sp.spec,today), cu=docReq(), add=(a,l)=>planClean([...(a||[]),...l.map(x=>x.t)]);
+    docReqSave({purpose:cu.purpose||dr.purpose,questions:add(cu.questions,dr.questions),tests:add(cu.tests,dr.tests),other:add(cu.other,dr.bring)});
+    docSt.shown=true; render(); toast(sp.why); return true; }
+  if(b.dataset.dock==="askdoc"){ if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return true; }
+    mkApi("brief_request",{person:cur,specialty:docSt.spec}).then(()=>{ BRIEFS=null; briefsLoad(true); toast("Заявка отправлена"); }).catch(()=>toast("Не получилось отправить — попробуйте ещё раз")); return true; }
   if(b.dataset.dock==="prep"){ docRead(); docSt.shown=true; render(); setTimeout(()=>{ const o=document.getElementById("docout"); o&&o.scrollIntoView({behavior:"smooth"}); },50); return true; }
   if(b.dataset.dock==="clear"){ try{ localStorage.removeItem(docKey()); }catch(x){} docSt.shown=false; render(); return true; }
   if(b.dataset.dock==="print"){ const d=DATA[cur], sp=(DOC_SPECS.find(x=>x[0]===docSt.spec)||DOC_SPECS[0])[1], t0=document.title;
@@ -4739,12 +4892,10 @@ async function profAct(b){
 
 // ── Оболочка нового дизайна: бургер-меню, меню профиля, тема, нижняя панель (компоненты из Разработка/Дизайн/Компоненты.html)
 function shellMenu(){
-  const d=DATA[cur]||{}, nut=!!d.nutrition;
-  const it=(ic,t,k,cnt)=>`<a class="menu-item${tab===k||(k==="lab"&&tab==="lab")?" is-active":""}" data-dt="${k}" style="--i:${shellMenu.i++}"><span class="menu-item__ic">${ic}</span>${t}${cnt?`<span class="menu-item__cnt">${cnt}</span>`:""}</a>`;
+  // «Ещё» (ТЗ-011 блок 3): только то, чего нет в нижней панели
+  const d=DATA[cur]||{}, it=(ic,t,k,sub)=>`<a class="menu-item" data-dt="${k}" style="--i:${shellMenu.i++}"><span class="menu-item__ic">${ic}</span>${t}</a>`;
   shellMenu.i=0;
-  return `<div class="menu-title">Здоровье</div>${it("🏠","Обзор","home")}${it("🧪","Анализы","lab")}${it("🕒","История","all")}${it("🌡","Симптомы","sym")}${it("📅","Календарь","cal")}${it("📋","Для врача","doc")}${it("🧬","Анамнез","anam")}
-    ${nut?`<div class="menu-title">Образ жизни</div>${it("🍎","Питание","nutr")}${it("📸","Дневник","diary")}`:""}
-    <div class="menu-title">Ещё</div>${it("💬","Спросить медкнижку","ask")}${it("➕","Добавить запись","add")}
+  return `<div class="menu-title">Ещё</div>${it("👤","Профиль и семья","prof")}${it("📅","Календарь","cal")}${it("🧬","Здоровье: диагнозы и анамнез","dx")}${it("📋","Подготовка к приёму врача","doc")}
     <div class="drawer__foot"><div class="menu-sep"></div><a class="menu-item is-danger" data-dt="logout"><span class="menu-item__ic">↪</span>Выйти</a></div>`;
 }
 function shellRender(){
@@ -4752,8 +4903,9 @@ function shellRender(){
   if(query) document.querySelector(".app-header").classList.add("search-on");
   const dr=document.getElementById("drawerBody"); if(dr) dr.innerHTML=shellMenu();
   const d=DATA[cur]||{}, nut=!!d.nutrition, bt=document.getElementById("bottombar");
-  const b=(k,ic,t)=>`<button type="button" data-bt="${k}" class="${tab===k||(k==="card"&&CARDK.includes(tab))?"is-active":""}"><span>${ic}</span>${t}</button>`;
-  if(bt) bt.innerHTML=b("home","🏠","Обзор")+b("card","🧪","Медкарта")+`<button type="button" data-bt="add"><span>➕</span>Добавить</button>`+(nut?b("nutr","🍎","Питание"):b("ask","💬","Спросить"))+`<button type="button" data-bt="profile"><span>👤</span>Профиль</button>`;
+  const ICON={home:["🏠","Главная"],card:["🧪","Медкарта"],add:["➕","Добавить"],nutr:["🍎","Питание"],ask:["🤖","AI-консультант"]};
+  const isOn=k=>k===tab||(k==="card"&&(CARDK.includes(tab)))||(k==="nutr"&&tab==="diary");
+  if(bt) bt.innerHTML=bottomBar(d).map(k=>`<button type="button" data-bt="${k}" class="${isOn(k)?"is-active":""}"><span>${ICON[k][0]}</span>${ICON[k][1]}</button>`).join("");
   const me=PPL&&(PPL.people.find(p=>p.id===PPL.me)||PPL.people[0]);
   const ini=me?initials(me):"👤", av=document.getElementById("avatar"); if(av) av.textContent=ini;
   const pa=document.getElementById("pmAv"); if(pa) pa.textContent=ini;
@@ -4772,7 +4924,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -4782,16 +4934,16 @@ function shellClick(e){
   if(dt){ const k=dt.dataset.dt; drawerClose();
     if(k==="add"){ addMenuOpen(); return true; }
     if(k==="logout"){ shellLogout(); return true; }
-    tab=k; sysFilter=null; symSel=null; medSel=null; insSel=null; render(); window.scrollTo({top:0}); return true; }
+    goTab(k); render(); window.scrollTo({top:0}); return true; }
   const bt=t.closest("[data-bt]");
   if(bt){ const k=bt.dataset.bt;
-    if(k==="add"){ addMenuOpen(); return true; } if(k==="profile"){ profOpen(); return true; }
-    tab=k==="card"?CARD[0][0]:k; sysFilter=null; symSel=null; medSel=null; insSel=null; render(); window.scrollTo({top:0}); return true; }
+    if(k==="add"){ addMenuOpen(); return true; }
+    goTab(k==="card"?"sym":k); render(); window.scrollTo({top:0}); return true; }
   if(t.closest("#searchBtn")){ const h=document.querySelector(".app-header"); h.classList.toggle("search-on"); if(h.classList.contains("search-on")) document.getElementById("q").focus(); return true; }
   if(t.closest("#theme")){ themeToggle(); return true; }
   if(t.closest("#avatar")){ pmToggle(document.getElementById("profile-menu").hidden); return true; }
   const pm=t.closest("[data-pm]");
-  if(pm){ pmToggle(false); const k=pm.dataset.pm; if(k==="logout") shellLogout(); else profOpen(); return true; }
+  if(pm){ pmToggle(false); const k=pm.dataset.pm; if(k==="logout") shellLogout(); else { goTab("prof"); render(); window.scrollTo({top:0}); } return true; }
   if(!t.closest(".pop-anchor")) pmToggle(false);
   return false;
 }
@@ -5625,14 +5777,53 @@ function render(){
 
   const inCard=CARDK.includes(tab);
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
-  document.getElementById("nav").innerHTML=TOP.filter(([k])=>(k!=="nutr"&&k!=="diary")||d.nutrition)
-    .map(([k,n])=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard))?" is-active":""}">${n}</button>`).join("");
+  document.getElementById("nav").innerHTML=navItems(d)
+    .map(({k,label})=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard)||(k==="nutr"&&tab==="diary"))?" is-active":""}">${label}</button>`).join("");
+  const inProf=["prof","todo","dx","anam","ins"].includes(tab);
   const subnav=inCard?`<div class="tabs tabs--scroll subnav">${CARD
-    .map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
+    .map(([k,n])=>`<button data-t="${k}" class="tab${k===(tab==="sym"&&symView==="ill"?"ill":tab)?" is-active":""}">${n}</button>`).join("")}</div>`
+    :inProf?`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
 
   if(query&&tab==="home")tab="visit";
 
   if(tab==="home"){
+    const today=localDay(), todoFull=buildTodo(d), todo=todoFull.filter(x=>x.st!=="ok");
+    plansLoad(); favLoad(); homeHideLoad();
+    const plans=PLANS?PLANS.filter(x=>x.person===cur):[], hidden=homeHidden(cur);
+    const keys=(FAV[cur]||[]), rows=measRows(cur), watchRows=favRows(rows,keys);
+    const chg=(typeof changed==="function"?changed(d,6):[]).filter(x=>x.cls!=="ok").slice(0,3);
+    const HB=homeBlocks(d,today,{plans,hidden,changes:chg}), has=k=>HB.blocks.includes(k);
+    const nx=todoPreview(nextTodo(todo),5);
+    const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
+    const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
+    const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
+    m.innerHTML=`
+    <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
+    <div class="card"><h2>Что делать</h2>${nx.items.length?`<div class="soon">${nx.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
+        <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
+        <span class="muted" style="font-size:12px">${esc(x.when||"без даты")}</span></div>`).join("")}</div>`:`<div class="muted">Ближайших дел нет.</div>`}
+      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела${nx.rest?` · ещё ${nx.rest}`:""} →</button></div>
+
+    <div class="card"><h2>Ключевые показатели</h2>
+      ${watchRows.length?`<div class="favlist">${watchRows.map(x=>`<div class="favrow" data-favopen="${esc(x.name)}">
+        <div><b>${esc(x.name)}</b><div class="muted" style="font-size:12.5px">${ru(x.d)}${x.prev?` · было ${esc(x.prev)}`:""}</div>${sparkSvg(x.pts,x.trend.dir)}</div>
+        <div style="text-align:right"><b style="color:${statusColor(x.st)}">${esc(x.v)}</b><div><span class="status status-${x.st}">${esc(x.word)}</span></div><div class="muted" style="font-size:12px">${esc(x.trend.word)}</div></div></div>`).join("")}</div>`
+      :`<div class="muted">Здесь будут показатели, за которыми вы следите. Отметьте звёздочкой в разделе «Анализы».</div>
+        ${sug.length?`<div style="margin-top:8px">Выше или ниже нормы: ${sug.map(k=>`<span class="tag2 eplink" data-favopen="${esc(k)}">${esc(k)}</span>`).join(" ")}</div>`:""}`}</div>
+
+    ${has("changes")?`<div class="card"><h2>Что изменилось</h2>${chg.map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.n)}</span><span class="status status-${x.cls}">${nz1(x.a)} → ${nz1(x.b)}${x.u?" "+esc(x.u):""}</span></div>`).join("")}
+      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="ins">Все выводы →</button></div>`:""}
+
+    ${has("now")?`<div class="card"><h2>Сейчас</h2>
+      ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
+        <div><b>${esc(L.title)}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span></div>`; }).join("")}
+      ${meds.length?`<div style="margin-top:8px"><b>Принимает:</b> ${meds.map(x=>`<span class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</span>`).join(", ")}</div>`:""}
+      ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}`).join("; ")}</div>`:""}
+      ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
+      :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}`;
+  }
+
+  else if(tab==="todo"){   // «Все дела»: полный список и справка (раньше на главной)
     const cnt=t=>d.rec.filter(r=>r.t===t).length;
     const todoFull=buildTodo(d);
     const todo=todoAll?todoFull:todoFull.filter(x=>x.st!=="ok");
@@ -5650,85 +5841,22 @@ function render(){
     const todoTable=list=>`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Что сделать</th><th>Что именно</th><th>Почему</th></tr></thead><tbody>
       ${cut(list).map(todoRow).join("")}</tbody></table></div>`;
     m.innerHTML=`
-    <div class="phead">
-      <h2>${esc(d.name)}</h2>
-      <div class="muted">${d.dob} · ${yrs(d.age)} · ${esc(d.note)}</div>
-    </div>
-    ${(()=>{ const O=openEps(d.sym||{},localDay()); if(!O.length) return "";   // ТЗ-004 блок 6: незакрытые болезни — сразу видно
-      return `<div class="card nowill"><h2>Сейчас болеет</h2>${O.map(e=>`<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
-        <div><b>${esc(e.dx||"Без диагноза")}</b><br><span>с ${ru(e.d1)} · ${esc(epSpan(e,localDay()).text)}${e.stale?' · <b style="color:var(--text-warning)">закрыть?</b>':""}</span></div><span class="go">Открыть →</span></div>`).join("")}</div>`; })()}
-
     ${planOverviewCard()}
-    ${(()=>{ favLoad(); const keys=FAV[cur]||[]; if(!keys.length) return "";   // не пусто, только если есть звёздочки
-      const R=favRows(measRows(cur),keys); if(!R.length) return "";
-      return `<div class="card"><h2>Избранное</h2><div class="favlist">${R.map(x=>`<div class="favrow" data-favopen="${esc(x.name)}">
-        <div><b>${esc(x.name)}</b><div class="muted" style="font-size:12.5px">${ru(x.d)}${x.prev?` · было ${esc(x.prev)}`:""}</div></div>
-        <div style="text-align:right"><b style="color:${statusColor(x.st)}">${esc(x.v)}</b><div><span class="status status-${x.st}">${esc(x.word)}</span></div></div></div>`).join("")}</div></div>`; })()}
-
-    ${d.nutrition?`<div class="card">${nutChart()}</div>
-    <div class="card">${nutForm()}</div>
-    <div class="card">${progForm(d)}</div>`:""}
-
-    <div class="card reveal" style="--i:0"><h2 class="t-h2">Разделы</h2><div class="sections">
-      ${(()=>{ const nl=(d.rec||[]).filter(r=>r.t==="lab").length, ns=((d.sym||{}).log||[]).length, t=(ic,n,sub,k,cls)=>`<a class="section-tile${cls||""}" data-dt="${k}"><span class="section-tile__ic">${ic}</span><b>${n}</b><span>${sub}</span></a>`;
-        return t("🧪","Анализы",`${nl} ${plural(nl,"показатель","показателя","показателей")}`,"lab")+t("🕒","История","Все события по датам","all")+t("🌡","Симптомы",ns?`${ns} ${plural(ns,"запись","записи","записей")}`:"Карта по дням","sym")
-          +t("📋","Для врача","Документ перед приёмом","doc")+(d.nutrition?t("🍎","Питание","Меню и дневник","nutr"):"")+t("💬","Спросить","Поиск по смыслу","ask"," is-new"); })()}
-    </div></div>
-
-    <div class="card">
-      <div class="kpis">${kpiLive(d).map(k=>`<div class="kpi${k.st?" kpi--"+k.st:""}"><div class="kpi__lab">${esc(k.lab)}</div>
-        <div class="kpi__val${String(k.val).length>10?" long":""}">${esc(k.val)}</div>
-        <div class="kpi__sub">${esc(k.sub||"")}</div></div>`).join("")}</div>
-    </div>
-
-    ${insightsChanged(d)}
-    ${insightsGaps(d)}
-
     ${d.alarm?`<div class="card" style="border-color:var(--bad)">
-      <h2 style="color:var(--bad)">Когда не ждать записи — ехать в тот же день</h2>
-      <div class="muted" style="margin:-6px 0 12px">Короткий список, ради которого всё остальное может подождать. Если ничего из этого нет — значит и спешить некуда.</div>
+      <h2 style="color:var(--bad)">Когда не ждать записи — ехать в тот же день <span class="hint" tabindex="0" title="Короткий список, ради которого всё остальное может подождать. Если ничего из этого нет — значит и спешить некуда." aria-label="Короткий список, ради которого всё остальное может подождать. Если ничего из этого нет — значит и спешить некуда.">?</span></h2>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Признак</th><th>Что делать</th></tr></thead><tbody>
       ${d.alarm.map(x=>`<tr><td><b>${esc(x[0])}</b></td><td>${esc(x[1])}</td></tr>`).join("")}
       </tbody></table></div>
     </div>`:""}
 
-    ${(()=>{ const next=todo.filter(x=>!x.self&&/^(записаться|записан|сдать|спросить)$/.test(x.tag)&&!/постоянно/i.test(x.when||"")); return next.length?`<div class="card">
-      <h2>С чего начать</h2>
-      <div class="muted" style="margin:-6px 0 12px">Ближайшее, что нужно сделать самому: записаться к врачу, сдать анализ или задать вопрос. Привычки и справки — в полном списке дел ниже. Нажмите пункт — откроется всё по теме</div>
-      <div class="soon">
-        ${next.slice(0,4).map(x=>`<div class="soonitem"${todoAttrs(x)}>
-          <span class="status status-${x.st}">${esc(x.tag)}</span>
-          <b>${esc(x.title)}</b>
-          <span class="muted">${esc(x.why)}</span>
-          <span class="muted" style="font-size:12px">⏱ ${esc(x.when||"без даты")}</span>
-        </div>`).join("")}
-      </div>
-    </div>`:""})()}
-
-    ${d.meds?`<div class="card">
-      <h2>Принимает сейчас</h2>
-      ${(()=>{
-        // сверху — что идёт или запланировано; законченное и «не принимает» — свёрнуто ниже
-        const now=medsSplit(d.meds);
-        const row=x=>`<tr><td><b class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</b>${x.entry?` <button class="addsym editmed" data-entry="${x.entry}" title="Изменить: статус, дозировка">✎</button>`:""}${x.stopped?` <span class="status status-none">отменено ${ru(x.stopped)}</span>`:""}${x.plan?` <span class="status status-warn">запланирован</span>`:medActive(x)?` <span class="status status-ok">идёт</span>`:medStart(x)&&x.to?` <span class="status status-none">закончен</span>`:""}
-        ${x.plan?`<div class="muted" style="font-size:12px">${/^\d{4}-\d{2}-\d{2}$/.test(String(x.plan))?"с "+ru(x.plan):"дата старта не назначена"}</div>`:medStart(x)?`<div class="muted" style="font-size:12px">${x.entry&&x.from?medState(x,new Date().toISOString().slice(0,10)).text:"начат "+ru(medStart(x))}</div>`:""}</td><td>${esc(x.how)}</td>
-        <td style="white-space:nowrap">${esc(x.till||"—")}</td><td class="muted">${esc(x.why||"")}${x.ep&&((d.sym||{}).ep||[]).some(e=>e.id===x.ep)?` <span class="eplink" data-epcard="${esc(x.ep)}">болезнь →</span>`:""}</td></tr>`;
-        const head=`<thead><tr><th>Что</th><th>Схема</th><th>До какой даты</th><th>Зачем</th></tr></thead>`;
-        return (now.length?`<div class="tbl-wrap"><table class="tbl">${head}<tbody>${now.map(row).join("")}</tbody></table></div>`:`<div class="muted">${d.meds.length?"Сейчас ничего не принимает.":"Постоянной терапии нет."}</div>`);
-      })()}
-
-    </div>`:""}
-
     <div class="card">
       <h2>Посещения врачей и обследования — ${todoVisit.length}</h2>
-      <div class="muted" style="margin:-6px 0 12px">Всё, ради чего нужно куда-то идти: приёмы, анализы, исследования и вопросы, которые задаются на приёме. Ближайшее сверху — сначала просроченное и бессрочное, дальше по датам. Мелким под датой — с какого времени тянется. Нажмите строку, откроется всё по теме.${todoAll?" Показано всё, включая закрытые пункты.":(todoVisit.length>15?` Показаны первые 15 из ${todoVisit.length}; закрытые скрыты.`:" Закрытые пункты скрыты.")}</div>
       ${(()=>{const shown=cut(todoVisit);
         const g=k=>shown.filter(x=>x.grp===k);
-        const block=(k,name)=>g(k).length?`<h3 style="font-size:13px;margin:18px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">${name} — ${g(k).length}</h3>
+        const block=(k,name)=>g(k).length?`<h3 style="font-size:13px;margin:18px 0 4px;color:var(--muted)">${name} — ${g(k).length}</h3>
           <div class="tbl-wrap"><table class="tbl"><tbody>${g(k).map(todoRow).join("")}</tbody></table></div>`:"";
         return block("lab","Сдать анализы")+block("doc","Консультация специалиста")+block("etc","Прочее: исследования, прививки, вопросы");})()}
-      ${todoSelf.length?`<h2 style="margin-top:26px">Рекомендации — что делать самому, ${todoSelf.length}</h2>
-      <div class="muted" style="margin:-6px 0 12px">Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность.</div>
+      ${todoSelf.length?`<h2 style="margin-top:26px">Рекомендации — что делать самому, ${todoSelf.length} <span class="hint" tabindex="0" title="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность." aria-label="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность.">?</span></h2>
       ${todoTable(todoSelf)}`:""}
       <button class="btn btn-primary btn-block" style="margin-top:12px" id="todoAll">${todoAll?"← Показать только ближайшие":`Все записи (${todoFull.length}) →`}</button>
       <div class="note"><b>Никогда не сдавалось / отсутствует:</b> ${d.never.map(esc).join(" · ")}</div>
@@ -5736,8 +5864,7 @@ function render(){
 
     ${(()=>{const ask=d.attention.filter(a=>actionOf(a)==="спросить");
       return ask.length?`<div class="card">
-      <h2>Что уточнить на приёме — ${ask.length}</h2>
-      <div class="muted" style="margin:-6px 0 12px">Ничего не стоит и не требует отдельного похода: спрашивается одной фразой у того врача, к которому и так идёте.</div>
+      <h2>Что уточнить на приёме — ${ask.length} <span class="hint" tabindex="0" title="Ничего не стоит и не требует отдельного похода: спрашивается одной фразой у того врача, к которому и так идёте." aria-label="Ничего не стоит и не требует отдельного похода: спрашивается одной фразой у того врача, к которому и так идёте.">?</span></h2>
       <div class="tbl-wrap"><table class="tbl"><tbody>
       ${ask.map(a=>`<tr class="row is-link" data-task="${d.attention.indexOf(a)}">
         <td style="width:46%"><b>${esc(a.t)}</b></td><td class="muted">${esc(a.w)}</td></tr>`).join("")}
@@ -5756,8 +5883,7 @@ function render(){
     </details>`})():""}
 
     <div class="card">
-      <h2>В архиве</h2>
-      <div class="muted" style="margin:-6px 0 12px">Нажмите цифру — откроется список</div>
+      <h2>В архиве <span class="hint" tabindex="0" title="Нажмите цифру — откроется список" aria-label="Нажмите цифру — откроется список">?</span></h2>
       <div class="kpis">
         <div class="kpi is-link" data-t="visit"><div class="kpi__lab">Посещений</div><div class="kpi__val">${cnt("visit")}</div></div>
         <div class="kpi is-link" data-t="instr"><div class="kpi__lab">Исследований</div><div class="kpi__val">${cnt("instr")}</div></div>
@@ -5775,9 +5901,7 @@ function render(){
   else if(tab==="dyn"){
     const groups={};
     seriesOf(d).forEach(s=>{(groups[s.sys]=groups[s.sys]||[]).push(s)});
-    m.innerHTML=`<div class="card"><h2>Все ряды с динамикой — ${d.series.length}</h2>
-      <div class="muted" style="margin:-6px 0 0">Показатели, у которых есть направление, а не разовое значение.
-      Красная зона — выход за порог. Нажмите заголовок системы, чтобы открыть её целиком.</div></div>
+    m.innerHTML=`<div class="card"><h2>Все ряды с динамикой — ${d.series.length}</h2></div>
       ${Object.keys(groups).map(sys=>`<div class="card">
         <h2 class="row" data-sys="${sys}" style="cursor:pointer">${(organOf(sys)||{}).ic||""} ${esc(sysName(sys))} →</h2>
         ${groups[sys].map(s=>`<h3>${esc(s.name)}<span class="muted">, ${esc(s.unit)}</span></h3>${chart(s)}`).join("")}
@@ -5805,7 +5929,7 @@ function render(){
       m.innerHTML=`
       <button class="back" data-med="">← Назад</button>
       <div class="card">
-        <h2>💊 ${esc(medSel)}</h2>
+        <h2>${esc(medSel)}</h2>
         ${info?`<div style="margin:-4px 0 10px">${info.c.split(",").map(t=>`<span class="tag2">${esc(t.trim())}</span>`).join("")}
           ${info.k==="да"?'<span class="tag2" style="background:var(--okbg);color:var(--ok)">детям можно</span>':""}
           ${info.k==="нельзя"?'<span class="tag2" style="background:var(--badbg);color:var(--bad)">детям нельзя</span>':""}
@@ -5854,14 +5978,12 @@ function render(){
           <div class="kpi"><div class="kpi__lab">Средняя сила</div><div class="kpi__val">${a90.avg!=null?String(a90.avg).replace(".",","):"—"}</div></div>
         </div>
       </div>
-      ${dxs.length?`<div class="card"><h2>С какими диагнозами связан</h2>
-        <p class="muted" style="margin:-4px 0 10px">Нажмите диагноз — откроется вся система: анализы, исследования, приёмы.</p>
+      ${dxs.length?`<div class="card"><h2>С какими диагнозами связан <span class="hint" tabindex="0" title="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы." aria-label="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
         ${dxs.map(x=>`<tr class="dxrow" data-sys="${esc(x.sys||"")}"><td><b>${esc(x.n)}</b></td>
           <td class="muted">${esc(x.c)}</td><td class="muted">${esc(x.y)}</td><td>${esc(x.s)}</td></tr>`).join("")}
         </tbody></table></div></div>`:""}
-      ${L.length?`<div class="card"><h2>Как часто возвращается</h2>
-        <p class="muted" style="margin:-4px 0 10px">Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.</p>
+      ${L.length?`<div class="card"><h2>Как часто возвращается <span class="hint" tabindex="0" title="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце." aria-label="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.">?</span></h2>
         ${(()=>{const f=L[L.length-1].d, now=new Date();
           const m=(now.getFullYear()-+f.slice(0,4))*12+(now.getMonth()-(+f.slice(5,7)-1))+1;
           return freqChart(L,Math.min(60,Math.max(12,m)));})()}
@@ -5869,8 +5991,7 @@ function render(){
         <div class="legend">${L.some(x=>x.u==="°C")
           ?TSCALE.map(t=>`<span><i style="background:${t[1]}"></i>${t[2]}</span>`).join("")
           :`<span><i style="background:var(--ok)"></i>1–3 терпимо</span><span><i style="background:var(--warn)"></i>4–6 мешает</span><span><i style="background:var(--bad)"></i>7 сильно</span><span><i style="background:#7d1212"></i>8–10 очень сильно</span>`}</div></div>
-      <div class="card"><h2>При каких диагнозах и чем лечили</h2>
-        <p class="muted" style="margin:-4px 0 10px">Один и тот же симптом приходит по разным поводам. Отдельная строка — случаи, когда его просто отмечали и не лечили.</p>
+      <div class="card"><h2>При каких диагнозах и чем лечили <span class="hint" tabindex="0" title="Один и тот же симптом приходит по разным поводам. Отдельная строка — случаи, когда его просто отмечали и не лечили." aria-label="Один и тот же симптом приходит по разным поводам. Отдельная строка — случаи, когда его просто отмечали и не лечили.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Повод</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
         ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
           const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
@@ -5890,12 +6011,7 @@ function render(){
 
     // ---------- обзор: четыре представления ----------
     else {
-      const sw=`<div class="vsw">
-        ${[["list","Симптомы"],["ill","Болезни"],["month","Месяц"]]
-          .map(([k,t])=>`<button data-symview="${k}" class="${symView===k?"on":""}">${t}</button>`).join("")}
-      </div>`;
-      const intro=`<div class="card"><h2>Карта симптомов</h2>${sw}
-        <button class="btn btn-primary btn-block" style="margin-top:12px" id="symToFeed" style="margin-top:12px">Все записи симптомов → Лента</button></div>`;
+      const intro="";
 
       let body="";
       if(!S.log.length){
@@ -5929,10 +6045,10 @@ function render(){
           </tbody></table></div></div>`
         :`<p style="margin:0">Эпизодов болезней пока нет — добавьте первую кнопкой выше.</p></div>`);
       }
-      else if(symView==="month"){
+      else { let monthHtml="",listHtml="";
+      {
         const M=monthRows(S.log,today,n=>(catOf(n)||{}).red), TR={up:'<span class="trend-up">↑ чаще</span>',down:'<span class="trend-dn">↓ реже</span>',same:'<span class="muted">= так же</span>'};
-        body=`<div class="card"><h2>Месяц <span class="muted" style="text-transform:none">— последние 30 дней</span></h2>
-          <p class="muted" style="margin:-4px 0 10px">Клетка — день. Цвет — сила.</p>
+        monthHtml=`<div class="card"><h2>Последние 30 дней <span class="hint" tabindex="0" title="Клетка — день. Цвет — сила." aria-label="Клетка — день. Цвет — сила.">?</span></h2>
           ${M.length?M.map(r=>`<div class="heat-row mrow2" data-sym="${esc(r.n)}" style="cursor:pointer">
             <div class="heat-row__lab"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
               <div class="muted" style="font-size:12px">${r.days} ${plural(r.days,"день","дня","дней")} из 30${r.avg!=null?` · <span class="status status-${r.avg>=7?"bad":r.avg>=4?"warn":"ok"}" style="height:18px;padding:0 6px">${String(r.avg).replace(".",",")}</span>`:""}</div>
@@ -5940,7 +6056,7 @@ function render(){
             <div class="heat" style="grid-template-columns:repeat(15,1fr)">${r.cells.map(c=>`<i data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}"></i>`).join("")}</div></div>`).join("")+`<div class="legend"><span><i style="background:var(--surface-2)"></i>не было</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней симптомов не было</div>`}
           </div>`;
       }
-      else {
+      {
         const rows=seen.map(n=>{
           const L=byName[n], c=catOf(n);
           const meds=medsOf([L[0]]).map(x=>x.name);   // только последний случай, вся история — в карточке
@@ -5952,15 +6068,15 @@ function render(){
             <td class="muted">${meds.length?medLinks(meds):"<span class='muted'>не лечил</span>"}</td>
             <td style="color:var(--accent);font-weight:600">→</td></tr>`;
         }).join("");
-        body=`<div class="card"><h2>Симптомы <span class="muted" style="text-transform:none">— ${seen.length}</span>
+        listHtml=`<div class="card"><h2>Все симптомы <span class="muted" style="text-transform:none">— ${seen.length}</span>
           <button class="btn btn-primary" id="newSym" style="float:right;height:32px;font-size:13px">+ Добавить</button></h2>
-          <p class="muted" style="margin:-4px 0 10px">Сверху то, что отмечалось недавно. Нажмите симптом — все записи по нему, лекарства и связанные диагнозы. ▲ — едут к врачу сразу.</p>
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">записей</th><th>последний раз</th><th>чем лечил</th><th></th></tr></thead>
             <tbody>${rows}</tbody></table></div></div>`;
       }
+      body=monthHtml+listHtml;
+      }
 
-      const watch=never.length?`<div class="card"><h2>Пока не отмечалось <span class="muted" style="text-transform:none">— ${never.length}</span></h2>
-        <p class="muted" style="margin:-4px 0 10px">Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу.</p>
+      const watch=never.length?`<div class="card"><h2>Пока не отмечалось <span class="muted" style="text-transform:none">— ${never.length}</span> <span class="hint" tabindex="0" title="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу." aria-label="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th>Откуда</th><th>Зачем следить</th></tr></thead><tbody>
         ${[...never].sort((a,b)=>b.red-a.red).map(c=>`<tr class="symlink" data-sym="${esc(c.n)}"${c.red?' style="background:var(--badbg)"':""}>
           <td><b>${esc(c.n)}</b>${c.red?' <span class="red-dot">▲</span>':""}</td>
@@ -5971,9 +6087,21 @@ function render(){
     }
   }
 
+  else if(tab==="prof"){   // ТЗ-011 блок 7: профиль — сведения о человеке и карточка здоровья
+    const pp=(PPL&&PPL.people.find(x=>x.id===cur))||null, a=pp&&pp.birth_date?ageOf(pp.birth_date,localDay()):null;
+    m.innerHTML=`<div class="card"><h2>${esc(d.name)}</h2>
+      <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
+      ${d.note?`<div class="muted" style="margin-top:6px">${esc(d.note)}</div>`:""}
+      <div class="row" style="margin-top:12px"><button class="btn btn-secondary" id="profEdit">Изменить данные и семья</button></div></div>
+    ${kpiLive(d).length?`<div class="card"><h2>Карточка здоровья</h2><div class="kpis">${kpiLive(d).map(k=>`<div class="kpi${k.st?" kpi--"+k.st:""}"><div class="kpi__lab">${esc(k.lab)}</div>
+        <div class="kpi__val${String(k.val).length>10?" long":""}">${esc(k.val)}</div><div class="kpi__sub">${esc(k.sub||"")}</div></div>`).join("")}</div></div>`:""}`;
+    const pe=document.getElementById("profEdit"); if(pe) pe.onclick=()=>profOpen(cur);
+  }
+  else if(tab==="ins"){   // «Выводы»: полные «Что изменилось» и «Что стоит проверить»
+    m.innerHTML=insightsChanged(d)+insightsGaps(d)||`<div class="card"><div class="empty">Пока выводов нет</div></div>`;
+  }
   else if(tab==="dx"){
-    m.innerHTML=`<div class="card"><h2>Активные диагнозы</h2>
-      <p class="muted" style="margin:-4px 0 10px">Нажмите на диагноз — откроются все анализы, исследования и приёмы по этой системе.</p>
+    m.innerHTML=`<div class="card"><h2>Активные диагнозы <span class="hint" tabindex="0" title="Нажмите на диагноз — откроются все анализы, исследования и приёмы по этой системе." aria-label="Нажмите на диагноз — откроются все анализы, исследования и приёмы по этой системе.">?</span></h2>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С какого года</th><th>Состояние</th><th></th><th></th></tr></thead><tbody>
       ${dxSort(d.diagnoses).filter(x=>!query||[x.n,x.c,x.s].some(v=>String(v).toLowerCase().includes(query.toLowerCase())))
         .map(x=>{const cnt=d.rec.filter(r=>x.lnk?r.lnk===x.lnk:r.sys===x.sys).length;
@@ -5991,7 +6119,7 @@ function render(){
   else if(tab==="diary"){
     // дневник питания по фото — страница v2/diary/, здесь во фрейме без своей шапки; данные в Supabase, доступ по коду
     const diaryUrl=(location.pathname.includes("/v2/")?"diary/":"v2/diary/")+"?embed=1";
-    m.innerHTML=`<iframe class="diaryframe" src="${diaryUrl}" title="Дневник питания" allow="camera"></iframe>`;
+    m.innerHTML=`<div class="tabs tabs--scroll subnav" style="padding:0 0 10px">${nutrTabs(d).map(([k,t])=>`<button class="tab${k==="diary"?" is-active":""}" data-ns="${k}">${t}</button>`).join("")}</div><iframe class="diaryframe" src="${diaryUrl}" title="Дневник питания" allow="camera"></iframe>`;
   }
   // ── Спросить: вопрос уходит в базу, отвечает модель строго по найденным записям (страница v2/ask/)
   else if(tab==="ask"){
@@ -6071,9 +6199,9 @@ function render(){
             </div>
           </div>`).join("")}</div></div>`;})();
     const done=Math.max(0,Math.min(100,Math.round((85-85)/(85-78)*100)));
-    m.innerHTML=!n?`<div class="card"><div class="empty">Раздел питания для этого человека пока не заполнен</div></div>`:`
+    const nutHtml=!n?`<div class="card"><div class="empty">Раздел питания для этого человека пока не заполнен</div></div>`:`
     <div class="card">
-      <h2>Питание и снижение веса</h2>
+      <!--S:weight-->
       <div class="nut-hero hero-metric">
         <div>
           <div class="t-text-xs t-muted">Цель</div>
@@ -6081,12 +6209,14 @@ function render(){
           <div class="muted" style="font-size:13px;margin-top:4px">сейчас 85 кг · ИМТ 27,1 · талия 97 см</div>
           <div class="bar" style="margin-top:10px"><i style="--w:${done}%"></i></div>
           <div class="muted" style="font-size:12px;margin-top:6px">минус 7 кг по 0,5 кг в неделю — около 3,5 месяцев</div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">${nutForm()}</div>
         </div>
-        <div style="text-align:center">${plate}<div class="muted" style="font-size:12px;margin-top:2px;line-height:1.4">метод тарелки — по схеме Американской диабетической ассоциации.<br><b>Картофель считается крупой, а не овощем</b></div></div>
+        <div style="text-align:center" class="nut-plate-hidden" hidden>${plate}<div class="muted" style="font-size:12px;margin-top:2px;line-height:1.4">метод тарелки — по схеме Американской диабетической ассоциации.<br><b>Картофель считается крупой, а не овощем</b></div></div>
       </div>
       <div class="note" style="margin-top:10px">⚠️ Быстрее нельзя: при жировой болезни печени резкое похудение ухудшает биохимию, а не улучшает. Медленный темп здесь не компромисс, а условие.</div>
 
+      <!--S:today-->
+      <h2>Сегодня</h2>
+      <div style="margin-bottom:14px">${nutForm()}</div>
       ${(()=>{const st2=n.week&&n.week[stepIdx];return `<div class="today">
         <div class="today__lbl">Сегодня · ${today} · неделя ${wkNum} из 6 · норма ${kcalNow} ккал</div>
         ${st2?`<div class="today__step">${esc(st2[1])}</div>`:""}
@@ -6096,8 +6226,11 @@ function render(){
         </div>`:""}
         <div class="muted" style="font-size:12px;margin-top:8px">Ужин готовится с запасом — порция в контейнер, это завтрашний обед</div>
       </div>`})()}
+      <button class="btn btn-secondary btn-block" data-ns="diary" style="margin-top:12px">🍽 Что я съел сегодня — Дневник</button>
 
-      <details class="nut-acc"><summary>📅 Меню на всю неделю</summary>
+      <!--S:week-->
+      <div style="text-align:center;margin-bottom:10px">${plate}</div>
+      <details class="nut-acc" open><summary>📅 Меню на всю неделю</summary>
       <div class="muted" style="font-size:12.5px;margin-bottom:6px">Ужин готовится на семью с запасом, и порция сразу уходит в контейнер — это завтрашний обед. Отдельно ничего не готовится.</div>
       <div class="muted" style="font-size:12px;margin-bottom:6px">Строку можно перетащить за ⠿ и поменять порядок дней. Любой приём — нажать и заменить.${
         menuEdited(d)?` · <button class="lnk" id="menuReset">вернуть меню плана</button>`:""}</div>
@@ -6183,10 +6316,12 @@ function render(){
 
       ${n.family?`<div class="note" style="margin-top:14px"><b>👨‍👩‍👦‍👦 Семейный стол:</b> ${esc(n.family)}</div>`:""}
 
+      <!--S:weight-->
       ${H("📈","Как это должно выглядеть по неделям","прогноз при соблюдении режима")}
       ${nutChart()}
       <div class="muted" style="font-size:12.5px;margin-top:2px">Синяя линия — план, красные точки — твои замеры, пунктиром — ключевые даты. График пересчитывается сразу после ввода замера. К контрольным анализам 22.11.2026 ожидаемо около 81 кг — минус 4 кг. Цель 78 кг достигается примерно к середине января. Плато в 1–2 недели это норма: не срезай калории, добавь шагов.</div>
 
+      <!--S:week-->
       <details class="nut-acc"><summary>🩹 Если сорвался</summary>
       ${n.fail?`<div>${n.fail.map(x=>`<div style="padding:7px 0;border-top:1px solid var(--line);font-size:13.5px">${bold(x)}</div>`).join("")}</div>`:""}      </details>
 
@@ -6211,6 +6346,11 @@ function render(){
       ${n.never?`<ul style="margin:6px 0;padding-left:20px">${n.never.map(x=>`<li style="margin-bottom:5px">${esc(x)}</li>`).join("")}</ul>`:""}      </details>
 
     </div>`;
+    { // страницы раздела «Питание» (ТЗ-011 блок 9): Сегодня · Неделя · Вес · Дневник
+      const parts={}; let name="head"; nutHtml.split(/<!--S:(\w+)-->/).forEach((x,i)=>{ if(i%2) name=x; else parts[name]=(parts[name]||"")+x; });
+      const body=(parts[nutSub]||"").replace(/\n\s*<\/div>\s*$/,"");
+      m.innerHTML=`<div class="tabs tabs--scroll subnav" style="padding:0 0 10px">${nutrTabs(d).map(([k,t])=>`<button class="tab${k===nutSub?" is-active":""}" data-ns="${k}">${t}</button>`).join("")}</div><div class="card">${body}</div>`;
+    }
     // клики: галочки покупок, галочки недель, запись веса
     m.querySelectorAll("[data-shop]").forEach(el=>el.addEventListener("change",()=>{
       const id=el.dataset.shop, cur=LS("shop",[]);
@@ -6245,8 +6385,7 @@ function render(){
         ${d.family.map(f=>`<tr><td style="white-space:nowrap"><b>${esc(f.who)}</b></td><td>${hl(f.what)}</td></tr>`).join("")}
         </tbody></table></div></div>`:""}
 
-      ${risks.length?`<div class="card"><h2>Предрасположенность — ${risks.length}</h2>
-        <div class="muted" style="margin:-6px 0 10px">Оценка риска, а не диагнозы. Нажмите строку — откроется система</div>
+      ${risks.length?`<div class="card"><h2>Предрасположенность — ${risks.length} <span class="hint" tabindex="0" title="Оценка риска, а не диагнозы. Нажмите строку — откроется система" aria-label="Оценка риска, а не диагнозы. Нажмите строку — откроется система">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Риск</th><th>К чему</th><th>На чём основан</th></tr></thead><tbody>
         ${risks.map(x=>`<tr ${x.sys?`class="row" data-sys="${x.sys}"`:""}>
           <td><span class="status status-${x.lvl}">${LVL[x.lvl]}</span></td>
@@ -6278,8 +6417,7 @@ function render(){
         ${d.past?`<h3>Перенесённое</h3><ul style="margin:0;padding-left:20px">
         ${d.past.map(p=>`<li style="margin-bottom:5px">${esc(p)}</li>`).join("")}</ul>`:""}</details>`:""}
 
-      ${contra.length?`<div class="card"><h2>Противоречия в документах — ${contra.length}</h2>
-        <div class="muted" style="margin:-6px 0 10px">Выявлены при сверке архива. Указано, какой версии верить</div>
+      ${contra.length?`<div class="card"><h2>Противоречия в документах — ${contra.length} <span class="hint" tabindex="0" title="Выявлены при сверке архива. Указано, какой версии верить" aria-label="Выявлены при сверке архива. Указано, какой версии верить">?</span></h2>
         ${contra.map(x=>`<details ${x.lvl==="bad"?"open":""}>
           <summary><span class="status status-${x.lvl}">${x.lvl==="bad"?"существенное":"уточнение"}</span> ${hl(x.q)}</summary>
           <div style="margin-top:8px"><b>Как в документах:</b> <span class="muted">${hl(x.doc)}</span></div>
@@ -6368,7 +6506,7 @@ function render(){
         }).join("")}</tr>`).join("")}
         </tbody></table></div></div>`;})():"";
     m.innerHTML=`
-      <button class="back" data-t="home">← К карте органов</button>
+      <button class="back" data-back="1">← Назад</button>
       <div class="card">
         <h2>${o?o.ic+" "+esc(o.name):(LNK[sysFilter]?LNK[sysFilter].ic+" "+esc(LNK[sysFilter].name):esc(sysFilter))}</h2>
         <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
@@ -6397,8 +6535,7 @@ function render(){
       ${(()=>{const SY=symsFor(d,sysFilter),withLog=SY.filter(x=>x.log.length);
         if(!SY.length) return "";
         const allLog=withLog.flatMap(x=>x.log);
-        return `<div class="card" id="y-sym"><h2>Симптомы по этой системе <span class="muted" style="text-transform:none">— ${SY.length}</span></h2>
-        <p class="muted" style="margin:-4px 0 10px">Что человек чувствовал при этих диагнозах. Нажмите симптом — все его записи и лекарства.</p>
+        return `<div class="card" id="y-sym"><h2>Симптомы по этой системе <span class="muted" style="text-transform:none">— ${SY.length}</span> <span class="hint" tabindex="0" title="Что человек чувствовал при этих диагнозах. Нажмите симптом — все его записи и лекарства." aria-label="Что человек чувствовал при этих диагнозах. Нажмите симптом — все его записи и лекарства.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">записей</th><th>последний раз</th><th>чем лечил</th><th></th></tr></thead><tbody>
         ${SY.map(x=>{const meds=x.log.length?medsOf([x.log[0]]).map(v=>v.name):[];
           return `<tr class="symlink" data-sym="${esc(x.n)}"><td><b>${esc(x.n)}</b>${x.cat.red?' <span class="red-dot">▲</span>':""}</td>
@@ -6429,9 +6566,7 @@ function render(){
       <div class="kpi__lab">${lab}</div><div class="kpi__val">${n}</div></div>`;
     m.innerHTML=`
       ${query?indicatorBlock():""}
-      ${query?`<div class="card"><h2>Найдено по запросу «${esc(query)}» — ${S.total}</h2>
-        <div class="muted" style="margin:-6px 0 12px">Ищет в любом месте записи: в названии, в результате, в значении, в норме,
-        во враче, в дате, а также в диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу.</div>
+      ${query?`<div class="card"><h2>Найдено по запросу «${esc(query)}» — ${S.total} <span class="hint" tabindex="0" title="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу." aria-label="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу.">?</span></h2>
         <div class="kpis">
           ${tile("Записей",S.rec.length,"s-rec")}
           ${tile("Диагнозов",S.dx.length,"s-dx")}
@@ -6508,7 +6643,7 @@ function render(){
 // ── События
 const modal=document.getElementById("modal");
 const closeModal=()=>modal.classList.remove("on");
-const toSys=(s)=>{sysFilter=s;tab="sys";symSel=null;medSel=null;render();window.scrollTo({top:0,behavior:"smooth"})};
+const toSys=(s)=>{ window.__back={tab,symView}; sysFilter=s;tab="sys";symSel=null;medSel=null;render();window.scrollTo({top:0,behavior:"smooth"})};
 
 document.addEventListener("click",e=>{
   const gz=e.target.closest("[data-goto]");
@@ -6550,15 +6685,19 @@ document.addEventListener("click",e=>{
   const ins=e.target.closest("[data-ins]");
   if(ins){ insSel = insSel===ins.dataset.ins ? null : ins.dataset.ins; render(); return }
 
-  const w=e.target.closest("[data-w]"); if(w){cur=w.dataset.w;insSel=null;sysFilter=null;symSel=null;medSel=null;symView="list";tab="home";closeModal();render();return}
+  const ns=e.target.closest("[data-ns]"); if(ns){ const k=ns.dataset.ns; if(k==="diary"){ tab="diary"; } else { tab="nutr"; nutSub=k; } render(); window.scrollTo({top:0}); return; }
+  const bk=e.target.closest("[data-back]"); if(bk){ const b0=window.__back||{tab:"all",symView:"main"}; tab=b0.tab==="sys"?"all":b0.tab; symView=b0.symView||"main"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
+  const w=e.target.closest("[data-w]"); if(w){tlReset();cur=w.dataset.w;insSel=null;sysFilter=null;symSel=null;medSel=null;symView="main";tab="home";closeModal();render();return}
   if(shellClick(e)||calClick(e)) return;
   if(docClick(e)||planClick(e)) return;
   if(profClick(e)) return;
   const fv=e.target.closest("[data-fav]"); if(fv){ e.preventDefault(); e.stopPropagation(); favToggle(cur,fv.dataset.fav); return; }
-  const fo=e.target.closest("[data-favopen]"); if(fo){ query=fo.dataset.favopen; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
-  const tk=e.target.closest("[data-tlk]"); if(tk){ tlKind=tk.dataset.tlk; render(); return; }
-  const toFeed=e.target.closest("#symToFeed"); if(toFeed){ tlKind="sym"; tab="all"; sysFilter=null; symSel=null; render(); window.scrollTo({top:0}); return; }
+  const fo=e.target.closest("[data-favopen]"); if(fo){ tlReset(); query=fo.dataset.favopen; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
+  const tmore=e.target.closest("[data-tlmore]"); if(tmore){ const y=window.scrollY; tlShown+=TL_PAGE; render(); window.scrollTo(0,y); return; }
+  const tk=e.target.closest("[data-tlk]"); if(tk){ tlReset(); tlKind=tk.dataset.tlk; render(); return; }
+  const toFeed=e.target.closest("#symToFeed"); if(toFeed){ tlReset(); tlKind="sym"; tab="all"; sysFilter=null; symSel=null; render(); window.scrollTo({top:0}); return; }
   const sv=e.target.closest("[data-symview]"); if(sv){symView=sv.dataset.symview;symSel=null;medSel=null;render();window.scrollTo({top:0});return}
+  const hs=e.target.closest("[data-homeshow]"); if(hs){ homeHideSet(cur,"",false); return; }
   if(e.target.closest("#todoAll")){ todoAll=!todoAll; render(); return; }
   if(e.target.closest("#pendBar")){ showPending(); return; }
   if(e.target.closest("#newSym")){ newSymForm(); return; }
@@ -6580,7 +6719,7 @@ document.addEventListener("click",e=>{
   const md=e.target.closest("[data-med]"); if(md){ if(md.dataset.med) medOpen(md.dataset.med); return; }
   const mnm=e.target.closest("[data-medname]"); if(mnm){ medOpen(mnm.dataset.medname); return; }
   const sm=e.target.closest("[data-sym]"); if(sm){if(sm.closest(".modal"))closeModal();symSel=sm.dataset.sym||null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
-  const t=e.target.closest("[data-t]"); if(t){tab=t.dataset.t==="card"?CARD[0][0]:t.dataset.t;sysFilter=null;symSel=null;medSel=null;insSel=null;render();window.scrollTo({top:0});return}
+  const t=e.target.closest("[data-t]"); if(t){goTab(t.dataset.t);render();window.scrollTo({top:0});return}
   const cp=e.target.closest("[data-copy]");
   if(cp){ e.stopPropagation();
     const name=cp.dataset.copy, cell=cp.querySelector("td");
@@ -6604,12 +6743,14 @@ document.addEventListener("click",e=>{
   const k=e.target.closest("[data-task]"); if(k){taskIdx=+k.dataset.task;tab="task";sysFilter=null;
     render();window.scrollTo({top:0,behavior:"smooth"});return}
   const g=e.target.closest("[data-sys]"); if(g){toSys(g.dataset.sys);return}
-  const f=e.target.closest("[data-f]"); if(f){sysFilter=f.dataset.f||null;render();return}
+  const f=e.target.closest("[data-f]"); if(f){tlReset();sysFilter=f.dataset.f||null;render();return}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 document.getElementById("q").addEventListener("input",e=>{
-  query=e.target.value.trim();
+  tlReset(); const was=query; query=e.target.value.trim();
+  if(query&&!was) window.__preSearch={tab,symView};
   if(query){sysFilter=null;tab="all";}   // поиск всегда по всему архиву
+  else if(was&&window.__preSearch){ tab=window.__preSearch.tab; symView=window.__preSearch.symView; window.__preSearch=null; }
   render();
 });
 const vEl=document.getElementById("ver"); if(vEl) vEl.textContent="сборка "+BUILD;
