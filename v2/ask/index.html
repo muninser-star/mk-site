@@ -147,6 +147,18 @@ function view() {
   paint();
   loadHistory();
 }
+// ТЗ-010 блок 16: сверху — источники, на которые ссылается ответ ([3], [6]); остальные найденные — свёрнуты
+function splitSources(answer, sources) {
+  const refs = new Set(); String(answer || "").replace(/\[(\d+(?:\s*[,;]\s*\d+)*)\]/g, (_, g) => g.split(/[,;]/).forEach(n => refs.add(+n)));
+  const list = sources || [];
+  return { cited: list.filter(x => refs.has(x.n)), rest: list.filter(x => !refs.has(x.n)) };
+}
+function srcHtml(s) {
+  return `<div class="src" data-n="${s.n}"><div class="h"><span class="n">${s.n}</span>
+           <span class="t">${esc(s.title)}</span></div>
+           <div class="meta">${esc(NAME[s.person] || "семья")}${s.kind ? " · " + esc(KIND[s.kind] || s.kind) : ""}${s.doc_date ? " · " + ru(s.doc_date) : ""}${s.source ? " · " + esc(s.source) : ""}</div>
+           ${s.content ? `<div class="body">${esc(s.content.split("\n").slice(1).join("\n"))}</div>` : ""}</div>`;
+}
 function card(h, hi) {
   const flagged = h.flag === "fix";
   const fixUi = !h.id || h.error ? "" : flagged
@@ -163,11 +175,9 @@ function card(h, hi) {
     ${h.error ? `<div class="err">${esc(h.error)}</div>`
       : h.no_data ? `<div class="muted">В медкнижке по этому вопросу ничего не нашлось.</div>`
       : `<div class="ans" data-h="${hi}">${fmt(h.answer)}</div>
-         ${h.sources.length ? `<div class="srcs"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники${h.sources.some(s => s.content) ? " — нажмите, чтобы раскрыть" : ""}</div>
-         ${h.sources.map(s => `<div class="src" data-n="${s.n}"><div class="h"><span class="n">${s.n}</span>
-           <span class="t">${esc(s.title)}</span></div>
-           <div class="meta">${esc(NAME[s.person] || "семья")}${s.kind ? " · " + esc(KIND[s.kind] || s.kind) : ""}${s.doc_date ? " · " + ru(s.doc_date) : ""}${s.source ? " · " + esc(s.source) : ""}</div>
-           ${s.content ? `<div class="body">${esc(s.content.split("\n").slice(1).join("\n"))}</div>` : ""}</div>`).join("")}</div>` : ""}`}
+         ${h.sources.length ? (() => { const sp = splitSources(h.answer, h.sources);
+           return `<div class="srcs">${sp.cited.length ? `<div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники — нажмите, чтобы раскрыть</div>${sp.cited.map(srcHtml).join("")}` : ""}
+           ${sp.rest.length ? `<details class="more-src"><summary class="muted" style="font-size:12.5px;cursor:pointer">${sp.cited.length ? "Ещё найдено" : "Что искал"}: ${sp.rest.length}</summary>${sp.rest.map(srcHtml).join("")}</details>` : ""}</div>`; })() : ""}`}
     ${fixUi}
     </div></div>`;
 }
