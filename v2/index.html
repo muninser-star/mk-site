@@ -645,6 +645,9 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   #docout tr,#docout li,.docreq{break-inside:avoid}
   .dh{break-after:avoid}
 }
+.plancard{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.plancard:first-of-type{border-top:0}
+.planrow{display:flex;gap:6px;align-items:center;margin:4px 0}.planrow .ptext{flex:1;min-width:0}.planrow select{max-width:110px}
+#profBtn{width:36px;height:36px;border-radius:50%;border:0;background:var(--btn);color:var(--on-btn);font:600 13px var(--font);cursor:pointer;flex:none}
 /* ── Новый дизайн (04.10.2026): токены и компоненты из Разработка/Дизайн. Слой поверх старых стилей:
    имена переменных прежние, значения — из токены.css; чёрная главная кнопка и активная вкладка, карточки 20px без рамок ── */
 :root{
@@ -1980,7 +1983,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="04.10 21:15";   // подставляется при публикации
+const BUILD="04.10 21:26";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2788,7 +2791,7 @@ async function inboxRead(bucket,last,ms){
 // покупки: состояние берём из последней строки корзины shopping, если она новее локальной
 // записи, добавленные кнопкой «+» с телефона: показываем их сразу на всех устройствах,
 // пока они не перенесены в реестр вручную. Помечаются как неподтверждённые.
-const WHOKEY={"Денис":"denis","Аня":"anya","Дима":"dima","Даня":"danya"};
+const WHOKEY={"Денис":"denis","Аня":"anya","Дима":"dima","Даня":"danya"};   // запасной список; из базы (people_list) перезаписывается
 async function nutPullInbox(){
   const rows=await inboxRead(INBOX,false,7000);
   if(!rows||!rows.length) return false;
@@ -3078,7 +3081,7 @@ function sugFilter(items,q){
   return n?items.filter(x=>norm(x).includes(n)):items.slice();
 }
 // разделы подсказки лекарств для человека: «Давали Дане», «Из справочника»
-const DAT={"Аня":"Ане","Дима":"Диме","Даня":"Дане","Денис":"Денису"};
+let DAT={"Аня":"Ане","Дима":"Диме","Даня":"Дане","Денис":"Денису"};
 function medSugGroups(d){
   const g=medGroups(d.sym||{},typeof MEDREF!=="undefined"?MEDREF:{});
   return [{t:`Давали ${DAT[d.short]||d.short}`,items:g.mine},{t:"Из справочника",items:g.other}];
@@ -3625,7 +3628,7 @@ if(typeof document!=="undefined"&&!window.__addBound){
 // ── Записи с сайта (ТЗ-001 блок 3): анализ, визит, лекарство, заметка из таблицы entries ──
 // Показываются вместе с книжкой, пока регистратор их не перенёс; перенесённые — уже из книжки, дубля нет.
 function entriesInto(D,rows){
-  const ENTRY_WHO={denis:"Денис",anya:"Аня",dima:"Дима",danya:"Даня",test:"Тест"};
+  const ENTRY_WHO=Object.assign({denis:"Денис",anya:"Аня",dima:"Дима",danya:"Даня",test:"Тест"},typeof ENTRY_WHO_DB!=="undefined"?ENTRY_WHO_DB:{});   // запасные имена + персоны из базы
   for(const k of Object.keys(D)){ const P=D[k];
     if(P.rec) P.rec=P.rec.filter(r=>!r.entry); if(P.meds) P.meds=P.meds.filter(m=>!m.entry);
     (P.series||[]).forEach(s=>{ if(!s._base) s._base=(s.pts||[]).slice(); s.pts=s._base.slice(); }); }
@@ -3922,7 +3925,7 @@ function docTab(m){
     const P=doctorPack(d,spec[0],localDay(),{systems:sysAll,req:rq});
     out=`<div class="card" id="docout"><div class="docbar"><button class="gobtn" data-dock="print" style="margin:0">Скачать PDF</button></div>${docHtml(P,d)}</div>`;
   }
-  m.innerHTML=`<div class="card nodoc"><h2>Для врача</h2>
+  m.innerHTML=plansBlock()+`<div class="card nodoc"><h2>Для врача</h2>
     <div class="muted" style="margin:-6px 0 12px">Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется.</div>
     <div class="addform" id="docForm">
       <div class="fld"><label for="docWho">Кто</label><select id="docWho">${people.map(k=>`<option value="${k}"${k===cur?" selected":""}>${esc(DATA[k].short)}</option>`).join("")}</select></div>
@@ -3956,6 +3959,274 @@ document.addEventListener("change",e=>{
   else if(e.target.id==="docSpec"){ docRead(); docSt.spec=e.target.value; docSt.sys=null; docSt.shown=false; render(); }
 });
 document.addEventListener("input",e=>{ if(e.target.closest&&e.target.closest("#docForm")&&/^doc[PQTO]/.test(e.target.id)) docRead(); });
+
+// ── Предстоящие визиты (ТЗ-010 блок 17): запрос врачу заранее; хранятся в базе, видны с любого устройства ──
+// разбор текста с вопросами — по правилам, без модели (тот же текст, что в функции mk)
+function parsePlanText(text) {
+  const head = t => { const k = String(t).toLowerCase().replace(/[#*_\x60:]/g, "").replace(/ё/g, "е").trim();
+    if (/^(вопросы|вопросы к врачу)$/.test(k)) return "questions";
+    if (/^(анализы|исследования|анализы и исследования|анализы и обследования|обследования)$/.test(k)) return "tests";
+    if (/^(что еще|что еще нужно|другое|еще|прочее)$/.test(k)) return "other";
+    if (/^(цель|для чего|для чего пришли|цель визита)$/.test(k)) return "purpose";
+    return null; };
+  const out = { purpose: "", questions: [], tests: [], other: [] }, seen = {};
+  let sec = "questions";
+  for (const raw of String(text || "").replace(/\r/g, "").split("\n")) {
+    const line = raw.trim(); if (!line) continue;
+    const h = head(line); if (h) { sec = h; continue; }
+    const t = line.replace(/^(?:[-•*–—]|\d+[.)])\s+/, "").trim(); if (!t) continue;
+    if (sec === "purpose") { out.purpose = (out.purpose ? out.purpose + " " : "") + t; continue; }
+    const k = sec + "|" + t.toLowerCase(); if (seen[k]) continue; seen[k] = 1; out[sec].push(t);
+  }
+  return out;
+}
+// подпись даты визита: «дата не известна», «завтра», «дата прошла — отметить состоялся?»
+function planLabel(plan,today){
+  if(!plan.planned_date) return "дата не известна";
+  if(plan.status==="planned"&&plan.planned_date<today) return "дата прошла — отметить состоялся?";
+  const n=Math.round((Date.parse(plan.planned_date+"T12:00:00Z")-Date.parse(today+"T12:00:00Z"))/864e5);
+  return n===0?"сегодня":n===1?"завтра":ru(plan.planned_date);
+}
+// планируемые: сначала с датой по возрастанию, потом без даты; закрытые не попадают
+function upcomingPlans(plans,today){
+  const L=(plans||[]).filter(x=>x.status==="planned");
+  return [...L.filter(x=>x.planned_date).sort((a,b)=>a.planned_date.localeCompare(b.planned_date)),...L.filter(x=>!x.planned_date)];
+}
+let PLANS=null, planEdit=null, planImport=null;   // PLANS: null — ещё не загружены
+function plansLoad(force){
+  if(!window.__MK_KEY||(PLANS&&!force)||window.__plansLoading) return; window.__plansLoading=1;
+  mkApi("plan_list").then(j=>{ PLANS=j.rows||[]; window.__plansLoading=0; render(); }).catch(()=>{ window.__plansLoading=0; PLANS=PLANS||[]; });
+}
+const specName=k=>(DOC_SPECS.find(x=>x[0]===k)||DOC_SPECS[0])[1];
+const planCount=(p,k)=>(p[k]||[]).length;
+function planCard(p,today){
+  const q=planCount(p,"questions"), t=planCount(p,"tests");
+  return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${esc(specName(p.specialty))}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
+    <div class="muted" style="font-size:13px">${esc(planLabel(p,today))} · ${q} ${plural(q,"вопрос","вопроса","вопросов")}${t?` · ${t} ${plural(t,"анализ","анализа","анализов")}`:""}</div></div><span class="muted">→</span></div>`;
+}
+function plansBlock(){
+  plansLoad(); if(!PLANS) return "";
+  const L=upcomingPlans(PLANS.filter(p=>p.person===cur),localDay());
+  return `<div class="card nodoc"><h2>Предстоящие визиты</h2>${L.length?L.map(p=>planCard(p,localDay())).join(""):`<div class="muted">Пока нет — вопросы можно собрать заранее.</div>`}
+    <div class="row" style="margin-top:10px"><button class="btn sec" data-plan="new">＋ Предстоящий визит</button><button class="btn sec" data-plan="save">Сохранить запрос как визит</button></div></div>`;
+}
+function planOverviewCard(){
+  plansLoad(); if(!PLANS) return "";
+  const L=upcomingPlans(PLANS.filter(p=>p.person===cur),localDay()); if(!L.length) return "";
+  return `<div class="card"><h2>Предстоящие визиты</h2>${L.map(p=>planCard(p,localDay())).join("")}</div>`;
+}
+// редактор визита: части запроса со строками, ☑ «спросил/сделано», дата, состояние, загрузка файла
+function planOpen(p){
+  planEdit=p?JSON.parse(JSON.stringify(p)):{id:null,person:cur,specialty:docSt.spec,planned_date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null};
+  planDraw();
+}
+function planDraw(){
+  const p=planEdit; if(!p) return;
+  const list=(k,title,ph)=>`<h3 style="font-size:14px;margin:14px 0 4px">${title}</h3>
+    ${(p[k]||[]).map((x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="отмечено"><input class="ptext" data-ptext="${k}:${i}" value="${esc(x.t)}"><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать">✕</button></div>`).join("")}
+    <div class="planrow"><input class="ptext" id="pnew_${k}" placeholder="${ph}"><button type="button" class="btn sec" data-padd="${k}" style="padding:6px 12px">＋</button></div>`;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Предстоящий визит</h2>
+    <div class="addform">
+      <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${DOC_SPECS.map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      <div class="fld"><label for="plDate">Дата (можно не указывать)</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div>
+      <div class="fld"><label for="plPurpose">Для чего пришли</label><input id="plPurpose" value="${esc(p.purpose||"")}"></div>
+      ${list("questions","Вопросы к врачу","новый вопрос")}${list("tests","Какие анализы и исследования нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
+      ${p.source_name?`<div class="muted" style="margin-top:8px">из файла ${esc(p.source_name)}</div>`:""}
+      <div class="row" style="margin-top:12px"><label class="btn sec" style="cursor:pointer">📎 Загрузить файл с вопросами<input type="file" id="plFile" accept=".txt,.md,.docx" hidden></label>
+        <button class="btn sec" data-plan="paste">Вставить текст</button></div>
+      <div class="row" style="margin-top:12px"><button class="btn" data-plan="persist">Сохранить</button><button class="btn sec" data-plan="makedoc">Подготовить документ</button>
+        ${p.id?`<button class="btn sec" data-plan="done">Состоялся</button><button class="btn sec" data-plan="cancel">Отменён</button>`:""}</div>
+      <div id="plLog" class="formlog"></div></div></div>`;
+  const f=document.getElementById("plFile"); if(f) f.onchange=()=>planFile(f.files&&f.files[0]);
+}
+function planSync(){   // поля формы → planEdit
+  const p=planEdit, v=id=>(document.getElementById(id)||{}).value; if(!p||!document.getElementById("plSpec")) return;
+  p.specialty=v("plSpec"); p.planned_date=v("plDate")||""; p.purpose=v("plPurpose")||"";
+  document.querySelectorAll("[data-ptext]").forEach(el=>{ const [k,i]=el.dataset.ptext.split(":"); if(p[k][+i]) p[k][+i].t=el.value; });
+  document.querySelectorAll("[data-pdone]").forEach(el=>{ const [k,i]=el.dataset.pdone.split(":"); if(p[k][+i]) p[k][+i].done=el.checked; });
+}
+const planLog=(t,c)=>{ const e=document.getElementById("plLog"); if(e) e.innerHTML=`<div class="${c||""}">${t}</div>`; };
+async function planPersist(status){
+  planSync(); const p=planEdit; if(status) p.status=status;
+  const body={id:p.id||undefined,person:p.person,specialty:p.specialty,planned_date:p.planned_date||null,purpose:p.purpose,
+    questions:planClean(p.questions),tests:planClean(p.tests),other:planClean(p.other),status:p.status,source_name:p.source_name};
+  try{ const j=await mkApi("plan_save",body); p.id=j.id; PLANS=null; plansLoad(true); planLog("✓ Сохранено","ok"); if(status){ closeModal(); } }
+  catch(e){ planLog("Не сохранилось: "+esc(e.message||"ошибка"),"er"); }
+}
+async function planFile(f){
+  if(!f) return;
+  if(f.size>1024*1024){ planLog("Файл слишком большой — не больше 1 МБ","er"); return; }
+  const b64=await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(",")[1]||""); r.onerror=no; r.readAsDataURL(f); });
+  try{ const j=await mkApi("plan_import",{person:planEdit.person,name:f.name,content_base64:b64}); planReview(j); }
+  catch(e){ const m=String(e.message||e); planLog(/format/.test(m)?"Формат не поддерживается: .txt, .md или .docx":/too_large/.test(m)?"Файл слишком большой — не больше 1 МБ":/too_many/.test(m)?"В файле больше 200 строк":"Не удалось разобрать файл","er"); }
+}
+// экран проверки: у каждой строки галочка и поле правки; строку можно переложить в другую часть
+function planReview(r){
+  planSync(); planImport={name:r.source_name||"",purpose:r.purpose||"",rows:[...r.questions.map(t=>({k:"questions",t,on:true})),...r.tests.map(t=>({k:"tests",t,on:true})),...r.other.map(t=>({k:"other",t,on:true}))]};
+  const parts={questions:"Вопросы",tests:"Анализы",other:"Что ещё"};
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Проверьте, что нашлось</h2>
+    <div class="muted" style="margin-bottom:8px">Текст пунктов не менялся. Уберите лишнее галочкой или переложите строку в другую часть.</div>
+    ${planImport.purpose?`<div class="fld"><label>Для чего пришли</label><input id="rvPurpose" value="${esc(planImport.purpose)}"></div>`:""}
+    ${planImport.rows.map((x,i)=>`<div class="planrow"><input type="checkbox" data-rvon="${i}" checked><input class="ptext" data-rvt="${i}" value="${esc(x.t)}">
+      <select data-rvk="${i}">${Object.entries(parts).map(([k,n])=>`<option value="${k}"${k===x.k?" selected":""}>${n}</option>`).join("")}</select></div>`).join("")||`<div class="muted">В файле ничего не нашлось</div>`}
+    <div class="row" style="margin-top:12px"><button class="btn" data-plan="rvadd">Добавить в визит</button><button class="btn sec" data-plan="rvback">Назад</button></div></div>`;
+}
+function planPaste(){
+  planSync(); modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Вставить текст</h2>
+    <div class="muted" style="margin-bottom:8px">Каждая строка — один пункт. Заголовки «Вопросы», «Анализы», «Что ещё», «Цель» раскладывают пункты по частям.</div>
+    <textarea id="plPaste" rows="8" style="width:100%"></textarea><div class="row" style="margin-top:10px"><button class="btn" data-plan="pasteok">Разобрать</button><button class="btn sec" data-plan="rvback">Назад</button></div></div>`;
+}
+function planClick(e){
+  const o=e.target.closest("[data-planopen]"); if(o){ const p=(PLANS||[]).find(x=>x.id===o.dataset.planopen); if(p) planOpen(p); return true; }
+  const a=e.target.closest("[data-plan],[data-padd],[data-pdel]"); if(!a) return false;
+  if(a.dataset.padd){ planSync(); const k=a.dataset.padd, el=document.getElementById("pnew_"+k), t=(el.value||"").trim(); if(t){ planEdit[k].push({t,done:false}); } planDraw(); return true; }
+  if(a.dataset.pdel){ planSync(); const [k,i]=a.dataset.pdel.split(":"); planEdit[k].splice(+i,1); planDraw(); return true; }
+  const w=a.dataset.plan;
+  if(w==="new"){ planOpen(null); return true; }
+  if(w==="save"){ planOpen(null); const r=docReq(); planEdit.purpose=r.purpose; planEdit.questions=planClean(r.questions); planEdit.tests=planClean(r.tests); planEdit.other=planClean(r.other); planDraw(); return true; }
+  if(w==="persist"){ planPersist(); return true; }
+  if(w==="done"){ planPersist("done"); return true; }
+  if(w==="cancel"){ planPersist("cancelled"); return true; }
+  if(w==="makedoc"){ planSync(); docSt.spec=planEdit.specialty; docReqSave({purpose:planEdit.purpose,questions:planClean(planEdit.questions),tests:planClean(planEdit.tests),other:planClean(planEdit.other)});
+    cur=planEdit.person; docSt.shown=true; docSt.sys=null; tab="doc"; closeModal(); render(); return true; }
+  if(w==="paste"){ planPaste(); return true; }
+  if(w==="pasteok"){ planReview(Object.assign(parsePlanText(document.getElementById("plPaste").value),{source_name:"вставленный текст"})); return true; }
+  if(w==="rvback"){ planDraw(); return true; }
+  if(w==="rvadd"){
+    const keep=[...document.querySelectorAll("[data-rvon]")].map(el=>({on:el.checked,i:+el.dataset.rvon}));
+    keep.forEach(({on,i})=>{ if(!on) return; const t=(document.querySelector(`[data-rvt="${i}"]`).value||"").trim(), k=document.querySelector(`[data-rvk="${i}"]`).value;
+      if(t&&!(planEdit[k]||[]).some(x=>x.t.toLowerCase()===t.toLowerCase())) planEdit[k].push({t,done:false}); });
+    const pu=document.getElementById("rvPurpose"); if(pu&&pu.value.trim()&&!planEdit.purpose) planEdit.purpose=pu.value.trim();
+    planEdit.source_name=planImport.name&&planImport.name!=="вставленный текст"?"из файла "+planImport.name:planEdit.source_name;
+    planEdit.source_name=planEdit.source_name&&planEdit.source_name.replace(/^из файла /,""); planDraw(); return true; }
+  return false;
+}
+
+// ── Профиль и семья (ТЗ-005 блоки 1–3). Возраст и совершеннолетие считаются по дате рождения и нигде не хранятся
+function ageOf(birth,today){
+  const b=String(birth||"").split("-").map(Number), t=String(today).split("-").map(Number);
+  if(b.length<3||!b[0]) return null;
+  const years=t[0]-b[0]-((t[1]<b[1]||(t[1]===b[1]&&t[2]<b[2]))?1:0);
+  return {years,adult:years>=18};
+}
+function sexByRelation(role){ return ({"муж":"m","жена":"f","сын":"m","дочь":"f","отец":"m","мать":"f","дедушка":"m","бабушка":"f","брат":"m","сестра":"f","тётя":"f","дядя":"m"})[role]||""; }
+
+// ── Профиль и семья на экране (ТЗ-005 блоки 1–3). Персоны приходят из базы; переключатель, «кому» (Дане) и подписи строятся из них ──
+const ENTRY_WHO_DB={};   // id → как зовём, из people_list
+let PPL=null;   // ответ people_list: {me, people[], links[], roles[]}
+function emptyBook(p){   // персона без раздела в медкнижке открывается пустой: «Записей пока нет — добавьте первую через ＋»
+  const nm=[p.last_name,p.first_name,p.middle_name].filter(Boolean).join(" ")||p.short||p.id;
+  const dob=p.birth_date?p.birth_date.split("-").reverse().join("."):"";
+  return {name:nm,short:p.short||p.first_name,dob,age:p.age!=null?String(p.age):"",note:"Записей пока нет — добавьте первую через ＋",
+    alarm:[],attention:[],diagnoses:[],family:[],files:{dir:"",d:{}},kpi:[],meds:[],medsOff:[],never:[],organs:[],past:[],rec:[],resolved:[],series:[],soon:[],
+    sym:{cat:[],log:[],ep:[]},vac:[],vacNote:""};
+}
+function pplApply(j){
+  PPL=j; const keys=[];
+  for(const p of j.people){
+    if(!DATA[p.id]){ DATA[p.id]=emptyBook(p); }
+    else{ const d=DATA[p.id]; if(p.short) d.short=d.short||p.short; }
+    keys.push(p.id);
+    if(p.short){ WHOKEY[p.short]=p.id; ENTRY_WHO_DB[p.id]=p.short; if(p.short_dat) DAT[p.short]=p.short_dat; }
+  }
+  // порядок в переключателе — как в базе
+  const ordered={}; keys.forEach(k=>{ ordered[k]=DATA[k]; }); Object.keys(DATA).forEach(k=>{ if(!ordered[k]) ordered[k]=DATA[k]; });
+  Object.keys(DATA).forEach(k=>delete DATA[k]); Object.assign(DATA,ordered);
+}
+function pplLoad(){
+  if(!window.__MK_KEY||PPL||window.__pplLoading) return; window.__pplLoading=1;
+  mkApi("people_list").then(j=>{ pplApply(j); render(); setProfBtn(); }).catch(()=>{ window.__pplLoading=0; });
+}
+const initials=p=>((p.first_name||p.short||"?")[0]+(p.last_name||"")[0]||"").toUpperCase();
+function setProfBtn(){
+  let b=document.getElementById("profBtn"); if(!PPL) return;
+  const me=PPL.people.find(p=>p.id===PPL.me)||PPL.people[0]; if(!me) return;
+  if(!b){ b=document.createElement("button"); b.id="profBtn"; b.type="button"; b.setAttribute("aria-label","Профиль");
+    const ver=document.getElementById("ver"); ver.parentNode.insertBefore(b,ver); }
+  b.textContent=initials(me); b.title="Профиль: "+(me.short||"");
+}
+const pplRelOf=(id)=>{   // «жена», «сын» — относительно главной персоны или того, кто смотрит
+  const l=(PPL.links||[]).find(x=>x.person===id); if(!l) return "";
+  const prime=(PPL.people.find(p=>p.is_prime)||{}).id;
+  const t=l.role==="другое"&&l.note?l.note:l.role;
+  return l.of===prime||l.of===PPL.me?t:`${t} — ${DAT_OF(l.of)}`;
+};
+const DAT_OF=id=>{ const p=(PPL.people||[]).find(x=>x.id===id); return p?(p.short_dat||p.short||p.first_name):id; };
+function profOpen(id){
+  if(!PPL){ toast("Профиль ещё загружается"); return; }
+  const p=PPL.people.find(x=>x.id===(id||PPL.me))||PPL.people[0], today=localDay(), a=p.birth_date?ageOf(p.birth_date,today):null;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <h2 style="text-transform:none;font-size:20px;color:var(--ink);margin:0 0 4px">${esc([p.last_name,p.first_name,p.middle_name].filter(Boolean).join(" "))}</h2>
+    <div class="muted" style="margin-bottom:12px">${p.sex==="m"?"мужской":p.sex==="f"?"женский":""}${p.birth_date?` · ${ru(p.birth_date)}`:""}${a?` · ${a.years} ${plural(a.years,"год","года","лет")}, ${a.adult?"взрослый":"ребёнок"}`:""}</div>
+    <div class="addform" id="profForm">
+      <div class="fld"><label for="pfLast">Фамилия</label><input id="pfLast" value="${esc(p.last_name||"")}"></div>
+      <div class="fld"><label for="pfFirst">Имя</label><input id="pfFirst" value="${esc(p.first_name||"")}"></div>
+      <div class="fld"><label for="pfMid">Отчество</label><input id="pfMid" value="${esc(p.middle_name||"")}"></div>
+      <div class="fld"><label for="pfShort">Как зовём</label><input id="pfShort" value="${esc(p.short||"")}"></div>
+      <div class="fld"><label for="pfSex">Пол</label><select id="pfSex"><option value=""></option><option value="m"${p.sex==="m"?" selected":""}>мужской</option><option value="f"${p.sex==="f"?" selected":""}>женский</option></select></div>
+      <div class="fld"><label for="pfBirth">Дата рождения</label><input id="pfBirth" type="date" value="${esc(p.birth_date||"")}" max="${today}"></div>
+      <div class="row"><button class="btn" data-prof="save" data-pid="${esc(p.id)}">Сохранить</button></div><div id="pfLog" class="formlog"></div>
+    </div>
+    <h3 style="font-size:14px;margin:18px 0 6px">Семья</h3>
+    ${PPL.people.map(x=>`<div class="plancard" data-prof="open" data-pid="${esc(x.id)}"><div><b>${esc(x.short||x.first_name)}</b>${pplRelOf(x.id)?` <span class="muted">· ${esc(pplRelOf(x.id))}</span>`:x.is_prime?' <span class="muted">· главная</span>':""}
+      <div class="muted" style="font-size:13px">${x.birth_date?esc(String(x.age))+" "+plural(x.age||0,"год","года","лет"):""}</div></div><span class="muted">→</span></div>`).join("")}
+    <div class="row" style="margin-top:10px"><button class="btn sec" data-prof="addform">＋ Добавить человека</button></div></div>`;
+}
+function profAddForm(){
+  const today=localDay();
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Добавить человека</h2>
+    <div class="addform" id="addPerson">
+      <div class="fld"><label for="apLast">Фамилия</label><input id="apLast"></div>
+      <div class="fld"><label for="apFirst">Имя</label><input id="apFirst"></div>
+      <div class="fld"><label for="apMid">Отчество</label><input id="apMid"></div>
+      <div class="fld"><label for="apShort">Как зовём</label><input id="apShort" placeholder="например, Маша"></div>
+      <div class="fld"><label for="apRole">Кем приходится</label><select id="apRole">${(PPL.roles||[]).map(r=>`<option value="${esc(r.title)}">${esc(r.title)}</option>`).join("")}</select></div>
+      <div class="fld" id="apNoteBox" hidden><label for="apNote">Кем именно</label><input id="apNote"></div>
+      <div class="fld"><label for="apOf">Кому</label><select id="apOf">${PPL.people.map(p=>`<option value="${esc(p.id)}"${p.is_prime?" selected":""}>${esc(p.short_dat||p.short||p.first_name)}</option>`).join("")}</select></div>
+      <div class="fld"><label for="apSex">Пол</label><select id="apSex"><option value="">—</option><option value="m">мужской</option><option value="f">женский</option></select></div>
+      <div class="fld"><label for="apBirth">Дата рождения</label><input id="apBirth" type="date" max="${today}"></div>
+      <div class="row"><button class="btn" data-prof="add">Добавить</button><button class="btn sec" data-prof="back">Назад</button></div><div id="apLog" class="formlog"></div></div></div>`;
+  const role=document.getElementById("apRole"), sync=()=>{ const s=sexByRelation(role.value); if(s) document.getElementById("apSex").value=s; document.getElementById("apNoteBox").hidden=role.value!=="другое"; };
+  role.onchange=sync; sync();
+}
+function profClick(e){ const b=e.target.closest("[data-prof]"); if(!b) return false; profAct(b); return true; }
+async function profAct(b){
+  const w=b.dataset.prof, v=id=>(document.getElementById(id)||{}).value||"", lg=(id,t,c)=>{ const el=document.getElementById(id); if(el) el.innerHTML=`<div class="${c||""}">${t}</div>`; };
+  if(w==="open"){ profOpen(b.dataset.pid); return true; }
+  if(w==="back"){ profOpen(PPL.me); return true; }
+  if(w==="addform"){ profAddForm(); return true; }
+  if(w==="save"){
+    const first=v("pfFirst").trim(), birth=v("pfBirth"), today=localDay();
+    if(!first){ lg("pfLog","Впишите имя","er"); return true; }
+    if(birth>today){ lg("pfLog","Дата рождения не может быть в будущем","er"); return true; }
+    if(!birth){ lg("pfLog","Укажите дату рождения","er"); return true; }
+    try{ await mkApi("person_update",{person:b.dataset.pid,last_name:v("pfLast"),first_name:first,middle_name:v("pfMid"),short:v("pfShort")||first,sex:v("pfSex"),birth_date:birth});
+      PPL=null; window.__pplLoading=0; const j=await mkApi("people_list"); pplApply(j); render(); setProfBtn(); profOpen(b.dataset.pid); lg("pfLog","✓ Сохранено","ok"); }
+    catch(err){ lg("pfLog","Не сохранилось: "+esc(err.message||"ошибка"),"er"); }
+    return true; }
+  if(w==="add"){
+    const first=v("apFirst").trim(), birth=v("apBirth");
+    if(!first){ lg("apLog","Впишите имя","er"); return true; }
+    if(!birth){ lg("apLog","Укажите дату рождения","er"); return true; }
+    if(birth>localDay()){ lg("apLog","Дата рождения не может быть в будущем","er"); return true; }
+    try{ const j=await mkApi("person_add",{first_name:first,last_name:v("apLast").trim(),middle_name:v("apMid").trim(),short:v("apShort").trim(),sex:v("apSex"),birth_date:birth,
+        relation:{role:v("apRole"),of:v("apOf"),note:v("apNote")}});
+      const pj=await mkApi("people_list"); pplApply(pj); render(); setProfBtn();
+      const nm=v("apShort").trim()||first;
+      modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">${esc(nm)} добавлен(а)</h2>
+        ${j.link?`<p>Ссылка для ${esc(nm)} готова. Отправьте её — по ней откроется медкнижка семьи. Ссылка показывается один раз.</p>
+          <input id="newLink" readonly value="${esc(j.link)}" style="width:100%"><div class="row" style="margin-top:10px"><button class="btn" data-prof="copy">Скопировать ссылку</button></div>`
+          :`<p class="muted">Ребёнку отдельная ссылка не нужна.</p>`}
+        <div class="row" style="margin-top:10px"><button class="btn sec" data-prof="back">К семье</button></div></div>`; }
+    catch(err){ lg("apLog",/forbidden/.test(String(err.message))?"Добавлять людей пока может только главный в семье":"Не добавилось: "+esc(err.message||"ошибка"),"er"); }
+    return true; }
+  if(w==="copy"){ const i=document.getElementById("newLink"); try{ navigator.clipboard.writeText(i.value); toast("Ссылка скопирована"); }catch(x){ i.select(); } return true; }
+  return false;
+}
 
 function indicatorBlock(){
   if(window.__MK_KEY&&!window.__MEAS&&!window.__measLoading){
@@ -4692,6 +4963,7 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
 }
 let lastView="";
 function render(){
+  pplLoad();
   if(!DATA[cur]) cur=Object.keys(DATA)[0];   // человека нет в книжке (скрыт для этого кода) — первый из доступных
   const d=DATA[cur];
   // появление блоков — только при смене человека или вкладки, не при каждой перерисовке
@@ -4746,6 +5018,7 @@ function render(){
         <span><b>${esc(e.dx||"Без диагноза")}</b> <span class="muted">с ${ru(e.d1)}</span></span>
         <span class="muted">${esc(epSpan(e,localDay()).text)}${e.stale?' · <b style="color:var(--warn)">закрыть?</b>':""} →</span></div>`).join("")}</div>`; })()}
 
+    ${planOverviewCard()}
     ${(()=>{ favLoad(); const keys=FAV[cur]||[]; if(!keys.length) return "";   // не пусто, только если есть звёздочки
       const R=favRows(measRows(cur),keys); if(!R.length) return "";
       return `<div class="card"><h2>Избранное</h2><div class="favlist">${R.map(x=>`<div class="favrow" data-favopen="${esc(x.name)}">
@@ -5633,7 +5906,9 @@ document.addEventListener("click",e=>{
   if(ins){ insSel = insSel===ins.dataset.ins ? null : ins.dataset.ins; render(); return }
 
   const w=e.target.closest("[data-w]"); if(w){cur=w.dataset.w;insSel=null;sysFilter=null;symSel=null;medSel=null;symView="list";tab="home";closeModal();render();return}
-  if(docClick(e)) return;
+  if(docClick(e)||planClick(e)) return;
+  if(e.target.closest("#profBtn")){ profOpen(); return; }
+  if(profClick(e)) return;
   const fv=e.target.closest("[data-fav]"); if(fv){ e.preventDefault(); e.stopPropagation(); favToggle(cur,fv.dataset.fav); return; }
   const fo=e.target.closest("[data-favopen]"); if(fo){ query=fo.dataset.favopen; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
   const tk=e.target.closest("[data-tlk]"); if(tk){ tlKind=tk.dataset.tlk; render(); return; }
