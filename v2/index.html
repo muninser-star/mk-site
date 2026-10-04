@@ -2138,9 +2138,10 @@ function openRec(i,showSer){
       <div class="muted" style="margin-bottom:6px">${esc(M.summary)}</div>
       ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>
-      ${origHtml}${filesHtml}${rel}${concl}${dyn}${detHtml}
+      ${rel}${concl}${dyn}${detHtml}
       ${sameDay.length?fold(`В этот же день — ещё ${sameDay.length}`,sameDayHtml):""}
-      ${recGoAll(r)}`);
+      ${recGoAll(r)}
+      ${origHtml}${filesHtml}`);   // оригиналы — в самом конце, после всех записей (Денис, 04.10.2026)
   } else if(r.t==="instr"){   // ТЗ-010 блок 13: что сейчас и что делать — сверху, лекция — по желанию
     const M=instrCardModel(r), A=M.actions;
     const act=a=>a?`<div class="act"><b>${a.red?'<span class="red-dot">●</span> ':""}${esc(a.title)}</b><div>${esc(a.text)}</div></div>`:"";
@@ -2152,9 +2153,9 @@ function openRec(i,showSer){
       ${M.more.length?`<h3 style="font-size:14px;margin:14px 0 6px">Подробнее</h3>${M.more.map(x=>fold(esc(x.title),esc(x.text))).join("")}`:""}
       ${serHtml?`<h3 style="font-size:14px;margin:18px 0 4px">Динамика${ser[0]?": "+esc(ser[0].name):""}</h3>${serHtml}`:""}
       ${sameDay.length?`<h3 style="font-size:14px;margin:18px 0 6px">В этот же день — ещё ${sameDay.length}</h3>${sameDayHtml}`:""}
-      ${origHtml}${filesHtml}
       ${o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:""}
-      ${recGoAll(r)}`);
+      ${recGoAll(r)}
+      ${origHtml}${filesHtml}`);
   }
   document.getElementById("modal").innerHTML=cardHtml||`
     <div class="mbox" role="dialog" aria-modal="true">
@@ -2220,19 +2221,6 @@ function openRec(i,showSer){
           <td><span class="status status-${x.st}">${ST[x.st]}</span></td></tr>`).join("")}
         </tbody></table></div>`:""}
 
-      ${r.files&&r.files.length?`<h3 style="font-size:14px;margin:18px 0 6px">Бланк</h3>
-        ${r.files.map((f,i)=>`<button class="btn btn-secondary" data-origfile="${esc(f)}" style="margin:0 6px 6px 0">📄 Открыть бланк${r.files.length>1?" "+(i+1):""}</button>`).join("")}`:""}
-      ${r.source&&!(r.files&&r.files.length)?`<h3 style="font-size:14px;margin:18px 0 6px">Откуда запись</h3>
-        <button class="btn btn-secondary" data-source="${esc(r.source)}">📄 Исходный текст</button><div class="docsrc muted"></div>`:""}
-      ${(()=>{   // оригиналы бланков: в книжке только имя файла, сам файл лежит в папке и в облаке
-        const F=D.files, list=F&&F.d&&F.d[r.d];
-        if(!list||!list.length) return "";
-        return `<h3 style="font-size:14px;margin:18px 0 6px">Оригинал${list.length>1?"ы":""} за ${ru(r.d)} — ${list.length}</h3>
-        <div class="muted" style="font-size:12.5px;margin-bottom:6px">Папка «${esc(F.dir)}», она же в облаке Mail.ru.
-          Нажмите — имя скопируется, по нему бланк находится поиском в приложении</div>
-        <div class="tbl-wrap"><table class="tbl"><tbody>${list.map(f=>`<tr class="row is-link" data-copy="${esc(f)}">
-          <td>📄 <b>${esc(f)}</b></td></tr>`).join("")}</tbody></table></div>`;})()}
-
       ${ser.length?`<h3 style="font-size:14px;margin:18px 0 4px">Динамика: ${esc(ser[0].name)}</h3>${ser.map(s=>`
         ${s.unit?`<div class="muted" style="font-size:13px">${esc(s.unit)}</div>`:""}${chart(s)}`).join("")}`:""}
       ${noSer?`<div class="note" style="background:var(--nonebg);color:var(--muted)">
@@ -2241,6 +2229,7 @@ function openRec(i,showSer){
 
       ${o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:""}
       ${recGoAll(r)}
+      ${origHtml}${filesHtml}
     </div>`;
   document.getElementById("modal").classList.add("on");
   const recEp=document.getElementById("recEp");
@@ -2514,7 +2503,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="04.10 22:06";   // подставляется при публикации
+const BUILD="04.10 22:20";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
