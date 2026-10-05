@@ -2603,7 +2603,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 15:35";   // подставляется при публикации
+const BUILD="05.10 15:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4114,7 +4114,7 @@ const nvDate=r=>{ const p=nvPlan(r); return p&&p.planned_date||(r.data&&r.data.n
 // специальность строго по названию врача; не узнали — пусто (а не «педиатр»)
 function specOfName(who){
   const w=String(who||"").toLowerCase().replace(/ё/g,"е");
-  for(const sp of DOC_SPECS){ if(sp[0]==="ped"||sp[0]==="other") continue;
+  for(const sp of docSpecList()){ if(sp[0]==="ped"||sp[0]==="other") continue;
     if(sp[1].toLowerCase().split("/").some(part=>{ const t=part.trim().replace(/ё/g,"е").replace(/(ий|ый|ой|ог|ст)$/,""); return t.length>=4&&w.includes(t.slice(0,Math.max(4,t.length-1))); })) return sp[0]; }
   return /педиатр|терапевт/.test(w)?"ped":"";
 }
@@ -4873,6 +4873,10 @@ const DOC_SPECS=[["ped","Педиатр / терапевт","all"],["cardio","К
   ["gyn","Гинеколог","repro breast endo thyro"],["mammo","Маммолог","breast repro"],["gastro","Гастроэнтеролог / гепатолог","gi liver vit blood"],
   ["derm","Дерматолог","skin allerg immun"],["ortho","Ортопед / травматолог","ortho spine bone fit"],["surgeon","Хирург","vein lymph skin gi uro ortho"],
   ["dent","Стоматолог","teeth"],["gen","Генетик","gen blood"],["other","Другая / не знаю","all"]];
+// специальности, доступные человеку: мужчине не показываем женские (гинеколог, маммолог)
+function docSpecList(){ const pp=(typeof PPL!=="undefined"&&PPL&&PPL.people||[]).find(x=>x.id===cur);
+  const male=pp?pp.sex==="m":/(ич|оглы)$/i.test(String(DATA[cur]&&DATA[cur].name||"").trim());
+  return male?DOC_SPECS.filter(x=>x[0]!=="gyn"&&x[0]!=="mammo"):DOC_SPECS; }
 const DOC_SYS_ALL="allerg blood bone breast endo ent eye fit gen gi heart immun kidney liver lung lymph neuro ortho psy repro skin sleep spine teeth thyro uro vein vit".split(" ");
 // ключевые слова семейного анамнеза по специальности
 const DOC_FAM={cardio:/инфаркт|инсульт|гипертони|сердц|тромб|холестерин/i,endo:/диабет|щитовид|гипотиреоз|тиреоид|ожирен/i,
@@ -5232,7 +5236,7 @@ function wizTab(m){
       const cands=wzCandidates(d,plans,todo,today);
       html=`<div class="card"><h2>Шаг 1 из 8. К какому врачу идём</h2><div class="muted" style="margin:-4px 0 10px">Подобрал по планам, делам «записаться» и записям. Выберите или укажите другого.</div>
         <div class="wzcands">${cands.map(c=>`<button class="wzcand${z.spec===c.spec&&(z.date||"")===(c.date||"")?" on":""}" data-wzpick="${esc(c.spec)}|${esc(c.date||"")}"><b>${esc(specName(c.spec))}</b>${c.date?` <span class="status status-none">${ru(c.date)}</span>`:""}<span class="muted">${esc(String(c.why).slice(0,110))}</span></button>`).join("")}</div>
-        <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select class="select" id="wzSpec">${DOC_SPECS.map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
+        <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select class="select" id="wzSpec">${docSpecList().map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
           <label class="wzlab">Дата приёма<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label></div>
         ${wzNav(z,false,"Подобрать повод →")}</div>`;
     } else if(z.step===2){
@@ -5461,7 +5465,7 @@ function docTab(m){
   m.innerHTML=plansBlock()+`<div class="card nodoc" style="border-color:var(--warn)"><b>Нужна консультация врача.</b> Черновик собран из записанного и не заменяет приём.</div>${briefBlock()}<div class="card nodoc"><h2>Для врача <span class="hint" tabindex="0" title="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется." aria-label="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется.">?</span></h2>
     <div class="addform" id="docForm">
       <div class="fld"><label for="docWho">Кто</label><select id="docWho">${people.map(k=>`<option value="${k}"${k===cur?" selected":""}>${esc(DATA[k].short)}</option>`).join("")}</select></div>
-      <div class="fld"><label for="docSpec">Специальность</label><select id="docSpec">${DOC_SPECS.map(s=>`<option value="${s[0]}"${s[0]===spec[0]?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      <div class="fld"><label for="docSpec">Специальность</label><select id="docSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===spec[0]?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
       <div class="fld"><label>Какие системы включить</label><div class="chips" id="docSys">${DOC_SYS_ALL.filter(s=>have.has(s)).map(s=>`<button type="button" class="chip${sysAll.includes(s)?" on":""}" data-docsys="${s}">${esc(sysName(s))}</button>`).join("")}</div></div>
       <h3 style="font-size:14px;margin:14px 0 6px">Запрос</h3>
       <div class="fld"><label for="docPurpose">Для чего пришли</label><input id="docPurpose" value="${esc(rq.purpose)}" placeholder="например, плановый осмотр"></div>
@@ -5567,7 +5571,7 @@ function planDraw(){
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
     <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Предстоящий визит</h2>
     <div class="addform">
-      <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${DOC_SPECS.map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
       <div class="fld"><label for="plDate">Дата (можно не указывать)</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div>
       <div class="fld"><label for="plPurpose">Для чего пришли</label><input id="plPurpose" value="${esc(p.purpose||"")}"></div>
       ${list("questions","Вопросы к врачу","новый вопрос")}${list("tests","Какие анализы и исследования нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
