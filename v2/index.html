@@ -2603,7 +2603,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 15:40";   // подставляется при публикации
+const BUILD="05.10 15:41";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4114,7 +4114,7 @@ const nvDate=r=>{ const p=nvPlan(r); return p&&p.planned_date||(r.data&&r.data.n
 // специальность строго по названию врача; не узнали — пусто (а не «педиатр»)
 function specOfName(who){
   const w=String(who||"").toLowerCase().replace(/ё/g,"е");
-  for(const sp of docSpecList()){ if(sp[0]==="ped"||sp[0]==="other") continue;
+  for(const sp of DOC_SPECS){ if(sp[0]==="ped"||sp[0]==="other") continue;
     if(sp[1].toLowerCase().split("/").some(part=>{ const t=part.trim().replace(/ё/g,"е").replace(/(ий|ый|ой|ог|ст)$/,""); return t.length>=4&&w.includes(t.slice(0,Math.max(4,t.length-1))); })) return sp[0]; }
   return /педиатр|терапевт/.test(w)?"ped":"";
 }
