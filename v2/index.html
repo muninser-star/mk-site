@@ -2544,7 +2544,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 07:48";   // подставляется при публикации
+const BUILD="05.10 07:52";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4404,12 +4404,15 @@ function favLoad(){
   if(!window.__MK_KEY||window.__favLoading) return; window.__favLoading=1;
   mkApi("fav_list").then(j=>{ const next={}; (j.rows||[]).forEach(r=>(next[r.person]=next[r.person]||[]).push(r.key)); FAV=next; favSave(); render(); }).catch(()=>{});
 }
+// звёздочки в открытых окнах (карточка записи) render() не перерисовывает — обновляем их на месте
+function favPaint(){ document.querySelectorAll(".favstar[data-fav]").forEach(b=>{ const on=isFav(cur,favKey(b.dataset.fav)); b.classList.toggle("on",on); b.textContent=on?"★":"☆";
+  const t=on?"Убрать из избранного":"В избранное"; b.title=t; b.setAttribute("aria-label",t); }); }
 async function favToggle(person,name){
   const key=favKey(name), on=!isFav(person,key), was=(FAV[person]||[]).slice();
-  FAV[person]=on?[...was,key]:was.filter(k=>k!==key); favSave(); render();
+  FAV[person]=on?[...was,key]:was.filter(k=>k!==key); favSave(); render(); favPaint();
   if(!window.__MK_KEY) return;
   try{ await mkApi("fav_toggle",{person,key}); }
-  catch(e){ if(on&&/bad_request|400/.test(String(e.message||e))){ FAV[person]=was; favSave(); render(); toast("Этого показателя нет в записях — звёздочку не поставить"); } }
+  catch(e){ if(on&&/bad_request|400/.test(String(e.message||e))){ FAV[person]=was; favSave(); render(); favPaint(); toast("Этого показателя нет в записях — звёздочку не поставить"); } }
 }
 // ── Скрыть болезнь с главной (ТЗ-011 блок 6): свои у кода доступа; в книжке и Ленте болезнь остаётся
 const ORDK="mk_homeorder";
