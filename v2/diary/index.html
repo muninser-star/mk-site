@@ -130,6 +130,8 @@ const SB_KEY = "sb_publishable_ILfqT6mCyHBOu6BVVRxHKQ_0bPQtNi3";      // пуб�
 
 // ── код доступа: берём из ссылки ?k=…, запоминаем на устройстве и убираем из адресной строки ──
 const KEY_LS = "mk2_key";
+// чей дневник: ?p=anya (из карточки человека); без параметра — Денис, как раньше
+const PERSON = (new URLSearchParams(location.search).get("p") || "").replace(/[^a-z]/g, "") || null;
 if (new URLSearchParams(location.search).get("embed")) document.documentElement.classList.add("embed");
 let KEY = (() => { try { return localStorage.getItem(KEY_LS) || ""; } catch (e) { return ""; } })();
 (() => { const u = new URL(location.href), k = u.searchParams.get("k");
@@ -316,7 +318,7 @@ function toast(t) { const d = document.createElement("div"); d.className = "toas
 const MEALS_DAYS = 60;
 async function fetchMeals() {
   let r;
-  try { r = await api("meals", { from: new Date(Date.now() - MEALS_DAYS * 864e5).toISOString() }); }
+  try { r = await api("meals", { from: new Date(Date.now() - MEALS_DAYS * 864e5).toISOString(), person: PERSON }); }
   catch (e) { throw new Error(e.code === "db" ? "Таблицы питания ещё не созданы в базе." : apiMsg(e)); }
   r.meals.forEach(m => (m.meal_items || []).sort((a, b) => a.position - b.position));
   cache.set("meals", r.meals);
@@ -553,7 +555,7 @@ async function save(D, d) {
   b.disabled = true; b.textContent = "Сохраняю…"; se.textContent = "";
   const rows = items.map(i => ({ food_name: i.name.trim(), amount_g: i.amount, calories: r0(i.k), protein_g: r1(i.p), fat_g: r1(i.f), carbs_g: r1(i.c),
     confidence: i.conf, source: i.source, edited: i.edited, ai_amount_g: i.ai_amount }));
-  const meal = { meal_type: D.meal_type, eaten_at: new Date(D.eaten_at).toISOString(), ai_model: D.model || null };
+  const meal = { meal_type: D.meal_type, eaten_at: new Date(D.eaten_at).toISOString(), ai_model: D.model || null, person: PERSON };
   let error = null;
   try { await (D.id ? api("update_meal", { id: D.id, meal, items: rows }) : api("save_meal", { meal, items: rows })); } catch (e) { error = e; }
   if (error) { b.disabled = false; b.textContent = "✓ Сохранить"; se.textContent = navigator.onLine ? "Не удалось сохранить. Попробуйте ещё раз." : "Нет интернета — запись не сохранена."; return; }

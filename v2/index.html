@@ -1626,7 +1626,7 @@ function legacyTab(t){
   return {page:"home"};
 }
 function profTabs(){ return [["prof","О человеке"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"]]; }
-function nutrTabs(d){ return (d&&d.nutrition)?[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]:[]; }
+function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"AI-консультант"}]; }
 function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"]:["home","card","add","ask"]; }
@@ -2557,7 +2557,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 10:19";   // подставляется при публикации
+const BUILD="05.10 10:21";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2620,8 +2620,10 @@ function showPending(){
 }
 function qLoad(){ try{ return JSON.parse(localStorage.getItem(QKEY)||"[]"); }catch(e){ return []; } }
 // ── Замеры тела: локально + база (body_measurements), чтобы сходилось между телефоном и компьютером
-const nutLS=(k,def)=>{try{const v=JSON.parse(localStorage.getItem("nut_"+k));return v==null?def:v}catch(e){return def}};
-const nutSET=(k,v)=>{try{localStorage.setItem("nut_"+k,JSON.stringify(v))}catch(e){}};
+// замеры веса и диапазон графика у каждого человека свои; у Дениса ключи прежние
+const nutKey=(k,p)=>"nut_"+((p||cur)&&(p||cur)!=="denis"&&(k==="weight"||k==="wrange")?(p||cur)+"_":"")+k;
+const nutLS=(k,def,p)=>{try{const v=JSON.parse(localStorage.getItem(nutKey(k,p)));return v==null?def:v}catch(e){return def}};
+const nutSET=(k,v,p)=>{try{localStorage.setItem(nutKey(k,p),JSON.stringify(v))}catch(e){}};
 function nutMerge(list){
   const map={};
   list.filter(x=>x&&x.d&&x.v).forEach(x=>{map[x.d]=Object.assign({},map[x.d]||{},x)});
@@ -3248,6 +3250,16 @@ function mealEdit(di,mi){
     menuSet(rows); closeModal(); render();
   });
 }
+// Питание без плана (у Ани): замеры веса линией, без цели и недель; та же форма записи
+function weightLite(){
+  const F=nutLS("weight",[]).filter(f=>f&&f.d&&f.v), pts=F.map(f=>[f.d.slice(8,10)+"."+f.d.slice(5,7)+"."+f.d.slice(0,4),+f.v]).slice(-24);
+  const rows=F.slice(-8).reverse();
+  return `<div class="card"><h2>Вес</h2>${pts.length>1?chart({name:"Вес",unit:"кг",pts}):`<div class="muted">График появится после двух замеров.</div>`}
+    ${rows.length?`<div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>Дата</th><th>Вес, кг</th><th>Жир, %</th><th>Вода, %</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${ru(r.d)}</td><td><b>${String(r.v).replace(".",",")}</b></td><td class="muted">${r.fat!=null?String(r.fat).replace(".",","):"—"}</td><td class="muted">${r.water!=null?String(r.water).replace(".",","):"—"}</td></tr>`).join("")}</tbody></table></div>`:""}</div>
+    <div class="card">${nutForm()}</div>`;
+}
+// блок веса на главной и в «Питании»: с планом (график к цели) или без
+const weightBlock=d=>d.nutrition.lite?weightLite():`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`;
 function nutForm(){
   const F=nutLS("weight",[]), last=F[F.length-1], first=F[0];
   const dd=(a,b)=>a!=null&&b!=null?(a-b).toFixed(1):null;
@@ -3332,7 +3344,7 @@ function nutBind(){
     const st=document.getElementById("wMsg");
     if(st) st.innerHTML+=' · <span class="muted">отправляю…</span>';
     const to=new Promise((_,rej)=>setTimeout(()=>rej(new Error("долго")),8000));
-    const send=window.__MK_KEY?mkApi("body_save",{d,weight:v,fat,water}):Promise.reject(new Error("нет кода"));
+    const send=window.__MK_KEY?mkApi("body_save",{d,weight:v,fat,water,person:cur}):Promise.reject(new Error("нет кода"));
     Promise.race([send,to])
       .then(()=>{const e2=document.getElementById("wMsg"); if(e2) e2.innerHTML=e2.innerHTML.replace(/ · <span class="muted">отправляю…<\/span>/,' · <span style="color:var(--ok)">сохранено</span>')})
       .catch(()=>{const e2=document.getElementById("wMsg"); if(e2) e2.innerHTML=e2.innerHTML.replace(/ · <span class="muted">отправляю…<\/span>/,' · <span class="muted">нет связи — сохранено на этом устройстве</span>')});
@@ -3400,12 +3412,12 @@ async function nutPullShop(){
 // замеры из базы: вся история, мержим с локальной
 async function nutPullMeas(){
   if(window.__MK_KEY){                                  // v2: замеры из общей базы
-    let j; try{ j=await mkApi("body_list") }catch(e){ return false }
+    const who0=cur; let j; try{ j=await mkApi("body_list",{person:who0}) }catch(e){ return false }
     const remote=(j.rows||[]).filter(r=>r.weight_kg!=null).map(r=>({d:r.measured_on,v:+r.weight_kg,fat:r.fat_pct==null?null:+r.fat_pct,water:r.water_pct==null?null:+r.water_pct}));
     if(!remote.length) return false;
-    const before=JSON.stringify(nutLS("weight",[]));
-    const merged=nutMerge([...nutLS("weight",[]),...remote]);   // база главнее: её строки идут последними и перекрывают локальные
-    nutSET("weight",merged);
+    const before=JSON.stringify(nutLS("weight",[],who0));
+    const merged=nutMerge([...nutLS("weight",[],who0),...remote]);   // база главнее: её строки идут последними и перекрывают локальные
+    nutSET("weight",merged,who0);
     return JSON.stringify(merged)!==before;
   }
   return false;                                         // без кода доступа замеров из базы нет
@@ -3413,11 +3425,12 @@ async function nutPullMeas(){
 async function nutPull(force){
   if(!force && Date.now()-(+localStorage.getItem("nut_pull")||0) < 2e4) return false;
   localStorage.setItem("nut_pull",Date.now());
+  const plan=!(DATA[cur]&&DATA[cur].nutrition&&DATA[cur].nutrition.lite);   // «лёгкое» питание — только вес и дневник
   const [a,b,c,e]=await Promise.all([
-    nutPullShop().catch(()=>false),
+    plan?nutPullShop().catch(()=>false):false,
     nutPullMeas().catch(()=>false),
-    nutPullInbox().catch(()=>false),
-    nutPullIdeas().catch(()=>false)
+    plan?nutPullInbox().catch(()=>false):false,
+    plan?nutPullIdeas().catch(()=>false):false
   ]);
   inboxApply();
   // пришло что-то новое — перерисовать сразу, не дожидаясь вызывающего
@@ -5916,7 +5929,7 @@ function render(){
         return L.length?`<h3 class="todo-grp">${name} — ${all}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${L.map(todoRow).join("")}</tbody></table></div>`:""; }).join(""):`<div class="muted">Ближайших дел нет.</div>`}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>
 
-    <!--B:body-->${d.nutrition?`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`:""}
+    <!--B:body-->${d.nutrition?weightBlock(d):""}
 
     <!--B:watch--><div class="card"><h2>Ключевые показатели</h2>
       ${watchRows.length?`<div class="watchgrid">${watchRows.map(x=>`<div class="watchtile" data-favopen="${esc(x.name)}">
@@ -6224,13 +6237,16 @@ function render(){
   // ── Анамнез: наследственность, риски, беременности, болезни, противоречия
   else if(tab==="diary"){
     // дневник питания по фото — страница v2/diary/, здесь во фрейме без своей шапки; данные в Supabase, доступ по коду
-    const diaryUrl=(location.pathname.includes("/v2/")?"diary/":"v2/diary/")+"?embed=1";
+    const diaryUrl=(location.pathname.includes("/v2/")?"diary/":"v2/diary/")+"?embed=1&p="+encodeURIComponent(cur);
     m.innerHTML=`<div class="tabs tabs--scroll subnav" style="padding:0 0 10px">${nutrTabs(d).map(([k,t])=>`<button class="tab${k==="diary"?" is-active":""}" data-ns="${k}">${t}</button>`).join("")}</div><iframe class="diaryframe" src="${diaryUrl}" title="Дневник питания" allow="camera"></iframe>`;
   }
   // ── Спросить: вопрос уходит в базу, отвечает модель строго по найденным записям (страница v2/ask/)
   else if(tab==="ask"){
     const askUrl=(location.pathname.includes("/v2/")?"ask/":"v2/ask/")+"?embed=1&p="+encodeURIComponent(cur);
     m.innerHTML=`<iframe class="diaryframe" src="${askUrl}" title="Спросить медкнижку"></iframe>`;
+  }
+  else if(tab==="nutr"&&d.nutrition.lite){   // питание без плана: вес и дневник
+    m.innerHTML=`<div class="tabs tabs--scroll subnav" style="padding:0 0 10px">${nutrTabs(d).map(([k,t])=>`<button class="tab${k==="weight"?" is-active":""}" data-ns="${k}">${t}</button>`).join("")}</div>`+weightLite();
   }
   else if(tab==="nutr"){
     const n=d.nutrition;
