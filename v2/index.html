@@ -533,6 +533,13 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border,#d0d5dd);border-top-color:var(--accent,#1a6fd3);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px;flex:none}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.addform .kindrow{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0}
+.addform .kindrow label,.addform .daterow label{display:inline-flex;align-items:center;gap:6px;font-weight:500;margin:0;width:auto}
+.addform input[type=radio],.addform input[type=checkbox]{width:auto;min-width:0;margin:0;height:auto;flex:none}
+.addform .daterow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.addform input[type=date]{width:auto;min-width:160px;max-width:210px}
+.addform .daterow #nsTo{display:inline-flex;align-items:center;gap:8px}
+.addform [hidden]{display:none!important}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
@@ -2584,7 +2591,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 14:20";   // подставляется при публикации
+const BUILD="05.10 14:23";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3793,8 +3800,8 @@ function editRecForm(who,rk){
     <div class="addform">
       <div class="fld"><label for="erName">Симптом</label><p class="hint">Если вписать несколько через запятую — «кашель, сопли», — первый останется в этой записи, остальные добавятся отдельными</p><input id="erName" value="${esc(a.n||"")}" autocomplete="off"></div>
       <div class="fld"><label for="erDate">Когда</label><input id="erDate" type="date" value="${esc(a.d||"")}">
-        <div class="row" style="gap:16px;margin:8px 0 4px"><label><input type="radio" name="erKind" value="one" checked> Один день</label><label><input type="radio" name="erKind" value="range"> Продолжается несколько дней</label></div>
-        <div class="row" id="erTo" hidden style="gap:10px;align-items:center;flex-wrap:wrap"><span>по</span><input id="erDate2" type="date" value="${esc(a.d||"")}" min="${esc(a.d||"")}"><label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="erOpen"> ещё идёт</label></div>
+        <div class="kindrow"><label><input type="radio" name="erKind" value="one" checked> Один день</label><label><input type="radio" name="erKind" value="range"> Несколько дней</label></div>
+        <div class="daterow" id="erTo" hidden><span>по</span><input id="erDate2" type="date" value="${esc(a.d||"")}" min="${esc(a.d||"")}"><label><input type="checkbox" id="erOpen"> ещё идёт</label></div>
         <p class="hint" id="erToHint" hidden>Запись заменится одним периодом «с этой даты». Сила, лекарства, повод и заметка — на все дни. «Ещё идёт» — пока не отметите конец в карточке симптома</p></div>
       <div class="fld"><label for="erInt">Интенсивность 1–10</label><input id="erInt" type="number" min="1" max="10" value="${a.i??""}"></div>
       <div class="fld"><label for="erMed">Чем лечили</label><p class="hint">Через запятую</p><input id="erMed" value="${esc(a.m||"")}" autocomplete="off"></div>
@@ -4293,8 +4300,8 @@ function newSymForm(){
     <div class="ctx">Для <b>${esc(d.short)}</b>. Болезнь выбирать не обязательно.</div>
     <div class="addform">
       <div class="fld"><label for="nsDate">Когда</label>
-        <div class="row" style="gap:16px;margin-bottom:6px"><label><input type="radio" name="nsKind" value="one" checked> Один день</label><label><input type="radio" name="nsKind" value="range"> Период</label></div>
-        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap"><input id="nsDate" type="date" value="${today0()}"><span id="nsTo" hidden>по <input id="nsDate2" type="date" value="${today0()}"></span><label id="nsOpenL" hidden style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="nsOpen"> ещё идёт</label></div>
+        <div class="kindrow"><label><input type="radio" name="nsKind" value="one" checked> Один день</label><label><input type="radio" name="nsKind" value="range"> Период</label></div>
+        <div class="daterow"><input id="nsDate" type="date" value="${today0()}"><span id="nsTo" hidden>по <input id="nsDate2" type="date" value="${today0()}"></span><label id="nsOpenL" hidden><input type="checkbox" id="nsOpen"> ещё идёт</label></div>
         <p class="hint" id="nsToHint" hidden>Одна запись на весь период. «Ещё идёт» — период продолжается каждый день, пока вы не отметите, что он закончился</p></div>
       <div class="fld"><label for="nsName">Что беспокоит?</label>
         <p class="hint">Подсказки — после двух букв; несколько — через запятую: «кашель, сопли»</p>
