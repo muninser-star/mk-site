@@ -2613,7 +2613,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 18:52";   // подставляется при публикации
+const BUILD="05.10 18:55";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4713,6 +4713,8 @@ const ORGAN_IND={
   eos:["Эозинофилы",["эозинофилы","эозинофилы %","эозинофилы абсолютные"]], ige:["Общий IgE",["общий ige","ige общий","иммуноглобулин e общий"]], igg:["IgG",["igg","иммуноглобулин g"]],
   lymph:["Лимфоциты",["лимфоциты","лимфоциты %","лимфоциты абсолютные","лимфоциты относительные"]], b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]]
 };
+// панельные записи без отдельных значений: «Клинический анализ крови с лейкоформулой и СОЭ», «Общий анализ крови (6 месяцев)», «Липидный профиль» — засчитываются показателям панели
+const ORGAN_PANELS={oak:[/^(общий|клинический) анализ крови/,/^оак( |$)/],soe:[/^(общий|клинический) анализ крови.*соэ/,/(^| )соэ( |$)/],chol:[/^липидный профиль/],ldl:[/^липидный профиль/],hdl:[/^липидный профиль/],tg:[/^липидный профиль/]};
 // sys — коды системы записи; instr — слова в названии исследования; spec — специальности врача; topic — тема опроса (блок 3)
 const ORGANS=[
   {id:"blood",name:"Кровь",icon:"🩸",set:["oak","ferritin","iron","soe"],sys:["blood"],instr:[],spec:["гематолог"],topic:"blood"},
@@ -4734,8 +4736,12 @@ function organShown(score){ return Math.floor((+score||0)+1e-9); }
 function organsKnown(scores){ return scores.filter(s=>s>=50).length; }
 // точки показателя набора за окно: [{d,v,u,norm,n}] по датам по убыванию; повтор «показатель + дата» — одна точка
 function organPoints(indKey,rows,from,today){ const syn=ORGAN_IND[indKey][1], seen=new Set(), out=[];
-  (rows||[]).forEach(r=>{ if(!r||!r.d||r.d<from||r.d>today||!syn.includes(favKey(r.n))) return; const k=r.d+"|"+favKey(r.n); if(seen.has(k)) return; seen.add(k); out.push(r); });
+  (rows||[]).forEach(r=>{ if(!r||!r.d||r.d<from||r.d>today||!(syn.includes(favKey(r.n))||(ORGAN_PANELS[indKey]||[]).some(re=>re.test(favKey(r.n))))) return; const k=r.d+"|"+favKey(r.n); if(seen.has(k)) return; seen.add(k); out.push(r); });
   return out.sort((a,b)=>b.d.localeCompare(a.d)); }
+// строки для расчёта: числовые показатели (measRows) + анализы из записей без числового значения («Общий анализ мочи», панели): факт сдачи тоже считается
+function organRows(meas,rec){ const out=(meas||[]).slice(), seen=new Set(out.map(r=>r.d+"|"+favKey(r.n)));
+  (rec||[]).forEach(r=>{ if(!r||r.t!=="lab"||!r.title||!r.d) return; const k=r.d+"|"+favKey(r.title); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n:r.title,v:r.v||"сдан",u:"",norm:r.n||"",nov:!r.v}); });
+  return out; }
 // полнота органа 0–100: анализы 70 × доля набора за 12 мес + динамика 10 + исследование или приём за 24 мес 20; опрос — замена анализов до 35, если их меньше 35
 function organCoverage(id,rows,rec,today,topicsDone){
   const o=ORGANS.find(x=>x.id===id), from12=isoAddMonths(today,-12), from24=isoAddMonths(today,-24), have=[], missing=[]; let dyn=0;
@@ -4773,7 +4779,7 @@ function hpPerson(d){
 }
 // темы опроса пройдены — после блоков 1–3 (опросы): пока набор пуст, опрос анализы не заменяет
 function hpModel(d){
-  const today=localDay(), rows=measRows(cur), rec=d.rec||[], done=new Set(), person=hpPerson(d);
+  const today=localDay(), rec=d.rec||[], rows=organRows(measRows(cur),rec), done=new Set(), person=hpPerson(d);
   const covs=ORGANS.map(o=>organCoverage(o.id,rows,rec,today,done)), scores=covs.map(c=>c.score);
   const pct=profileCompleteness(person,0,scores);
   const weak=covs.map((c,i)=>({c,o:ORGANS[i]})).filter(x=>x.c.a<35);
