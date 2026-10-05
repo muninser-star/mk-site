@@ -2584,7 +2584,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 14:00";   // подставляется при публикации
+const BUILD="05.10 14:03";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3515,7 +3515,9 @@ function ovApply(){
   });
   o.add=(o.add||[]).filter(a=>{
     const S=(DATA[a.who]||{}).sym; if(!S) return false;
-    if((S.log||[]).some(x=>x.d===a.d&&x.n===a.n&&(x.p||"")===(a.p||""))){ dirty=true; return false; }
+    // запись с таким названием могла быть переименована правкой («Насморк» → «Кашель, сопли» в одной форме): тогда она не дубль
+    const renamed=(o.recEdits||[]).some(x=>x.who===a.who&&x.rec&&x.key&&x.key.d===a.d&&x.key.n===a.n&&(x.key.p||"")===(a.p||"")&&x.rec.n!==a.n);
+    if(!renamed&&(S.log||[]).some(x=>x.d===a.d&&x.n===a.n&&(x.p||"")===(a.p||""))){ dirty=true; return false; }
     S.log.push({d:a.d,n:a.n,sys:a.sys||"other",i:a.i??null,v:null,u:"",
       f:a.f||"",m:a.m||"",h:"",p:a.p||"",pending:1,aid:addKey(a)});
     S.log.sort((x,y)=>y.d.localeCompare(x.d));
@@ -3780,7 +3782,7 @@ function editRecForm(who,rk){
     <h2>Исправить запись</h2>
     <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}</div>
     <div class="addform">
-      <div class="fld"><label for="erName">Симптом</label><input id="erName" value="${esc(a.n||"")}" autocomplete="off"></div>
+      <div class="fld"><label for="erName">Симптом</label><p class="hint">Если вписать несколько через запятую — «кашель, сопли», — первый останется в этой записи, остальные добавятся отдельными</p><input id="erName" value="${esc(a.n||"")}" autocomplete="off"></div>
       <div class="fld"><label for="erDate">Когда</label><input id="erDate" type="date" value="${esc(a.d||"")}"></div>
       <div class="fld"><label for="erInt">Интенсивность 1–10</label><input id="erInt" type="number" min="1" max="10" value="${a.i??""}"></div>
       <div class="fld"><label for="erMed">Чем лечили</label><p class="hint">Через запятую</p><input id="erMed" value="${esc(a.m||"")}" autocomplete="off"></div>
@@ -3793,15 +3795,28 @@ function editRecForm(who,rk){
   const log=(t,c)=>{const e=document.getElementById("erLog"); if(e) e.innerHTML+=`<div class="${c||""}">${t}</div>`;};
   document.getElementById("erOk").addEventListener("click",async ()=>{
     const v=id=>(document.getElementById(id).value||"").trim();
-    const rec={d:v("erDate"),n:v("erName"),i:v("erInt")?+v("erInt"):null,m:v("erMed"),p:v("erPov"),f:v("erNote")};
+    const names=symNames(v("erName")), rec={d:v("erDate"),n:names[0]||"",i:v("erInt")?+v("erInt"):null,m:v("erMed"),p:v("erPov"),f:v("erNote")};
     if(!rec.n){ log("Название не может быть пустым.","er"); return; }
     if(!rec.d){ log("Укажите дату.","er"); return; }
     if(rec.i!=null&&!(rec.i>=1&&rec.i<=10)){ log("Интенсивность — от 1 до 10.","er"); return; }
-    if(JSON.stringify([rec.d,rec.n,rec.i,rec.m,rec.p,rec.f])===JSON.stringify([a.d,a.n,a.i??null,a.m||"",a.p||"",a.f||""])){ log("Ничего не изменилось.","wa"); return; }
+    if(names.length<2&&JSON.stringify([rec.d,rec.n,rec.i,rec.m,rec.p,rec.f])===JSON.stringify([a.d,a.n,a.i??null,a.m||"",a.p||"",a.f||""])){ log("Ничего не изменилось.","wa"); return; }
     document.getElementById("erOk").disabled=true;
+    const unchanged=JSON.stringify([rec.d,rec.n,rec.i,rec.m,rec.p,rec.f])===JSON.stringify([a.d,a.n,a.i??null,a.m||"",a.p||"",a.f||""]);
+    // остальные названия — новыми записями с теми же датой, силой, лекарством, поводом и заметкой (после правки этой записи, иначе новая примется за дубль)
+    const addExtras=async()=>{
+    for(const nm of names.slice(1)){
+      const c=S.cat.find(z=>z.n===nm), sys=c?c.sys:(a.sys||"other");
+      ovAdd({who,d:rec.d,n:nm,p:rec.p,sys,i:rec.i,f:rec.f,m:rec.m});
+      if(window.__MK_KEY){ try{ await mkApi("symptom_add",{person:who,d:rec.d,n:nm,sys:c?c.sys:(a.sys||null),i:rec.i,f:rec.f,m:rec.m,p:rec.p}); }catch(e2){ log("«"+esc(nm)+"» в базу не ушло: "+esc(e2.message||"ошибка")+". Запись осталась на этом устройстве.","wa"); } }
+      else await sendRow(INBOX,[today0(),d.short,"",rec.d,rec.p,nm,rec.i==null?"":rec.i,rec.f+(rec.m?" | лечили: "+rec.m:""),"нет"],log);
+    }
+    };
+    if(names.length>1&&unchanged){ await addExtras(); render(); log("✓ Добавлено: "+esc(names.slice(1).join(", ").toLowerCase())+".","ok"); setTimeout(closeModal,700); return; }
     const e={who,key:recKey(a),rec,ts:Date.now()};
-    const o=ovLoad(); o.recEdits=[...(o.recEdits||[]),e]; ovSave(o); ovApply(); render();
-    log("✓ Сохранено.","ok");
+    const o=ovLoad(); o.recEdits=[...(o.recEdits||[]),e]; ovSave(o); ovApply();
+    if(names.length>1) await addExtras();
+    render();
+    log("✓ Сохранено"+(names.length>1?" · добавлено: "+esc(names.slice(1).join(", ").toLowerCase()):"")+".","ok");
     if(!await recSend(e)) log("Нет связи — сохраню, как появится.","wa");
     setTimeout(closeModal,500);
   });
