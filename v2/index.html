@@ -2071,7 +2071,22 @@ function firstSentence(t,max){
 // оригиналы бланков за дату записи (ТЗ-010 блок 11): папка и имена; нет файла — null, блока нет
 function recOriginals(D,r){
   const F=D&&D.files, list=F&&F.d&&F.d[r.d];
-  return list&&list.length?{dir:F.dir,list:list}:null;
+  return list&&list.length?{dir:F.dir,disk:F.disk,list:list}:null;
+}
+// ссылка на файл на Яндекс.Диске (ТЗ-012 блок 5): открывает просмотр файла; открывается у тех, у кого есть доступ к папке
+function diskLink(disk,name){
+  const seg=String(disk).split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return "https://disk.yandex.ru/client/disk/"+seg+"?idApp=client&dialog=slider&idDialog="+encodeURIComponent("/disk"+disk+"/"+name);
+}
+// блок «Оригиналы» карточки анализа: с папкой на Диске имя — ссылка, без неё — прежнее копирование имени
+function originalsHtml(o,date){
+  const n=o.list.length;
+  const head=`<h3 style="font-size:14px;margin:18px 0 6px">Оригинал${n>1?"ы":""} за ${date} — ${n}</h3>`;
+  if(o.disk) return head+`<div class="muted" style="font-size:12.5px;margin-bottom:6px">Файлы лежат на Яндекс.Диске. Нажмите на имя — файл откроется. Нужен доступ к папке.</div>
+    <div class="tbl-wrap"><table class="tbl"><tbody>${o.list.map(f=>`<tr class="row is-link"><td style="padding:0"><a class="origlink" href="${diskLink(o.disk,f)}" target="_blank" rel="noopener" style="display:block;padding:14px 12px;min-height:44px;box-sizing:border-box;color:inherit;text-decoration:none">📄 <b>${esc(f)}</b></a></td></tr>`).join("")}</tbody></table></div>`;
+  return head+`<div class="muted" style="font-size:12.5px;margin-bottom:6px">Папка «${esc(o.dir)}», она же в облаке Mail.ru.
+      Нажмите — имя скопируется, по нему бланк находится поиском в приложении</div>
+    <div class="tbl-wrap"><table class="tbl"><tbody>${o.list.map(f=>`<tr class="row is-link" data-copy="${esc(f)}"><td>📄 <b>${esc(f)}</b></td></tr>`).join("")}</tbody></table></div>`;
 }
 // ── Карточка анализа (ТЗ-010 блок 12): модель без разметки
 function labCardModel(D,r){
@@ -2160,12 +2175,9 @@ function openRec(i,showSer){
     ?(()=>{const mk=markVal(x[2]?x[1]+" "+x[2]:x[1]);
       return `<tr><td class="muted" style="width:42%">${esc(x[0])}</td><td><b${mk?` style="color:${mk.c}" title="${esc(mk.why)}"`:""}>${esc(x[1])}</b>${x[2]?` <span class="muted" style="font-weight:400">${esc(x[2])}</span>`:""}</td></tr>`;})()
     :`<tr><td colspan="2">${esc(x)}</td></tr>`).join("")}</tbody></table></div>`;
-  const origHtml=(()=>{   // оригиналы бланков: в книжке только имя файла, сам файл лежит в папке и в облаке
+  const origHtml=(()=>{   // оригиналы бланков: с папкой на Диске — ссылки на файлы, иначе только имя для поиска
     const o=recOriginals(D,r); if(!o) return "";
-    return `<h3 style="font-size:14px;margin:18px 0 6px">Оригинал${o.list.length>1?"ы":""} за ${ru(r.d)} — ${o.list.length}</h3>
-    <div class="muted" style="font-size:12.5px;margin-bottom:6px">Папка «${esc(o.dir)}», она же в облаке Mail.ru.
-      Нажмите — имя скопируется, по нему бланк находится поиском в приложении</div>
-    <div class="tbl-wrap"><table class="tbl"><tbody>${o.list.map(f=>`<tr class="row is-link" data-copy="${esc(f)}"><td>📄 <b>${esc(f)}</b></td></tr>`).join("")}</tbody></table></div>`; })();
+    return originalsHtml(o,ru(r.d)); })();
   const filesHtml=(r.files&&r.files.length?`<h3 style="font-size:14px;margin:18px 0 6px">Бланк</h3>
     ${r.files.map((f,i)=>`<button class="btn btn-secondary" data-origfile="${esc(f)}" style="margin:0 6px 6px 0">📄 Открыть бланк${r.files.length>1?" "+(i+1):""}</button>`).join("")}`:"")
     +(r.source&&!(r.files&&r.files.length)?`<h3 style="font-size:14px;margin:18px 0 6px">Откуда запись</h3>
@@ -2566,7 +2578,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 11:16";   // подставляется при публикации
+const BUILD="05.10 12:30";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
