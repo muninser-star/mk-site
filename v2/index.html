@@ -2375,11 +2375,11 @@ function openRec(i,showSer){
 }
 
 function filterBar(){
-  const d=DATA[cur], today=localDay();
+  const d=DATA[cur], today=localDay(), hm=tab==="lab"?hpModel(d):null;
   return `<div class="filters">
     <button data-f="" class="chip${sysFilter?"":" chip--main"}">Все системы</button>
     ${SYS_GROUPS.map(g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
-      t=tab==="lab"?sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:!!(rk&&rk.risk)}):null, v="grp:"+g.id;
+      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false}), v="grp:"+g.id;
       return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":t.bad?`Показателей: ${t.n}, вне нормы или давно: ${t.bad}`:`Показателей: ${t.n}, всё в норме`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; }).join("")}
   </div>`;
 }
@@ -2635,7 +2635,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 19:46";   // подставляется при публикации
+const BUILD="05.10 19:49";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4801,7 +4801,7 @@ function organDetail(id,rows,today,risk){
     const l=p[0]; if(!l) return {k:ORGAN_IND[k][0],v:null,tone:risk?"r2":"n"};
     const pv=p.find((x,i)=>i>0&&x.d<l.d&&favKey(x.n)===favKey(l.n));
     const ageM=monthsSince(l.d,today);
-    return {k:ORGAN_IND[k][0],n:l.n,v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",ageM,months,tone:staleTone(ageM,months,!!risk),flag:fl(l.v,l.norm,l.st),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm,pv.st)}:null}; });
+    return {k:ORGAN_IND[k][0],n:l.n,st:l.st||"",v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",ageM,months,tone:staleTone(ageM,months,!!risk),flag:fl(l.v,l.norm,l.st),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm,pv.st)}:null}; });
 }
 // процент профиля (блок 4): профиль 10 (имя 3, пол 3, дата рождения 4) + базовый опрос 10 (от 12 ответов) + 80 × среднее полнот органов; округление один раз
 function profileCompleteness(p,basicAnswered,scores){
@@ -4841,6 +4841,14 @@ function organRisk(id,family,diagnoses){
 const SYS_GROUPS=[...ORGANS.map(o=>({id:o.id,name:o.name,sys:o.sys})),{id:"vit",name:"Витамины и микроэлементы",sys:["vit"]},{id:"repro",name:"Репродуктивное здоровье",sys:["repro","breast"]},{id:"teeth",name:"Зубы",sys:["teeth"]},{id:"other",name:"Прочее",sys:[]}];
 function groupOfSys(sys){ const g=SYS_GROUPS.find(x=>x.sys.includes(sys)); return g?g.id:"other"; }
 function sysIs(sys,f){ return String(f).startsWith("grp:")?groupOfSys(sys)===String(f).slice(4):sys===f; }
+// тон фильтра органа по его ключевым показателям (те же, что в карточке органа): свежие и в норме — зелёный; отклонение или давность — красный; показателей нет — серый
+function organTone(det){
+  const L=(det||[]).filter(x=>x.v!=null); if(!L.length) return {tone:"n",n:0,bad:0};
+  const w=x=>Math.max(x.st==="bad"?2:(x.flag&&x.flag!=="в норме"||x.st==="warn")?1:0,x.tone?Math.min(2,+x.tone[1]):0);
+  const sum=L.reduce((a,x)=>a+w(x),0), bad=L.filter(x=>w(x)>0).length;
+  if(!sum) return {tone:L.length>=4?"g3":L.length>=2?"g2":"g1",n:L.length,bad:0};
+  const ratio=sum/(2*L.length); return {tone:ratio>=0.6?"r3":ratio>=0.25||L.some(x=>x.st==="bad")?"r2":"r1",n:L.length,bad};
+}
 // ── /карта органов
 // ── Профиль здоровья (ТЗ-009 блоки 4 и 11): плитка на главной, страница «Профиль здоровья», страница органа ──
 let hpOrgan=null;
