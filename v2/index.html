@@ -2584,7 +2584,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 14:17";   // подставляется при публикации
+const BUILD="05.10 14:19";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7141,10 +7141,17 @@ document.addEventListener("click",e=>{
     mkApi("med_plan_set",{person:cur,key:medKeyOf(nm),started:st||null,stop:sp||null}).then(()=>mkApi("med_plan_list")).then(j=>{ MEDPLAN=j.rows||[]; medplanSave(); render(); medOpen(nm); toast(now?"Отмечено: закончили сегодня":(sp?`Прекратить: ${ru(sp)}`:"Даты сохранены")); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
   const cho=e.target.closest("[data-chatopen]"); if(cho){ const tp=symTopic(cur,cho.dataset.chatopen); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; render(); setTimeout(()=>{ const x=document.getElementById("chatIn"); x&&x.focus(); },50); return; }
   const chs=e.target.closest("[data-chatsend]"); if(chs){ symChatSend(chs.dataset.chatsend,!!chs.dataset.chatfull); return; }
-  const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=(document.getElementById("sdNew")||{}).value||""; if(doc.trim().length<3){ toast("Впишите врача"); return; }
+  const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=((document.getElementById("sdNew")||{}).value||"").trim(), sym=sda.dataset.sdadd;
+    if(doc.length<3){ toast("Впишите врача"); return; }
     if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-    mkApi("doctor_link_add",{person:cur,symptom:sda.dataset.sdadd,doctor:doc.trim()}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
-  const sdd=e.target.closest("[data-sddel]"); if(sdd){ mkApi("doctor_link_delete",{id:sdd.dataset.sddel}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
+    if(DOCLINKS.some(x=>x.person===cur&&sameSym(x.symptom,sym)&&x.doctor.toLowerCase()===doc.toLowerCase())){ toast("Этот врач уже добавлен"); return; }
+    const who0=cur, tmp={id:"tmp"+Date.now(),person:who0,symptom:sym,doctor:doc};
+    DOCLINKS.push(tmp); render(); toast(`Добавлено: ${esc(doc)}`);          // сразу видно; сохранение — следом, при сбое откатим
+    mkApi("doctor_link_add",{person:who0,symptom:sym,doctor:doc}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); })
+      .catch(()=>{ DOCLINKS=DOCLINKS.filter(x=>x.id!==tmp.id); render(); toast("Не сохранилось — проверьте связь и попробуйте ещё раз"); }); return; }
+  const sdd=e.target.closest("[data-sddel]"); if(sdd){ const id=sdd.dataset.sddel, was=DOCLINKS.slice(); DOCLINKS=DOCLINKS.filter(x=>x.id!==id); render();
+    if(String(id).startsWith("tmp")) return;
+    mkApi("doctor_link_delete",{id}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>{ DOCLINKS=was; render(); toast("Не получилось убрать, попробуйте ещё раз"); }); return; }
   const sai=e.target.closest("[data-symai]"); if(sai){ const nm=sai.dataset.symai, who0=cur;
     if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
     window.__symAiBusy=symAiKey(who0,nm); render();
