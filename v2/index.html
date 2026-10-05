@@ -2584,7 +2584,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 14:03";   // подставляется при публикации
+const BUILD="05.10 14:17";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3543,6 +3543,15 @@ function ovApply(){
   }
   if(dirty) ovSave(o);
 }
+// ── Даты лекарства, которые правит человек: «начали» (если в записях ошибка) и «прекратить»; главнее записей книжки ──
+const MPK="mk_medplan";
+let MEDPLAN=(()=>{ try{ return JSON.parse(localStorage.getItem(MPK)||"[]")||[]; }catch(e){ return []; } })();
+const medplanSave=()=>{ try{ localStorage.setItem(MPK,JSON.stringify(MEDPLAN)); }catch(e){} };
+function medPlanOf(p,name){ return (MEDPLAN||[]).find(x=>x.person===p&&x.med_key===medKeyOf(name))||null; }
+function medplanLoad(force){
+  if(!window.__MK_KEY||(window.__mpLoaded&&!force)||window.__mpLoading) return; window.__mpLoading=1;
+  mkApi("med_plan_list").then(j=>{ MEDPLAN=j.rows||[]; medplanSave(); window.__mpLoaded=1; window.__mpLoading=0; render(); }).catch(()=>{ window.__mpLoading=0; });
+}
 // ── Симптом ↔ врачи: к кому идти с этим симптомом (связь пишет человек) и приёмы, где о нём говорили ──
 const DLK="mk_doclinks";
 let DOCLINKS=(()=>{ try{ return JSON.parse(localStorage.getItem(DLK)||"[]")||[]; }catch(e){ return []; } })();
@@ -4195,13 +4204,15 @@ function medSideText(i){
 }
 function medCardModel(d,name,today){
   const key=medKeyOf(name), full=iso=>iso.split("-").reverse().join(".");
-  const m=(d.meds||[]).find(x=>medKeyOf(x.n)===key)||null;
+  let m=(d.meds||[]).find(x=>medKeyOf(x.n)===key)||null;
   const log=((d.sym||{}).log||[]), eps=((d.sym||{}).ep||[]);
   const hits=log.filter(x=>x.m&&String(x.m).split(/,\s+/).some(t=>medKeyOf(t.trim().replace(/^(затем|и)\s+/i,""))===key))
     .sort((a,b)=>b.d.localeCompare(a.d));
   const epRx=[]; eps.forEach(e=>(e.rx||[]).forEach(r=>{ if(medKeyOf(r.m)===key) epRx.push({ep:e,r}); }));
-  const since=m?medStart(m):null;
+  const plan=medPlanOf(cur,name), m0=m;
+  const since=plan&&plan.started_on?plan.started_on:(m?medStart(m):null);
   let state="none", stateText="Не в списке «Принимает»", day=null;
+  if(m&&plan&&plan.stop_on) m=Object.assign({},m,{to:plan.stop_on});   // дата окончания, выбранная человеком, главнее записи
   if(m){
     if(m.plan&&!(since&&since<=today)) { state="plan"; stateText="Назначено, ещё не начали"; }
     else if(since&&since<=today&&(!m.to||m.to>=today)&&!(m.stopped&&m.stopped<=today)){
@@ -4215,9 +4226,9 @@ function medCardModel(d,name,today){
     courses.push({kind:"meds",text:`${st}${m.to?" — "+full(m.to):(state==="on"?" — идёт":"")}`,how:m.how||""}); }
   epRx.forEach(({ep,r})=>courses.push({kind:"ep",text:`${r.from?full(r.from):"без даты"}${r.to?" — "+full(r.to):" — идёт"}`,how:r.how||"",ep:ep.id,dx:ep.dx}));
   hits.forEach(x=>courses.push({kind:"log",text:full(x.d),how:`${x.n}${x.h?" · "+x.h:""}`}));
-  const conflict=(m&&since&&epRx.length)?(()=>{ const r=epRx.find(z=>z.r.from&&z.r.from!==since); return r?{ep:r.r.from,meds:since}:null; })():null;
+  const conflict=(m&&since&&epRx.length&&!(plan&&plan.started_on))?(()=>{ const r=epRx.find(z=>z.r.from&&z.r.from!==since); return r?{ep:r.r.from,meds:since}:null; })():null;
   const ref=typeof MEDREF!=="undefined"&&Object.keys(MEDREF).some(k=>medKeyOf(k)===key);
-  return {name:m?m.n:name,state,stateText,since,day,courses,hits,conflict,
+  return {name:m?m.n:name,state,stateText,since,day,courses,hits,conflict,plan,till:(m0&&m0.till)||"",hasMed:!!m0,
     needInfo:state==="on"&&!ref,
     journalText:hits.length?"":`У ${genitive(d.short)} в журнале симптомов не встречается`};
 }
@@ -4233,6 +4244,13 @@ async function medOpen(name){
     <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(M.name)}</h2>
     ${m&&m.how?`<div>${esc(m.how)}</div>`:""}${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
     ${ep?`<div style="margin-top:8px"><span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span></div>`:""}
+    ${(M.hasMed||M.courses.some(c=>c.kind==="ep"))?`<div class="card" style="margin:12px 0 0;padding:12px 14px;background:var(--surface-2,#f3f4f6);box-shadow:none"><b>Когда начали и когда прекратить</b>
+      ${M.till?`<div class="muted" style="margin:4px 0 8px">По плану: ${esc(M.till)}</div>`:""}
+      <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap"><label style="display:flex;flex-direction:column;gap:2px"><span class="muted" style="font-size:11.5px">Начали</span><input type="date" id="mpStart" value="${esc(M.since||"")}" max="${localDay()}"></label>
+        <label style="display:flex;flex-direction:column;gap:2px"><span class="muted" style="font-size:11.5px">Прекратить</span><input type="date" id="mpStop" value="${esc((M.plan&&M.plan.stop_on)||"")}"></label>
+        <button class="btn btn-primary" data-mpsave="${esc(M.name)}" style="align-self:flex-end;height:34px">Сохранить</button>
+        <button class="btn btn-secondary" data-mpnow="${esc(M.name)}" style="align-self:flex-end;height:34px">Закончили сегодня</button></div>
+      <div class="muted" style="font-size:12px;margin-top:6px">Эти даты сохраняются отдельно и главнее записей. Пустая дата прекращения — «по состоянию»</div></div>`:""}
     ${M.conflict?`<div class="note" style="margin-top:10px;background:var(--warnbg);color:var(--warn)">В болезни — с ${full(M.conflict.ep)}, в списке «Принимает» — с ${full(M.conflict.meds)}. Уточните, какая дата верная.</div>`:""}
     <h3 style="font-size:14px;margin:16px 0 6px">Когда применяли</h3>
     ${M.courses.length?`<div class="tbl-wrap"><table class="tbl"><tbody>${M.courses.map(c=>`<tr><td style="white-space:nowrap">${c.kind==="log"?"💬 ":c.kind==="ep"?"🩹 ":"💊 "}${esc(c.text)}</td><td class="muted">${esc(c.how||"")}${c.kind==="ep"&&c.dx?" · "+esc(c.dx):""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="muted">Курсов не записано</div>`}
@@ -5305,7 +5323,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods","mk_events","mk_doclinks"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods","mk_events","mk_doclinks","mk_medplan"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -6151,7 +6169,7 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
 }
 let lastView="";
 function render(){
-  pplLoad(); periodsLoad(); eventsLoad();
+  pplLoad(); periodsLoad(); eventsLoad(); medplanLoad();
   if(!DATA[cur]) cur=Object.keys(DATA)[0];   // человека нет в книжке (скрыт для этого кода) — первый из доступных
   const d=DATA[cur];
   // появление блоков — только при смене человека или вкладки, не при каждой перерисовке
@@ -6216,7 +6234,7 @@ function render(){
     <!--B:now-->${has("now")?`<div class="card"><h2>Сейчас</h2>
       ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
         <div><b>${esc(L.title)}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span></div>`; }).join("")}
-      ${meds.length?`<div style="margin-top:8px"><b>Принимает:</b> ${meds.map(x=>`<span class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</span>`).join(", ")}</div>`:""}
+      ${meds.length?`<div style="margin-top:8px"><b>Принимает:</b> ${meds.map(x=>{ const pl=medPlanOf(cur,x.n); return `<span class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</span>${pl&&pl.stop_on?` <span class="muted">(до ${ru(pl.stop_on)})</span>`:""}`; }).join(", ")}</div>`:""}
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
       :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}`,homeOrderLoad());
@@ -7116,6 +7134,11 @@ document.addEventListener("click",e=>{
     const body=v?{id:R0.plan||undefined,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:v,purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"planned"}
       :{id:R0.plan,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:"",purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"cancelled"};
     mkApi("plan_save",body).then(j=>{ R0.plan=v?(j.id||R0.plan):null; PLANS=null; plansLoad(true); toast(v?`Следующее посещение: ${ru(v)}`:"Дата следующего посещения убрана"); }).catch(()=>toast("Не получилось сохранить — попробуйте ещё раз")); return; }
+  const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
+    const st=(document.getElementById("mpStart")||{}).value||"", sp=now?localDay():((document.getElementById("mpStop")||{}).value||"");
+    if(st&&sp&&sp<st){ toast("Прекратить нельзя раньше, чем начали"); return; }
+    if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+    mkApi("med_plan_set",{person:cur,key:medKeyOf(nm),started:st||null,stop:sp||null}).then(()=>mkApi("med_plan_list")).then(j=>{ MEDPLAN=j.rows||[]; medplanSave(); render(); medOpen(nm); toast(now?"Отмечено: закончили сегодня":(sp?`Прекратить: ${ru(sp)}`:"Даты сохранены")); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
   const cho=e.target.closest("[data-chatopen]"); if(cho){ const tp=symTopic(cur,cho.dataset.chatopen); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; render(); setTimeout(()=>{ const x=document.getElementById("chatIn"); x&&x.focus(); },50); return; }
   const chs=e.target.closest("[data-chatsend]"); if(chs){ symChatSend(chs.dataset.chatsend,!!chs.dataset.chatfull); return; }
   const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=(document.getElementById("sdNew")||{}).value||""; if(doc.trim().length<3){ toast("Впишите врача"); return; }
