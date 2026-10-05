@@ -1198,9 +1198,10 @@ nav.tabs{position:sticky;top:57px;z-index:19;border-bottom:0}
 #searchBtn{display:none}
 @media (max-width:1100px){#addBtn b{display:none}#addBtn{padding:0 12px}}
 @media (max-width:700px){
-  .bottombar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--surface-2)}
+  /* меню на телефоне — сверху, внутри липкой шапки (Денис, 05.10.2026), а не у нижнего края */
+  .bottombar{display:flex;order:20;flex:1 1 100%;margin:0 -16px -10px;padding:4px 4px;background:var(--card);border-top:1px solid var(--surface-2)}
+  .bottombar button{flex:1 1 0;min-width:0;padding:6px 2px}
   main{padding-bottom:16px}
-  .verline{padding-bottom:88px}
   #addBtn{display:none}
   #q{order:10;flex:1 1 100%;display:none}
   .app-header.search-on #q{display:block}
@@ -1282,6 +1283,7 @@ a,.medlink,.symlink,.linkbtn{color:var(--accent)}
       <button class="menu-item is-danger" data-pm="logout" type="button"><span class="menu-item__ic">↪</span>Выйти</button>
     </div>
   </div>
+<div class="bottombar" id="bottombar"></div>
 </header>
 <div class="drawer-overlay" id="drawer-overlay" hidden>
   <aside class="drawer" role="dialog" aria-label="Меню"><div class="drawer__top"><span class="app-title">🩺 Медкнижка</span><button class="icon-btn icon-btn--round" id="drawer-close" type="button" aria-label="Закрыть">✕</button></div><div id="drawerBody"></div><div class="menu-title" style="margin-top:12px">Версия: <span id="verCopy"></span></div></aside>
@@ -1291,7 +1293,6 @@ a,.medlink,.symlink,.linkbtn{color:var(--accent)}
 <nav class="tabs tabs--scroll" id="nav"></nav>
 <main id="main"></main>
 <div class="verline" title="Если версия старая — обновите страницу с очисткой кэша">Версия страницы: <span id="ver"></span></div>
-<div class="bottombar" id="bottombar"></div>
 <div class="modal" id="modal"></div>
 
 <script type="text/plain" id="mk-main">
@@ -2578,7 +2579,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 12:30";   // подставляется при публикации
+const BUILD="05.10 12:49";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
