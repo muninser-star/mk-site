@@ -522,6 +522,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .figs li{background:var(--bg);border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.35}
 @media (min-width:700px){.figs{grid-template-columns:repeat(3,1fr)}}
 .acts{background:var(--bg);border-radius:16px;padding:14px;margin-top:14px}.act+.act{margin-top:10px}.act div{font-size:14px;margin-top:2px}
+.hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
 /* «Для врача»: чипы, документ и печать А4 (ТЗ-010 блок 5) */
@@ -2542,7 +2543,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 07:40";   // подставляется при публикации
+const BUILD="05.10 07:47";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4309,6 +4310,14 @@ function measRows(k){
     if(yy) out.push({d:`${yy}-${mm}-${dd}`,n:s.name,v:p[1],u:s.unit||"",norm:s.norm?s.norm.join("-"):""}); }));
   return out;
 }
+// порядок блоков главной: сохранённый, затем новые; незнакомые id из сохранённого отбрасываются
+function homeOrder(ids,saved){ const k=(saved||[]).filter(x=>ids.includes(x)); return [...k,...ids.filter(x=>!k.includes(x))]; }
+// html главной с метками <!--B:id--> → блоки в нужном порядке, у каждого ручка «⠿» для перетаскивания; пустые блоки пропускаются
+function homeAssemble(html,saved){
+  const parts=String(html).split(/<!--B:(\w+)-->/), head=parts[0], by={};
+  for(let i=1;i<parts.length;i+=2) by[parts[i]]=parts[i+1];
+  return head+homeOrder(Object.keys(by),saved).filter(id=>by[id].trim()).map(id=>`<div class="hblk" data-blk="${id}"><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span>${by[id]}</div>`).join("");
+}
 // ── Главная (ТЗ-011 блоки 4, 8): что делать · за чем следим · что изменилось · что сейчас
 // ближайшее, что нужно сделать самому: записаться, сдать, спросить; привычки и «постоянно» — в «Все дела»
 function nextTodo(todo){ return (todo||[]).filter(x=>!x.self&&/^(записаться|записан|сдать|спросить)$/.test(x.tag)&&!/постоянно/i.test(x.when||"")); }
@@ -4402,6 +4411,18 @@ async function favToggle(person,name){
   catch(e){ if(on&&/bad_request|400/.test(String(e.message||e))){ FAV[person]=was; favSave(); render(); toast("Этого показателя нет в записях — звёздочку не поставить"); } }
 }
 // ── Скрыть болезнь с главной (ТЗ-011 блок 6): свои у кода доступа; в книжке и Ленте болезнь остаётся
+const ORDK="mk_homeorder";
+const homeOrderLoad=()=>{ try{ return JSON.parse(localStorage.getItem(ORDK)||"[]")||[]; }catch(e){ return []; } };
+// перетаскивание блоков главной за ручку «⠿» (мышь и палец)
+document.addEventListener("pointerdown",e=>{
+  const h=e.target.closest&&e.target.closest(".hdrag"); if(!h) return; const blk=h.closest(".hblk"), box=blk.parentElement; e.preventDefault();
+  blk.classList.add("hdragging");
+  const move=ev=>{ const t=document.elementFromPoint(ev.clientX,ev.clientY), o=t&&t.closest&&t.closest(".hblk"); if(!o||o===blk||o.parentElement!==box) return;
+    const r=o.getBoundingClientRect(); box.insertBefore(blk,ev.clientY<r.top+r.height/2?o:o.nextSibling); };
+  const up=()=>{ document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); blk.classList.remove("hdragging");
+    try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} };
+  document.addEventListener("pointermove",move); document.addEventListener("pointerup",up);
+});
 const HIDK="mk_homehid";
 let HOMEHID=(()=>{ try{ return JSON.parse(localStorage.getItem(HIDK)||"{}")||{}; }catch(e){ return {}; } })();
 const homeHidSave=()=>{ try{ localStorage.setItem(HIDK,JSON.stringify(HOMEHID)); }catch(e){} };
@@ -4927,7 +4948,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -5796,36 +5817,42 @@ function render(){
     const keys=(FAV[cur]||[]), rows=measRows(cur), watchRows=favRows(rows,keys);
     const chg=(typeof changed==="function"?changed(d,6):[]).filter(x=>x.cls!=="ok").slice(0,3);
     const HB=homeBlocks(d,today,{plans,hidden,changes:chg}), has=k=>HB.blocks.includes(k);
-    const nx=todoPreview(nextTodo(todo),5);
+    const nx=todoPreview(nextTodo(todo),5), tvAll=todo.filter(x=>!x.self), tvis=tvAll.slice(0,6);
     const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
-    m.innerHTML=`
+    m.innerHTML=homeAssemble(`
     <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
-    <div class="card"><h2>Что делать</h2>${nx.items.length?`<div class="soon">${nx.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
+    <!--B:todo--><div class="card"><h2>Что делать</h2>${nx.items.length?`<div class="soon">${nx.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
         <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
         <span class="muted" style="font-size:12px">${esc(x.when||"без даты")}</span></div>`).join("")}</div>`:`<div class="muted">Ближайших дел нет.</div>`}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела${nx.rest?` · ещё ${nx.rest}`:""} →</button></div>
 
-    ${d.nutrition?`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`:""}
+    <!--B:body-->${d.nutrition?`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`:""}
 
-    <div class="card"><h2>Ключевые показатели</h2>
+    <!--B:visits-->${tvis.length?`<div class="card"><h2>Посещения врачей и обследования — ${tvAll.length}</h2><div class="soon">${tvis.map(x=>`<div class="soonitem"${todoAttrs(x)}>
+        <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
+        <span class="muted" style="font-size:12px">${esc(x.when||"без даты")}${x.why?" · "+esc(x.why):""}</span></div>`).join("")}</div>
+      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>`:""}
+
+
+    <!--B:watch--><div class="card"><h2>Ключевые показатели</h2>
       ${watchRows.length?`<div class="favlist">${watchRows.map(x=>`<div class="favrow" data-favopen="${esc(x.name)}">
         <div><b>${esc(x.name)}</b><div class="muted" style="font-size:12.5px">${ru(x.d)}${x.prev?` · было ${esc(x.prev)}`:""}</div>${sparkSvg(x.pts,x.trend.dir)}</div>
         <div style="text-align:right"><b style="color:${statusColor(x.st)}">${esc(x.v)}</b><div><span class="status status-${x.st}">${esc(x.word)}</span></div><div class="muted" style="font-size:12px">${esc(x.trend.word)}</div></div></div>`).join("")}</div>`
       :`<div class="muted">Здесь будут показатели, за которыми вы следите. Отметьте звёздочкой в разделе «Анализы».</div>
         ${sug.length?`<div style="margin-top:8px">Выше или ниже нормы: ${sug.map(k=>`<span class="tag2 eplink" data-favopen="${esc(k)}">${esc(k)}</span>`).join(" ")}</div>`:""}`}</div>
 
-    ${has("changes")?`<div class="card"><h2>Что изменилось</h2>${chg.map(x=>`<div class="row" style="justify-content:space-between"><span>${esc(x.n)}</span><span class="status status-${x.cls}">${nz1(x.a)} → ${nz1(x.b)}${x.u?" "+esc(x.u):""}</span></div>`).join("")}
+    <!--B:changes-->${has("changes")?`<div class="card"><h2>Что изменилось</h2>${chg.map(x=>`<div class="row is-link" data-favopen="${esc(x.n)}" style="justify-content:space-between"><span>${esc(x.n)}</span><span class="status status-${x.cls}">${nz1(x.a)} → ${nz1(x.b)}${x.u?" "+esc(x.u):""}</span></div>`).join("")}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="ins">Все выводы →</button></div>`:""}
 
-    ${has("now")?`<div class="card"><h2>Сейчас</h2>
+    <!--B:now-->${has("now")?`<div class="card"><h2>Сейчас</h2>
       ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
         <div><b>${esc(L.title)}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span></div>`; }).join("")}
       ${meds.length?`<div style="margin-top:8px"><b>Принимает:</b> ${meds.map(x=>`<span class="eplink" data-medcard="${d.meds.indexOf(x)}">${esc(x.n)}</span>`).join(", ")}</div>`:""}
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
-      :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}`;
+      :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}`,homeOrderLoad());
   }
 
   else if(tab==="todo"){   // «Все дела»: полный список и справка (раньше на главной)
