@@ -526,6 +526,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .watchtile{background:var(--surface-2,#f3f4f6);border-radius:12px;padding:10px 12px;cursor:pointer;min-width:0}
 .watchtile__n{font-size:13px;font-weight:600;line-height:1.25;min-height:32px}.watchtile__v{font-size:20px;font-weight:700;margin-top:2px}
 .watchtile .spark{height:26px;margin-top:4px}.watchtile__s{font-size:12px;margin-top:2px}
+@media (max-width:700px){.hblk .tbl td:nth-child(4){display:none}}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
@@ -2550,7 +2551,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 08:06";   // подставляется при публикации
+const BUILD="05.10 08:14";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4326,14 +4327,10 @@ function homeAssemble(html,saved){
   return head+homeOrder(Object.keys(by),saved).filter(id=>by[id].trim()).map(id=>`<div class="hblk" data-blk="${id}"><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span>${by[id]}</div>`).join("");
 }
 // ── Главная (ТЗ-011 блоки 4, 8): что делать · за чем следим · что изменилось · что сейчас
-// ближайшее, что нужно сделать самому: записаться, сдать, спросить; привычки и «постоянно» — в «Все дела»
-function nextTodo(todo){ return (todo||[]).filter(x=>!x.self&&/^(записаться|записан|сдать|спросить)$/.test(x.tag)&&!/постоянно/i.test(x.when||"")); }
-function todoPreview(list,n){ return {items:list.slice(0,n),rest:Math.max(0,list.length-n)}; }
-// дела главной по группам «к врачу / сдать / исследования и вопросы», до n в группе; дата дела — в самой строке
-function todoGroups(list,n){
-  const N={doc:"К врачу",lab:"Сдать анализы",etc:"Исследования и вопросы"};
-  return ["doc","lab","etc"].map(g=>{ const p=todoPreview(list.filter(x=>(x.grp||"etc")===g),n); return {grp:g,title:N[g],items:p.items,rest:p.rest}; }).filter(g=>g.items.length);
-}
+// ключ дела для «готово» / «напомнить»: название строчными; состояние лежит у кода доступа
+const taskKey=t=>favKey(t).slice(0,120);
+// дело скрыто с главной: сделано, либо отложено до даты, которая ещё не наступила
+function taskHidden(st,today){ return !!st&&(st.s==="done"||(st.s==="snooze"&&String(st.until)>today)); }
 // ближайшие визиты: из заранее запланированных и из «следующий визит» прошлых приёмов; на одну дату — одна строка, плановый визит главнее
 function upcomingVisits(d,plans,today){
   const by={};
@@ -4438,6 +4435,22 @@ document.addEventListener("pointerdown",e=>{
     try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} };
   document.addEventListener("pointermove",move); document.addEventListener("pointerup",up);
 });
+const TSK="mk_taskst";
+let TASKST=(()=>{ try{ return JSON.parse(localStorage.getItem(TSK)||"{}")||{}; }catch(e){ return {}; } })();
+const taskStSave=()=>{ try{ localStorage.setItem(TSK,JSON.stringify(TASKST)); }catch(e){} };
+const taskState=(p,title)=>(TASKST[p]||{})[taskKey(title)]||null;
+function taskStLoad(){
+  if(!window.__MK_KEY||window.__tsLoading) return; window.__tsLoading=1;
+  mkApi("task_state_list").then(j=>{ const n={}; (j.rows||[]).forEach(r=>{ (n[r.person]=n[r.person]||{})[r.task_key]={s:r.status,until:r.until}; }); TASKST=n; taskStSave(); render(); }).catch(()=>{});
+}
+async function taskStSet(person,title,status,until){
+  const key=taskKey(title), was=JSON.parse(JSON.stringify(TASKST));
+  TASKST[person]=TASKST[person]||{}; if(status==="clear") delete TASKST[person][key]; else TASKST[person][key]={s:status,until:until||null};
+  taskStSave(); render();
+  if(!window.__MK_KEY) return;
+  try{ await mkApi("task_state_set",{person,key,status,until}); }
+  catch(e){ TASKST=was; taskStSave(); render(); toast("Не получилось сохранить — попробуйте ещё раз"); }
+}
 const HIDK="mk_homehid";
 let HOMEHID=(()=>{ try{ return JSON.parse(localStorage.getItem(HIDK)||"{}")||{}; }catch(e){ return {}; } })();
 const homeHidSave=()=>{ try{ localStorage.setItem(HIDK,JSON.stringify(HOMEHID)); }catch(e){} };
@@ -4963,7 +4976,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -5784,6 +5797,15 @@ function buildTodo(d){
     return (a.p-b.p)||(a._i-b._i);
   });
 }
+const overdue=x=>!x.due&&x.k!=null&&x.k<0&&x.kind==="at"
+  &&/^(с |со |висит|явка была|назначено|не сдав|последний)/i.test(String(x.when||""));
+const todoRow=x=>{ const ts=taskState(cur,x.title); return `<tr class="row is-link"${todoAttrs(x)}>
+        <td><span class="status status-${overdue(x)?"bad":x.st}" style="white-space:nowrap">${overdue(x)?"просрочено":esc(x.when||"без срока")}</span>${
+          (()=>{const sub=x.was&&x.was!==x.when?x.was:(overdue(x)?x.when:"");
+            return sub?`<div class="muted" style="font-size:11.5px;margin-top:3px">${esc(sub)}</div>`:"";})()}</td>
+        <td><span class="status status-${x.st}">${esc(x.tag)}</span></td>
+        <td><b>${esc(x.title)}</b><div class="muted">${x.sys?esc(sysName(x.sys))+" · ":""}${x.kind==="at"?"подробно →":"запись"}${ts?` · <b>${ts.s==="done"?"готово":"напомнить с "+ru(ts.until)}</b>`:""}</div></td>
+        <td class="muted">${esc(x.why)}</td></tr>`; };
 const todoAttrs=x=>x.task!=null?` data-task="${x.task}"`:(x.sys?` data-sys="${x.sys}"`:"");
 
 if(typeof window!=="undefined"&&!window.__scrollBound){
@@ -5827,21 +5849,21 @@ function render(){
 
   if(tab==="home"){
     const today=localDay(), todoFull=buildTodo(d), todo=todoFull.filter(x=>x.st!=="ok");
-    plansLoad(); favLoad(); homeHideLoad();
+    plansLoad(); favLoad(); homeHideLoad(); taskStLoad();
     const plans=PLANS?PLANS.filter(x=>x.person===cur):[], hidden=homeHidden(cur);
     const keys=(FAV[cur]||[]), rows=measRows(cur), watchRows=favRows(rows,keys);
     const chg=(typeof changed==="function"?changed(d,6):[]).filter(x=>x.cls!=="ok").slice(0,3);
     const HB=homeBlocks(d,today,{plans,hidden,changes:chg}), has=k=>HB.blocks.includes(k);
-    const TG=todoGroups(nextTodo(todo),4), TGrest=todo.filter(x=>!x.self).length-TG.reduce((a,g)=>a+g.items.length,0);
+    const todoV=todo.filter(x=>!x.self&&!taskHidden(taskState(cur,x.title),today));
     const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     m.innerHTML=homeAssemble(`
     <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
-    <!--B:todo--><div class="card"><h2>Что делать</h2>${TG.length?TG.map(g=>`<h3 class="todo-grp">${g.title}</h3><div class="soon">${g.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
-        <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
-        <span class="soon__when">${esc(x.when||"без даты")}</span></div>`).join("")}</div>`).join(""):`<div class="muted">Ближайших дел нет.</div>`}
-      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела${TGrest?` · ещё ${TGrest}`:""} →</button></div>
+    <!--B:todo--><div class="card"><h2>Посещения врачей и обследования — ${todoV.length}</h2>
+      ${todoV.length?[["lab","Сдать анализы"],["doc","Консультация специалиста"],["etc","Прочее: исследования, прививки, вопросы"]].map(([k,name])=>{ const L=todoV.filter(x=>(x.grp||"etc")===k).slice(0,5); const all=todoV.filter(x=>(x.grp||"etc")===k).length;
+        return L.length?`<h3 class="todo-grp">${name} — ${all}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${L.map(todoRow).join("")}</tbody></table></div>`:""; }).join(""):`<div class="muted">Ближайших дел нет.</div>`}
+      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>
 
     <!--B:body-->${d.nutrition?`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`:""}
 
@@ -5872,15 +5894,6 @@ function render(){
     const todo=todoAll?todoFull:todoFull.filter(x=>x.st!=="ok");
     const todoVisit=todo.filter(x=>!x.self), todoSelf=todo.filter(x=>x.self);
     const cut=l=>todoAll?l:l.slice(0,15);
-    const overdue=x=>!x.due&&x.k!=null&&x.k<0&&x.kind==="at"
-      &&/^(с |со |висит|явка была|назначено|не сдав|последний)/i.test(String(x.when||""));
-    const todoRow=x=>`<tr class="row is-link"${todoAttrs(x)}>
-        <td><span class="status status-${overdue(x)?"bad":x.st}" style="white-space:nowrap">${overdue(x)?"просрочено":esc(x.when||"без срока")}</span>${
-          (()=>{const sub=x.was&&x.was!==x.when?x.was:(overdue(x)?x.when:"");
-            return sub?`<div class="muted" style="font-size:11.5px;margin-top:3px">${esc(sub)}</div>`:"";})()}</td>
-        <td><span class="status status-${x.st}">${esc(x.tag)}</span></td>
-        <td><b>${esc(x.title)}</b><div class="muted">${x.sys?esc(sysName(x.sys))+" · ":""}${x.kind==="at"?"подробно →":"запись"}</div></td>
-        <td class="muted">${esc(x.why)}</td></tr>`;
     const todoTable=list=>`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Что сделать</th><th>Что именно</th><th>Почему</th></tr></thead><tbody>
       ${cut(list).map(todoRow).join("")}</tbody></table></div>`;
     m.innerHTML=`
@@ -6488,6 +6501,11 @@ function render(){
         </div>
         <h2 style="font-size:19px;text-transform:none;color:var(--ink);letter-spacing:0">${esc(a.t)}</h2>
         <div style="margin-top:4px">${rich(a.why||a.w)}</div>
+        ${(()=>{ const ts=taskState(cur,a.t), tm=new Date(Date.now()+864e5*14); const def=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,"0")}-${String(tm.getDate()).padStart(2,"0")}`;
+          return ts?`<div class="note" style="margin-top:12px">${ts.s==="done"?"Отмечено как готово — на главной не показывается.":"Напомню с "+ru(ts.until)+" — до этого на главной не показывается."}</div>
+            <button class="btn btn-secondary" data-tsk="clear" style="margin-top:8px">Вернуть на главную</button>`
+          :`<div class="row" style="margin-top:12px;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" data-tsk="done">Готово</button>
+            <span class="muted">или напомнить с</span><input type="date" id="tskDate" value="${def}" aria-label="Напомнить с даты"><button class="btn btn-secondary" data-tsk="snooze">Напомнить</button></div>`; })()}
       </div>
 
       ${a.facts?`<div class="card"><h2>На чём основано</h2>
@@ -6740,6 +6758,9 @@ document.addEventListener("click",e=>{
   const tk=e.target.closest("[data-tlk]"); if(tk){ tlReset(); tlKind=tk.dataset.tlk; render(); return; }
   const toFeed=e.target.closest("#symToFeed"); if(toFeed){ tlReset(); tlKind="sym"; tab="all"; sysFilter=null; symSel=null; render(); window.scrollTo({top:0}); return; }
   const sv=e.target.closest("[data-symview]"); if(sv){symView=sv.dataset.symview;symSel=null;medSel=null;render();window.scrollTo({top:0});return}
+  const tsb=e.target.closest("[data-tsk]"); if(tsb&&tab==="task"&&taskIdx!=null){ const a=DATA[cur].attention[taskIdx], act=tsb.dataset.tsk;
+    if(act==="snooze"){ const v=(document.getElementById("tskDate")||{}).value; if(!v||v<=localDay()){ toast("Выберите дату в будущем"); return; } taskStSet(cur,a.t,"snooze",v); }
+    else taskStSet(cur,a.t,act); return; }
   const hn=e.target.closest(".hint"); if(hn){ e.preventDefault(); e.stopPropagation(); toast(hn.getAttribute("title")); return; }
   const hs=e.target.closest("[data-homeshow]"); if(hs){ homeHideSet(cur,"",false); return; }
   if(e.target.closest("#todoAll")){ todoAll=!todoAll; render(); return; }
