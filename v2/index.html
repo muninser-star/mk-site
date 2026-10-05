@@ -554,6 +554,13 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .mdview .mdh1{font-size:22px;margin:4px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdh{font-size:16px;margin:18px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdhr{border:0;border-top:1px solid var(--border,#e3e6ea);margin:14px 0}.mdview .mdq{margin:8px 0;padding:8px 14px;border-left:4px solid var(--accent,#1a6fd3);background:var(--surface-2,#f1f3f6);border-radius:0 10px 10px 0}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
+.hptile{display:flex;align-items:center;gap:14px;cursor:pointer}.hptile__n{font-size:30px;font-weight:700;color:var(--accent);min-width:74px}.hptile__go{margin-left:auto;color:var(--muted);font-size:22px}
+.hphead{display:flex;align-items:center;gap:16px}.hpring{flex:none;color:var(--ink)}
+.hporgs{display:flex;flex-direction:column}.hporg{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line,#e5e7eb);padding:10px 2px;cursor:pointer;color:inherit;font:inherit}.hporg:first-child{border-top:0}
+.hporg__ic{font-size:22px;width:30px;text-align:center;flex:none}.hporg__t{display:flex;flex-direction:column;min-width:0;flex:1}.hporg__t .muted{font-size:12.5px}.hporg__s{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none;font-size:12px}
+.hpbar{display:inline-flex;gap:3px}.hpbar i{width:16px;height:6px;border-radius:3px;background:var(--seg)}.hpbar i.on{background:var(--accent)}
+.hpnext__h{display:flex;justify-content:space-between;align-items:baseline}.hpnext__p{color:var(--accent);font-weight:700}
+.hpsrc{padding:3px 0}.hpok{color:var(--ok);font-weight:700}.hpno{color:var(--muted)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
@@ -1649,13 +1656,14 @@ function legacyTab(t){
   if(["sym","visit","lab","instr","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
   if(t==="card") return {page:"card",sub:"sym"};
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
+  if(t==="hp") return {page:"profile",sub:"hp"};
   if(t==="prof"||t==="ins") return {page:"profile",sub:t==="ins"?"insights":"about"};
   if(t==="cal") return {page:"home",sub:"cal"};
   if(t==="nutr"||t==="diary") return {page:"nutr",sub:"today"};
   if(["home","ask","sys","task"].includes(t)) return {page:t};
   return {page:"home"};
 }
-function profTabs(){ return [["prof","О человеке"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"]]; }
+function profTabs(){ return [["prof","О человеке"],["hp","Профиль здоровья"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"]]; }
 function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"AI-консультант"}]; }
@@ -1665,7 +1673,7 @@ function goTab(t){
   const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
   sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
-  else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo")?t:"dx";
+  else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo"||t==="hp")?t:"dx";
   else if(m.page==="home") tab=(m.sub==="cal")?"cal":"home";
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
   else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
@@ -2603,7 +2611,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 15:59";   // подставляется при публикации
+const BUILD="05.10 18:41";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4689,6 +4697,133 @@ function measRows(k){
     if(yy) out.push({d:`${yy}-${mm}-${dd}`,n:s.name,v:p[1],u:s.unit||"",norm:s.norm?s.norm.join("-"):""}); }));
   return out;
 }
+// ── Карта органов (ТЗ-009 блок 11) и процент профиля (блок 4): чистые функции, без интерфейса ──
+// Показатели набора — по точному названию после favKey; подстрока не используется (иначе «гемоглобин» ловит гликированный, «фосфор» — щелочную фосфатазу).
+const ORGAN_IND={
+  oak:["Общий анализ крови",["общий анализ крови","клинический анализ крови","гемоглобин","оак"]], ferritin:["Ферритин",["ферритин"]], iron:["Железо сыворотки",["железо","железо сыворотки"]], soe:["СОЭ",["соэ"]],
+  ttg:["ТТГ",["ттг","тиреотропный гормон"]], t4:["Т4 свободный",["т4 свободный","свободный т4"]], tpo:["Антитела к ТПО",["анти-тпо","ат-тпо","антитела к тпо"]],
+  alt:["АЛТ",["алт","алат"]], ast:["АСТ",["аст","асат"]], bil:["Билирубин",["билирубин общий","билирубин"]], ggt:["ГГТ",["ггт","гамма-гт"]],
+  chol:["Холестерин общий",["холестерин общий","холестерин"]], ldl:["ЛПНП",["лпнп"]], hdl:["ЛПВП",["лпвп"]], tg:["Триглицериды",["триглицериды"]], crp:["СРБ",["срб","с-реактивный белок"]],
+  creat:["Креатинин",["креатинин"]], urea:["Мочевина",["мочевина"]], uric:["Мочевая кислота",["мочевая кислота"]], oam:["Общий анализ мочи",["общий анализ мочи","оам"]],
+  copro:["Копрограмма",["копрограмма"]], iga:["Общий IgA",["iga общий","общий iga","иммуноглобулин a общий"]], hp:["Хеликобактер",["helicobacter pylori","хеликобактер"]],
+  glu:["Глюкоза",["глюкоза","глюкоза натощак"]], hba1c:["HbA1c",["гликированный гемоглобин","гликированный гемоглобин (hba1c)","hba1c"]], insulin:["Инсулин",["инсулин"]],
+  ca:["Кальций",["кальций"]], phos:["Фосфор",["фосфор"]], pth:["Паратгормон",["паратгормон","птг"]], vitd:["Витамин D",["витамин d","25(oh)d","25-он витамин d"]],
+  eos:["Эозинофилы",["эозинофилы","эозинофилы %","эозинофилы абсолютные"]], ige:["Общий IgE",["общий ige","ige общий","иммуноглобулин e общий"]], igg:["IgG",["igg","иммуноглобулин g"]],
+  lymph:["Лимфоциты",["лимфоциты","лимфоциты %","лимфоциты абсолютные","лимфоциты относительные"]], b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]]
+};
+// sys — коды системы записи; instr — слова в названии исследования; spec — специальности врача; topic — тема опроса (блок 3)
+const ORGANS=[
+  {id:"blood",name:"Кровь",icon:"🩸",set:["oak","ferritin","iron","soe"],sys:["blood"],instr:[],spec:["гематолог"],topic:"blood"},
+  {id:"hormones",name:"Гормоны и щитовидка",icon:"🦋",set:["ttg","t4","tpo"],sys:["thyro"],instr:["узи щитовидн"],spec:["эндокринолог"],topic:"hormones"},
+  {id:"liver",name:"Печень",icon:"🫘",set:["alt","ast","bil","ggt"],sys:["liver"],instr:["узи печени","эластометр","брюшной полости"],spec:["гастроэнтеролог","гепатолог"],topic:"liver"},
+  {id:"heart",name:"Сердце и сосуды",icon:"❤️",set:["chol","ldl","hdl","tg","crp"],sys:["heart","vein"],instr:["экг","эхокг","холтер","узд","дуплекс"],spec:["кардиолог","флеболог"],topic:"heart"},
+  {id:"kidney",name:"Почки и мочевыделение",icon:"💧",set:["creat","urea","uric","oam"],sys:["kidney","uro"],instr:["узи почек","мочевого пузыря"],spec:["уролог","нефролог"],topic:"kidney"},
+  {id:"gut",name:"Желудок и кишечник",icon:"🍽",set:["copro","iga","hp"],sys:["gi"],instr:["брюшной полости","гастроскоп","колоноскоп","фгдс"],spec:["гастроэнтеролог"],topic:"gut"},
+  {id:"metabolism",name:"Обмен и сахар",icon:"🍬",set:["glu","hba1c","insulin"],sys:["endo"],instr:[],spec:["эндокринолог"],topic:"metabolism"},
+  {id:"bones",name:"Кости, суставы, мышцы",icon:"🦴",set:["ca","vitd","phos","pth"],sys:["bone","ortho","spine","fit"],instr:["рентген","мрт сустав","мрт позвоночн","денситометр"],spec:["ортопед","травматолог","ревматолог"],topic:"bones"},
+  {id:"lungs",name:"Дыхание",icon:"🫁",set:["eos","ige","crp"],sys:["lung","ent"],instr:["рентген лёгк","рентген легк","кт лёгк","кт легк","спирометр","флюорограф"],spec:["лор","отоларинголог","пульмонолог"],topic:"lungs"},
+  {id:"nerves",name:"Нервная система",icon:"🧠",set:["b12","mg","folate"],sys:["neuro","sleep","psy"],instr:["мрт голов","кт голов","ээг","узд"],spec:["невролог"],topic:"nerves"},
+  {id:"immune",name:"Иммунитет, кожа и аллергия",icon:"🛡",set:["ige","iga","igg","lymph"],sys:["immun","allerg","skin"],instr:["кожные пробы","прик"],spec:["аллерголог","иммунолог","дерматолог","дерматовенеролог"],topic:"immune"}
+];
+function isoAddMonths(iso,m){ const [y,mo,d]=iso.split("-").map(Number); const t=new Date(Date.UTC(y,mo-1+m,1)); const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();
+  return `${t.getUTCFullYear()}-${String(t.getUTCMonth()+1).padStart(2,"0")}-${String(Math.min(d,last)).padStart(2,"0")}`; }
+function organLevel(score){ const sc=Math.floor(+score||0); return {divs:Math.ceil((+score||0)/25),label:sc<=0?"Нет данных":sc<50?"Немного":sc<100?"Достаточно":"Полно"}; }
+function organShown(score){ return Math.floor((+score||0)+1e-9); }
+function organsKnown(scores){ return scores.filter(s=>s>=50).length; }
+// точки показателя набора за окно: [{d,v,u,norm,n}] по датам по убыванию; повтор «показатель + дата» — одна точка
+function organPoints(indKey,rows,from,today){ const syn=ORGAN_IND[indKey][1], seen=new Set(), out=[];
+  (rows||[]).forEach(r=>{ if(!r||!r.d||r.d<from||r.d>today||!syn.includes(favKey(r.n))) return; const k=r.d+"|"+favKey(r.n); if(seen.has(k)) return; seen.add(k); out.push(r); });
+  return out.sort((a,b)=>b.d.localeCompare(a.d)); }
+// полнота органа 0–100: анализы 70 × доля набора за 12 мес + динамика 10 + исследование или приём за 24 мес 20; опрос — замена анализов до 35, если их меньше 35
+function organCoverage(id,rows,rec,today,topicsDone){
+  const o=ORGANS.find(x=>x.id===id), from12=isoAddMonths(today,-12), from24=isoAddMonths(today,-24), have=[], missing=[]; let dyn=0;
+  o.set.forEach(k=>{ const p=organPoints(k,rows,from12,today); if(p.length){ have.push(ORGAN_IND[k][0]); if(new Set(p.map(x=>x.d)).size>=2) dyn=10; } else missing.push(ORGAN_IND[k][0]); });
+  let a=70*have.length/o.set.length, bySurvey=false;
+  if(a<35&&topicsDone&&topicsDone.has(o.topic)){ a=35; bySurvey=true; }
+  const low=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
+  const ie=(rec||[]).some(r=>{ if(!r||!r.d||r.d<from24||r.d>today) return false;
+    if(r.t==="instr") return o.sys.includes(r.sys)||o.instr.some(w=>low(r.title).includes(w));
+    if(r.t==="visit") return o.sys.includes(r.sys)||o.spec.some(w=>low(r.who||r.title).includes(w));
+    return false; })?20:0;
+  const score=a+dyn+ie; return {id,score,a,dyn,ie,bySurvey,have,missing,...organLevel(score)};
+}
+// страница органа: показатели набора с последним значением, нормой, прошлым; не сданные — v:null
+function organDetail(id,rows,today){
+  const o=ORGANS.find(x=>x.id===id), from12=isoAddMonths(today,-12);
+  const fl=(v,n)=>{ const f=flagByNorm(v,n); return f==="норма"?"в норме":f; };
+  return o.set.map(k=>{ let p=organPoints(k,rows,from12,today);
+    if(k==="oak"){ const hb=p.filter(x=>favKey(x.n)==="гемоглобин"); if(hb.length) p=hb.concat(p.filter(x=>favKey(x.n)!=="гемоглобин")); }   // для ОАК — гемоглобин, если он есть
+    const l=p[0]; if(!l) return {k:ORGAN_IND[k][0],v:null};
+    const pv=p.find((x,i)=>i>0&&x.d<l.d&&favKey(x.n)===favKey(l.n));
+    return {k:ORGAN_IND[k][0],n:l.n,v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",flag:fl(l.v,l.norm),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm)}:null}; });
+}
+// процент профиля (блок 4): профиль 10 (имя 3, пол 3, дата рождения 4) + базовый опрос 10 (от 12 ответов) + 80 × среднее полнот органов; округление один раз
+function profileCompleteness(p,basicAnswered,scores){
+  const prof=(p&&p.name?3:0)+(p&&p.sex?3:0)+(p&&p.dob?4:0), basic=basicAnswered>=12?10:0, sum=(scores||[]).reduce((a,b)=>a+b,0);
+  return Math.round(+(prof+basic+80*sum/(100*ORGANS.length)).toFixed(6)); }
+// ── /карта органов
+// ── Профиль здоровья (ТЗ-009 блоки 4 и 11): плитка на главной, страница «Профиль здоровья», страница органа ──
+let hpOrgan=null;
+function hpPerson(d){
+  const pp=(typeof PPL!=="undefined"&&PPL&&PPL.people||[]).find(x=>x.id===cur)||null, nm=String(d.name||"").trim();
+  const sex=pp&&pp.sex?pp.sex:(/(ич|оглы)$/i.test(nm)?"m":/(вна|ична|кызы)$/i.test(nm)?"f":"");
+  return {name:nm,sex,dob:d.dob||""};
+}
+// темы опроса пройдены — после блоков 1–3 (опросы): пока набор пуст, опрос анализы не заменяет
+function hpModel(d){
+  const today=localDay(), rows=measRows(cur), rec=d.rec||[], done=new Set(), person=hpPerson(d);
+  const covs=ORGANS.map(o=>organCoverage(o.id,rows,rec,today,done)), scores=covs.map(c=>c.score);
+  const pct=profileCompleteness(person,0,scores);
+  const weak=covs.map((c,i)=>({c,o:ORGANS[i]})).filter(x=>x.c.a<35);
+  const gain=weak.length?Math.max(1,profileCompleteness(person,0,covs.map(c=>c.a<35?Math.min(100,c.score-c.a+70):c.score))-pct):0;
+  return {today,rows,rec,covs,pct,known:organsKnown(scores),weak,gain,person};
+}
+function hpRing(p){ const r=40, c=2*Math.PI*r, off=c*(1-Math.min(100,p)/100);
+  return `<svg class="hpring" viewBox="0 0 100 100" width="96" height="96" role="img" aria-label="Профиль заполнен на ${p}%"><circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--seg)" stroke-width="9"/>
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 50 50)"/>
+    <text x="50" y="57" text-anchor="middle" font-size="24" font-weight="700" fill="currentColor">${p}%</text></svg>`; }
+function hpBar(divs){ return `<span class="hpbar" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${i<=divs?"on":""}"></i>`).join("")}</span>`; }
+function hpTile(d){ const m=hpModel(d);
+  return `<div class="card hptile" data-t="hp" role="button" tabindex="0" aria-label="Профиль здоровья, заполнено ${m.pct}%"><div class="hptile__n">${m.pct}%</div>
+    <div><b>Профиль здоровья</b><div class="muted">${m.pct>=100?"заполнено полностью":"заполнено"} · данные есть по ${m.known} из ${ORGANS.length} органов</div></div><span class="hptile__go" aria-hidden="true">›</span></div>`; }
+function hpHint(c){ return c.score<=0?"Нет данных":c.bySurvey?"По опросу — нужны анализы":c.missing.length?"Не хватает: "+c.missing.slice(0,3).join(", ")+(c.missing.length>3?"…":""):"Данных достаточно"; }
+function hpHtml(d){
+  const m=hpModel(d);
+  if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpOrgHtml(d,m,hpOrgan);
+  const rowsH=ORGANS.map((o,i)=>{ const c=m.covs[i];
+    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}</b><span class="muted">${esc(hpHint(c))}</span></span>
+      <span class="hporg__s">${hpBar(c.divs)}<span class="muted">${esc(c.label)}</span></span><span class="hptile__go" aria-hidden="true">›</span></button>`; }).join("");
+  const next=m.weak.length?`<div class="card"><h2>Что делать дальше?</h2><div class="hpnext"><div class="hpnext__h"><b>Загрузите анализы</b><span class="hpnext__p">+${m.gain}%</span></div>
+      <div class="muted">Не хватает показателей по ${m.weak.length} ${plural(m.weak.length,"органу","органам","органам")}: больше всего у «${esc(m.weak.slice().sort((a,b)=>a.c.a-b.c.a)[0].o.name)}».</div>
+      <div class="row" style="margin-top:10px"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button></div></div></div>`:"";
+  return `<div class="card hphead">${hpRing(m.pct)}<div><h2 style="margin:0">Профиль здоровья заполнен на ${m.pct}%</h2>
+      <div class="muted">Чем полнее профиль, тем точнее подсказки. Считается по анализам, исследованиям и приёмам; опросы — только пока анализов мало.</div></div></div>
+    ${next}
+    <div class="card"><h2>Что известно об органах</h2><div class="muted" style="margin:-4px 0 8px">Данные есть по ${m.known} из ${ORGANS.length} органов. Это не оценка здоровья, а то, сколько о каждом органе известно.</div><div class="hporgs">${rowsH}</div></div>`;
+}
+function hpOrgHtml(d,m,id){
+  const i=ORGANS.findIndex(o=>o.id===id), o=ORGANS[i], c=m.covs[i], det=organDetail(id,m.rows,m.today), from24=isoAddMonths(m.today,-24), low=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
+  const ieList=(m.rec||[]).filter(r=>r&&(r.t==="instr"||r.t==="visit")&&r.d<=m.today&&(o.sys.includes(r.sys)||(r.t==="instr"?o.instr.some(w=>low(r.title).includes(w)):o.spec.some(w=>low(r.who||r.title).includes(w))))).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,5);
+  const inSet=new Set(o.set.flatMap(k=>ORGAN_IND[k][1]));
+  const others=[], seen=new Set(); (m.rec||[]).filter(r=>r&&r.t==="lab"&&o.sys.includes(r.sys)&&r.title&&!inSet.has(favKey(r.title))).sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>{ if(!seen.has(r.title)&&others.length<8){ seen.add(r.title); others.push(r); } });
+  const flag=f=>f==="в норме"?`<span class="status status-ok">в норме</span>`:f==="выше"||f==="ниже"?`<span class="status status-warn">${f}</span>`:"";
+  const tbl=det.map(x=>x.v==null?`<tr><td>${esc(x.k)}</td><td class="muted" colspan="3">не сдавали за последние 12 месяцев</td></tr>`
+    :`<tr><td>${esc(x.k)}${x.n&&favKey(x.n)!==favKey(x.k)?` <span class="muted">(${esc(x.n)})</span>`:""}</td><td><b>${esc(x.v)}</b> ${esc(x.u)}</td><td>${flag(x.flag)}${x.prev?`<div class="muted">было ${esc(x.prev.v)} (${ru(x.prev.d)})</div>`:""}</td><td class="muted">${ru(x.d)}${x.norm?`<br>норма ${esc(x.norm)}`:""}</td></tr>`).join("");
+  const src=(ok,t)=>`<div class="hpsrc"><span class="${ok?"hpok":"hpno"}">${ok?"✓":"—"}</span> ${t}</div>`;
+  return `<div class="card"><button type="button" class="btn btn-secondary" data-hporg="" style="height:34px">← Все органы</button>
+    <h2 style="margin:12px 0 4px">${o.icon} ${esc(o.name)}</h2><div class="row" style="gap:10px;align-items:center">${hpBar(c.divs)}<span><b>${organShown(c.score)}</b> из 100 · ${esc(c.label)}</span></div>
+    <div style="margin-top:10px">${src(c.have.length>0,`Анализы за 12 месяцев: ${c.have.length} из ${o.set.length}${c.bySurvey?" (засчитано по опросу)":""}`)}${src(c.dyn>0,"Повторные анализы (динамика)")}${src(c.ie>0,"Исследование или приём за 24 месяца"+(ieList[0]&&ieList[0].d>=from24?`: ${ru(ieList[0].d)}`:""))}</div></div>
+    <div class="card"><h3 style="font-size:15px;margin:0 0 6px">Ключевые показатели</h3><div class="tblwrap"><table class="tbl"><tbody>${tbl}</tbody></table></div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button><button class="btn btn-secondary" data-hpadd="visit">Добавить визит</button></div></div>
+    ${others.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Другие показатели по органу</h3>${others.map(r=>`<div class="hpsrc">${esc(r.title)} — <b>${esc(r.v)}</b> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""}
+    ${ieList.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Исследования и приёмы</h3>${ieList.map(r=>`<div class="hpsrc"><span class="muted">${ru(r.d)}</span> ${esc(r.title||r.who||"")}${r.res?` — <span class="muted">${esc(String(r.res).slice(0,110))}</span>`:""}</div>`).join("")}</div>`:""}`;
+}
+function hpClick(e){
+  const o=e.target.closest("[data-hporg]"); if(o){ hpOrgan=o.dataset.hporg||null; render(); window.scrollTo({top:0}); return true; }
+  const a=e.target.closest("[data-hpadd]"); if(a){ const f=a.dataset.hpadd==="visit"?"visitForm":"labForm"; if(typeof globalThis[f]==="function") globalThis[f](); return true; }
+  return false;
+}
+// ── /профиль здоровья
 // порядок блоков главной: сохранённый, затем новые; незнакомые id из сохранённого отбрасываются
 function homeOrder(ids,saved){ const k=(saved||[]).filter(x=>ids.includes(x)); return [...k,...ids.filter(x=>!k.includes(x))]; }
 // html главной с метками <!--B:id--> → блоки в нужном порядке, у каждого ручка «⠿» для перетаскивания; пустые блоки пропускаются
@@ -6702,7 +6837,7 @@ function render(){
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
   document.getElementById("nav").innerHTML=navItems(d)
     .map(({k,label})=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard)||(k==="nutr"&&tab==="diary"))?" is-active":""}">${label}</button>`).join("");
-  const inProf=["prof","todo","dx","anam","ins"].includes(tab);
+  const inProf=["prof","hp","todo","dx","anam","ins"].includes(tab);
   const subnav=inCard?`<div class="tabs tabs--scroll subnav">${CARD
     .map(([k,n])=>`<button data-t="${k}" class="tab${k===(tab==="sym"&&symView==="ill"?"ill":tab)?" is-active":""}">${n}</button>`).join("")}</div>`
     :inProf?`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
@@ -6722,6 +6857,7 @@ function render(){
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     m.innerHTML=homeAssemble(`
     <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
+    <!--B:hp-->${hpTile(d)}
     <!--B:todo--><div class="card"><h2>Посещения врачей и обследования — ${todoV.length}</h2>
       ${todoV.length?[["lab","Сдать анализы"],["doc","Консультация специалиста"],["etc","Прочее: исследования, прививки, вопросы"]].map(([k,name])=>{ const L=todoV.filter(x=>(x.grp||"etc")===k).slice(0,5); const all=todoV.filter(x=>(x.grp||"etc")===k).length;
         return L.length?`<h3 class="todo-grp">${name} — ${all}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${L.map(todoRow).join("")}</tbody></table></div>`:""; }).join(""):`<div class="muted">Ближайших дел нет.</div>`}
@@ -7015,6 +7151,7 @@ function render(){
     }
   }
 
+  else if(tab==="hp"){ m.innerHTML=hpHtml(d); }   // ТЗ-009 блоки 4 и 11
   else if(tab==="prof"){   // ТЗ-011 блок 7: профиль — сведения о человеке и карточка здоровья
     const pp=(PPL&&PPL.people.find(x=>x.id===cur))||null, a=pp&&pp.birth_date?ageOf(pp.birth_date,localDay()):null;
     m.innerHTML=`<div class="card"><h2>${esc(d.name)}</h2>
@@ -7630,6 +7767,7 @@ document.addEventListener("click",e=>{
   if(shellClick(e)||calClick(e)) return;
   if(docClick(e)||planClick(e)) return;
   if(profClick(e)) return;
+  if(hpClick(e)) return;
   const fv=e.target.closest("[data-fav]"); if(fv){ e.preventDefault(); e.stopPropagation(); favToggle(cur,fv.dataset.fav); return; }
   const fo=e.target.closest("[data-favopen]"); if(fo){ tlReset(); query=fo.dataset.favopen; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
   const tmore=e.target.closest("[data-tlmore]"); if(tmore){ const y=window.scrollY; tlShown+=TL_PAGE; render(); window.scrollTo(0,y); return; }
