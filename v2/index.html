@@ -1194,6 +1194,9 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 #q{flex:1 1 120px;min-width:100px;height:36px;padding:0 14px;border:0;border-radius:var(--r-l);background:var(--surface-1);font:inherit;font-size:14px;color:var(--text-primary)}
 #q:focus{outline:0;box-shadow:0 0 0 2px var(--accent)}
 nav.tabs{position:sticky;top:57px;z-index:19;border-bottom:0}
+/* шапка и верхнее меню — в той же центральной колонке, что и содержимое (1120 px), а не у левого края широкого экрана */
+.app-header{padding-left:max(16px,calc((100% - 1120px)/2 + 16px));padding-right:max(16px,calc((100% - 1120px)/2 + 16px))}
+nav.tabs#nav{padding-left:max(16px,calc((100% - 1120px)/2 + 16px));padding-right:max(16px,calc((100% - 1120px)/2 + 16px))}
 .subnav.tabs--scroll{background:none;padding:0 0 10px;margin:0}
 .bottombar{display:none}
 .verline{max-width:1120px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:var(--text-secondary)}
@@ -2581,7 +2584,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 13:56";   // подставляется при публикации
+const BUILD="05.10 14:00";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
