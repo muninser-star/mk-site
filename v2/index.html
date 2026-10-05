@@ -531,6 +531,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
+.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
@@ -2562,7 +2563,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 10:57";   // подставляется при публикации
+const BUILD="05.10 11:05";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3554,6 +3555,39 @@ function symAiCard(name){
     :`<div class="muted">${busy?"Читаю записи…":"Что может быть причиной, с какой вероятностью и кто из врачей смотрел — по тому, что записано в медкнижке."}</div>`}
     <button class="btn btn-secondary" data-symai="${esc(name)}" ${busy?"disabled":""} style="margin-top:10px">${c?"Обновить":"Показать разбор"}</button></div>`;
 }
+// ── Диалог с ИИ-консультантом из карточки симптома: разбор — первая реплика, дальше ваши вопросы; всё сохраняется в базе (ask_log, topic) ──
+const SYMCHAT={};   // ключ темы → {open, rows, busy, loaded}
+const symTopic=(p,n)=>"symptom:"+p+":"+String(n).toLowerCase().replace(/ё/g,"е").trim();
+const fmtChat=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");
+function symChatLoad(topic){
+  const c=SYMCHAT[topic]||(SYMCHAT[topic]={open:true,rows:[],busy:false,loaded:false});
+  if(c.loaded||!window.__MK_KEY) return; c.loaded=true;
+  mkApi("ask_history",{topic}).then(j=>{ c.rows=j.rows||[]; render(); }).catch(()=>{ c.loaded=false; });
+}
+function symChatCard(name){
+  const topic=symTopic(cur,name), c=SYMCHAT[topic];
+  if(!c||!c.open) return `<div class="card"><button class="btn btn-secondary" data-chatopen="${esc(name)}">💬 Обсудить разбор с ИИ-консультантом</button></div>`;
+  symChatLoad(topic);
+  const base=symAiGet(cur,name);
+  return `<div class="card" id="symChat"><h2>Разговор с ИИ-консультантом</h2>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Отвечает по записям медкнижки${base?", разбор выше — первая реплика":""}. Разговор сохраняется. Не диагноз — решает врач</div>
+    ${base?`<div class="chatm chatm--a">${fmtChat(base.answer)}</div>`:""}
+    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div><div class="chatm chatm--a">${r.answer?fmtChat(r.answer):'<span class="muted">В медкнижке этого нет.</span>'}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>`).join("")}
+    ${c.busy?`<div class="chatm chatm--a muted">Читаю записи…</div>`:""}
+    <div class="row" style="gap:8px;margin-top:10px;align-items:flex-end"><textarea id="chatIn" rows="2" placeholder="Ваш вопрос, например: почему версия про запор слабее? Enter — отправить" style="flex:1" ${c.busy?"disabled":""}></textarea>
+      <button class="btn btn-primary" data-chatsend="${esc(name)}" ${c.busy?"disabled":""}>Спросить</button></div></div>`;
+}
+async function symChatSend(name){
+  const inp=document.getElementById("chatIn"), q=(inp&&inp.value||"").trim(); if(!q) return;
+  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  const who0=cur, topic=symTopic(who0,name), c=SYMCHAT[topic]||(SYMCHAT[topic]={open:true,rows:[],busy:false,loaded:true}); if(c.busy) return;
+  c.busy=true; c.rows.push({question:q,answer:"",sources:[]}); render();
+  const base=symAiGet(who0,name), hist=[...(base?[{q:"Разбор: "+name,a:base.answer}]:[]),...c.rows.slice(0,-1).filter(r=>r.answer).map(r=>({q:r.question,a:r.answer}))].slice(-3);
+  try{ const j=await mkApi("ask",{question:`Про симптом «${name}» у ${DATA[who0].short}: ${q}`,search:name+" "+q,person:who0,topic,history:hist,prefer_kind:["razbor","passport"]});
+    const last=c.rows[c.rows.length-1]; last.answer=j.answer||"В медкнижке этого нет."; last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
+  catch(e){ c.rows.pop(); toast("Не получилось, попробуйте ещё раз"); }
+  c.busy=false; render();
+}
 // ── События (баня, поездка, смена режима): в Ленте, связь с болезнью и/или симптомом — по желанию ──
 const EVK="mk_events";
 let EVENTS=(()=>{ try{ return JSON.parse(localStorage.getItem(EVK)||"[]")||[]; }catch(e){ return []; } })();
@@ -3846,6 +3880,7 @@ function attachSuggest(inputId,items,opt){
     if(d){ e.preventDefault(); pick(shown[+d.dataset.i]); } });
   document.addEventListener("click",e=>{ if(!wrap.contains(e.target)) box.classList.remove("on"); });
 }
+document.addEventListener("keydown",e=>{ if(e.target&&e.target.id==="chatIn"&&e.key==="Enter"&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); const b=document.querySelector("[data-chatsend]"); if(b) symChatSend(b.dataset.chatsend); } });
 const today0=()=>new Date().toISOString().slice(0,10);
 
 // форма: свободный симптом, без привязки к болезни
@@ -6259,6 +6294,7 @@ function render(){
       </div>
       ${symDoctorsCard(d,symSel)}
       ${symAiCard(symSel)}
+      ${symChatCard(symSel)}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
       ${dxs.length?`<div class="card"><h2>С какими диагнозами связан <span class="hint" tabindex="0" title="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы." aria-label="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
@@ -6997,6 +7033,8 @@ document.addEventListener("click",e=>{
     const body=v?{id:R0.plan||undefined,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:v,purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"planned"}
       :{id:R0.plan,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:"",purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"cancelled"};
     mkApi("plan_save",body).then(j=>{ R0.plan=v?(j.id||R0.plan):null; PLANS=null; plansLoad(true); toast(v?`Следующее посещение: ${ru(v)}`:"Дата следующего посещения убрана"); }).catch(()=>toast("Не получилось сохранить — попробуйте ещё раз")); return; }
+  const cho=e.target.closest("[data-chatopen]"); if(cho){ const tp=symTopic(cur,cho.dataset.chatopen); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; render(); setTimeout(()=>{ const x=document.getElementById("chatIn"); x&&x.focus(); },50); return; }
+  const chs=e.target.closest("[data-chatsend]"); if(chs){ symChatSend(chs.dataset.chatsend); return; }
   const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=(document.getElementById("sdNew")||{}).value||""; if(doc.trim().length<3){ toast("Впишите врача"); return; }
     if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
     mkApi("doctor_link_add",{person:cur,symptom:sda.dataset.sdadd,doctor:doc.trim()}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
