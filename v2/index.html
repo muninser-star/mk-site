@@ -531,7 +531,8 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
-.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
+.chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
+.chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
@@ -2565,7 +2566,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 11:07";   // подставляется при публикации
+const BUILD="05.10 11:11";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3552,7 +3553,7 @@ function symAiCard(name){
   const c=symAiGet(cur,name), busy=window.__symAiBusy===symAiKey(cur,name);
   return `<div class="card"><h2>Разбор семейного врача</h2>
     ${c?`<div class="muted" style="font-size:12px;margin-bottom:6px">По записям медкнижки на ${ru(c.at)}. Версия, не диагноз — решает врач</div>
-      <div style="font-size:15px;line-height:1.5">${esc(c.answer).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}</div>
+      <div style="font-size:15px;line-height:1.5">${mdLite(c.answer)}</div>
       ${(c.sources||[]).length?`<div class="muted" style="font-size:12px;margin-top:8px">Источники: ${c.sources.map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}`
     :`<div class="muted">${busy?"Читаю записи…":"Что может быть причиной, с какой вероятностью и кто из врачей смотрел — по тому, что записано в медкнижке."}</div>`}
     <button class="btn btn-secondary" data-symai="${esc(name)}" ${busy?"disabled":""} style="margin-top:10px">${c?"Обновить":"Показать разбор"}</button></div>`;
@@ -3560,7 +3561,24 @@ function symAiCard(name){
 // ── Диалог с ИИ-консультантом из карточки симптома: разбор — первая реплика, дальше ваши вопросы; всё сохраняется в базе (ask_log, topic) ──
 const SYMCHAT={};   // ключ темы → {open, rows, busy, loaded}
 const symTopic=(p,n)=>"symptom:"+p+":"+String(n).toLowerCase().replace(/ё/g,"е").trim();
-const fmtChat=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");
+// ответ врача: **жирное**, таблицы |…|, списки «1.» и «-», номера источников [1] — мелко
+function mdLite(text){
+  const inl=x=>esc(x).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\[(\d{1,2})\]/g,'<sup class="muted">[$1]</sup>');
+  const L=String(text||"").replace(/\r/g,"").split("\n"), out=[]; let i=0;
+  while(i<L.length){
+    const l=L[i];
+    if(/^\s*\|/.test(l)){ const rows=[]; while(i<L.length&&/^\s*\|/.test(L[i])){ rows.push(L[i]); i++; }
+      const cells=r=>r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      const body=rows.filter(r=>!/^\s*\|?\s*:?-{2,}/.test(r)); if(!body.length) continue;
+      out.push(`<div class="tbl-wrap"><table class="tbl"><thead><tr>${cells(body[0]).map(c=>`<th>${inl(c)}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r=>`<tr>${cells(r).map(c=>`<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`); continue; }
+    if(/^\s*\d+[.)]\s+/.test(l)){ const it=[]; while(i<L.length&&/^\s*\d+[.)]\s+/.test(L[i])){ it.push(L[i].replace(/^\s*\d+[.)]\s+/,"")); i++; } out.push(`<ol style="margin:4px 0 8px;padding-left:22px">${it.map(x=>`<li>${inl(x)}</li>`).join("")}</ol>`); continue; }
+    if(/^\s*[-•]\s+/.test(l)){ const it=[]; while(i<L.length&&/^\s*[-•]\s+/.test(L[i])){ it.push(L[i].replace(/^\s*[-•]\s+/,"")); i++; } out.push(`<ul style="margin:4px 0 8px;padding-left:20px">${it.map(x=>`<li>${inl(x)}</li>`).join("")}</ul>`); continue; }
+    if(!l.trim()){ i++; continue; }
+    out.push(`<p style="margin:6px 0">${inl(l)}</p>`); i++;
+  }
+  return out.join("");
+}
+const fmtChat=mdLite;
 function symChatLoad(topic){
   const c=SYMCHAT[topic]||(SYMCHAT[topic]={open:true,rows:[],busy:false,loaded:false});
   if(c.loaded||!window.__MK_KEY) return; c.loaded=true;
@@ -3568,26 +3586,28 @@ function symChatLoad(topic){
 }
 function symChatCard(name){
   const topic=symTopic(cur,name), c=SYMCHAT[topic];
-  if(!c||!c.open) return `<div class="card"><button class="btn btn-secondary" data-chatopen="${esc(name)}">💬 Обсудить разбор с ИИ-консультантом</button></div>`;
+  if(!c||!c.open) return `<div class="card"><button class="btn btn-primary" data-chatopen="${esc(name)}">🩺 Проконсультироваться с семейным врачом</button>
+    <div class="muted" style="font-size:12.5px;margin-top:6px">Разберёт ситуацию по записям медкнижки и общей практике: версии, что делать, как иначе, когда к врачу</div></div>`;
   symChatLoad(topic);
   const base=symAiGet(cur,name);
-  return `<div class="card" id="symChat"><h2>Разговор с ИИ-консультантом</h2>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">Отвечает по записям медкнижки${base?", разбор выше — первая реплика":""}. Разговор сохраняется. Не диагноз — решает врач</div>
-    ${base?`<div class="chatm chatm--a">${fmtChat(base.answer)}</div>`:""}
-    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div><div class="chatm chatm--a">${r.answer?fmtChat(r.answer):'<span class="muted">В медкнижке этого нет.</span>'}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>`).join("")}
-    ${c.busy?`<div class="chatm chatm--a muted">Читаю записи…</div>`:""}
-    <div class="row" style="gap:8px;margin-top:10px;align-items:flex-end"><textarea id="chatIn" rows="2" placeholder="Ваш вопрос, например: почему версия про запор слабее? Enter — отправить" style="flex:1" ${c.busy?"disabled":""}></textarea>
+  return `<div class="card" id="symChat"><h2>Консультация семейного врача</h2>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Семейный врач (нейросеть) разбирает по вашим записям и общей практике. Рецептурные препараты и дозировки детям не назначает. Не заменяет приём. Разговор сохраняется</div>
+    ${base?`<div class="chatm chatm--a"><div class="muted" style="font-size:11.5px">Разбор из записей</div>${mdLite(base.answer)}</div>`:""}
+    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div><div class="chatm chatm--a">${r.answer?mdLite(r.answer):'<span class="muted">Не получилось ответить.</span>'}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>`).join("")}
+    ${c.busy?`<div class="chatm chatm--a muted">Врач разбирает ситуацию… это до минуты</div>`:""}
+    ${!c.rows.length&&!c.busy?`<button class="btn btn-primary" data-chatsend="${esc(name)}" data-chatfull="1" style="margin:6px 0">Разобрать ситуацию целиком</button>`:""}
+    <div class="chatbox"><textarea id="chatIn" rows="3" placeholder="Задайте вопрос врачу. Enter — отправить, Shift+Enter — новая строка" ${c.busy?"disabled":""}></textarea>
       <button class="btn btn-primary" data-chatsend="${esc(name)}" ${c.busy?"disabled":""}>Спросить</button></div></div>`;
 }
-async function symChatSend(name){
-  const inp=document.getElementById("chatIn"), q=(inp&&inp.value||"").trim(); if(!q) return;
+async function symChatSend(name,full){
+  const inp=document.getElementById("chatIn"), q=(inp&&inp.value||"").trim()||(full?"Разбери ситуацию целиком: что происходит, версии с вероятностями, что делать сейчас, как добиться того же другим путём, когда нужен врач и что у него спросить.":""); if(!q) return;
   if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
   const who0=cur, topic=symTopic(who0,name), c=SYMCHAT[topic]||(SYMCHAT[topic]={open:true,rows:[],busy:false,loaded:true}); if(c.busy) return;
   c.busy=true; c.rows.push({question:q,answer:"",sources:[]}); render();
   const base=symAiGet(who0,name), hist=[...(base?[{q:"Разбор: "+name,a:base.answer}]:[]),...c.rows.slice(0,-1).filter(r=>r.answer).map(r=>({q:r.question,a:r.answer}))].slice(-3);
-  try{ const j=await mkApi("ask",{question:`Про симптом «${name}» у ${DATA[who0].short}: ${q}`,search:name+" "+q,person:who0,topic,history:hist,prefer_kind:["razbor","passport"]});
+  try{ const j=await mkApi("ask",{mode:"doctor",question:`Про симптом «${name}» у ${DATA[who0].short}: ${q}`,search:name+" "+q.slice(0,120),person:who0,topic,history:hist,prefer_kind:["razbor","passport"]});
     const last=c.rows[c.rows.length-1]; last.answer=j.answer||"В медкнижке этого нет."; last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
-  catch(e){ c.rows.pop(); toast("Не получилось, попробуйте ещё раз"); }
+  catch(e){ c.rows.pop(); toast("Врач не ответил, попробуйте ещё раз"); }
   c.busy=false; render();
 }
 // ── Карта «Последние 30 дней»: выделите клетки — период симптома расширится на эти дни ──
@@ -7064,7 +7084,7 @@ document.addEventListener("click",e=>{
       :{id:R0.plan,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:"",purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"cancelled"};
     mkApi("plan_save",body).then(j=>{ R0.plan=v?(j.id||R0.plan):null; PLANS=null; plansLoad(true); toast(v?`Следующее посещение: ${ru(v)}`:"Дата следующего посещения убрана"); }).catch(()=>toast("Не получилось сохранить — попробуйте ещё раз")); return; }
   const cho=e.target.closest("[data-chatopen]"); if(cho){ const tp=symTopic(cur,cho.dataset.chatopen); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; render(); setTimeout(()=>{ const x=document.getElementById("chatIn"); x&&x.focus(); },50); return; }
-  const chs=e.target.closest("[data-chatsend]"); if(chs){ symChatSend(chs.dataset.chatsend); return; }
+  const chs=e.target.closest("[data-chatsend]"); if(chs){ symChatSend(chs.dataset.chatsend,!!chs.dataset.chatfull); return; }
   const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=(document.getElementById("sdNew")||{}).value||""; if(doc.trim().length<3){ toast("Впишите врача"); return; }
     if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
     mkApi("doctor_link_add",{person:cur,symptom:sda.dataset.sdadd,doctor:doc.trim()}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
