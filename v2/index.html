@@ -563,8 +563,8 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .hpcard{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px 14px;margin:2px 0 14px}.hpcard__h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
 .hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface-2,#f3f4f6);font-size:13.5px}.hpmini--no{opacity:.65}.hpmini--no.hpmini--r2{opacity:1}
 .hpmini--r1{background:rgba(176,92,92,.14)}.hpmini--r2{background:rgba(176,92,92,.26)}.hpmini--r3{background:rgba(176,92,92,.40)}
-.hptag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:9999px;background:rgba(176,92,92,.18);margin-left:6px;vertical-align:1px}
-.hprisk{font-size:13px;margin:4px 0 8px}.hprisk--on{padding:7px 10px;border-radius:10px;background:rgba(176,92,92,.12)}
+.hptag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:9999px;margin-left:6px;vertical-align:1px}
+.hprisk{font-size:13px;margin:4px 0 8px}.hprisk--on{padding:7px 10px;border-radius:10px}.hprisk--l1,.hptag--l1{background:rgba(222,150,160,.16)}.hprisk--l2,.hptag--l2{background:rgba(190,90,110,.28)}.hprisk--l3,.hptag--l3{background:rgba(140,40,70,.42)}
 .hpold--r1{color:rgba(176,92,92,.95)}.hpold--r2{color:rgba(190,80,80,1)}.hpold--r3{color:rgba(200,70,70,1);font-weight:600}
 .hporgs{display:flex;flex-direction:column}.hporg{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line,#e5e7eb);padding:10px 2px;cursor:pointer;color:inherit;font:inherit}.hporg:first-child{border-top:0}
 .hporg__ic{font-size:22px;width:30px;text-align:center;flex:none}.hporg__t{display:flex;flex-direction:column;min-width:0;flex:1}.hporg__t .muted{font-size:12.5px}.hporg__s{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none;font-size:12px}
@@ -2379,7 +2379,7 @@ function filterBar(){
   return `<div class="filters">
     <button data-f="" class="chip${sysFilter?"":" chip--main"}">Все системы</button>
     ${SYS_GROUPS.map(g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
-      t=tab==="lab"?sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:rk&&rk.risk?6:12,risk:!!(rk&&rk.risk)}):null, v="grp:"+g.id;
+      t=tab==="lab"?sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:!!(rk&&rk.risk)}):null, v="grp:"+g.id;
       return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":t.bad?`Показателей: ${t.n}, вне нормы или давно: ${t.bad}`:`Показателей: ${t.n}, всё в норме`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; }).join("")}
   </div>`;
 }
@@ -2635,7 +2635,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 19:31";   // подставляется при публикации
+const BUILD="05.10 19:36";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4786,7 +4786,7 @@ function organCoverage(id,rows,rec,today,topicsDone){
 }
 // страница органа: показатели набора с последним значением, нормой, прошлым; не сданные — v:null
 function organDetail(id,rows,today,risk){
-  const o=ORGANS.find(x=>x.id===id), from12="0000-01-01", months=risk?6:12;
+  const o=ORGANS.find(x=>x.id===id), from12="0000-01-01", months=12;
   // единая отметка: «в норме» / «выше» / «ниже» / «вне нормы»; статус записи главнее разбора строки нормы
   const fl=(v,n,st)=>{ const f=flagByNorm(v,n), fn=f==="норма"?"в норме":f;
     if(st==="ok") return "в норме"; if(st==="warn"||st==="bad") return fn==="выше"||fn==="ниже"?fn:"вне нормы"; return fn; };
@@ -4819,12 +4819,17 @@ function sysTone(rec,sys,opt){
 const ORGAN_FAM={blood:/анеми|лейкоз|тромб|гемофил/i,hormones:/щитовид|гипотиреоз|тиреоид|гипертиреоз|зоб/i,liver:/гепат|цирроз|печен/i,heart:/инфаркт|инсульт|гипертони|сердц|тромб|холестерин|аритми/i,kidney:/почк|нефрит|камн/i,
   gut:/гастрит|язв|целиаки|колит|кишечник|прямой кишки|желудк/i,metabolism:/диабет|ожирен|гликирован/i,bones:/остеопороз|перелом|артрит|подагр/i,lungs:/астм|туберкул|бронх|легких|лёгких/i,
   nerves:/эпилепс|паркинсон|деменци|мигрен|шизофрен/i,eyes:/миопи|глауком|катаракт|отслойк|сетчатк|зрени|слеп/i,immune:/аллерги|астм|атоп|аутоиммун|псориаз|экзем|витилиго/i};
+// диагноз относится к органу по коду системы, кроме аллергических: они — «Иммунитет, кожа и аллергия», даже если записаны в ЛОР или лёгких
+function dxOrgan(x){ if(/аллерг|атопи|поллиноз|крапивниц/i.test(x&&x.n||"")) return "immune"; const g=SYS_GROUPS.find(o=>o.sys.includes(x&&x.sys)); return g?g.id:"other"; }
 function organRisk(id,family,diagnoses){
   const o=ORGANS.find(x=>x.id===id), re=ORGAN_FAM[id], reasons=[];
   (family||[]).forEach(f=>{ const what=String(f&&f.what||""); if(!re||!f||/✅|не было|не выявлен|отсутств/i.test(what)) return;
     const seg=what.split(/[.;]|,(?!\d)/).map(x=>x.replace(/^[\s🔴🔗⚠️]+/u,"").trim()).find(x=>re.test(x)); if(seg) reasons.push(`наследственность — ${f.who}: ${seg.slice(0,70)}`); });
-  (diagnoses||[]).filter(x=>x&&x.sys&&o.sys.includes(x.sys)).slice(0,2).forEach(x=>reasons.push("диагноз: "+x.n));
-  return {risk:reasons.length>0,reasons:reasons.slice(0,4),months:reasons.length?6:12};
+  let dx=0; (diagnoses||[]).filter(x=>x&&x.sys&&dxOrgan(x)===id).slice(0,2).forEach(x=>{ dx++; reasons.push("диагноз: "+x.n); });
+  const strong=(family||[]).some(f=>f&&/🔴/.test(f.what||"")&&re&&re.test(f.what||"")&&!/✅|не было/i.test(f.what||""));
+  // сила риска 1–3: одна причина — слабый (бледно-розовый), две и больше — средний, помеченная 🔴 наследственность — на ступень сильнее (бордовый)
+  const level=reasons.length?Math.min(3,1+(reasons.length>=2?1:0)+(strong?1:0)):0;
+  return {risk:reasons.length>0,level,reasons:reasons.slice(0,4),months:12};
 }
 // единые категории для фильтров «Анализов и исследований» — одинаковые у всех: 12 органов + витамины, репродуктивное здоровье, зубы, прочее
 const SYS_GROUPS=[...ORGANS.map(o=>({id:o.id,name:o.name,sys:o.sys})),{id:"vit",name:"Витамины и микроэлементы",sys:["vit"]},{id:"repro",name:"Репродуктивное здоровье",sys:["repro","breast"]},{id:"teeth",name:"Зубы",sys:["teeth"]},{id:"other",name:"Прочее",sys:[]}];
@@ -4855,13 +4860,13 @@ function hpBar(divs){ return `<span class="hpbar" aria-hidden="true">${[1,2,3,4]
 function hpTile(d){ const m=hpModel(d);
   return `<div class="card hptile" data-t="hp" role="button" tabindex="0" aria-label="Профиль здоровья, заполнено ${m.pct}%"><div class="hptile__n">${m.pct}%</div>
     <div><b>Профиль здоровья</b><div class="muted">${m.pct>=100?"заполнено полностью":"заполнено"} · данные есть по ${m.known} из ${ORGANS.length} органов</div></div><span class="hptile__go" aria-hidden="true">›</span></div>`; }
-function hpDx(d,o){ return (d.diagnoses||[]).filter(x=>x&&x.sys&&o.sys.includes(x.sys)); }
+function hpDx(d,o){ return (d.diagnoses||[]).filter(x=>x&&x.sys&&dxOrgan(x)===o.id); }
 function hpHint(c){ return c.score<=0?"Нет данных":c.bySurvey?"По опросу — нужны анализы":c.missing.length?"Не хватает: "+c.missing.slice(0,3).join(", ")+(c.missing.length>3?"…":""):"Данных достаточно"; }
 function hpHtml(d){
   const m=hpModel(d);
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpOrgHtml(d,m,hpOrgan);
   const rowsH=ORGANS.map((o,i)=>{ const c=m.covs[i];
-    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
+    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag hptag--l${m.risks[i].level||1}" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
       <span class="hporg__s">${hpBar(c.divs)}<span class="muted">${esc(c.label)}</span></span><span class="hptile__go" aria-hidden="true">›</span></button>`; }).join("");
   const next=m.weak.length?`<div class="card"><h2>Что делать дальше?</h2><div class="hpnext"><div class="hpnext__h"><b>Загрузите анализы</b><span class="hpnext__p">+${m.gain}%</span></div>
       <div class="muted">Не хватает показателей по ${m.weak.length} ${plural(m.weak.length,"органу","органам","органам")}: больше всего у «${esc(m.weak.slice().sort((a,b)=>a.c.a-b.c.a)[0].o.name)}».</div>
@@ -4890,8 +4895,7 @@ function hpOrgHtml(d,m,id){
     ${ieList.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Исследования и приёмы</h3>${ieList.map(r=>`<div class="hpsrc"><span class="muted">${ru(r.d)}</span> ${esc(r.title||r.who||"")}${r.res?` — <span class="muted">${esc(String(r.res).slice(0,110))}</span>`:""}</div>`).join("")}</div>`:""}`;
 }
 // сводка органа над списком анализов, когда выбран фильтр системы: какие ключевые показатели есть, какие нет
-function hpRiskLine(r){ return r.risk?`<div class="hprisk hprisk--on"><b>Зона риска</b> — ${esc(r.reasons.join("; "))}. Показатели лучше сдавать раз в ${r.months} месяцев (ориентир, уточните у врача).</div>`
-  :`<div class="hprisk muted">Факторов риска в записях нет — достаточно раз в год.</div>`; }
+function hpRiskLine(r){ return r.risk?`<div class="hprisk hprisk--on hprisk--l${r.level||1}"><b>Зона риска</b> — ${esc(r.reasons.join("; "))}.</div>`:""; }
 const hpFlagText={"в норме":"в норме","выше":"выше нормы","ниже":"ниже нормы","вне нормы":"вне нормы"};
 function hpFlagHtml(f){ return f?`<span style="color:var(--${f==="в норме"?"ok":"warn"})">${hpFlagText[f]||f}</span>`:""; }
 const hpNormText=n=>/^норма$/i.test(String(n||"").trim())?"":String(n||"");
