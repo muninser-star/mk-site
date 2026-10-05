@@ -563,6 +563,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .hpcard{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px 14px;margin:2px 0 14px}.hpcard__h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
 .hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface-2,#f3f4f6);font-size:13.5px}.hpmini--no{opacity:.65}.hpmini--no.hpmini--r2{opacity:1}
 .hpmini--r1{background:rgba(176,92,92,.14)}.hpmini--r2{background:rgba(176,92,92,.26)}.hpmini--r3{background:rgba(176,92,92,.40)}
+.hptag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:9999px;background:rgba(176,92,92,.18);margin-left:6px;vertical-align:1px}
 .hprisk{font-size:13px;margin:4px 0 8px}.hprisk--on{padding:7px 10px;border-radius:10px;background:rgba(176,92,92,.12)}
 .hpold--r1{color:rgba(176,92,92,.95)}.hpold--r2{color:rgba(190,80,80,1)}.hpold--r3{color:rgba(200,70,70,1);font-weight:600}
 .hporgs{display:flex;flex-direction:column}.hporg{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line,#e5e7eb);padding:10px 2px;cursor:pointer;color:inherit;font:inherit}.hporg:first-child{border-top:0}
@@ -2634,7 +2635,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 19:12";   // подставляется при публикации
+const BUILD="05.10 19:21";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4766,7 +4767,9 @@ const EYE_EXAMS=[["Осмотр глазного дна",/дна|дно|офта
 function organRows(meas,rec){ const out=(meas||[]).slice(), seen=new Set(out.map(r=>r.d+"|"+favKey(r.n)));
   (rec||[]).forEach(r=>{ if(!r||!r.d||(r.t!=="instr"&&r.t!=="visit")) return; const txt=favKey((r.title||"")+" "+(r.res||"")); if(r.sys!=="eye"&&!/офтальмолог|окулист/.test(txt)) return;
     EYE_EXAMS.forEach(([n,re])=>{ if(!re.test(txt)) return; const k=r.d+"|"+favKey(n); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n,v:"проведено",u:"",norm:""}); }); });
-  (rec||[]).forEach(r=>{ if(!r||r.t!=="lab"||!r.title||!r.d) return; const k=r.d+"|"+favKey(r.title); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n:r.title,v:r.v||"сдан",u:"",norm:r.n||"",nov:!r.v}); });
+  const stOf=new Map(); (rec||[]).forEach(r=>{ if(r&&r.t==="lab"&&r.st&&r.d&&r.title) stOf.set(r.d+"|"+favKey(r.title),r.st); });
+  out.forEach(r=>{ if(!r.st){ const st=stOf.get(r.d+"|"+favKey(r.n)); if(st) r.st=st; } });
+  (rec||[]).forEach(r=>{ if(!r||r.t!=="lab"||!r.title||!r.d) return; const k=r.d+"|"+favKey(r.title); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n:r.title,v:r.v||"сдан",u:"",norm:r.n||"",nov:!r.v,st:r.st}); });
   return out; }
 // полнота органа 0–100: анализы 70 × доля набора за 12 мес + динамика 10 + исследование или приём за 24 мес 20; опрос — замена анализов до 35, если их меньше 35
 function organCoverage(id,rows,rec,today,topicsDone){
@@ -4784,13 +4787,15 @@ function organCoverage(id,rows,rec,today,topicsDone){
 // страница органа: показатели набора с последним значением, нормой, прошлым; не сданные — v:null
 function organDetail(id,rows,today,risk){
   const o=ORGANS.find(x=>x.id===id), from12="0000-01-01", months=risk?6:12;
-  const fl=(v,n)=>{ const f=flagByNorm(v,n); return f==="норма"?"в норме":f; };
+  // единая отметка: «в норме» / «выше» / «ниже» / «вне нормы»; статус записи главнее разбора строки нормы
+  const fl=(v,n,st)=>{ const f=flagByNorm(v,n), fn=f==="норма"?"в норме":f;
+    if(st==="ok") return "в норме"; if(st==="warn"||st==="bad") return fn==="выше"||fn==="ниже"?fn:"вне нормы"; return fn; };
   return o.set.map(k=>{ let p=organPoints(k,rows,from12,today);
     if(k==="oak"){ const hb=p.filter(x=>favKey(x.n)==="гемоглобин"); if(hb.length) p=hb.concat(p.filter(x=>favKey(x.n)!=="гемоглобин")); }   // для ОАК — гемоглобин, если он есть
     const l=p[0]; if(!l) return {k:ORGAN_IND[k][0],v:null,tone:risk?"r2":"n"};
     const pv=p.find((x,i)=>i>0&&x.d<l.d&&favKey(x.n)===favKey(l.n));
     const ageM=monthsAgo(l.d,today);
-    return {k:ORGAN_IND[k][0],n:l.n,v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",ageM,months,tone:staleTone(ageM,months,!!risk),flag:fl(l.v,l.norm),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm)}:null}; });
+    return {k:ORGAN_IND[k][0],n:l.n,v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",ageM,months,tone:staleTone(ageM,months,!!risk),flag:fl(l.v,l.norm,l.st),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm,pv.st)}:null}; });
 }
 // процент профиля (блок 4): профиль 10 (имя 3, пол 3, дата рождения 4) + базовый опрос 10 (от 12 ответов) + 80 × среднее полнот органов; округление один раз
 function profileCompleteness(p,basicAnswered,scores){
@@ -4850,12 +4855,13 @@ function hpBar(divs){ return `<span class="hpbar" aria-hidden="true">${[1,2,3,4]
 function hpTile(d){ const m=hpModel(d);
   return `<div class="card hptile" data-t="hp" role="button" tabindex="0" aria-label="Профиль здоровья, заполнено ${m.pct}%"><div class="hptile__n">${m.pct}%</div>
     <div><b>Профиль здоровья</b><div class="muted">${m.pct>=100?"заполнено полностью":"заполнено"} · данные есть по ${m.known} из ${ORGANS.length} органов</div></div><span class="hptile__go" aria-hidden="true">›</span></div>`; }
+function hpDx(d,o){ return (d.diagnoses||[]).filter(x=>x&&x.sys&&o.sys.includes(x.sys)); }
 function hpHint(c){ return c.score<=0?"Нет данных":c.bySurvey?"По опросу — нужны анализы":c.missing.length?"Не хватает: "+c.missing.slice(0,3).join(", ")+(c.missing.length>3?"…":""):"Данных достаточно"; }
 function hpHtml(d){
   const m=hpModel(d);
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpOrgHtml(d,m,hpOrgan);
   const rowsH=ORGANS.map((o,i)=>{ const c=m.covs[i];
-    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}</b><span class="muted">${esc(hpHint(c))}</span></span>
+    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
       <span class="hporg__s">${hpBar(c.divs)}<span class="muted">${esc(c.label)}</span></span><span class="hptile__go" aria-hidden="true">›</span></button>`; }).join("");
   const next=m.weak.length?`<div class="card"><h2>Что делать дальше?</h2><div class="hpnext"><div class="hpnext__h"><b>Загрузите анализы</b><span class="hpnext__p">+${m.gain}%</span></div>
       <div class="muted">Не хватает показателей по ${m.weak.length} ${plural(m.weak.length,"органу","органам","органам")}: больше всего у «${esc(m.weak.slice().sort((a,b)=>a.c.a-b.c.a)[0].o.name)}».</div>
@@ -4868,28 +4874,32 @@ function hpHtml(d){
 function hpOrgHtml(d,m,id){
   const i=ORGANS.findIndex(o=>o.id===id), o=ORGANS[i], c=m.covs[i], rk=m.risks[i], det=organDetail(id,m.rows,m.today,rk.risk), from24=isoAddMonths(m.today,-24), low=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
   const ieList=(m.rec||[]).filter(r=>r&&(r.t==="instr"||r.t==="visit")&&r.d<=m.today&&(o.sys.includes(r.sys)||(r.t==="instr"?o.instr.some(w=>low(r.title).includes(w)):o.spec.some(w=>low(r.who||r.title).includes(w))))).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,5);
-  const inSet=new Set(o.set.flatMap(k=>ORGAN_IND[k][1]));
+  const ieAll=ieList.filter(r=>r.d>=from24).length, inSet=new Set(o.set.flatMap(k=>ORGAN_IND[k][1]));
   const others=[], seen=new Set(); (m.rec||[]).filter(r=>r&&r.t==="lab"&&o.sys.includes(r.sys)&&r.title&&!inSet.has(favKey(r.title))).sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>{ if(!seen.has(r.title)&&others.length<8){ seen.add(r.title); others.push(r); } });
-  const flag=f=>f==="в норме"?`<span class="status status-ok">в норме</span>`:f==="выше"||f==="ниже"?`<span class="status status-warn">${f}</span>`:"";
+  const flag=f=>f?`<span class="status status-${f==="в норме"?"ok":"warn"}">${hpFlagText[f]||f}</span>`:"";
   const tbl=det.map(x=>x.v==null?`<tr><td>${esc(x.k)}</td><td class="muted" colspan="3">${x.tone==="r2"?"не сдавали — в зоне риска нужно сдать":"нет данных"}</td></tr>`
-    :`<tr><td>${esc(x.k)}${x.n&&favKey(x.n)!==favKey(x.k)?` <span class="muted">(${esc(x.n)})</span>`:""}</td><td><b>${esc(x.v)}</b> ${esc(x.u)}</td><td>${flag(x.flag)}${x.prev?`<div class="muted">было ${esc(x.prev.v)} (${ru(x.prev.d)})</div>`:""}</td><td class="muted">${ru(x.d)}${x.norm?`<br>норма ${esc(x.norm)}`:""}<br><span class="${x.tone?"hpold hpold--"+x.tone:""}">${esc(hpAgeText(x))}</span></td></tr>`).join("");
+    :`<tr><td>${esc(x.k)}${x.n&&favKey(x.n)!==favKey(x.k)?` <span class="muted">(${esc(x.n)})</span>`:""}</td><td><b>${esc(x.v)}</b> ${esc(x.u)}</td><td>${flag(x.flag)}${x.prev?`<div class="muted">было ${esc(x.prev.v)} (${ru(x.prev.d)})</div>`:""}</td><td class="muted">${ru(x.d)}${hpNormText(x.norm)?`<br>норма ${esc(hpNormText(x.norm))}`:""}<br><span class="${x.tone?"hpold hpold--"+x.tone:""}">${esc(hpAgeText(x))}</span></td></tr>`).join("");
   const src=(ok,t)=>`<div class="hpsrc"><span class="${ok?"hpok":"hpno"}">${ok?"✓":"—"}</span> ${t}</div>`;
   return `<div class="card"><button type="button" class="btn btn-secondary" data-hporg="" style="height:34px">← Все органы</button>
     <h2 style="margin:12px 0 4px">${o.icon} ${esc(o.name)}</h2><div class="row" style="gap:10px;align-items:center">${hpBar(c.divs)}<span><b>${organShown(c.score)}</b> из 100 · ${esc(c.label)}</span></div>
-    ${hpRiskLine(rk)}<div style="margin-top:10px">${src(c.have.length>0,`Анализы за 12 месяцев: ${c.have.length} из ${o.set.length}${c.bySurvey?" (засчитано по опросу)":""}`)}${src(c.dyn>0,"Повторные анализы (динамика)")}${src(c.ie>0,"Исследование или приём за 24 месяца"+(ieList[0]&&ieList[0].d>=from24?`: ${ru(ieList[0].d)}`:""))}</div></div>
+    ${hpRiskLine(rk)}<div style="margin-top:10px">${src(c.have.length>0,`Анализы за 12 месяцев: ${c.have.length} из ${o.set.length}${c.bySurvey?" (засчитано по опросу)":""}`)}${src(c.dyn>0,"Повторные анализы (динамика)")}${src(c.ie>0,"Исследования и приёмы по органу за 24 месяца"+(c.ie>0?` — засчитано, всего ${ieAll}:`:": нет")+(c.ie>0?ieList.filter(r=>r.d>=from24).slice(0,3).map(r=>` <a href="#" data-rec="${(m.recAll||DATA[cur].rec).indexOf(r)}">${esc(String(r.title||r.who||"").slice(0,60))}, ${ru(r.d)}</a>`).join(";"):""))}</div></div>
     <div class="card"><h3 style="font-size:15px;margin:0 0 6px">Ключевые показатели</h3><div class="tblwrap"><table class="tbl"><tbody>${tbl}</tbody></table></div>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button><button class="btn btn-secondary" data-hpadd="visit">Добавить визит</button></div></div>
-    ${others.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Другие показатели по органу</h3>${others.map(r=>`<div class="hpsrc">${esc(r.title)} — <b>${esc(r.v)}</b> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""}
+    ${hpDx(d,o).length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Диагнозы по органу</h3>${hpDx(d,o).map(x=>`<div class="hpsrc"><b>${esc(x.n)}</b>${x.c&&x.c!=="—"?` <span class="muted">[${esc(x.c)}]</span>`:""}${x.y?` <span class="muted">· с ${esc(x.y)}</span>`:""}${x.s?`<div class="muted">${esc(String(x.s).slice(0,160))}</div>`:""}</div>`).join("")}</div>`:""}
+    ${others.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Другие показатели по органу</h3>${others.map(r=>`<div class="hpsrc">${esc(r.title)} — <b>${esc(r.v||"сдан")}</b> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""}
     ${ieList.length?`<div class="card"><h3 style="font-size:15px;margin:0 0 6px">Исследования и приёмы</h3>${ieList.map(r=>`<div class="hpsrc"><span class="muted">${ru(r.d)}</span> ${esc(r.title||r.who||"")}${r.res?` — <span class="muted">${esc(String(r.res).slice(0,110))}</span>`:""}</div>`).join("")}</div>`:""}`;
 }
 // сводка органа над списком анализов, когда выбран фильтр системы: какие ключевые показатели есть, какие нет
 function hpRiskLine(r){ return r.risk?`<div class="hprisk hprisk--on"><b>Зона риска</b> — ${esc(r.reasons.join("; "))}. Показатели лучше сдавать раз в ${r.months} месяцев (ориентир, уточните у врача).</div>`
   :`<div class="hprisk muted">Факторов риска в записях нет — достаточно раз в год.</div>`; }
+const hpFlagText={"в норме":"в норме","выше":"выше нормы","ниже":"ниже нормы","вне нормы":"вне нормы"};
+function hpFlagHtml(f){ return f?`<span style="color:var(--${f==="в норме"?"ok":"warn"})">${hpFlagText[f]||f}</span>`:""; }
+const hpNormText=n=>/^норма$/i.test(String(n||"").trim())?"":String(n||"");
 function hpAgeText(x){ return x.ageM>=1?`сдан ${x.ageM} мес. назад${x.tone?` · пора пересдать (раз в ${x.months} мес.)`:""}`:"сдан в этом месяце"; }
 function hpOrgCard(d,sys){
   const i=String(sys).startsWith("grp:")?ORGANS.findIndex(o=>o.id===sys.slice(4)):ORGANS.findIndex(o=>o.sys.includes(sys)); if(i<0) return "";
   const o=ORGANS[i], m=hpModel(d), c=m.covs[i], rk=m.risks[i], det=organDetail(o.id,m.rows,m.today,rk.risk);
-  const fl=f=>f==="в норме"?`<span style="color:var(--ok)">${f}</span>`:f==="выше"||f==="ниже"?`<span style="color:var(--warn)">${f}</span>`:"";
+  const fl=hpFlagHtml;
   const cells=det.map(x=>x.v==null?`<div class="hpmini hpmini--no${x.tone==="r2"?" hpmini--r2":""}"><b>${esc(x.k)}</b><span class="muted">${x.tone==="r2"?"не сдавали — в зоне риска нужно":"нет данных"}</span></div>`
     :`<div class="hpmini${x.tone?" hpmini--"+x.tone:""}"><b>${esc(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span><span class="muted">${esc(hpAgeText(x))}</span></div>`).join("");
   return `<div class="hpcard"><div class="hpcard__h"><span>${o.icon} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
