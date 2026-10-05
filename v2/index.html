@@ -2562,7 +2562,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 10:52";   // подставляется при публикации
+const BUILD="05.10 10:57";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3518,6 +3518,41 @@ function ovApply(){
     S.log.sort((x,y)=>y.d.localeCompare(x.d));
   }
   if(dirty) ovSave(o);
+}
+// ── Симптом ↔ врачи: к кому идти с этим симптомом (связь пишет человек) и приёмы, где о нём говорили ──
+const DLK="mk_doclinks";
+let DOCLINKS=(()=>{ try{ return JSON.parse(localStorage.getItem(DLK)||"[]")||[]; }catch(e){ return []; } })();
+const doclinksSave=()=>{ try{ localStorage.setItem(DLK,JSON.stringify(DOCLINKS)); }catch(e){} };
+function doclinksLoad(force){
+  if(!window.__MK_KEY||(window.__dlLoaded&&!force)||window.__dlLoading) return; window.__dlLoading=1;
+  mkApi("doctor_link_list").then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); window.__dlLoaded=1; window.__dlLoading=0; render(); }).catch(()=>{ window.__dlLoading=0; });
+}
+const sameSym=(a,b)=>String(a||"").toLowerCase().replace(/ё/g,"е")===String(b||"").toLowerCase().replace(/ё/g,"е");
+// приёмы, где симптом назван в заключении или в записи болезни: [{who,d,i}] — свежие первыми, не больше 4
+function symVisits(d,name){
+  const key=String(name).toLowerCase().replace(/ё/g,"е"); if(key.length<4) return [];
+  return (d.rec||[]).filter(r=>r.t==="visit"&&JSON.stringify([r.title,r.res,r.full]).toLowerCase().replace(/ё/g,"е").includes(key)).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,4);
+}
+const DOC_NAMES=["Психиатр","Нейропсихолог","Психотерапевт","Психолог","Невролог","Уролог","Нефролог","Педиатр","Кардиолог","Офтальмолог","ЛОР","Аллерголог","Гастроэнтеролог","Эндокринолог","Гематолог","Ортопед","Хирург","Дерматолог","Стоматолог","Гинеколог"];
+function symDoctorsCard(d,name){
+  doclinksLoad();
+  const L=DOCLINKS.filter(x=>x.person===cur&&sameSym(x.symptom,name)), V=symVisits(d,name);
+  return `<div class="card"><h2>К каким врачам</h2>
+    <div>${L.length?L.map(x=>`<span class="tag" style="font-size:14px;padding:5px 10px;margin:0 6px 6px 0">${esc(x.doctor)} <button class="addsym" data-sddel="${esc(x.id)}" title="Убрать" aria-label="Убрать">✕</button></span>`).join(""):`<span class="muted">Пока не указано — с каким врачом идти с этим симптомом?</span>`}</div>
+    <div class="row" style="gap:8px;margin-top:8px;align-items:center"><input id="sdNew" list="sdList" placeholder="например, Психиатр" autocomplete="off" style="flex:1;min-width:160px"><datalist id="sdList">${DOC_NAMES.map(n=>`<option value="${n}">`).join("")}</datalist><button class="btn btn-secondary" data-sdadd="${esc(name)}" style="height:34px">＋ Добавить врача</button></div>
+    ${V.length?`<h3 style="font-size:14px;margin:14px 0 4px">Был разговор на приёмах</h3>${V.map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:6px 0;display:flex;gap:12px;align-items:center"><span class="status status-none" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.who||r.title)}</div></div></div>`).join("")}`:""}</div>`;
+}
+// «Что говорил семейный врач»: ответ по записям (паспорт, разборы), строго по найденному; сохраняется на устройстве, обновляется кнопкой
+const symAiKey=(p,n)=>"mk_symai_"+p+"_"+String(n).toLowerCase().replace(/\s+/g,"_");
+const symAiGet=(p,n)=>{ try{ return JSON.parse(localStorage.getItem(symAiKey(p,n))||"null"); }catch(e){ return null; } };
+function symAiCard(name){
+  const c=symAiGet(cur,name), busy=window.__symAiBusy===symAiKey(cur,name);
+  return `<div class="card"><h2>Разбор семейного врача</h2>
+    ${c?`<div class="muted" style="font-size:12px;margin-bottom:6px">По записям медкнижки на ${ru(c.at)}. Версия, не диагноз — решает врач</div>
+      <div style="font-size:15px;line-height:1.5">${esc(c.answer).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}</div>
+      ${(c.sources||[]).length?`<div class="muted" style="font-size:12px;margin-top:8px">Источники: ${c.sources.map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}`
+    :`<div class="muted">${busy?"Читаю записи…":"Что может быть причиной, с какой вероятностью и кто из врачей смотрел — по тому, что записано в медкнижке."}</div>`}
+    <button class="btn btn-secondary" data-symai="${esc(name)}" ${busy?"disabled":""} style="margin-top:10px">${c?"Обновить":"Показать разбор"}</button></div>`;
 }
 // ── События (баня, поездка, смена режима): в Ленте, связь с болезнью и/или симптомом — по желанию ──
 const EVK="mk_events";
@@ -5152,7 +5187,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods","mk_events"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods","mk_events","mk_doclinks"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -6222,6 +6257,8 @@ function render(){
           <div class="kpi"><div class="kpi__lab">Средняя сила</div><div class="kpi__val">${a90.avg!=null?String(a90.avg).replace(".",","):"—"}</div></div>
         </div>
       </div>
+      ${symDoctorsCard(d,symSel)}
+      ${symAiCard(symSel)}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
       ${dxs.length?`<div class="card"><h2>С какими диагнозами связан <span class="hint" tabindex="0" title="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы." aria-label="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
@@ -6960,6 +6997,16 @@ document.addEventListener("click",e=>{
     const body=v?{id:R0.plan||undefined,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:v,purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"planned"}
       :{id:R0.plan,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:"",purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"cancelled"};
     mkApi("plan_save",body).then(j=>{ R0.plan=v?(j.id||R0.plan):null; PLANS=null; plansLoad(true); toast(v?`Следующее посещение: ${ru(v)}`:"Дата следующего посещения убрана"); }).catch(()=>toast("Не получилось сохранить — попробуйте ещё раз")); return; }
+  const sda=e.target.closest("[data-sdadd]"); if(sda){ const doc=(document.getElementById("sdNew")||{}).value||""; if(doc.trim().length<3){ toast("Впишите врача"); return; }
+    if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+    mkApi("doctor_link_add",{person:cur,symptom:sda.dataset.sdadd,doctor:doc.trim()}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
+  const sdd=e.target.closest("[data-sddel]"); if(sdd){ mkApi("doctor_link_delete",{id:sdd.dataset.sddel}).then(()=>mkApi("doctor_link_list")).then(j=>{ DOCLINKS=j.rows||[]; doclinksSave(); render(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
+  const sai=e.target.closest("[data-symai]"); if(sai){ const nm=sai.dataset.symai, who0=cur;
+    if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+    window.__symAiBusy=symAiKey(who0,nm); render();
+    const q=`Что может быть причиной симптома «${nm}» у ${DATA[who0].short}: какие версии обсуждали, с какой вероятностью, кто из врачей смотрел и что назначил? Отвечай только по записям, с датами. Если версии пересматривали — покажи по датам, как менялась вероятность каждой. Если вероятностей в записях нет — так и скажи.`;
+    mkApi("ask",{question:q,search:nm,person:who0,quiet:true,prefer_kind:["razbor","passport"]}).then(j=>{ try{ localStorage.setItem(symAiKey(who0,nm),JSON.stringify({answer:j.answer||"В медкнижке по этому симптому разбора пока нет.",sources:(j.sources||[]).slice(0,6).map(x=>({title:x.title,doc_date:x.doc_date})),at:localDay()})); }catch(e2){} })
+      .catch(()=>toast("Не получилось, попробуйте ещё раз")).finally(()=>{ window.__symAiBusy=null; render(); }); return; }
   const evo=e.target.closest("[data-evopen]"); if(evo){ e.stopPropagation(); const v=EVENTS.find(x=>x.id===evo.dataset.evopen); if(v) eventForm(v); return; }
   const pe=e.target.closest("[data-perend],[data-perendd],[data-perdel]"); if(pe){ const id=pe.dataset.perend||pe.dataset.perendd||pe.dataset.perdel;
     const done=()=>mkApi("period_list").then(j=>{ PERIODS=j.rows||[]; periodsSave(); ovApply(); render(); });
