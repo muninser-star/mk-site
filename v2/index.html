@@ -2584,7 +2584,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 14:19";   // подставляется при публикации
+const BUILD="05.10 14:20";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3792,7 +3792,10 @@ function editRecForm(who,rk){
     <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}</div>
     <div class="addform">
       <div class="fld"><label for="erName">Симптом</label><p class="hint">Если вписать несколько через запятую — «кашель, сопли», — первый останется в этой записи, остальные добавятся отдельными</p><input id="erName" value="${esc(a.n||"")}" autocomplete="off"></div>
-      <div class="fld"><label for="erDate">Когда</label><input id="erDate" type="date" value="${esc(a.d||"")}"></div>
+      <div class="fld"><label for="erDate">Когда</label><input id="erDate" type="date" value="${esc(a.d||"")}">
+        <div class="row" style="gap:16px;margin:8px 0 4px"><label><input type="radio" name="erKind" value="one" checked> Один день</label><label><input type="radio" name="erKind" value="range"> Продолжается несколько дней</label></div>
+        <div class="row" id="erTo" hidden style="gap:10px;align-items:center;flex-wrap:wrap"><span>по</span><input id="erDate2" type="date" value="${esc(a.d||"")}" min="${esc(a.d||"")}"><label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="erOpen"> ещё идёт</label></div>
+        <p class="hint" id="erToHint" hidden>Запись заменится одним периодом «с этой даты». Сила, лекарства, повод и заметка — на все дни. «Ещё идёт» — пока не отметите конец в карточке симптома</p></div>
       <div class="fld"><label for="erInt">Интенсивность 1–10</label><input id="erInt" type="number" min="1" max="10" value="${a.i??""}"></div>
       <div class="fld"><label for="erMed">Чем лечили</label><p class="hint">Через запятую</p><input id="erMed" value="${esc(a.m||"")}" autocomplete="off"></div>
       <div class="fld"><label for="erPov">Повод</label><input id="erPov" value="${esc(a.p||"")}" autocomplete="off"></div>
@@ -3802,10 +3805,30 @@ function editRecForm(who,rk){
     </div></div>`;
   attachSuggest("erName",names); attachSuggest("erMed",[],{multi:true,groups:medSugGroups(d)}); attachSuggest("erPov",eps);
   const log=(t,c)=>{const e=document.getElementById("erLog"); if(e) e.innerHTML+=`<div class="${c||""}">${t}</div>`;};
+  modal.querySelectorAll('input[name="erKind"]').forEach(r=>r.addEventListener("change",()=>{ const on=modal.querySelector('input[name="erKind"]:checked').value==="range"; document.getElementById("erTo").hidden=!on; document.getElementById("erToHint").hidden=!on; }));
+  const eo=document.getElementById("erOpen"); if(eo) eo.addEventListener("change",()=>{ document.getElementById("erDate2").disabled=eo.checked; });
   document.getElementById("erOk").addEventListener("click",async ()=>{
     const v=id=>(document.getElementById(id).value||"").trim();
     const names=symNames(v("erName")), rec={d:v("erDate"),n:names[0]||"",i:v("erInt")?+v("erInt"):null,m:v("erMed"),p:v("erPov"),f:v("erNote")};
     if(!rec.n){ log("Название не может быть пустым.","er"); return; }
+    // период: запись заменяется одним периодом с этой даты (до выбранной или «ещё идёт»)
+    if(modal.querySelector('input[name="erKind"]:checked').value==="range"){
+      const open=document.getElementById("erOpen").checked, end=open?null:(v("erDate2")||rec.d);
+      if(!rec.d){ log("Укажите дату.","er"); return; }
+      if(!open&&end<rec.d){ log("Конец периода раньше начала.","er"); return; }
+      if(rec.i!=null&&!(rec.i>=1&&rec.i<=10)){ log("Интенсивность — от 1 до 10.","er"); return; }
+      if(!window.__MK_KEY){ log("Период сохраняется в общую базу — откройте книжку по ссылке с кодом.","er"); return; }
+      document.getElementById("erOk").disabled=true;
+      let ok=true;
+      for(const nm of names){ const c=S.cat.find(z=>z.n===nm);
+        try{ await mkApi("period_save",{person:who,n:nm,start:rec.d,end,sys:c?c.sys:(a.sys||null),i:rec.i,f:rec.f,m:rec.m,p:rec.p}); }
+        catch(e2){ ok=false; log("«"+esc(nm)+"» не сохранился: "+esc(e2.message||"ошибка"),"er"); } }
+      if(!ok){ document.getElementById("erOk").disabled=false; return; }
+      const del={who,key:recKey(a),rec:null,ts:Date.now()}, o=ovLoad(); o.recEdits=[...(o.recEdits||[]),del]; ovSave(o);   // исходная однодневная запись уходит — её заменил период
+      try{ await recSend(del); }catch(e3){}
+      try{ const j=await mkApi("period_list"); PERIODS=j.rows||[]; periodsSave(); window.__perLoaded=1; }catch(e4){}
+      ovApply(); render(); log("✓ Период записан"+(open?" — идёт, конец отметите в карточке симптома":"")+".","ok"); setTimeout(closeModal,800); return;
+    }
     if(!rec.d){ log("Укажите дату.","er"); return; }
     if(rec.i!=null&&!(rec.i>=1&&rec.i<=10)){ log("Интенсивность — от 1 до 10.","er"); return; }
     if(names.length<2&&JSON.stringify([rec.d,rec.n,rec.i,rec.m,rec.p,rec.f])===JSON.stringify([a.d,a.n,a.i??null,a.m||"",a.p||"",a.f||""])){ log("Ничего не изменилось.","wa"); return; }
