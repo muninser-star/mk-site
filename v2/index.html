@@ -547,10 +547,10 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .wzcard,.wzcand{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px;border-radius:14px;border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--ink);cursor:pointer;font:inherit}
 .wzcard:hover,.wzcand:hover{border-color:var(--accent,#1a6fd3)}.wzcand.on{border-color:var(--accent,#1a6fd3);background:color-mix(in srgb,var(--accent,#1a6fd3) 8%,transparent)}.wzic{font-size:26px}
 .wzcands{display:grid;gap:8px}
-.wzlist{display:grid;gap:8px}.wzrow{display:flex;gap:10px;align-items:flex-start}.wzrow>input[type=checkbox]{margin-top:12px;flex:none;width:auto}.wzbody{flex:1;min-width:0}.wzt{width:100%;box-sizing:border-box}.wzsrc{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
-.wzadd{margin-top:10px;gap:8px}.wzadd input{flex:1;min-width:160px}
-.wztreat{padding:12px;border-radius:12px;background:var(--surface-2,#f1f3f6);margin:10px 0}.wznav{margin-top:14px;gap:8px;flex-wrap:wrap}.wzlab{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted)}
-.wzho{width:100%;min-height:520px;box-sizing:border-box;padding:12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;font:13.5px/1.5 ui-monospace,Menlo,monospace;background:var(--bg,#fff);color:var(--ink)}
+.wzlist{display:grid;gap:8px}.wzrow{display:flex;gap:10px;align-items:flex-start}.wzrow>input[type=checkbox]{margin-top:14px;flex:none;width:20px;height:20px;accent-color:var(--accent,#1a6fd3);cursor:pointer}.wzbody{flex:1;min-width:0}.wzt{width:100%}.wzsrc{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.wzadd{margin-top:12px;gap:8px;align-items:stretch;flex-wrap:nowrap}.wzadd .btn{flex:none;white-space:nowrap}.wzadd .input{flex:1;min-width:160px}.wzadd .btn{height:48px}
+.wztreat{padding:12px;border-radius:12px;background:var(--surface-2,#f1f3f6);margin:10px 0}.wznav{margin-top:14px;gap:8px;flex-wrap:wrap}.wzlab{display:flex;flex-direction:column;gap:6px;font:600 13px/16px var(--font);color:var(--text-primary)}.wzlab .input,.wzlab .select{min-width:200px}
+.wzho{width:100%;min-height:520px;font:13.5px/1.55 ui-monospace,Menlo,monospace!important;letter-spacing:0!important}
 .mdview .mdh1{font-size:22px;margin:4px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdh{font-size:16px;margin:18px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdhr{border:0;border-top:1px solid var(--border,#e3e6ea);margin:14px 0}.mdview .mdq{margin:8px 0;padding:8px 14px;border-left:4px solid var(--accent,#1a6fd3);background:var(--surface-2,#f1f3f6);border-radius:0 10px 10px 0}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
@@ -2603,7 +2603,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 15:07";   // подставляется при публикации
+const BUILD="05.10 15:15";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5146,8 +5146,8 @@ function wzCompute(d){
 }
 function wzList(key,ph){
   const z=wzGet(), L=z[key]||[];
-  return `<div class="wzlist">${L.map((x,i)=>`<div class="wzrow"><input type="checkbox" data-wzon="${key}:${i}"${x.on?" checked":""} aria-label="Включить"><div class="wzbody"><input class="wzt" data-wzi="${key}:${i}" value="${esc(x.t)}">${x.src?`<span class="wzsrc">${esc(x.src)}</span>`:""}</div><button class="addsym" data-wzdel="${key}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`).join("")||`<div class="muted">Пока пусто — добавьте своё</div>`}</div>
-    <div class="row wzadd"><input id="wzNew_${key}" placeholder="${esc(ph||"добавить своё")}"><button class="btn btn-secondary" data-wzadd="${key}">＋ Добавить</button></div>`;
+  return `<div class="wzlist">${L.map((x,i)=>`<div class="wzrow"><input type="checkbox" data-wzon="${key}:${i}"${x.on?" checked":""} aria-label="Включить"><div class="wzbody"><input class="input wzt" data-wzi="${key}:${i}" value="${esc(x.t)}">${x.src?`<span class="wzsrc">${esc(x.src)}</span>`:""}</div><button class="addsym" data-wzdel="${key}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`).join("")||`<div class="muted">Пока пусто — добавьте своё</div>`}</div>
+    <div class="row wzadd"><input class="input" id="wzNew_${key}" placeholder="${esc(ph||"добавить своё")}"><button class="btn btn-secondary" data-wzadd="${key}">＋ Добавить</button></div>`;
 }
 function wzHeader(steps,z){
   return `<div class="wzsteps">${steps.map((n,i)=>`<span class="wzstep${i+1===z.step?" on":i+1<z.step?" done":""}"${i+1<z.step?` data-wzgo="${i+1}"`:""}><b>${i+1}</b> ${esc(n)}</span>`).join("")}</div>`;
@@ -5173,8 +5173,8 @@ function wizTab(m){
       const cands=wzCandidates(d,plans,todo,today);
       html=`<div class="card"><h2>Шаг 1 из 8. К какому врачу идём</h2><div class="muted" style="margin:-4px 0 10px">Подобрал по планам, делам «записаться» и записям. Выберите или укажите другого.</div>
         <div class="wzcands">${cands.map(c=>`<button class="wzcand${z.spec===c.spec&&(z.date||"")===(c.date||"")?" on":""}" data-wzpick="${esc(c.spec)}|${esc(c.date||"")}"><b>${esc(specName(c.spec))}</b>${c.date?` <span class="status status-none">${ru(c.date)}</span>`:""}<span class="muted">${esc(String(c.why).slice(0,110))}</span></button>`).join("")}</div>
-        <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select id="wzSpec">${DOC_SPECS.map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
-          <label class="wzlab">Дата приёма<input id="wzDate" type="date" value="${esc(z.date||"")}"></label></div>
+        <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select class="select" id="wzSpec">${DOC_SPECS.map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
+          <label class="wzlab">Дата приёма<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label></div>
         ${wzNav(z,false,"Подобрать повод →")}</div>`;
     } else if(z.step===2){
       const K=z.known||[];
@@ -5190,7 +5190,7 @@ function wizTab(m){
         ${T.length?T.map((t,i)=>`<div class="wztreat"><b>${esc(t.n)}</b> <span class="muted">· с ${ru(t.from)}, ${t.days}-й день${t.to?`, по плану до ${ru(t.to)}`:t.till?` · ${esc(t.till)}`:""}</span>
           ${t.dyn.map(x=>`<div class="wzsrc">${esc(x)}</div>`).join("")||`<div class="wzsrc">Показателя для оценки в записях нет</div>`}
           <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap">${[["continue","Продолжить"],["reduce","Снизить дозу"],["stop","Закончить"],["ask","Решить вместе с врачом"]].map(([v,n])=>`<button class="btn ${t.decision===v?"btn-primary":"btn-secondary"}" data-wzdec="${i}:${v}" style="height:34px">${n}</button>`).join("")}</div>
-          <input class="wzt" data-wztreatnote="${i}" placeholder="Что вы видите по самочувствию, переносимости, как принимает" value="${esc(t.note||"")}"><div class="wzsrc">Вопрос врачу: ${esc(wzTreatQ(t))}</div></div>`).join(""):`<div class="muted">Идущих лекарств нет — шаг можно пропустить.</div>`}
+          <input class="input wzt" data-wztreatnote="${i}" placeholder="Что вы видите по самочувствию, переносимости, как принимает" value="${esc(t.note||"")}"><div class="wzsrc">Вопрос врачу: ${esc(wzTreatQ(t))}</div></div>`).join(""):`<div class="muted">Идущих лекарств нет — шаг можно пропустить.</div>`}
         ${wzNav(z)}</div>`;
     } else if(z.step===6){
       html=`<div class="card"><h2>Шаг 6 из 8. Вопросы ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Из дел «спросить», болезней, лекарств и результатов. Можно дополнить от семейного врача — по вашим записям.</div>${wzList("questions","свой вопрос")}
@@ -5207,8 +5207,8 @@ function wizTab(m){
         ${z.hoBusy?`<div class="muted" style="margin-top:8px">Семейный врач собирает памятку по образцу: задачи визита, что сказать, анамнез, что просить, вопросы, что взять. Это до двух минут.</div>`:""}
         <div class="row wznav"><button class="btn btn-secondary" data-wzback="1">← Назад</button><button class="btn btn-secondary" data-wzreset="1" style="margin-left:auto">Начать заново</button></div></div>
         ${z.ho?`<div class="card hoprint" id="docout"><div class="docbar nodoc"><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-secondary" data-wzho="${z.hoEdit?"view":"edit"}">${z.hoEdit?"Читать":"✎ Править текст"}</button><button class="btn btn-primary" data-wzho="save">${z.ho.id?"Сохранить изменения":"Сохранить"}</button><button class="btn btn-secondary" data-wzho="md">Скачать .md</button><button class="btn btn-secondary" data-wzho="print">PDF / печать</button>${z.ho.id?`<button class="btn btn-secondary" data-wzho="del">Удалить</button>`:""}</div>
-          ${z.hoEdit?`<input id="hoTitle" class="wzt" value="${esc(z.ho.title)}" style="margin-top:8px">`:""}</div>
-          ${z.hoEdit?`<textarea id="hoText" class="wzho">${esc(z.ho.text)}</textarea>`:`<div class="mdview">${mdLite(z.ho.text)}</div>`}</div>`:""}
+          ${z.hoEdit?`<input id="hoTitle" class="input wzt" value="${esc(z.ho.title)}" style="margin-top:8px">`:""}</div>
+          ${z.hoEdit?`<textarea id="hoText" class="textarea wzho">${esc(z.ho.text)}</textarea>`:`<div class="mdview">${mdLite(z.ho.text)}</div>`}</div>`:""}
         ${z.showDoc?(()=>{ docSt.spec=z.spec; const P=doctorPack(d,z.spec,today,{systems:docSt.sys,req:{purpose:on("reasons").map(x=>x.t).join("; "),questions:questions.map(t=>({t})),tests:on("tests").map(x=>({t:x.t})),other:[...on("dyn").map(x=>({t:"Динамика: "+x.t})),...on("bring").map(x=>({t:"Взять: "+x.t}))]}});
           return `<div class="card" id="docout"><div class="docbar"><button class="btn btn-primary btn-block" data-dock="print" style="margin:0">Скачать PDF</button></div>${docHtml(P,d)}</div>`; })():""}`;
     }
@@ -5222,7 +5222,7 @@ function wizTab(m){
       html=`<div class="card"><h2>Шаг 2 из 4. Что сдаём</h2><div class="muted" style="margin:-4px 0 10px">Показатели с последним результатом. Добавьте то, о чём договорились с врачом.</div>${wzList("labItems","например, ферритин")}${wzNav(z,false,"Подготовка →")}</div>`;
     } else if(z.step===3){
       html=`<div class="card"><h2>Шаг 3 из 4. Подготовка к сдаче</h2><div class="muted" style="margin:-4px 0 10px">Общие правила по выбранным показателям — не назначение. Сверьте с направлением лаборатории.</div>${wzList("prep","своё правило")}
-        <label class="wzlab" style="margin-top:8px">Дата забора<input id="wzDate" type="date" value="${esc(z.date||"")}"></label>${wzNav(z,false,"К итогу →")}</div>`;
+        <label class="wzlab" style="margin-top:8px">Дата забора<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label>${wzNav(z,false,"К итогу →")}</div>`;
     } else {
       const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim());
       html=`<div class="card" id="docout"><h2>Шаг 4 из 4. План забора для ${esc(d.short)}${z.date?" · "+ru(z.date):""}</h2>
