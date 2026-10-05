@@ -2557,7 +2557,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 09:27";   // подставляется при публикации
+const BUILD="05.10 10:16";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5854,6 +5854,11 @@ const todoRow=x=>{ const ts=taskState(cur,x.title); return `<tr class="row is-li
         <td class="rowdone"><button class="rowdone__b" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}" title="${ts?"Вернуть в дела":"Отметить выполненным"}" aria-label="${ts?"Вернуть в дела":"Отметить выполненным"}">${ts?"↺":"✓"}</button></td></tr>`; };
 const todoAttrs=x=>x.task!=null?` data-task="${x.task}"`:(x.sys?` data-sys="${x.sys}"`:"");
 
+// страница «Спросить» (iframe) сообщает, о ком спрашивают: этот человек становится текущим, вкладки не перерисовываются (разговор не пропадает)
+window.addEventListener("message",e=>{
+  const m=e.data; if(!m||m.mk!=="person"||e.origin!==location.origin||!DATA[m.person]||m.person===cur) return;
+  cur=m.person; document.querySelectorAll("#who [data-w]").forEach(b=>b.classList.toggle("is-active",b.dataset.w===cur));
+});
 if(typeof window!=="undefined"&&!window.__scrollBound){
   window.__scrollBound=1;
   const onScroll=()=>{ const on=window.scrollY>4; document.querySelector("header")?.classList.toggle("scrolled",on);

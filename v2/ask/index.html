@@ -138,10 +138,11 @@ function view() {
       const v = document.getElementById("kc").value.trim().replace(/^.*[?&]k=/, "").replace(/[&#].*$/, "");
       if (!v) return; try { localStorage.setItem(KEY_LS, v); } catch (e) {} KEY = v; view(); }; return; }
   document.getElementById("ppl").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return;
-    person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); };
+    person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); tellPerson(); };
   const q = document.getElementById("q");
   document.getElementById("go").onclick = () => ask(q.value.trim());
-  q.onkeydown = e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) ask(q.value.trim()); };
+  // Enter отправляет вопрос; Shift+Enter — новая строка
+  q.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(q.value.trim()); } };
   const hints = document.querySelector(".hints");
   if (hints) hints.onclick = e => { const b = e.target.closest("[data-h]"); if (b) { q.value = b.dataset.h; ask(b.dataset.h); } };
   paint();
@@ -204,8 +205,11 @@ function paint() {
     const src = e.target.closest(".src .h"); if (src) src.parentElement.classList.toggle("open");
   };
 }
+// о ком спрашивают — тот человек и открывается в медкнижке (страница-родитель переключает «Дима»/«Даня» вверху)
+function tellPerson() { try { if (person && window.parent !== window) window.parent.postMessage({ mk: "person", person }, "*"); } catch (e) {} }
 async function ask(q) {
   if (!q || busy) return;
+  tellPerson();
   busy = q;
   document.querySelector(".hints")?.remove();
   paint();
