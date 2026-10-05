@@ -522,6 +522,11 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .figs li{background:var(--bg);border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.35}
 @media (min-width:700px){.figs{grid-template-columns:repeat(3,1fr)}}
 .acts{background:var(--bg);border-radius:16px;padding:14px;margin-top:14px}.act+.act{margin-top:10px}.act div{font-size:14px;margin-top:2px}
+.watchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.watchtile{background:var(--surface-2,#f3f4f6);border-radius:12px;padding:10px 12px;cursor:pointer;min-width:0}
+.watchtile__n{font-size:13px;font-weight:600;line-height:1.25;min-height:32px}.watchtile__v{font-size:20px;font-weight:700;margin-top:2px}
+.watchtile .spark{height:26px;margin-top:4px}.watchtile__s{font-size:12px;margin-top:2px}
+.todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
@@ -1621,7 +1626,8 @@ function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:
 function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"]:["home","card","add","ask"]; }
 // перейти на страницу по старому или новому значению tab
 function goTab(t){
-  const m=legacyTab(t); sysFilter=null; symSel=null; medSel=null; insSel=null;
+  const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
+  sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
   else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo")?t:"dx";
   else if(m.page==="home") tab=(m.sub==="cal")?"cal":"home";
@@ -2544,7 +2550,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 07:58";   // подставляется при публикации
+const BUILD="05.10 08:06";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4323,6 +4329,11 @@ function homeAssemble(html,saved){
 // ближайшее, что нужно сделать самому: записаться, сдать, спросить; привычки и «постоянно» — в «Все дела»
 function nextTodo(todo){ return (todo||[]).filter(x=>!x.self&&/^(записаться|записан|сдать|спросить)$/.test(x.tag)&&!/постоянно/i.test(x.when||"")); }
 function todoPreview(list,n){ return {items:list.slice(0,n),rest:Math.max(0,list.length-n)}; }
+// дела главной по группам «к врачу / сдать / исследования и вопросы», до n в группе; дата дела — в самой строке
+function todoGroups(list,n){
+  const N={doc:"К врачу",lab:"Сдать анализы",etc:"Исследования и вопросы"};
+  return ["doc","lab","etc"].map(g=>{ const p=todoPreview(list.filter(x=>(x.grp||"etc")===g),n); return {grp:g,title:N[g],items:p.items,rest:p.rest}; }).filter(g=>g.items.length);
+}
 // ближайшие визиты: из заранее запланированных и из «следующий визит» прошлых приёмов; на одну дату — одна строка, плановый визит главнее
 function upcomingVisits(d,plans,today){
   const by={};
@@ -5821,29 +5832,25 @@ function render(){
     const keys=(FAV[cur]||[]), rows=measRows(cur), watchRows=favRows(rows,keys);
     const chg=(typeof changed==="function"?changed(d,6):[]).filter(x=>x.cls!=="ok").slice(0,3);
     const HB=homeBlocks(d,today,{plans,hidden,changes:chg}), has=k=>HB.blocks.includes(k);
-    const nx=todoPreview(nextTodo(todo),5), tvAll=todo.filter(x=>!x.self&&!nx.items.includes(x)), tvis=tvAll.slice(0,6);   // то, что уже в «Что делать», здесь не повторяется
+    const TG=todoGroups(nextTodo(todo),4), TGrest=todo.filter(x=>!x.self).length-TG.reduce((a,g)=>a+g.items.length,0);
     const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     m.innerHTML=homeAssemble(`
     <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
-    <!--B:todo--><div class="card"><h2>Что делать</h2>${nx.items.length?`<div class="soon">${nx.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
+    <!--B:todo--><div class="card"><h2>Что делать</h2>${TG.length?TG.map(g=>`<h3 class="todo-grp">${g.title}</h3><div class="soon">${g.items.map(x=>`<div class="soonitem"${todoAttrs(x)}>
         <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
-        <span class="muted" style="font-size:12px">${esc(x.when||"без даты")}</span></div>`).join("")}</div>`:`<div class="muted">Ближайших дел нет.</div>`}
-      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела${nx.rest?` · ещё ${nx.rest}`:""} →</button></div>
+        <span class="soon__when">${esc(x.when||"без даты")}</span></div>`).join("")}</div>`).join(""):`<div class="muted">Ближайших дел нет.</div>`}
+      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела${TGrest?` · ещё ${TGrest}`:""} →</button></div>
 
     <!--B:body-->${d.nutrition?`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`:""}
 
-    <!--B:visits-->${tvis.length?`<div class="card"><h2>Посещения врачей и обследования — ${tvAll.length}</h2><div class="soon">${tvis.map(x=>`<div class="soonitem"${todoAttrs(x)}>
-        <span class="status status-${x.st}">${esc(x.tag)}</span><b>${esc(x.title)}</b>
-        <span class="muted" style="font-size:12px">${esc(x.when||"без даты")}${x.why?" · "+esc(x.why):""}</span></div>`).join("")}</div>
-      <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>`:""}
-
-
     <!--B:watch--><div class="card"><h2>Ключевые показатели</h2>
-      ${watchRows.length?`<div class="favlist">${watchRows.map(x=>`<div class="favrow" data-favopen="${esc(x.name)}">
-        <div><b>${esc(x.name)}</b><div class="muted" style="font-size:12.5px">${ru(x.d)}${x.prev?` · было ${esc(x.prev)}`:""}</div>${sparkSvg(x.pts,x.trend.dir)}</div>
-        <div style="text-align:right"><b style="color:${statusColor(x.st)}">${esc(x.v)}</b><div><span class="status status-${x.st}">${esc(x.word)}</span></div><div class="muted" style="font-size:12px">${esc(x.trend.word)}</div></div></div>`).join("")}</div>`
+      ${watchRows.length?`<div class="watchgrid">${watchRows.map(x=>`<div class="watchtile" data-favopen="${esc(x.name)}">
+        <div class="watchtile__n">${esc(x.name)}</div>
+        <div class="watchtile__v" style="color:${statusColor(x.st)}">${esc(x.v)}</div>
+        ${sparkSvg(x.pts,x.trend.dir)}
+        <div class="muted watchtile__s">${x.prev?`было ${esc(x.prev)} · `:""}${esc(x.trend.word)}</div></div>`).join("")}</div>`
       :`<div class="muted">Здесь будут показатели, за которыми вы следите. Отметьте звёздочкой в разделе «Анализы».</div>
         ${sug.length?`<div style="margin-top:8px">Выше или ниже нормы: ${sug.map(k=>`<span class="tag2 eplink" data-favopen="${esc(k)}">${esc(k)}</span>`).join(" ")}</div>`:""}`}</div>
 
