@@ -2558,7 +2558,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 10:25";   // подставляется при публикации
+const BUILD="05.10 10:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3507,7 +3507,30 @@ function ovApply(){
     const E=(o.recEdits||[]).filter(x=>x.who===k).sort((a,b)=>(a.ts||0)-(b.ts||0));
     if(E.length){ S.log=applyRecEdits(S.log,E); S.log.sort((x,y)=>y.d.localeCompare(x.d)); }
   }
+  for(const k of Object.keys(DATA)){   // периоды симптомов — днями до сегодня (открытые продолжаются сами)
+    const S=DATA[k].sym; if(!S||!S.log) continue;
+    const ps=(PERIODS||[]).filter(x=>x.person===k); if(!ps.length) continue;
+    const t=localDay(); ps.forEach(x=>S.log.push(...periodEntries(x,t)));
+    S.log.sort((x,y)=>y.d.localeCompare(x.d));
+  }
   if(dirty) ovSave(o);
+}
+// ── Периоды симптомов: «с даты по дату» и «ещё идёт». В базе одна запись; страница раскладывает её по дням до сегодня ──
+const PERK="mk_periods";
+let PERIODS=(()=>{ try{ return JSON.parse(localStorage.getItem(PERK)||"[]")||[]; }catch(e){ return []; } })();
+const periodsSave=()=>{ try{ localStorage.setItem(PERK,JSON.stringify(PERIODS)); }catch(e){} };
+function periodsLoad(force){
+  if(!window.__MK_KEY||(window.__perLoaded&&!force)||window.__perLoading) return; window.__perLoading=1;
+  mkApi("period_list").then(j=>{ PERIODS=j.rows||[]; periodsSave(); window.__perLoaded=1; window.__perLoading=0; ovApply(); render(); }).catch(()=>{ window.__perLoading=0; });
+}
+// дни периода: от начала до конца, открытый — до сегодня; не больше 366
+function periodDays(per,today){
+  const end=per.ended_on||today, out=[]; let x=per.started_on;
+  while(x<=end&&out.length<366){ out.push(x); x=dayShift(x,1); }
+  return out;
+}
+function periodEntries(per,today){
+  return periodDays(per,today).map(d=>({d,n:per.symptom,sys:per.sys||"other",i:per.intensity??null,v:null,u:"",f:per.feeling||"",m:per.med||"",h:"",p:per.reason||"",per:per.id}));
 }
 // ── Правка и удаление любой записи журнала (ТЗ-002 блок 5) ──
 // Запись узнаём по дате, названию и поводу. rec — новые поля; null — удалена.
@@ -4025,9 +4048,9 @@ function newSymForm(){
     <div class="ctx">Для <b>${esc(d.short)}</b>. Болезнь выбирать не обязательно.</div>
     <div class="addform">
       <div class="fld"><label for="nsDate">Когда</label>
-        <div class="row" style="gap:16px;margin-bottom:6px"><label><input type="radio" name="nsKind" value="one" checked> Один день</label><label><input type="radio" name="nsKind" value="range"> Несколько дней</label></div>
-        <div class="row" style="gap:8px;align-items:center"><input id="nsDate" type="date" value="${today0()}"><span id="nsTo" hidden>по <input id="nsDate2" type="date" value="${today0()}"></span></div>
-        <p class="hint" id="nsToHint" hidden>Запишется по одной записи на каждый день периода (не больше 31 дня). Сила, чем лечили и заметка — одинаковые на все дни</p></div>
+        <div class="row" style="gap:16px;margin-bottom:6px"><label><input type="radio" name="nsKind" value="one" checked> Один день</label><label><input type="radio" name="nsKind" value="range"> Период</label></div>
+        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap"><input id="nsDate" type="date" value="${today0()}"><span id="nsTo" hidden>по <input id="nsDate2" type="date" value="${today0()}"></span><label id="nsOpenL" hidden style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="nsOpen"> ещё идёт</label></div>
+        <p class="hint" id="nsToHint" hidden>Одна запись на весь период. «Ещё идёт» — период продолжается каждый день, пока вы не отметите, что он закончился</p></div>
       <div class="fld"><label for="nsName">Что беспокоит?</label>
         <p class="hint">Подсказки — после двух букв; несколько — через запятую: «кашель, сопли»</p>
         <input id="nsName" list="nsList" placeholder="например, Изжога" autocomplete="off">
@@ -4056,16 +4079,17 @@ function newSymForm(){
   attachSuggest("nsPov",[],{groups:[{t:"Ещё болеет",items:[...new Set(openEps.filter(Boolean))]},{t:"Прошедшие",items:[...new Set(closedEps.filter(Boolean))]}]});
   const log=(t,c)=>{const e=document.getElementById("nsLog"); if(e) e.innerHTML+=`<div class="${c||""}">${t}</div>`;};
   modal.querySelectorAll('input[name="nsKind"]').forEach(r=>r.addEventListener("change",()=>{ const on=modal.querySelector('input[name="nsKind"]:checked').value==="range";
-    document.getElementById("nsTo").hidden=!on; document.getElementById("nsToHint").hidden=!on; }));
+    document.getElementById("nsTo").hidden=!on; document.getElementById("nsOpenL").hidden=!on; document.getElementById("nsToHint").hidden=!on; }));
+  const opn=document.getElementById("nsOpen"); if(opn) opn.addEventListener("change",()=>{ document.getElementById("nsDate2").disabled=opn.checked; });
   document.getElementById("nsOk").addEventListener("click",async ()=>{
     const names=symNames(document.getElementById("nsName").value);
     const dt=(document.getElementById("nsDate").value||"").trim();
     if(!names.length){ log("Впишите название симптома.","er"); return; }
     if(!dt){ log("Укажите дату.","er"); return; }
-    const range=modal.querySelector('input[name="nsKind"]:checked').value==="range", dt2=range?(document.getElementById("nsDate2").value||dt):dt;
-    if(dt2<dt){ log("Конец периода раньше начала.","er"); return; }
-    const days=(()=>{ const out=[]; for(let x=dt;x<=dt2&&out.length<32;x=dayShift(x,1)) out.push(x); return out; })();
-    if(days.length>31){ log("Период длиннее 31 дня — запишите его частями.","er"); return; }
+    const range=modal.querySelector('input[name="nsKind"]:checked').value==="range", isOpen=range&&document.getElementById("nsOpen").checked, dt2=range?(isOpen?"":(document.getElementById("nsDate2").value||dt)):dt;
+    if(range&&!isOpen&&dt2<dt){ log("Конец периода раньше начала.","er"); return; }
+    if(range&&!window.__MK_KEY){ log("Период сохраняется в общую базу — откройте книжку по ссылке с кодом.","er"); return; }
+    const days=range?[]:[dt];
     const inten=(document.getElementById("nsInt").value||"").trim();
     const val=(document.getElementById("nsVal").value||"").trim();
     const med=(document.getElementById("nsMed").value||"").trim();
@@ -4079,6 +4103,15 @@ function newSymForm(){
     if(pov&&!symAsPov&&!findOpenEp(S.ep,pov,dt)){ epCreate(pov,dt); log(`Открыта болезнь «${esc(pov)}» с ${ru(dt)} — закроете, когда пройдёт.`,"ok"); }
     document.getElementById("nsOk").disabled=true;          // до конца сохранения — второе нажатие не создаёт дубль (ТЗ-004 блок 3)
     let ok=true;
+    if(range){
+      for(const nm of names){ const c=S.cat.find(z=>z.n===nm);
+        try{ await mkApi("period_save",{person:cur,n:nm,start:dt,end:isOpen?null:dt2,sys:c?c.sys:null,i:inten||null,f:note,m:med,p:pov}); }
+        catch(e){ ok=false; log("«"+esc(nm)+"» не сохранился: "+(e.message||"ошибка"),"wa"); } }
+      PERIODS=null; window.__perLoaded=0; try{ const j=await mkApi("period_list"); PERIODS=j.rows||[]; periodsSave(); window.__perLoaded=1; }catch(e){ PERIODS=JSON.parse(localStorage.getItem(PERK)||"[]"); }
+      ovApply(); render();
+      log("✓ Записано: "+esc(names.join(", ").toLowerCase())+(isOpen?" — период идёт, отметьте конец в карточке симптома.":"."),"ok");
+      if(ok) setTimeout(closeModal,900); else document.getElementById("nsOk").disabled=false; return;
+    }
     for(const nm of names) for(const dy of days){
       const c=S.cat.find(z=>z.n===nm);
       ovAdd({who:cur,d:dy,n:nm,p:pov,sys:c?c.sys:"other",i:inten?+inten:null,f:note,m:med});
@@ -5068,7 +5101,7 @@ function themeToggle(){
 try{ themeApply(localStorage.getItem("mk_theme")); }catch(e){}
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
-  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
+  confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods"].forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); });
 }
 function shellClick(e){
   const t=e.target;
@@ -5914,7 +5947,7 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
 }
 let lastView="";
 function render(){
-  pplLoad();
+  pplLoad(); periodsLoad();
   if(!DATA[cur]) cur=Object.keys(DATA)[0];   // человека нет в книжке (скрыт для этого кода) — первый из доступных
   const d=DATA[cur];
   // появление блоков — только при смене человека или вкладки, не при каждой перерисовке
@@ -6073,6 +6106,7 @@ function render(){
     const since=mapStart(S.log);
     const catOf=n=>S.cat.find(c=>c.n===n)||{};
 
+    periodsLoad();
     // ---------- карточка препарата ----------
     if(medSel){
       const info=medInfo(medSel), hits=medHits(S.log,medSel);
@@ -6118,10 +6152,16 @@ function render(){
       const L=byName[symSel]||[], c=catOf(symSel);
       const dxs=dxSort((d.diagnoses||[]).filter(x=>x.sys===c.sys));
       const a30=symAgg(L,d30,today), a90=symAgg(L,d90,today);
+      const perHtml=(PERIODS||[]).filter(x=>x.person===cur&&String(x.symptom).toLowerCase()===String(symSel).toLowerCase()).slice(0,3).map(x=>x.ended_on
+        ?`<div class="note" style="margin:0 0 10px">Период: ${ru(x.started_on)} — ${ru(x.ended_on)} <button class="btn btn-secondary" data-perdel="${x.id}" style="height:28px;font-size:12px">Убрать период</button></div>`
+        :`<div class="note" style="margin:0 0 10px;border-color:var(--warn)"><b>Идёт с ${ru(x.started_on)}</b> · ${rxDays(x.started_on,localDay())}-й день
+          <div class="row" style="gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" data-perend="${x.id}" style="height:32px">Закончился сегодня</button>
+          <span class="muted">или по</span><input type="date" data-perenddate="${x.id}" max="${localDay()}" min="${x.started_on}" value="${localDay()}"><button class="btn btn-secondary" data-perendd="${x.id}" style="height:32px">Закончился</button>
+          <button class="btn btn-secondary" data-perdel="${x.id}" style="height:32px">Убрать период</button></div></div>`).join("");
       m.innerHTML=`
       <button class="back" data-sym="">← Ко всем симптомам</button>
       <div class="card">
-        <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>
+        <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}
         ${c.red?`<div class="pill" style="background:var(--bad);margin-bottom:8px">при появлении — к врачу сразу, не дожидаясь записи</div>`:""}
         ${c.why?`<p style="margin:0 0 10px">${esc(c.why)}</p>`:""}
         <div class="kpis">
@@ -6868,6 +6908,11 @@ document.addEventListener("click",e=>{
     const body=v?{id:R0.plan||undefined,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:v,purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"planned"}
       :{id:R0.plan,person:cur,specialty:specByDoctor(R0.who||R0.title),planned_date:"",purpose:`Повторный приём после ${ru(R0.d)} · ${R0.who||R0.title}`,status:"cancelled"};
     mkApi("plan_save",body).then(j=>{ R0.plan=v?(j.id||R0.plan):null; PLANS=null; plansLoad(true); toast(v?`Следующее посещение: ${ru(v)}`:"Дата следующего посещения убрана"); }).catch(()=>toast("Не получилось сохранить — попробуйте ещё раз")); return; }
+  const pe=e.target.closest("[data-perend],[data-perendd],[data-perdel]"); if(pe){ const id=pe.dataset.perend||pe.dataset.perendd||pe.dataset.perdel;
+    const done=()=>mkApi("period_list").then(j=>{ PERIODS=j.rows||[]; periodsSave(); ovApply(); render(); });
+    if(pe.dataset.perdel!=null){ confirmDel("Убрать период? Сам симптом за эти дни исчезнет из карты и ленты.",()=>mkApi("period_delete",{id}).then(done).catch(()=>toast("Не получилось, попробуйте ещё раз"))); return; }
+    const end=pe.dataset.perend!=null?localDay():(document.querySelector(`[data-perenddate="${id}"]`)||{}).value;
+    mkApi("period_end",{id,end}).then(()=>{ toast("Период закончен"); return done(); }).catch(()=>toast("Не получилось, попробуйте ещё раз")); return; }
   const rd=e.target.closest("[data-rowdone]"); if(rd){ e.stopPropagation(); const title=rd.dataset.rowdone, st=rd.dataset.rowst;
     taskStSet(cur,title,st); if(st==="done") toast(`Отмечено выполненным: ${esc(title.length>50?title.slice(0,50)+"…":title)}`,"Отменить",()=>taskStSet(cur,title,"clear")); return; }
   const tsb=e.target.closest("[data-tsk]"); if(tsb&&tab==="task"&&taskIdx!=null){ const a=DATA[cur].attention[taskIdx], act=tsb.dataset.tsk;
