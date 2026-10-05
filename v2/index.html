@@ -2603,7 +2603,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 15:41";   // подставляется при публикации
+const BUILD="05.10 15:47";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5072,14 +5072,14 @@ const WZ_MEDMETRIC=[[/тотем|железа|феррум|мальтофер|с
 function wzTreatment(d,today){
   // лекарства, которые идут сейчас: из списка «Принимает» и из лечения болезней (курсы, добавленные с сайта); одно лекарство — одной строкой, со связью с болезнями
   const S=d.sym||{}, items=new Map(), key=n=>medKeyOf(n);
-  const add=(n,from,to,till,ep)=>{ const k=key(n); if(!k) return; let it=items.get(k); if(!it){ it={n,from:from||"",to:to||"",till:till||"",eps:[]}; items.set(k,it); }
-    if(ep&&!it.eps.includes(ep)) it.eps.push(ep); if(from&&(!it.from||from<it.from)) it.from=from; if(to&&!it.to) it.to=to; if(till&&!it.till) it.till=till; };
-  (d.meds||[]).filter(m=>!m.plan&&m.from&&m.from<=today&&(!m.to||m.to>=today)&&!(m.stopped&&m.stopped<=today)).forEach(m=>add(m.n,m.from,m.to,m.till,m.ep));
-  (S.ep||[]).forEach(e=>(e.rx||[]).filter(r=>r.m&&r.from&&r.from<=today&&(!r.to||r.to>=today)).forEach(r=>add(r.m,r.from,r.to,"",e.id)));
+  const add=(n,from,to,till,ep,how,why)=>{ const k=key(n); if(!k) return; let it=items.get(k); if(!it){ it={n,from:from||"",to:to||"",till:till||"",eps:[],how:"",why:""}; items.set(k,it); }
+    if(how&&!it.how) it.how=how; if(why&&!it.why) it.why=why; if(ep&&!it.eps.includes(ep)) it.eps.push(ep); if(from&&(!it.from||from<it.from)) it.from=from; if(to&&!it.to) it.to=to; if(till&&!it.till) it.till=till; };
+  (d.meds||[]).filter(m=>!m.plan&&m.from&&m.from<=today&&(!m.to||m.to>=today)&&!(m.stopped&&m.stopped<=today)).forEach(m=>add(m.n,m.from,m.to,m.till,m.ep,m.how,m.why));
+  (S.ep||[]).forEach(e=>(e.rx||[]).filter(r=>r.m&&r.from&&r.from<=today&&(!r.to||r.to>=today)).forEach(r=>add(r.m,r.from,r.to,"",e.id,r.how||r.dose||r.s||"",r.why||"")));
   return [...items.values()].slice(0,6).map(m=>{
     const names=(WZ_MEDMETRIC.find(x=>x[0].test(m.n))||[])[1]||[], dyn=wzDynamics(d,"other",names,today).filter(x=>names.some(n=>favKey(x.name).includes(n)||n.includes(favKey(x.name).slice(0,6)))).slice(0,2);
     const days=Math.round((Date.parse(today+"T12:00:00Z")-Date.parse(m.from+"T12:00:00Z"))/864e5)+1;
-    return {n:m.n,from:m.from,to:m.to,till:m.till,days,eps:m.eps,dyn:dyn.map(wzDynLine),decision:"",note:""};
+    return {n:m.n,from:m.from,to:m.to,till:m.till,days,eps:m.eps,how:m.how||"",why:m.why||"",dyn:dyn.map(wzDynLine),decision:"",note:""};
   });
 }
 function wzTreatQ(t){
@@ -5251,7 +5251,7 @@ function wizTab(m){
       const T=z.treat||[];
       html=`<div class="card"><h2>Шаг 5 из 8. Лечение — продолжать, снижать или заканчивать</h2><div class="muted" style="margin:-4px 0 10px">Для каждого идущего лекарства — как менялся показатель и ваша позиция. Решает врач; ваша позиция превратится в вопрос ему.</div>
         ${T.length?T.map((t,i)=>`<div class="wztreat"><b>${esc(t.n)}</b>${t.rel?` <span class="status status-ok">по теме приёма</span>`:""} <span class="muted">· с ${ru(t.from)}, ${t.days}-й день${t.to?`, по плану до ${ru(t.to)}`:t.till?` · ${esc(t.till)}`:""}</span>
-          ${t.dyn.map(x=>`<div class="wzsrc">${esc(x)}</div>`).join("")||`<div class="wzsrc">Показателя для оценки в записях нет</div>`}
+          ${t.how?`<div class="wzsrc"><b>Как принимает:</b> ${esc(t.how)}</div>`:""}${t.why?`<div class="wzsrc"><b>Зачем:</b> ${esc(t.why)}</div>`:""}${t.dyn.map(x=>`<div class="wzsrc">${esc(x)}</div>`).join("")||`<div class="wzsrc">Показателя для оценки в записях нет</div>`}
           <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap">${[["continue","Продолжить"],["reduce","Снизить дозу"],["stop","Закончить"],["ask","Решить вместе с врачом"]].map(([v,n])=>`<button class="btn ${t.decision===v?"btn-primary":"btn-secondary"}" data-wzdec="${i}:${v}" style="height:34px">${n}</button>`).join("")}</div>
           <input class="input wzt" data-wztreatnote="${i}" placeholder="Что вы видите по самочувствию, переносимости, как принимает" value="${esc(t.note||"")}"><div class="wzsrc">Вопрос врачу: ${esc(wzTreatQ(t))}</div></div>`).join(""):`<div class="muted">Идущих лекарств нет — шаг можно пропустить.</div>`}
         ${wzNav(z)}</div>`;
@@ -5265,8 +5265,9 @@ function wizTab(m){
       const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim()), T=(z.treat||[]).filter(t=>t.decision||t.note);
       const questions=[...T.map(wzTreatQ),...on("questions").map(x=>x.t)];
       html=`<div class="card"><h2>Шаг 8 из 8. Готово</h2><div class="muted" style="margin:-4px 0 10px">${esc(specName(z.spec))}${z.date?" · "+ru(z.date):""} · для ${esc(d.short)}</div>
-        ${[["Повод",on("reasons").map(x=>x.t)],["Динамика",on("dyn").map(x=>x.t)],["Позиция по лечению",T.map(t=>`${t.n}: ${({continue:"продолжить",reduce:"снизить дозу",stop:"закончить",ask:"решить вместе"})[t.decision]||"—"}${t.note?" · "+t.note:""}`)],["Вопросы врачу",questions],["Анализы и обследования",on("tests").map(x=>x.t)],["Взять с собой",on("bring").map(x=>x.t)]].filter(x=>x[1].length).map(([h,L])=>`<h3 style="font-size:14px;margin:12px 0 4px">${h}</h3><ul style="margin:0;padding-left:20px">${L.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
-        <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-wzho="make" ${z.hoBusy?"disabled":""}>${z.hoBusy?'<span class="spin" style="border-color:rgba(255,255,255,.5);border-top-color:#fff"></span>Составляю памятку…':(z.ho?"📄 Составить заново":"📄 Составить памятку для врача")}</button><button class="btn btn-secondary" data-wzplan="1">Сохранить как визит</button><button class="btn btn-secondary" data-wzdoc="1">${z.showDoc?"Обновить данные из карты":"Выписка из карты"}</button><button class="btn btn-secondary" data-dock="askdoc">Попросить разбор семейного врача</button></div>
+        ${[["Повод",on("reasons").map(x=>x.t)],["Динамика",on("dyn").map(x=>x.t),1],["Позиция по лечению",(z.treat||[]).map(t=>`${t.n}${t.how?" — "+t.how:""}${t.decision||t.note?": "+(({continue:"продолжить",reduce:"снизить дозу",stop:"закончить",ask:"решить вместе"})[t.decision]||"")+(t.note?" · "+t.note:""):""}`)],["Вопросы врачу",questions],["Анализы и обследования",on("tests").map(x=>x.t),1],["Взять с собой",on("bring").map(x=>x.t)]].filter(x=>x[1].length).map(([h,L,b])=>`<h3 style="font-size:14px;margin:12px 0 4px">${h}</h3><ul style="margin:0;padding-left:20px">${L.map(x=>`<li>${b?wzBold(x):esc(x)}</li>`).join("")}</ul>`).join("")}
+        <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-wzho="make" ${z.hoBusy?"disabled":""}>${z.hoBusy?'<span class="spin" style="border-color:rgba(255,255,255,.5);border-top-color:#fff"></span>Составляю памятку…':(z.ho?"📄 Составить заново":"📄 Составить памятку для врача")}</button><button class="btn btn-secondary" data-wzplan="1">Сохранить как визит</button><button class="btn btn-secondary" data-wzdoc="1">${z.showDoc?"Обновить данные из карты":"Выписка из карты"}</button><button class="btn btn-secondary" data-wzrev="1" ${z.revBusy?"disabled":""}>${z.revBusy?'<span class="spin"></span>Семейный врач разбирает…':(z.rev?"Разбор семейного врача — заново":"Попросить разбор семейного врача")}</button></div>
+        ${z.rev?`<div class="card" style="margin-top:12px"><h3 style="font-size:14px;margin:0 0 6px">Разбор семейного врача</h3><div class="mdview">${mdLite(z.rev)}</div><div class="muted" style="margin-top:8px">Это подготовка к приёму по вашим записям, не диагноз.</div></div>`:""}
         ${z.hoBusy?`<div class="muted" style="margin-top:8px">Семейный врач собирает памятку по образцу: задачи визита, что сказать, анамнез, что просить, вопросы, что взять. Это до двух минут.</div>`:""}
         <div class="row wznav"><button class="btn btn-secondary" data-wzback="1">← Назад</button><button class="btn btn-secondary" data-wzreset="1" style="margin-left:auto">Начать заново</button></div></div>
         ${z.ho?`<div class="card hoprint" id="docout"><div class="docbar nodoc"><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-secondary" data-wzho="${z.hoEdit?"view":"edit"}">${z.hoEdit?"Читать":"✎ Править текст"}</button><button class="btn btn-primary" data-wzho="save">${z.ho.id?"Сохранить изменения":"Сохранить"}</button><button class="btn btn-secondary" data-wzho="md">Скачать .md</button><button class="btn btn-secondary" data-wzho="print">PDF / печать</button>${z.ho.id?`<button class="btn btn-secondary" data-wzho="del">Удалить</button>`:""}</div>
@@ -5322,6 +5323,7 @@ function wzAct(e){
   if(b=t.closest("[data-wzadd]")){ const k=b.dataset.wzadd, el=document.getElementById("wzNew_"+k), v=(el&&el.value||"").trim(); if(v){ (z[k]=z[k]||[]).push({t:v,src:"своё",on:true}); wzPut(); render(); } return true; }
   if(b=t.closest("[data-wzdec]")){ const [i,v]=b.dataset.wzdec.split(":"); const tr=(z.treat||[])[+i]; if(tr){ tr.decision=tr.decision===v?"":v; wzPut(); render(); } return true; }
   if(t.closest("[data-wzai]")){ wzAi(); return true; }
+  if(t.closest("[data-wzrev]")){ wzReview(); return true; }
   if(b=t.closest("[data-hoopen]")){ const h=((HANDOUTS||{}).rows||[]).find(x=>x.id===b.dataset.hoopen); if(h){ Object.assign(z,{mode:"visit",step:7,spec:h.specialty||z.spec||"ped",date:h.visit_on||"",showDoc:false,hoEdit:false,ho:{id:h.id,text:h.body,title:h.title}}); wzPut(); render(); window.scrollTo({top:0}); } return true; }
   if(b=t.closest("[data-wzho]")){ const a=b.dataset.wzho, H=z.ho;
     if(a==="make"){ wzHandout(); return true; }
@@ -5365,6 +5367,20 @@ function wzBrief(d){
   return L.join("\n\n").slice(0,8500);
 }
 // памятка к приёму: ИИ составляет по образцу семьи; человек правит текст, сохраняет, скачивает, печатает
+// жирным — название показателя до двоеточия и числа значений (но не даты)
+function wzBold(t){ let h=esc(t);
+  h=h.replace(/^([^:<]{2,45}):/,"<b>$1</b>:");
+  h=h.replace(/(→\s*)(\d+(?:,\d+)?)(?![\d]|\.\d)/g,"$1<b>$2</b>");
+  h=h.replace(/^(<b>[^<]*<\/b>:\s*)(\d+(?:,\d+)?)(?![\d]|\.\d)/,"$1<b>$2</b>");
+  return h; }
+async function wzReview(){
+  const z=wzGet(), d=DATA[cur]; if(z.revBusy) return; if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  const who0=cur; z.revBusy=true; wzPut(); render();
+  try{ const j=await mkApi("ask",{mode:"doctor",question:`Разбери подготовку ${d.short} к приёму: ${specName(z.spec)}. Что в плане верно, чего не хватает, на что обратить внимание врача, какие вопросы стоит добавить.`,brief:wzBrief(d),search:specName(z.spec)+" "+(z.reasons||[]).filter(x=>x.on).slice(0,2).map(x=>x.t).join(" "),person:who0,prefer_kind:["razbor","passport"]});
+    z.rev=String(j.answer||"").trim(); }
+  catch(e){ toast("Врач не ответил, попробуйте ещё раз"); }
+  if(WZ_FOR===who0){ z.revBusy=false; wzPut(); } render();
+}
 async function wzHandout(){
   const z=wzGet(), d=DATA[cur]; if(z.hoBusy) return; if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
   const who0=cur; z.hoBusy=true; wzPut(); render();
