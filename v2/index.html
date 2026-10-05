@@ -1676,7 +1676,7 @@ function goTab(t){
   sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
   else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo"||t==="hp")?t:"dx";
-  else if(m.page==="home") tab=(m.sub==="cal")?"cal":"home";
+  else if(m.page==="home"){ if(m.sub==="cal"){ tab="all"; tlKind="cal"; } else tab="home"; }
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
   else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
   else tab=m.page;
@@ -1687,7 +1687,7 @@ function idOf(r){return DATA[cur].rec.indexOf(r)}   // это ИНДЕКС: у �
 // Проверять только через !=null — на «e.id?» верхняя запись в ленте переставала открываться (21.09.2026)
 
 // ── Таймлайн: месяц → день → события. Записи, симптомы и старты препаратов в одной ленте
-const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"],["event","События"]];
+const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"],["event","События"],["cal","Календарь"]];
 const TL_ICON={event:"📍",vac:"💉",visit:"👨‍⚕️",lab:"🧪",instr:"🩻",sym:"🤒",ep:"🩹",note:"📝",med:"💊",medend:"🏁",own:"⭐",meas:"⚖️"};
 const TL_KIND={event:"событие",vac:"прививка",visit:"приём",lab:"анализ",instr:"исследование",sym:"симптом",ep:"болезнь",note:"заметка",med:"начало курса",medend:"конец курса",own:"своё решение",meas:"замер"};
 const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
@@ -2613,7 +2613,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 18:47";   // подставляется при публикации
+const BUILD="05.10 18:52";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5952,7 +5952,7 @@ function shellMenu(){
   // «Ещё» (ТЗ-011 блок 3): только то, чего нет в нижней панели
   const d=DATA[cur]||{}, it=(ic,t,k,sub)=>`<a class="menu-item" data-dt="${k}" style="--i:${shellMenu.i++}"><span class="menu-item__ic">${ic}</span>${t}</a>`;
   shellMenu.i=0;
-  return `<div class="menu-title">Ещё</div>${it("👤","Профиль и семья","prof")}${it("📅","Календарь","cal")}${it("🧬","Здоровье: диагнозы и анамнез","dx")}${it("📋","Подготовка к приёму врача","doc")}
+  return `<div class="menu-title">Ещё</div>${it("👤","Профиль и семья","prof")}${it("🧬","Здоровье: диагнозы и анамнез","dx")}${it("📋","Подготовка к приёму врача","doc")}
     <div class="drawer__foot"><div class="menu-sep"></div><a class="menu-item is-danger" data-dt="logout"><span class="menu-item__ic">↪</span>Выйти</a></div>`;
 }
 function shellRender(){
@@ -6036,21 +6036,23 @@ function googleCalUrl(ev){
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(ev.t)+"&dates="+dates+"&details="+encodeURIComponent(ev.note||"Медкнижка");
 }
 let calSt=null;
-function calTab(m){
+function calTab(m){ m.innerHTML=`<div class="card"><h2 class="t-h2">Календарь</h2>${calBody()}</div>`; }
+// календарь без внешней карточки — вкладка «Календарь» в ленте событий
+function calBody(){
   const d=DATA[cur], today=localDay(); plansLoad();
   if(!calSt) calSt={y:+today.slice(0,4),m:+today.slice(5,7)-1,sel:today};
   const E=calEvents(d,PLANS?PLANS.filter(p=>p.person===cur):[]), pad=n=>String(n).padStart(2,"0");
   const first=new Date(calSt.y,calSt.m,1), lead=(first.getDay()+6)%7, cells=[];
   for(let i=0;i<42;i++){ const x=new Date(calSt.y,calSt.m,1-lead+i), k=`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; cells.push({d:x.getDate(),k,out:x.getMonth()!==calSt.m}); }
   const list=E[calSt.sel]||[], [sy,sm,sd]=calSt.sel.split("-");
-  m.innerHTML=`<div class="card"><h2 class="t-h2">Календарь</h2><div class="cal" id="cal">
+  calSt.E=E;
+  return `<div class="cal" id="cal">
     <div class="cal__head"><button class="btn btn-ghost" data-cal="today">Сегодня</button><div class="cal__nav"><button class="icon-btn" data-cal="prev" aria-label="Предыдущий месяц">‹</button><span class="cal__title">${MONTHS1[calSt.m]} ${calSt.y}</span><button class="icon-btn" data-cal="next" aria-label="Следующий месяц">›</button></div></div>
     <div class="cal__grid">${["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(x=>`<div class="cal__dow">${x}</div>`).join("")}</div>
     <div class="cal__grid" style="margin-top:4px">${cells.map(c=>`<button class="cal__day${c.out?" is-out":""}${c.k===today?" is-today":""}${c.k===calSt.sel?" is-sel":""}" data-calday="${c.k}" aria-label="${c.k}">${c.d}<span class="cal__dots">${(E[c.k]||[]).slice(0,3).map(e=>`<i data-k="${e.k==="plan"?"visit":e.k}"></i>`).join("")}</span></button>`).join("")}</div>
     <div class="cal-legend"><span style="--c:var(--accent)"><i></i>приём</span><span style="--c:var(--positive)"><i></i>анализ</span><span style="--c:var(--warning)"><i></i>курс лекарства</span><span style="--c:var(--negative)"><i></i>симптом</span></div>
     <div class="cal-events">${list.length?list.map((e,i)=>`<div class="cal-ev" style="--c:${({visit:"var(--accent)",plan:"var(--accent)",lab:"var(--positive)",med:"var(--warning)",sym:"var(--negative)"})[e.k]};--i:${i}"><div><b>${esc(e.t)}</b><span>${+sd} ${MONTHS[+sm-1]}${e.time?" · "+esc(e.time):""}</span></div>
-      <button class="icon-btn" title="Добавить в календарь" data-calev="${i}" ${calSt.sel<today?"disabled":""}>📅</button></div>`).join(""):`<div class="empty"><span class="empty__ic">📭</span>На этот день записей нет</div>`}</div></div></div>`;
-  calSt.E=E;
+      <button class="icon-btn" title="Добавить в календарь" data-calev="${i}" ${calSt.sel<today?"disabled":""}>📅</button></div>`).join(""):`<div class="empty"><span class="empty__ic">📭</span>На этот день записей нет</div>`}</div></div>`;
 }
 // окно «Добавить в календарь»: ссылка или файл (Apple, Outlook, Яндекс); напоминание за 3 дня
 function calOpen(ev){
@@ -7673,11 +7675,11 @@ function render(){
           ${others.map(x=>`<span class="tag" data-w="${x.k}" style="cursor:pointer;font-size:13px;padding:4px 10px">${DATA[x.k].short} — ${x.n} →</span>`).join(" ")}</div>`:""}
       </div>`:""}
       <div class="card" id="s-rec">
-        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?tlKindFilter(tlEvents(d),tlKind).length:list.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>
+        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>
         ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
           <div id="vtab">${visitsTable(list,d)}</div>`
         :`${tab==="all"&&!sysFilter?"":filterBar()}${tab==="lab"&&sysFilter?hpOrgCard(d,sysFilter):""}
-        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+timeline(d):tableRows(list,{showType:tab==="all"})}`}
+        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+(tlKind==="cal"?calBody():timeline(d)):tableRows(list,{showType:tab==="all"})}`}
         ${(!list.length&&sysFilter&&other)?`<div style="text-align:center;margin-top:10px">
           <button class="btn btn-primary btn-block" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
