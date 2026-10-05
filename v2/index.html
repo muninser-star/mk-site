@@ -2554,7 +2554,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 08:58";   // подставляется при публикации
+const BUILD="05.10 09:01";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3832,8 +3832,9 @@ function epCard(epId){
       ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">—</div>`)}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
       ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
-      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button></div>
+      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button></div>
     </div></div>`;
+  const pl=document.getElementById("epPlan"); if(pl) pl.onclick=()=>{ planOpen(null); planEdit.purpose=ep.dx||""; planEdit.specialty=planSpecFor(ep.dx); planDraw(); };
   const eh=document.getElementById("epHome"); if(eh) eh.onchange=()=>homeHideSet(cur,ep.id,!eh.checked);
   const cl=document.getElementById("epClose");
   if(cl) cl.onclick=()=>{
@@ -4346,6 +4347,13 @@ function allergyCard(d){
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Дата</th></tr></thead><tbody>
     ${A.rows.map(r=>`<tr><td><b>${esc(r.title)}</b></td><td><span class="status status-${r.st==="ok"?"ok":r.st==="bad"?"bad":"warn"}">${esc(r.v)}</span></td><td class="muted">${esc(r.n||"—")}</td><td class="muted">${ru(r.d)}</td></tr>`).join("")}
     </tbody></table></div></div>`;
+}
+// специальность для «Запланировать приём» из карточки болезни; не угадали — педиатр / терапевт
+function planSpecFor(dx){
+  const t=String(dx||"").toLowerCase();
+  const M=[[/стоп|сколиоз|осанк|вальгус|варус|сустав|ортопед/,"ortho"],[/энурез|почк|моч/,"uro"],[/анеми|железа|ферритин/,"hema"],[/аллерг|ринит/,"allergo"],[/глаз|миопи|зрени|гиперметроп/,"ophth"],
+    [/кожа|дерматит|экзем|зуд/,"derm"],[/зуб|кариес/,"dent"],[/ухо|горло|лор|отит|синусит/,"ent"],[/сердц|аритм|давлени/,"cardio"],[/живот|гастрит|жкт|стул/,"gastro"],[/тревож|невроз|сон|поведен/,"psych"]];
+  const hit=M.find(x=>x[0].test(t)); return hit?hit[1]:"ped";
 }
 // ключ дела для «готово» / «напомнить»: название строчными; состояние лежит у кода доступа
 const taskKey=t=>favKey(t).slice(0,120);
