@@ -1651,15 +1651,16 @@ function silhouette(){
 }
 
 // ── Вкладки
-const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"],["visit","Посещения"],["instr","Исследования"],["lab","Анализы"],["dyn","Динамика"],["sym","Симптомы"],["dx","Диагнозы"],["anam","Анамнез"]];
+const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["sym","Симптомы"],["dx","Диагнозы"],["anam","Анамнез"]];
 // Медкарта — один пункт верхнего меню, внутри разделы. Симптомы первыми
 // ── Навигация (ТЗ-011 блоки 2–3): одно меню Медкарты и нижняя панель
-function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["visit","Посещения"],["lab","Анализы"],["instr","Исследования"],["dyn","Динамика"],["all","Лента"],["doc","Для врача"]]; }
-const CARD=cardTabs(), CARDK=["sym","visit","lab","instr","dyn","all","doc"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
+function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["all","Лента"],["doc","Для врача"]]; }
+const CARD=cardTabs(), CARDK=["sym","visit","lab","dyn","all","doc"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
 // старые значения tab → {page, sub}; нужны ссылкам и карточкам, которые ставили прежние вкладки
 function legacyTab(t){
   if(t==="ill") return {page:"card",sub:"ill"};
-  if(["sym","visit","lab","instr","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
+  if(t==="instr") return {page:"card",sub:"lab"};   // исследования объединены с анализами
+  if(["sym","visit","lab","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
   if(t==="card") return {page:"card",sub:"sym"};
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
   if(t==="hp") return {page:"profile",sub:"hp"};
@@ -1986,6 +1987,18 @@ function insightsGaps(d){
   if(!g.length) return "";
   return `<div class="card"><h2>Что стоит проверить <span class="hint" tabindex="0" title="Пробелы в данных, а не диагнозы. Список собирается сам." aria-label="Пробелы в данных, а не диагнозы. Список собирается сам.">?</span></h2>
     <ul class="ins-g">${g.slice(0,8).map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+}
+// «Анализы и исследования»: два блока, в каждом по 10 записей и «Показать ещё»
+let pgShown={lab:10,instr:10}, pgSig="";
+function pgReset(){ const sig=cur+"|"+sysFilter+"|"+query; if(sig!==pgSig){ pgSig=sig; pgShown={lab:10,instr:10}; } }
+function pgSlice(n,shown){ return {items:n.slice(0,shown),rest:Math.max(0,n.length-shown)}; }
+function labInstrHtml(labs,instr){
+  pgReset();
+  const blk=(key,title,list,add)=>{ const pg=pgSlice(list,pgShown[key]);
+    return `<div class="pgsec"><h3 style="font-size:16px;margin:14px 0 8px">${title} <span class="muted">— ${list.length}</span>${add||""}</h3>
+      ${tableRows(pg.items,{empty:key==="lab"?"Анализов нет":"Исследований нет"})}
+      ${pg.rest?`<button class="btn btn-secondary btn-block" data-pgmore="${key}" style="margin-top:8px">Показать ещё ${Math.min(10,pg.rest)} · осталось ${pg.rest}</button>`:""}</div>`; };
+  return blk("lab","Анализы",labs)+blk("instr","Исследования",instr,`<button class="btn btn-secondary" id="recAddInstr" style="float:right;height:30px;font-size:13px">＋ Исследование</button>`);
 }
 function tableRows(list,opt){
   opt=opt||{};
@@ -2618,7 +2631,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 18:59";   // подставляется при публикации
+const BUILD="05.10 19:07";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7672,7 +7685,7 @@ function render(){
   }
 
   else{
-    const list=recs(tab==="all"?null:tab);
+    const list=recs(tab==="all"?null:tab), list2=tab==="lab"?recs("instr"):[];
     const ser=seriesOf(d).filter(s=>!sysFilter||s.sys===sysFilter);
     const showCharts=(tab==="lab"||sysFilter)&&ser.length;
     const other=sysFilter?DATA[cur].rec.filter(r=>inSys(r,sysFilter)).length:0;
@@ -7700,12 +7713,12 @@ function render(){
           ${others.map(x=>`<span class="tag" data-w="${x.k}" style="cursor:pointer;font-size:13px;padding:4px 10px">${DATA[x.k].short} — ${x.n} →</span>`).join(" ")}</div>`:""}
       </div>`:""}
       <div class="card" id="s-rec">
-        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>
+        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length+list2.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>
         ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
           <div id="vtab">${visitsTable(list,d)}</div>`
         :`${tab==="all"&&!sysFilter?"":filterBar()}${tab==="lab"&&sysFilter?hpOrgCard(d,sysFilter):""}
-        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+(tlKind==="cal"?calBody():timeline(d)):tableRows(list,{showType:tab==="all"})}`}
-        ${(!list.length&&sysFilter&&other)?`<div style="text-align:center;margin-top:10px">
+        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+(tlKind==="cal"?calBody():timeline(d)):(tab==="lab"?labInstrHtml(list,list2):tableRows(list,{showType:tab==="all"}))}`}
+        ${(!list.length&&!list2.length&&sysFilter&&other)?`<div style="text-align:center;margin-top:10px">
           <button class="btn btn-primary btn-block" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
       ${query?`
@@ -7863,6 +7876,8 @@ document.addEventListener("click",e=>{
   if(e.target.closest("#todoAll")){ todoAll=!todoAll; render(); return; }
   if(e.target.closest("#pendBar")){ showPending(); return; }
   if(e.target.closest("#newSym")){ newSymForm(); return; }
+  if(e.target.closest("#recAddInstr")){ if(typeof docForm==="function") docForm(); return; }
+  const pgm=e.target.closest("[data-pgmore]"); if(pgm){ pgShown[pgm.dataset.pgmore]+=10; render(); return; }
   if(e.target.closest("#recAdd")){ const f=tab==="visit"?visitForm:tab==="lab"?labForm:docForm; if(typeof f==="function") f(); return; }   // исследование — документом или текстом: отдельной формы нет
   if(e.target.closest("#newEp")){ newEpForm(); return; }
   const em=e.target.closest(".editmed"); if(em){ e.stopPropagation(); medForm(+em.dataset.entry); return; }
