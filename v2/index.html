@@ -2566,7 +2566,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 11:11";   // подставляется при публикации
+const BUILD="05.10 11:16";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3593,7 +3593,7 @@ function symChatCard(name){
   return `<div class="card" id="symChat"><h2>Консультация семейного врача</h2>
     <div class="muted" style="font-size:12px;margin-bottom:8px">Семейный врач (нейросеть) разбирает по вашим записям и общей практике. Рецептурные препараты и дозировки детям не назначает. Не заменяет приём. Разговор сохраняется</div>
     ${base?`<div class="chatm chatm--a"><div class="muted" style="font-size:11.5px">Разбор из записей</div>${mdLite(base.answer)}</div>`:""}
-    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div><div class="chatm chatm--a">${r.answer?mdLite(r.answer):'<span class="muted">Не получилось ответить.</span>'}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>`).join("")}
+    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>`:""}`).join("")}
     ${c.busy?`<div class="chatm chatm--a muted">Врач разбирает ситуацию… это до минуты</div>`:""}
     ${!c.rows.length&&!c.busy?`<button class="btn btn-primary" data-chatsend="${esc(name)}" data-chatfull="1" style="margin:6px 0">Разобрать ситуацию целиком</button>`:""}
     <div class="chatbox"><textarea id="chatIn" rows="3" placeholder="Задайте вопрос врачу. Enter — отправить, Shift+Enter — новая строка" ${c.busy?"disabled":""}></textarea>
