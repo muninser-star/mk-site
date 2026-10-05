@@ -2613,7 +2613,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 18:55";   // подставляется при публикации
+const BUILD="05.10 18:57";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4711,10 +4711,11 @@ const ORGAN_IND={
   glu:["Глюкоза",["глюкоза","глюкоза натощак"]], hba1c:["HbA1c",["гликированный гемоглобин","гликированный гемоглобин (hba1c)","hba1c"]], insulin:["Инсулин",["инсулин"]],
   ca:["Кальций",["кальций"]], phos:["Фосфор",["фосфор"]], pth:["Паратгормон",["паратгормон","птг"]], vitd:["Витамин D",["витамин d","25(oh)d","25-он витамин d"]],
   eos:["Эозинофилы",["эозинофилы","эозинофилы %","эозинофилы абсолютные"]], ige:["Общий IgE",["общий ige","ige общий","иммуноглобулин e общий"]], igg:["IgG",["igg","иммуноглобулин g"]],
-  lymph:["Лимфоциты",["лимфоциты","лимфоциты %","лимфоциты абсолютные","лимфоциты относительные"]], b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]]
+  lymph:["Лимфоциты",["лимфоциты","лимфоциты %","лимфоциты абсолютные","лимфоциты относительные"]], vgd:["Внутриглазное давление",["внутриглазное давление","вгд"]], refr:["Рефракция",["рефракция","авторефрактометрия"]], fundus:["Осмотр глазного дна",["осмотр глазного дна"]], biom:["Биометрия (ПЗО)",["биометрия (пзо)"]], visus:["Острота зрения",["острота зрения"]], perim:["Периметрия",["периметрия"]],
+  b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]]
 };
 // панельные записи без отдельных значений: «Клинический анализ крови с лейкоформулой и СОЭ», «Общий анализ крови (6 месяцев)», «Липидный профиль» — засчитываются показателям панели
-const ORGAN_PANELS={oak:[/^(общий|клинический) анализ крови/,/^оак( |$)/],soe:[/^(общий|клинический) анализ крови.*соэ/,/(^| )соэ( |$)/],chol:[/^липидный профиль/],ldl:[/^липидный профиль/],hdl:[/^липидный профиль/],tg:[/^липидный профиль/]};
+const ORGAN_PANELS={vgd:[/^внутриглазное давление/],refr:[/^рефракция/],oak:[/^(общий|клинический) анализ крови/,/^оак( |$)/],soe:[/^(общий|клинический) анализ крови.*соэ/,/(^| )соэ( |$)/],chol:[/^липидный профиль/],ldl:[/^липидный профиль/],hdl:[/^липидный профиль/],tg:[/^липидный профиль/]};
 // sys — коды системы записи; instr — слова в названии исследования; spec — специальности врача; topic — тема опроса (блок 3)
 const ORGANS=[
   {id:"blood",name:"Кровь",icon:"🩸",set:["oak","ferritin","iron","soe"],sys:["blood"],instr:[],spec:["гематолог"],topic:"blood"},
@@ -4727,6 +4728,7 @@ const ORGANS=[
   {id:"bones",name:"Кости, суставы, мышцы",icon:"🦴",set:["ca","vitd","phos","pth"],sys:["bone","ortho","spine","fit"],instr:["рентген","мрт сустав","мрт позвоночн","денситометр"],spec:["ортопед","травматолог","ревматолог"],topic:"bones"},
   {id:"lungs",name:"Дыхание",icon:"🫁",set:["eos","ige","crp"],sys:["lung","ent"],instr:["рентген лёгк","рентген легк","кт лёгк","кт легк","спирометр","флюорограф"],spec:["лор","отоларинголог","пульмонолог"],topic:"lungs"},
   {id:"nerves",name:"Нервная система",icon:"🧠",set:["b12","mg","folate"],sys:["neuro","sleep","psy"],instr:["мрт голов","кт голов","ээг","узд"],spec:["невролог"],topic:"nerves"},
+  {id:"eyes",name:"Глаза",icon:"👁",set:["vgd","refr","fundus","biom","visus","perim"],sys:["eye"],instr:["офтальмоскоп","окт ","периметр","биометри","рефракт","рефрактометр","гониоскоп"],spec:["офтальмолог","окулист"],topic:"eyes"},
   {id:"immune",name:"Иммунитет, кожа и аллергия",icon:"🛡",set:["ige","iga","igg","lymph"],sys:["immun","allerg","skin"],instr:["кожные пробы","прик"],spec:["аллерголог","иммунолог","дерматолог","дерматовенеролог"],topic:"immune"}
 ];
 function isoAddMonths(iso,m){ const [y,mo,d]=iso.split("-").map(Number); const t=new Date(Date.UTC(y,mo-1+m,1)); const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();
@@ -4739,7 +4741,10 @@ function organPoints(indKey,rows,from,today){ const syn=ORGAN_IND[indKey][1], se
   (rows||[]).forEach(r=>{ if(!r||!r.d||r.d<from||r.d>today||!(syn.includes(favKey(r.n))||(ORGAN_PANELS[indKey]||[]).some(re=>re.test(favKey(r.n))))) return; const k=r.d+"|"+favKey(r.n); if(seen.has(k)) return; seen.add(k); out.push(r); });
   return out.sort((a,b)=>b.d.localeCompare(a.d)); }
 // строки для расчёта: числовые показатели (measRows) + анализы из записей без числового значения («Общий анализ мочи», панели): факт сдачи тоже считается
+const EYE_EXAMS=[["Осмотр глазного дна",/дна|дно|офтальмоскоп|мидриаз/],["Рефракция",/рефракц|рефрактометр/],["Биометрия (ПЗО)",/биометри|пзо/],["Острота зрения",/visus|остро\S* зрения/],["Периметрия",/периметр/]];
 function organRows(meas,rec){ const out=(meas||[]).slice(), seen=new Set(out.map(r=>r.d+"|"+favKey(r.n)));
+  (rec||[]).forEach(r=>{ if(!r||!r.d||(r.t!=="instr"&&r.t!=="visit")) return; const txt=favKey((r.title||"")+" "+(r.res||"")); if(r.sys!=="eye"&&!/офтальмолог|окулист/.test(txt)) return;
+    EYE_EXAMS.forEach(([n,re])=>{ if(!re.test(txt)) return; const k=r.d+"|"+favKey(n); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n,v:"проведено",u:"",norm:""}); }); });
   (rec||[]).forEach(r=>{ if(!r||r.t!=="lab"||!r.title||!r.d) return; const k=r.d+"|"+favKey(r.title); if(seen.has(k)) return; seen.add(k); out.push({d:r.d,n:r.title,v:r.v||"сдан",u:"",norm:r.n||"",nov:!r.v}); });
   return out; }
 // полнота органа 0–100: анализы 70 × доля набора за 12 мес + динамика 10 + исследование или приём за 24 мес 20; опрос — замена анализов до 35, если их меньше 35
@@ -4815,7 +4820,7 @@ function hpOrgHtml(d,m,id){
   const inSet=new Set(o.set.flatMap(k=>ORGAN_IND[k][1]));
   const others=[], seen=new Set(); (m.rec||[]).filter(r=>r&&r.t==="lab"&&o.sys.includes(r.sys)&&r.title&&!inSet.has(favKey(r.title))).sort((a,b)=>b.d.localeCompare(a.d)).forEach(r=>{ if(!seen.has(r.title)&&others.length<8){ seen.add(r.title); others.push(r); } });
   const flag=f=>f==="в норме"?`<span class="status status-ok">в норме</span>`:f==="выше"||f==="ниже"?`<span class="status status-warn">${f}</span>`:"";
-  const tbl=det.map(x=>x.v==null?`<tr><td>${esc(x.k)}</td><td class="muted" colspan="3">не сдавали за последние 12 месяцев</td></tr>`
+  const tbl=det.map(x=>x.v==null?`<tr><td>${esc(x.k)}</td><td class="muted" colspan="3">нет за последние 12 месяцев</td></tr>`
     :`<tr><td>${esc(x.k)}${x.n&&favKey(x.n)!==favKey(x.k)?` <span class="muted">(${esc(x.n)})</span>`:""}</td><td><b>${esc(x.v)}</b> ${esc(x.u)}</td><td>${flag(x.flag)}${x.prev?`<div class="muted">было ${esc(x.prev.v)} (${ru(x.prev.d)})</div>`:""}</td><td class="muted">${ru(x.d)}${x.norm?`<br>норма ${esc(x.norm)}`:""}</td></tr>`).join("");
   const src=(ok,t)=>`<div class="hpsrc"><span class="${ok?"hpok":"hpno"}">${ok?"✓":"—"}</span> ${t}</div>`;
   return `<div class="card"><button type="button" class="btn btn-secondary" data-hporg="" style="height:34px">← Все органы</button>
@@ -4831,7 +4836,7 @@ function hpOrgCard(d,sys){
   const i=ORGANS.findIndex(o=>o.sys.includes(sys)); if(i<0) return "";
   const o=ORGANS[i], m=hpModel(d), c=m.covs[i], det=organDetail(o.id,m.rows,m.today);
   const fl=f=>f==="в норме"?`<span style="color:var(--ok)">${f}</span>`:f==="выше"||f==="ниже"?`<span style="color:var(--warn)">${f}</span>`:"";
-  const cells=det.map(x=>x.v==null?`<div class="hpmini hpmini--no"><b>${esc(x.k)}</b><span class="muted">не сдавали за год</span></div>`
+  const cells=det.map(x=>x.v==null?`<div class="hpmini hpmini--no"><b>${esc(x.k)}</b><span class="muted">нет за год</span></div>`
     :`<div class="hpmini"><b>${esc(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span></div>`).join("");
   return `<div class="hpcard"><div class="hpcard__h"><span>${o.icon} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
     <div class="hpminis">${cells}</div>
