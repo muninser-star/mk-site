@@ -2635,7 +2635,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 19:21";   // подставляется при публикации
+const BUILD="05.10 19:25";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4794,7 +4794,7 @@ function organDetail(id,rows,today,risk){
     if(k==="oak"){ const hb=p.filter(x=>favKey(x.n)==="гемоглобин"); if(hb.length) p=hb.concat(p.filter(x=>favKey(x.n)!=="гемоглобин")); }   // для ОАК — гемоглобин, если он есть
     const l=p[0]; if(!l) return {k:ORGAN_IND[k][0],v:null,tone:risk?"r2":"n"};
     const pv=p.find((x,i)=>i>0&&x.d<l.d&&favKey(x.n)===favKey(l.n));
-    const ageM=monthsAgo(l.d,today);
+    const ageM=monthsSince(l.d,today);
     return {k:ORGAN_IND[k][0],n:l.n,v:String(l.v),u:l.u||"",d:l.d,norm:l.norm||"",ageM,months,tone:staleTone(ageM,months,!!risk),flag:fl(l.v,l.norm,l.st),prev:pv?{v:String(pv.v),d:pv.d,flag:fl(pv.v,pv.norm,pv.st)}:null}; });
 }
 // процент профиля (блок 4): профиль 10 (имя 3, пол 3, дата рождения 4) + базовый опрос 10 (от 12 ответов) + 80 × среднее полнот органов; округление один раз
@@ -4802,14 +4802,14 @@ function profileCompleteness(p,basicAnswered,scores){
   const prof=(p&&p.name?3:0)+(p&&p.sex?3:0)+(p&&p.dob?4:0), basic=basicAnswered>=12?10:0, sum=(scores||[]).reduce((a,b)=>a+b,0);
   return Math.round(+(prof+basic+80*sum/(100*ORGANS.length)).toFixed(6)); }
 // тон фильтра системы в «Анализах»: n — анализов нет (серый); g1–g3 — всё в норме (оттенки зелёного по числу показателей); r1–r3 — есть отклонения (оттенки красного по доле и тяжести)
-function monthsAgo(iso,today){ const [y1,m1,d1]=String(iso).split("-").map(Number), [y2,m2,d2]=today.split("-").map(Number); return (y2-y1)*12+(m2-m1)-(d2<d1?1:0); }
+function monthsSince(iso,today){ const [y1,m1,d1]=String(iso).split("-").map(Number), [y2,m2,d2]=today.split("-").map(Number); return (y2-y1)*12+(m2-m1)-(d2<d1?1:0); }
 // насколько показатель просрочен: ratio = месяцев с последнего анализа / период; зона риска усиливает на ступень. "" — не просрочен, r1–r3 — оттенок красного
 function staleTone(ageM,months,risk){ const ratio=ageM/months; if(!(ratio>=1)) return ""; return "r"+Math.min(3,(ratio>=2?2:1)+(risk?1:0)); }
 function sysTone(rec,sys,opt){
   const inS=typeof sys==="function"?sys:(x=>[].concat(sys).includes(x));
   const last=new Map(); (rec||[]).filter(r=>r&&r.t==="lab"&&inS(r.sys)&&r.title).sort((a,b)=>String(b.d).localeCompare(String(a.d))).forEach(r=>{ const k=favKey(r.title); if(!last.has(k)) last.set(k,r); });
   const L=[...last.values()]; if(!L.length) return {tone:"n",n:0,bad:0};
-  const stale=r=>{ if(!opt||!opt.today) return 0; const t=staleTone(monthsAgo(r.d,opt.today),opt.months||12,!!opt.risk); return t?Math.min(2,+t[1]):0; };
+  const stale=r=>{ if(!opt||!opt.today) return 0; const t=staleTone(monthsSince(r.d,opt.today),opt.months||12,!!opt.risk); return t?Math.min(2,+t[1]):0; };
   const w0=r=>r.st==="bad"?2:r.st==="warn"?1:(!r.st&&["выше","ниже"].includes(flagByNorm(String(r.v||"").match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",r.n))?1:0), w=r=>Math.max(w0(r),stale(r));
   const sum=L.reduce((a,r)=>a+w(r),0), bad=L.filter(r=>w(r)>0).length;
   if(!sum) return {tone:L.length>=6?"g3":L.length>=3?"g2":"g1",n:L.length,bad:0};
