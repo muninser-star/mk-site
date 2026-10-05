@@ -2554,7 +2554,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="05.10 09:01";   // подставляется при публикации
+const BUILD="05.10 09:03";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3828,7 +3828,7 @@ function epCard(epId){
       <div class="ill__head"><div><h3 class="ill__title">${esc(ep.dx||"Без диагноза")}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div></div>
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
       ${sec("Симптомы — "+L.sym.length,symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">—</div>`)}
-      ${sec("Приёмы — "+L.visits.length,L.visits.length?L.visits.map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0"><div class="tl-date">${ru(r.d).slice(0,5)}</div><div class="tl-ic tl-ic--visit">🩺</div><div><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`)}
+      ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)); return sec("Приёмы — "+V.length+(V.length>5?" (последние 5)":""),V.length?V.slice(0,5).map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0;align-items:center"><span class="status status-${r.st==="ok"?"ok":"bad"}" style="white-space:nowrap">${ru(r.d)}</span><div><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`); })()}
       ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">—</div>`)}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
       ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
