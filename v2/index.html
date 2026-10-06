@@ -1671,13 +1671,14 @@ function legacyTab(t){
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
   if(t==="hp") return {page:"profile",sub:"hp"};
   if(t==="hist") return {page:"profile",sub:"hist"};
-  if(t==="prof"||t==="ins") return {page:"profile",sub:t==="ins"?"insights":"about"};
+  if(t==="prof") return {page:"profile",sub:"hp"};   // «О человеке» влито в «Профиль здоровья»
+  if(t==="ins") return {page:"profile",sub:"insights"};
   if(t==="cal") return {page:"home",sub:"cal"};
   if(t==="nutr"||t==="diary") return {page:"nutr",sub:"today"};
   if(["home","ask","sys","task"].includes(t)) return {page:t};
   return {page:"home"};
 }
-function profTabs(){ return [["prof","О человеке"],["hp","Профиль здоровья"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
+function profTabs(){ return [["hp","Профиль здоровья"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
 function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"AI-консультант"}]; }
@@ -1687,7 +1688,7 @@ function goTab(t){
   const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
   sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
-  else if(m.page==="profile") tab=(t==="anam")?"anam":(t==="prof"||t==="ins"||t==="todo"||t==="hp"||t==="hist")?t:"dx";
+  else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist")?t:"dx";
   else if(m.page==="home"){ if(m.sub==="cal"){ tab="all"; tlKind="cal"; } else tab="home"; }
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
   else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
@@ -2638,7 +2639,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="06.10 17:37";   // подставляется при публикации
+const BUILD="06.10 17:57";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4876,6 +4877,19 @@ function hpRing(p){ const r=40, c=2*Math.PI*r, off=c*(1-Math.min(100,p)/100);
     <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 50 50)"/>
     <text x="50" y="57" text-anchor="middle" font-size="24" font-weight="700" fill="currentColor">${p}%</text></svg>`; }
 function hpBar(divs){ return `<span class="hpbar" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${i<=divs?"on":""}"></i>`).join("")}</span>`; }
+// «Профиль здоровья» (объединено с «О человеке», 06.10.2026): сверху карточка здоровья, ниже сведения о человеке, ниже — полнота профиля и органы
+function profKpiHtml(d){ const k=kpiLive(d); return k.length?`<div class="card"><h2>Карточка здоровья</h2><div class="kpis">${k.map(x=>`<div class="kpi${x.st?" kpi--"+x.st:""}"><div class="kpi__lab">${esc(x.lab)}</div>
+        <div class="kpi__val${String(x.val).length>10?" long":""}">${esc(x.val)}</div><div class="kpi__sub">${esc(x.sub||"")}</div></div>`).join("")}</div></div>`:""; }
+function profAboutHtml(d){
+  const pp=(PPL&&PPL.people.find(x=>x.id===cur))||null, a=pp&&pp.birth_date?ageOf(pp.birth_date,localDay()):null;
+  return `<div class="card"><h2>${esc(d.name)}</h2>
+      <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
+      ${d.note?`<div class="muted" style="margin-top:6px">${esc(d.note)}</div>`:""}
+      <div class="row" style="margin-top:12px"><button class="btn btn-secondary" id="profEdit">Изменить данные и семья</button></div></div>`; }
+function profileHealthHtml(d){
+  if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
+  return profKpiHtml(d)+profAboutHtml(d)+hpHtml(d);
+}
 function hpTile(d){ const m=hpModel(d);
   return `<div class="card hptile" data-t="hp" role="button" tabindex="0" aria-label="Профиль здоровья, заполнено ${m.pct}%"><div class="hptile__n">${m.pct}%</div>
     <div><b>Профиль здоровья</b><div class="muted">${m.pct>=100?"заполнено полностью":"заполнено"} · данные есть по ${m.known} из ${ORGANS.length} органов</div></div><span class="hptile__go" aria-hidden="true">›</span></div>`; }
@@ -7319,18 +7333,8 @@ function render(){
     }
   }
 
-  else if(tab==="hp"){ m.innerHTML=hpHtml(d); }
+  else if(tab==="hp"){ m.innerHTML=profileHealthHtml(d); const pe=document.getElementById("profEdit"); if(pe) pe.onclick=()=>profOpen(cur); }   // «Профиль здоровья»: карточка здоровья → сведения о человеке → полнота и органы (ТЗ-009 блоки 4 и 11)
   else if(tab==="hist"){ m.innerHTML=histHtml(d); histBind(m); }   // ТЗ-022 блок 1: история добавлений   // ТЗ-009 блоки 4 и 11
-  else if(tab==="prof"){   // ТЗ-011 блок 7: профиль — сведения о человеке и карточка здоровья
-    const pp=(PPL&&PPL.people.find(x=>x.id===cur))||null, a=pp&&pp.birth_date?ageOf(pp.birth_date,localDay()):null;
-    m.innerHTML=`<div class="card"><h2>${esc(d.name)}</h2>
-      <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
-      ${d.note?`<div class="muted" style="margin-top:6px">${esc(d.note)}</div>`:""}
-      <div class="row" style="margin-top:12px"><button class="btn btn-secondary" id="profEdit">Изменить данные и семья</button></div></div>
-    ${kpiLive(d).length?`<div class="card"><h2>Карточка здоровья</h2><div class="kpis">${kpiLive(d).map(k=>`<div class="kpi${k.st?" kpi--"+k.st:""}"><div class="kpi__lab">${esc(k.lab)}</div>
-        <div class="kpi__val${String(k.val).length>10?" long":""}">${esc(k.val)}</div><div class="kpi__sub">${esc(k.sub||"")}</div></div>`).join("")}</div></div>`:""}`;
-    const pe=document.getElementById("profEdit"); if(pe) pe.onclick=()=>profOpen(cur);
-  }
   else if(tab==="ins"){   // «Выводы»: полные «Что изменилось» и «Что стоит проверить»
     m.innerHTML=insightsChanged(d)+insightsGaps(d)||`<div class="card"><div class="empty">Пока выводов нет</div></div>`;
   }
