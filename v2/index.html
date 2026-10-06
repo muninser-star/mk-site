@@ -505,6 +505,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   .card:hover,.hero-card:hover,.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover,.who button:hover{transform:none!important}
 }
 /* «Месяц» — полоса из 30 дней (ТЗ-010 блок 8) */
+.heat-row.mrow2{grid-template-columns:130px 150px 1fr}.mrow2__med{line-height:1.35}@media(max-width:700px){.heat-row.mrow2{grid-template-columns:110px 1fr}.mrow2__med{grid-column:1/-1;order:3}}
 .mrow2{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.mrow2:first-of-type{border-top:0}
 .mrow2-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-bottom:8px}
 .mcells{display:grid;grid-template-columns:repeat(30,1fr);gap:2px}
@@ -2640,7 +2641,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="06.10 22:38";   // подставляется при публикации
+const BUILD="06.10 22:41";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7301,7 +7302,8 @@ function render(){
             <div class="heat-row__lab"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
               <div class="muted" style="font-size:12px">${r.days} ${plural(r.days,"день","дня","дней")} из 30${r.avg!=null?` · <span class="status status-${r.avg>=7?"bad":r.avg>=4?"warn":"ok"}" style="height:18px;padding:0 6px">${String(r.avg).replace(".",",")}</span>`:""}</div>
               <div style="font-size:12px">${TR[r.trend]} <span class="muted">${lastAgo(r.last,today)}</span></div>
-              ${(()=>{const mm=medsOf((byName[r.n]||[]).filter(x=>x.d>=d30)).map(x=>x.name); return `<div style="font-size:12px;margin-top:2px"><span class="muted">чем лечили:</span> ${mm.length?medLinks(mm):"<span class='muted'>не лечил</span>"}</div>`;})()}</div>
+</div>
+            <div class="mrow2__med" style="font-size:13px">${(()=>{const mm=medsOf((byName[r.n]||[]).filter(x=>x.d>=d30)).map(x=>x.name); return mm.length?medLinks(mm):"<span class='muted'>не лечил</span>";})()}</div>
             <div class="heat heat--sm">${r.cells.map((c,k)=>`<i data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}" data-dt="${dayShift(today,k-29)}" data-tip="${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"не было"}"></i>`).join("")}</div></div>`).join("")+`<div class="legend"><span class="muted">Каждая клетка — день:</span><span><i style="background:var(--surface-2)"></i>не было</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней симптомов не было</div>`}
           <div style="margin-top:12px"><a href="#" id="symAllLink" class="medlink" style="font-weight:600">${symAllOpen?"Скрыть историю ▴":`Все симптомы — ${seen.length}, вся история ▾`}</a></div>
           </div>`;
