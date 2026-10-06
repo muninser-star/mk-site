@@ -1349,6 +1349,7 @@ const DATA = window.__MK_DATA;   // v2: данные приходят из Supab
 const ST={ok:"норма",warn:"внимание",bad:"проблема",none:"не проверяли"};
 const TYPE={visit:"Посещение",instr:"Исследование",lab:"Анализ"};
 let cur="denis", tab="home", sysFilter=null, query="", taskIdx=null, insSel=null;
+let symAllOpen=false;   // «Все симптомы» раскрыты под картой 30 дней
 let symView="main", symSel=null, medSel=null;   // виды страницы «Симптомы»: main (карта 30 дней + список) · ill (Болезни)
 let todoAll=false;   // «все записи»: снимает лимит 15 и показывает закрытые (зелёные)
 
@@ -2639,7 +2640,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="06.10 18:02";   // подставляется при публикации
+const BUILD="06.10 22:38";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7294,12 +7295,15 @@ function render(){
       else { let monthHtml="",listHtml="";
       {
         const M=monthRows(S.log,today,n=>(catOf(n)||{}).red), TR={up:'<span class="trend-up">↑ чаще</span>',down:'<span class="trend-dn">↓ реже</span>',same:'<span class="muted">= так же</span>'};
-        monthHtml=`<div class="card"><h2>Последние 30 дней</h2>
+        monthHtml=`<div class="card"><h2>Последние 30 дней
+          <button class="btn btn-primary" id="newSym" style="float:right;height:32px;font-size:13px">+ Добавить</button></h2>
           ${M.length?M.map(r=>`<div class="heat-row mrow2" data-sym="${esc(r.n)}" style="cursor:pointer">
             <div class="heat-row__lab"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
               <div class="muted" style="font-size:12px">${r.days} ${plural(r.days,"день","дня","дней")} из 30${r.avg!=null?` · <span class="status status-${r.avg>=7?"bad":r.avg>=4?"warn":"ok"}" style="height:18px;padding:0 6px">${String(r.avg).replace(".",",")}</span>`:""}</div>
-              <div style="font-size:12px">${TR[r.trend]} <span class="muted">${lastAgo(r.last,today)}</span></div></div>
+              <div style="font-size:12px">${TR[r.trend]} <span class="muted">${lastAgo(r.last,today)}</span></div>
+              ${(()=>{const mm=medsOf((byName[r.n]||[]).filter(x=>x.d>=d30)).map(x=>x.name); return `<div style="font-size:12px;margin-top:2px"><span class="muted">чем лечили:</span> ${mm.length?medLinks(mm):"<span class='muted'>не лечил</span>"}</div>`;})()}</div>
             <div class="heat heat--sm">${r.cells.map((c,k)=>`<i data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}" data-dt="${dayShift(today,k-29)}" data-tip="${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"не было"}"></i>`).join("")}</div></div>`).join("")+`<div class="legend"><span class="muted">Каждая клетка — день:</span><span><i style="background:var(--surface-2)"></i>не было</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней симптомов не было</div>`}
+          <div style="margin-top:12px"><a href="#" id="symAllLink" class="medlink" style="font-weight:600">${symAllOpen?"Скрыть историю ▴":`Все симптомы — ${seen.length}, вся история ▾`}</a></div>
           </div>`;
       }
       {
@@ -7314,8 +7318,7 @@ function render(){
             <td class="muted">${meds.length?medLinks(meds):"<span class='muted'>не лечил</span>"}</td>
             <td style="color:var(--accent);font-weight:600">→</td></tr>`;
         }).join("");
-        listHtml=`<div class="card"><h2>Все симптомы <span class="muted" style="text-transform:none">— ${seen.length}</span>
-          <button class="btn btn-primary" id="newSym" style="float:right;height:32px;font-size:13px">+ Добавить</button></h2>
+        listHtml=`<div class="card" id="symAllCard"${symAllOpen?"":" hidden"}><h2>Все симптомы <span class="muted" style="text-transform:none">— ${seen.length}</span></h2>
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">записей</th><th>последний раз</th><th>чем лечил</th><th></th></tr></thead>
             <tbody>${rows}</tbody></table></div></div>`;
       }
@@ -7995,6 +7998,9 @@ document.addEventListener("click",e=>{
   if(e.target.closest("#todoAll")){ todoAll=!todoAll; render(); return; }
   if(e.target.closest("#pendBar")){ showPending(); return; }
   if(e.target.closest("#newSym")){ newSymForm(); return; }
+  const sal=e.target.closest("#symAllLink"); if(sal){ e.preventDefault(); symAllOpen=!symAllOpen;
+    const c=document.getElementById("symAllCard"); if(c) c.hidden=!symAllOpen;
+    sal.textContent=symAllOpen?"Скрыть историю ▴":sal.textContent.replace(/▴/,"▾").replace("Скрыть историю ▾",`Все симптомы — ${document.querySelectorAll("#symAllCard tbody tr").length}, вся история ▾`); return; }
   if(e.target.closest("#recAddInstr")){ if(typeof docForm==="function") docForm(); return; }
   const pgm=e.target.closest("[data-pgmore]"); if(pgm){ pgShown[pgm.dataset.pgmore]+=10; render(); return; }
   if(e.target.closest("#recAdd")){ const f=tab==="visit"?visitForm:tab==="lab"?labForm:docForm; if(typeof f==="function") f(); return; }   // исследование — документом или текстом: отдельной формы нет
