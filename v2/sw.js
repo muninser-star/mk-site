@@ -1,6 +1,6 @@
 // Оболочка медкнижки для установленного приложения (ТЗ-023 блок 3). Шаблон: собрать_v2.js подставляет штамп сборки
 // и кладёт готовый файл в Публикация/v2/sw.js. Данные медкнижки сюда не попадают: запросы к Supabase идут мимо.
-const V = "mk-08.10 22:54";
+const V = "mk-08.10 23:22";
 const PAGE = "/v2/";
 const FILES = ["/v2/manifest.webmanifest", "/v2/icons/icon-192.png", "/v2/icons/icon-512.png", "/v2/icons/apple-touch-icon-180.png"];
 
