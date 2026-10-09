@@ -570,7 +570,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .histrow{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.histrow:first-of-type{margin-top:10px}.histrow__t{font-weight:600;margin-bottom:2px}.histrow .status{display:inline-block;margin-top:6px}
-.hpv2{padding:10px 14px}.hpv2__h{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpv2__go{height:32px;padding:0 12px;font-size:13px}.hpv2__row{display:flex;gap:12px;align-items:flex-start}.hpv2__n{font-size:30px;font-weight:700;color:var(--accent);min-width:72px;line-height:1.1}.hpv2__body{flex:1;min-width:0}.hpv2__main{font-weight:600;margin-top:2px;line-height:1.3}.hpv2__miss{font-size:13px;margin-top:1px;line-height:1.3}.hpv2__note{font-size:11px;margin-top:3px;line-height:1.25}
+#hpTodo{scroll-margin-top:72px}.hpv2{padding:10px 14px}.hpv2__h{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpv2__go{height:32px;padding:0 12px;font-size:13px}.hpv2__row{display:flex;gap:12px;align-items:flex-start}.hpv2__n{font-size:30px;font-weight:700;color:var(--accent);min-width:72px;line-height:1.1}.hpv2__body{flex:1;min-width:0}.hpv2__main{font-weight:600;margin-top:2px;line-height:1.3}.hpv2__miss{font-size:13px;margin-top:1px;line-height:1.3}.hpv2__note{font-size:11px;margin-top:3px;line-height:1.25}
 .hptile{display:flex;align-items:center;gap:14px;cursor:pointer}.hptile__n{font-size:30px;font-weight:700;color:var(--accent);min-width:74px}.hptile__go{margin-left:auto;color:var(--muted);font-size:22px}
 .hphead{display:flex;align-items:center;gap:16px}.hpring{flex:none;color:var(--ink)}
 .filters .chip--n{background:var(--seg);color:var(--muted)}
@@ -2670,7 +2670,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 15:24";   // подставляется при публикации
+const BUILD="09.10 15:29";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4933,7 +4933,7 @@ function hpTileLines(m){
 }
 function hpTile(d){ const hm=hpModel(d), m=hpTileModel(hm.covs.map(c=>c.score),ORGANS), L=hpTileLines(m);
   return `<div class="card hpv2" aria-label="Профиль здоровья: ${hm.pct}%, ${esc(L.main)}"><div class="hpv2__row"><div class="hpv2__n">${hm.pct}%</div>
-    <div class="hpv2__body"><div class="hpv2__h"><b>Профиль здоровья</b><button class="btn btn-secondary hpv2__go" type="button" data-t="hp">Что добавить →</button></div>
+    <div class="hpv2__body"><div class="hpv2__h"><b>Профиль здоровья</b><button class="btn btn-secondary hpv2__go" type="button" data-hpjump="1">Что добавить →</button></div>
     <div class="hpv2__main">${esc(L.main)}</div>${L.missing?`<div class="muted hpv2__miss">${esc(L.missing)}</div>`:""}</div></div>
     <div class="muted hpv2__note">Число — полнота профиля: до 80 % дают свежие анализы и осмотры по органам, ещё 20 % — личные данные и анкета. Это не оценка здоровья: орган без данных значит, что анализов по нему пока нет.</div></div>`; }
 // ── История добавлений (ТЗ-022 блок 1, личная версия): всё, что добавлено с сайта — источник, дата, состояние ──
@@ -4988,15 +4988,24 @@ function histBind(m){
 }
 function hpDx(d,o){ return (d.diagnoses||[]).filter(x=>x&&x.sys&&dxOrgan(x)===o.id); }
 function hpHint(c){ return c.score<=0?"Нет данных":c.bySurvey?"По опросу — нужны анализы":c.missing.length?"Не хватает: "+c.missing.slice(0,3).join(", ")+(c.missing.length>3?"…":""):"Данных достаточно"; }
+// что добавить, чтобы по органу появились данные: какие показатели сдать и к какому врачу (если осмотров не было); самые пустые органы первыми
+function hpToDo(covs,organs){
+  return organs.map((o,i)=>({o,c:covs[i]})).filter(x=>x.c.score<50).sort((a,b)=>a.c.score-b.c.score)
+    .map(({o,c})=>({id:o.id,name:o.name,icon:o.icon,tests:c.missing.slice(0,4),moreTests:Math.max(0,c.missing.length-4),
+      doctors:c.ie?[]:(o.spec||[]).slice(0,2).map(x=>x.charAt(0).toUpperCase()+x.slice(1)),bySurvey:!!c.bySurvey}));
+}
 function hpHtml(d){
   const m=hpModel(d);
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpOrgHtml(d,m,hpOrgan);
   const rowsH=ORGANS.map((o,i)=>{ const c=m.covs[i];
     return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag hptag--l${m.risks[i].level||1}" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
       <span class="hporg__s">${hpBar(c.divs)}<span class="muted">${esc(c.label)}</span></span><span class="hptile__go" aria-hidden="true">›</span></button>`; }).join("");
-  const next=m.weak.length?`<div class="card"><h2>Что делать дальше?</h2><div class="hpnext"><div class="hpnext__h"><b>Загрузите анализы</b><span class="hpnext__p">+${m.gain}%</span></div>
-      <div class="muted">Не хватает показателей по ${m.weak.length} ${plural(m.weak.length,"органу","органам","органам")}: больше всего у «${esc(m.weak.slice().sort((a,b)=>a.c.a-b.c.a)[0].o.name)}».</div>
-      <div class="row" style="margin-top:10px"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button></div></div></div>`:"";
+  const todo=hpToDo(m.covs,ORGANS);
+  const next=todo.length?`<div class="card" id="hpTodo"><h2>Что добавить</h2><div class="muted" style="margin:-4px 0 8px">По этим органам пока мало данных. Ниже — что именно сдать и к какому врачу, чтобы они появились. Нажмите на орган — откроется подробно.</div>
+      ${todo.map(x=>`<button type="button" class="hporg" data-hporg="${x.id}"><span class="hporg__ic">${x.icon}</span><span class="hporg__t"><b>${esc(x.name)}</b>
+        <span>${x.tests.length?`Сдать: ${esc(x.tests.join(", "))}${x.moreTests?` и ещё ${x.moreTests}`:""}`:"Анализы по набору есть, нужен свежий"}</span>
+        ${x.doctors.length?`<span class="muted">Врач или исследование: ${esc(x.doctors.join(", "))}</span>`:""}${x.bySurvey?`<span class="muted">Сейчас по опросу — нужны анализы</span>`:""}</span><span class="hptile__go" aria-hidden="true">›</span></button>`).join("")}
+      <div class="row" style="margin-top:10px;gap:8px"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button><button class="btn btn-secondary" data-hpadd="visit">Добавить приём</button></div></div>`:"";
   return `<div class="card hphead">${hpRing(m.pct)}<div><h2 style="margin:0">Профиль здоровья заполнен на ${m.pct}%</h2>
       <div class="muted">Чем полнее профиль, тем точнее подсказки. Считается по анализам, исследованиям и приёмам; опросы — только пока анализов мало.</div></div></div>
     ${next}
@@ -5037,6 +5046,7 @@ function hpOrgCard(d,sys){
     <div class="muted" style="margin-top:6px">${esc(hpHint(c))} · <a href="#" data-hpopen="${o.id}">подробнее →</a></div></div>`;
 }
 function hpClick(e){
+  if(e.target.closest("[data-hpjump]")){ hpOrgan=null; goTab("hp"); render(); setTimeout(()=>{ const c=document.getElementById("hpTodo"); if(c) c.scrollIntoView({block:"start",behavior:"smooth"}); else window.scrollTo({top:0}); },60); return true; }
   const op=e.target.closest("[data-hpopen]"); if(op){ e.preventDefault(); hpOrgan=op.dataset.hpopen; goTab("hp"); render(); window.scrollTo({top:0}); return true; }
   const o=e.target.closest("[data-hporg]"); if(o){ hpOrgan=o.dataset.hporg||null; render(); window.scrollTo({top:0}); return true; }
   const a=e.target.closest("[data-hpadd]"); if(a){ const f=a.dataset.hpadd==="visit"?"visitForm":"labForm"; if(typeof globalThis[f]==="function") globalThis[f](); return true; }
