@@ -581,7 +581,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .hpbar{display:inline-flex;gap:3px}.hpbar i{width:16px;height:6px;border-radius:3px;background:var(--seg)}.hpbar i.on{background:var(--accent)}
 .hpnext__h{display:flex;justify-content:space-between;align-items:baseline}.hpnext__p{color:var(--accent);font-weight:700}
 .hpsrc{padding:3px 0}.hpok{color:var(--ok);font-weight:700}.hpno{color:var(--muted)}
-.hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
+.hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}@media (pointer:coarse){.hdrag{top:0;right:0;width:48px;height:48px;padding:0;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.8;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
 /* «Для врача»: чипы, документ и печать А4 (ТЗ-010 блок 5) */
@@ -2646,7 +2646,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 14:30";   // подставляется при публикации
+const BUILD="09.10 14:36";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5145,12 +5145,18 @@ const homeOrderLoad=()=>{ try{ return JSON.parse(localStorage.getItem(ORDK)||"[]
 document.addEventListener("pointerdown",e=>{
   const h=e.target.closest&&e.target.closest(".hdrag"); if(!h) return; const blk=h.closest(".hblk"), box=blk.parentElement; e.preventDefault();
   blk.classList.add("hdragging");
-  const move=ev=>{ const t=document.elementFromPoint(ev.clientX,ev.clientY), o=t&&t.closest&&t.closest(".hblk"); if(!o||o===blk||o.parentElement!==box) return;
-    const r=o.getBoundingClientRect(); box.insertBefore(blk,ev.clientY<r.top+r.height/2?o:o.nextSibling); };
-  const up=()=>{ document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); blk.classList.remove("hdragging");
-    try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} };
-  document.addEventListener("pointermove",move); document.addEventListener("pointerup",up);
+  try{ h.setPointerCapture(e.pointerId); }catch(x){}      // палец ведёт блок, даже если ушёл с ручки
+  let y=e.clientY, scroller=null;
+  const move=ev=>{ y=ev.clientY; const t=document.elementFromPoint(ev.clientX,ev.clientY), o=t&&t.closest&&t.closest(".hblk"); if(!o||o===blk||o.parentElement!==box) return;
+    const r=o.getBoundingClientRect(); box.insertBefore(blk,y<r.top+Math.min(r.height/2,80)?o:o.nextSibling); };   // у высокого блока «до» — только верхние 80 px, иначе его не обойти
+  // у края экрана страница сама прокручивается — иначе на телефоне блок не дотащить до дальнего места
+  scroller=setInterval(()=>{ if(y<90) window.scrollBy(0,-14); else if(y>innerHeight-90) window.scrollBy(0,14); },16);
+  const stop=save=>{ clearInterval(scroller); h.removeEventListener("pointermove",move); h.removeEventListener("pointerup",up); h.removeEventListener("pointercancel",cancel); blk.classList.remove("hdragging");
+    if(save){ try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} } };
+  const up=()=>stop(true), cancel=()=>stop(true);
+  h.addEventListener("pointermove",move); h.addEventListener("pointerup",up); h.addEventListener("pointercancel",cancel);
 });
+document.addEventListener("contextmenu",e=>{ if(e.target.closest&&e.target.closest(".hdrag")) e.preventDefault(); });   // долгое нажатие на ручку не открывает меню
 const TSK="mk_taskst";
 let TASKST=(()=>{ try{ return JSON.parse(localStorage.getItem(TSK)||"{}")||{}; }catch(e){ return {}; } })();
 const taskStSave=()=>{ try{ localStorage.setItem(TSK,JSON.stringify(TASKST)); }catch(e){} };
