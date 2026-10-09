@@ -539,11 +539,10 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .plan-sum{margin:-4px 0 6px;font-size:13px}.plan-grp{margin:16px 0 4px}
 .plan-list{display:flex;flex-direction:column}
-.plan-row{display:grid;grid-template-columns:66px 1fr auto;grid-template-areas:"d m g" "d b g";gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.plan-list .plan-row:first-child{border-top:0}
-.plan-date{grid-area:d;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:var(--seg);padding:4px 2px;text-align:center;line-height:1.1}.plan-date small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.plan-date b{font-size:18px}.plan-date span{font-size:11px;color:var(--muted);text-transform:uppercase}.plan-date .plan-word{text-transform:none;font-size:11px;color:var(--ink);overflow-wrap:break-word;hyphens:auto}
+.plan-row{display:grid;grid-template-columns:66px 1fr auto;grid-template-areas:"d m g";gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.plan-list .plan-row:first-child{border-top:0}
+.plan-date{grid-area:d;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:var(--seg);padding:4px 2px;text-align:center;line-height:1.1}.plan-date b{font-size:18px}.plan-date span{font-size:11px;color:var(--muted);text-transform:uppercase}.plan-date .plan-word{text-transform:none;font-size:11px;color:var(--ink);overflow-wrap:break-word;hyphens:auto}
 .plan-main{grid-area:m;min-width:0}.plan-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.3}
 .plan-sub{margin-top:3px;font-size:12.5px}.plan-go{grid-area:g;color:var(--muted);font-size:22px;align-self:center}
-.plan-done{grid-area:b;justify-self:start;margin-top:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}
 .plan-row.row-done .plan-title{color:var(--muted)}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
@@ -571,7 +570,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .histrow{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.histrow:first-of-type{margin-top:10px}.histrow__t{font-weight:600;margin-bottom:2px}.histrow .status{display:inline-block;margin-top:6px}
-.hpv2{padding:10px 14px}.hpv2__h{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpv2__go{height:32px;padding:0 12px;font-size:13px}.hpv2__main{font-weight:600;margin-top:2px;line-height:1.3}.hpv2__miss{font-size:13px;margin-top:1px;line-height:1.3}.hpv2__note{font-size:11px;margin-top:3px;line-height:1.25}
+.hpv2{padding:10px 14px}.hpv2__h{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpv2__go{height:32px;padding:0 12px;font-size:13px}.hpv2__row{display:flex;gap:12px;align-items:flex-start}.hpv2__n{font-size:30px;font-weight:700;color:var(--accent);min-width:72px;line-height:1.1}.hpv2__body{flex:1;min-width:0}.hpv2__main{font-weight:600;margin-top:2px;line-height:1.3}.hpv2__miss{font-size:13px;margin-top:1px;line-height:1.3}.hpv2__note{font-size:11px;margin-top:3px;line-height:1.25}
 .hptile{display:flex;align-items:center;gap:14px;cursor:pointer}.hptile__n{font-size:30px;font-weight:700;color:var(--accent);min-width:74px}.hptile__go{margin-left:auto;color:var(--muted);font-size:22px}
 .hphead{display:flex;align-items:center;gap:16px}.hpring{flex:none;color:var(--ink)}
 .filters .chip--n{background:var(--seg);color:var(--muted)}
@@ -2671,7 +2670,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 15:14";   // подставляется при публикации
+const BUILD="09.10 15:24";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4933,9 +4932,10 @@ function hpTileLines(m){
   return {main,missing:m.missing.length?`Мало данных: ${sh.join(", ")}${more>0?` и ещё ${more}`:""}`:""};
 }
 function hpTile(d){ const hm=hpModel(d), m=hpTileModel(hm.covs.map(c=>c.score),ORGANS), L=hpTileLines(m);
-  return `<div class="card hpv2" aria-label="Профиль здоровья: ${esc(L.main)}"><div class="hpv2__h"><b>Профиль здоровья</b><button class="btn btn-secondary hpv2__go" type="button" data-t="hp">Что добавить →</button></div>
-    <div class="hpv2__main">${esc(L.main)}</div>${L.missing?`<div class="muted hpv2__miss">${esc(L.missing)}</div>`:""}
-    <div class="muted hpv2__note">Это не оценка здоровья: по этим органам пока нет анализов и осмотров.</div></div>`; }
+  return `<div class="card hpv2" aria-label="Профиль здоровья: ${hm.pct}%, ${esc(L.main)}"><div class="hpv2__row"><div class="hpv2__n">${hm.pct}%</div>
+    <div class="hpv2__body"><div class="hpv2__h"><b>Профиль здоровья</b><button class="btn btn-secondary hpv2__go" type="button" data-t="hp">Что добавить →</button></div>
+    <div class="hpv2__main">${esc(L.main)}</div>${L.missing?`<div class="muted hpv2__miss">${esc(L.missing)}</div>`:""}</div></div>
+    <div class="muted hpv2__note">Число — полнота профиля: до 80 % дают свежие анализы и осмотры по органам, ещё 20 % — личные данные и анкета. Это не оценка здоровья: орган без данных значит, что анализов по нему пока нет.</div></div>`; }
 // ── История добавлений (ТЗ-022 блок 1, личная версия): всё, что добавлено с сайта — источник, дата, состояние ──
 // «Ждёт внесения» — запись уже видна в книжке, но ещё не внесена в медкарту; «Внесено» — уже там (показываем 30 дней).
 function historyItems(rows,who,skip){
@@ -5184,10 +5184,10 @@ document.addEventListener("pointerdown",e=>{
     const r=o.getBoundingClientRect(); box.insertBefore(blk,y<r.top+Math.min(r.height/2,80)?o:o.nextSibling); };   // у высокого блока «до» — только верхние 80 px, иначе его не обойти
   // у края экрана страница сама прокручивается — иначе на телефоне блок не дотащить до дальнего места
   scroller=setInterval(()=>{ const bb=document.getElementById("bottombar"), bh=bb&&getComputedStyle(bb).position==="fixed"?bb.offsetHeight:0; if(y<90) window.scrollBy(0,-14); else if(y>innerHeight-90-bh) window.scrollBy(0,14); },16);
-  const stop=save=>{ clearInterval(scroller); h.removeEventListener("pointermove",move); h.removeEventListener("pointerup",up); h.removeEventListener("pointercancel",cancel); blk.classList.remove("hdragging");
+  const stop=save=>{ clearInterval(scroller); document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); document.removeEventListener("pointercancel",cancel); window.removeEventListener("blur",cancel); blk.classList.remove("hdragging");
     if(save){ try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} } };
   const up=()=>stop(true), cancel=()=>stop(true);
-  h.addEventListener("pointermove",move); h.addEventListener("pointerup",up); h.addEventListener("pointercancel",cancel);
+  document.addEventListener("pointermove",move); document.addEventListener("pointerup",up); document.addEventListener("pointercancel",cancel); window.addEventListener("blur",cancel);
 });
 document.addEventListener("contextmenu",e=>{ if(e.target.closest&&e.target.closest(".hdrag")) e.preventDefault(); });   // долгое нажатие на ручку не открывает меню
 // на телефоне вместо перетаскивания — кнопки «выше / ниже» (палец с высокими блоками не справлялся)
@@ -7035,8 +7035,8 @@ function taskDates(a){
 function planDateHtml(x,today){
   const dated=x.kind==="soon"||x.due===true||x.merged===true, w=String(x.when||"");
   const m=dated&&w.match(/(\d{1,2})[.](\d{1,2})[.](\d{4})/);
-  if(m) return `<small>срок</small><b>${+m[1]}</b><span>${["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"][+m[2]-1]}${+m[3]!==+String(today||localDay()).slice(0,4)?" "+m[3]:""}</span>`;
-  return dated&&w?`<small>срок</small><span class="plan-word">${esc(w)}</span>`:`<span class="plan-word">срока нет</span>`;
+  if(m) return `<b>${+m[1]}</b><span>${["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"][+m[2]-1]}${+m[3]!==+String(today||localDay()).slice(0,4)?" "+m[3]:""}</span>`;
+  return dated&&w?`<span class="plan-word">${esc(w)}</span>`:`<span class="plan-word">срока нет</span>`;
 }
 function planRow(x,today){
   const g=x._g||Object.assign({x},taskGroup(x,today)), ts=taskState(cur,x.title), done=ts&&ts.s==="done";
@@ -7045,7 +7045,6 @@ function planRow(x,today){
     <div class="plan-date">${planDateHtml(x,today)}</div>
     <div class="plan-main"><b class="plan-title">${esc(x.title)}</b>
       <div class="plan-sub"><span class="status status-${cls}">${esc(status)}</span> <span class="muted">${esc(x.tag||"")}${x.sys?" · "+esc(sysName(x.sys)):""}</span></div></div>
-    <button class="plan-done" type="button" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}">${ts?"Вернуть":"Выполнено"}</button>
     <span class="plan-go" aria-hidden="true">›</span></div>`;
 }
 function planListHtml(groups,today){ return groups.map(g=>`<h3 class="todo-grp plan-grp">${g.title} — ${g.items.length}</h3><div class="plan-list">${g.items.map(x=>planRow(x,today)).join("")}</div>`).join(""); }
@@ -7163,12 +7162,13 @@ function render(){
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     m.innerHTML=homeAssemble(`
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2></div>
+    <!--B:body-->${d.nutrition?weightBlock(d):""}
+
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
       ${todoV.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div>${planListHtml(planGroups(todoV,today,5),today)}`:`<div class="muted">Ближайших дел нет.</div>`}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>
 
     <!--B:hp-->${hpTile(d)}${histTile(histPending(window.__entries||[],cur,window.__delPending))}
-    <!--B:body-->${d.nutrition?weightBlock(d):""}
 
     <!--B:watch--><div class="card"><h2>Ключевые показатели</h2>
       ${watchRows.length?`<div class="watchgrid">${watchRows.map(x=>`<div class="watchtile" data-favopen="${esc(x.name)}">
