@@ -537,6 +537,14 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 @media (max-width:700px){.hblk .tbl td:nth-child(4){display:none}}
 .row-done td{color:var(--muted)!important}.row-done .status{background:var(--surface-2,#eceff3)!important;color:var(--muted)!important}.row-done .status::before,.row-done .status i{display:none}.row-done b{font-weight:500}.row-done .rowdone__b{background:transparent}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
+.plan-sum{margin:-4px 0 6px;font-size:13px}.plan-grp{margin:16px 0 4px}
+.plan-list{display:flex;flex-direction:column}
+.plan-row{display:grid;grid-template-columns:66px 1fr auto;grid-template-areas:"d m g" "d b g";gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.plan-list .plan-row:first-child{border-top:0}
+.plan-date{grid-area:d;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:var(--seg);padding:4px 2px;text-align:center;line-height:1.1}.plan-date small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.plan-date b{font-size:18px}.plan-date span{font-size:11px;color:var(--muted);text-transform:uppercase}.plan-date .plan-word{text-transform:none;font-size:11px;color:var(--ink);overflow-wrap:break-word;hyphens:auto}
+.plan-main{grid-area:m;min-width:0}.plan-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.3}
+.plan-sub{margin-top:3px;font-size:12.5px}.plan-go{grid-area:g;color:var(--muted);font-size:22px;align-self:center}
+.plan-done{grid-area:b;justify-self:start;margin-top:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}
+.plan-row.row-done .plan-title{color:var(--muted)}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border,#d0d5dd);border-top-color:var(--accent,#1a6fd3);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px;flex:none}
@@ -563,6 +571,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
 .histrow{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.histrow:first-of-type{margin-top:10px}.histrow__t{font-weight:600;margin-bottom:2px}.histrow .status{display:inline-block;margin-top:6px}
+.hpv2{padding:10px 14px}.hpv2__h{display:flex;align-items:center;justify-content:space-between;gap:8px}.hpv2__go{height:32px;padding:0 12px;font-size:13px}.hpv2__main{font-weight:600;margin-top:2px;line-height:1.3}.hpv2__miss{font-size:13px;margin-top:1px;line-height:1.3}.hpv2__note{font-size:11px;margin-top:3px;line-height:1.25}
 .hptile{display:flex;align-items:center;gap:14px;cursor:pointer}.hptile__n{font-size:30px;font-weight:700;color:var(--accent);min-width:74px}.hptile__go{margin-left:auto;color:var(--muted);font-size:22px}
 .hphead{display:flex;align-items:center;gap:16px}.hpring{flex:none;color:var(--ink)}
 .filters .chip--n{background:var(--seg);color:var(--muted)}
@@ -1248,19 +1257,34 @@ nav.tabs#nav{padding-left:max(16px,calc((100% - 1120px)/2 + 16px));padding-right
 .bottombar{display:none}
 .verline{max-width:1120px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:var(--text-secondary)}
 #searchBtn{display:none}
+.who-wrap{display:contents}#whoBtn{display:none}
 @media (max-width:1100px){#addBtn b{display:none}#addBtn{padding:0 12px}}
 @media (max-width:700px){
   /* меню на телефоне — сверху, внутри липкой шапки (Денис, 05.10.2026), а не у нижнего края */
-  .bottombar{display:flex;order:20;flex:1 1 100%;margin:0 -16px -10px;padding:4px 4px;background:var(--card);border-top:1px solid var(--surface-2)}
+  /* ТЗ-025 блок 2: пять кнопок — внизу экрана; пока курсор в поле ввода, панель спрятана (body.kb) */
+  .bottombar{display:flex;position:fixed;left:0;right:0;bottom:0;margin:0;padding:4px 4px calc(4px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--surface-2)}
+  body.kb .bottombar{display:none}
+  .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
   .bottombar button{flex:1 1 0;min-width:0;padding:6px 2px}
-  main{padding-bottom:16px}
+  main{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .verline{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  body.kb main,body.kb .verline{padding-bottom:16px}
   #addBtn{display:none}
   #q{order:10;flex:1 1 100%;display:none}
   .app-header.search-on #q{display:block}
   #searchBtn{display:inline-grid}
-  .app-header .seg{order:5}
+  /* ТЗ-025 блок 1: одна строка — название, имя ▾, поиск, аватар */
+  .app-title{order:-2}
+  .who-wrap{display:block;position:relative;order:-1}
+  #whoBtn{display:inline-flex;align-items:center;height:36px;padding:0 12px;border:0;border-radius:var(--r-l);background:var(--surface-1);color:var(--text-primary);font:600 14px/18px var(--font);cursor:pointer}
+  .who-wrap.single #whoBtn{cursor:default}
+  .who-wrap #who{display:none;position:absolute;left:0;top:calc(100% + 6px);z-index:30;flex-direction:column;min-width:150px;padding:6px;background:var(--card);border-radius:var(--r-l);box-shadow:0 6px 24px rgba(0,0,0,.18)}
+  .who-wrap.open #who{display:flex}
+  .who-wrap #who button{text-align:left;padding:10px 12px}
+  .app-header .pop-anchor{margin-left:auto}
+  .phead--home{display:none}
 }
-@media print{.app-header,.bottombar,.drawer-overlay,nav.tabs{display:none!important}}
+@media print{.app-header,.bottombar,.drawer-overlay,nav.tabs{display:none!important}main,.verline{padding-bottom:0!important}}
 /* верхняя полоса вкладок не показывается на телефоне (ТЗ-011 блок 3) */
 @media (max-width:700px){ nav.tabs#nav{display:none} }
 /* ── Новый дизайн (04.10.2026): токены и компоненты из Разработка/Дизайн. Слой поверх старых стилей:
@@ -1318,7 +1342,7 @@ a,.medlink,.symlink,.linkbtn{color:var(--accent)}
 
 <header class="app-header">
   <span class="app-title">🩺 Медкнижка</span>
-  <div class="seg" id="who"></div>
+  <div class="who-wrap" id="whoWrap"><button id="whoBtn" type="button" aria-haspopup="true" aria-expanded="false"></button><div class="seg" id="who"></div></div>
   <input id="q" type="search" placeholder="Поиск: показатель, значение, врач, дата, диагноз…">
   <button id="addBtn" type="button" aria-label="Добавить"><span>＋</span><b>Добавить</b></button>
   <button class="icon-btn icon-btn--round" id="searchBtn" type="button" aria-label="Поиск" title="Поиск">🔍</button>
@@ -2646,7 +2670,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 14:36";   // подставляется при публикации
+const BUILD="09.10 15:08";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4900,9 +4924,17 @@ function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   return profAboutHtml(d)+profKpiHtml(d)+hpHtml(d);
 }
-function hpTile(d){ const m=hpModel(d);
-  return `<div class="card hptile" data-t="hp" role="button" tabindex="0" aria-label="Профиль здоровья, заполнено ${m.pct}%"><div class="hptile__n">${m.pct}%</div>
-    <div><b>Профиль здоровья</b><div class="muted">${m.pct>=100?"заполнено полностью":"заполнено"} · данные есть по ${m.known} из ${ORGANS.length} органов</div></div><span class="hptile__go" aria-hidden="true">›</span></div>`; }
+// плитка «Профиль здоровья» (ТЗ-025 блок 5): сколько органов известно, чего мало, куда нажать; без процента
+function hpTileModel(scores,organs){ return {known:scores.filter(s=>s>=50).length,total:scores.length,missing:organs.filter((o,i)=>!(scores[i]>=50)).map(o=>o.name)}; }
+function hpTileLines(m){
+  const main=m.known>=m.total?"Известно по всем органам":`Известно по ${m.known} из ${m.total} органов`;
+  const sh=m.missing.slice(0,3), more=m.missing.length-sh.length;
+  return {main,missing:m.missing.length?`Мало данных: ${sh.join(", ")}${more>0?` и ещё ${more}`:""}`:""};
+}
+function hpTile(d){ const hm=hpModel(d), m=hpTileModel(hm.covs.map(c=>c.score),ORGANS), L=hpTileLines(m);
+  return `<div class="card hpv2" aria-label="Профиль здоровья: ${esc(L.main)}"><div class="hpv2__h"><b>Профиль здоровья</b><button class="btn btn-secondary hpv2__go" type="button" data-t="hp">Что добавить →</button></div>
+    <div class="hpv2__main">${esc(L.main)}</div>${L.missing?`<div class="muted hpv2__miss">${esc(L.missing)}</div>`:""}
+    <div class="muted hpv2__note">Это не оценка здоровья: по этим органам пока нет анализов и осмотров.</div></div>`; }
 // ── История добавлений (ТЗ-022 блок 1, личная версия): всё, что добавлено с сайта — источник, дата, состояние ──
 // «Ждёт внесения» — запись уже видна в книжке, но ещё не внесена в медкарту; «Внесено» — уже там (показываем 30 дней).
 function historyItems(rows,who,skip){
@@ -5150,7 +5182,7 @@ document.addEventListener("pointerdown",e=>{
   const move=ev=>{ y=ev.clientY; const t=document.elementFromPoint(ev.clientX,ev.clientY), o=t&&t.closest&&t.closest(".hblk"); if(!o||o===blk||o.parentElement!==box) return;
     const r=o.getBoundingClientRect(); box.insertBefore(blk,y<r.top+Math.min(r.height/2,80)?o:o.nextSibling); };   // у высокого блока «до» — только верхние 80 px, иначе его не обойти
   // у края экрана страница сама прокручивается — иначе на телефоне блок не дотащить до дальнего места
-  scroller=setInterval(()=>{ if(y<90) window.scrollBy(0,-14); else if(y>innerHeight-90) window.scrollBy(0,14); },16);
+  scroller=setInterval(()=>{ const bb=document.getElementById("bottombar"), bh=bb&&getComputedStyle(bb).position==="fixed"?bb.offsetHeight:0; if(y<90) window.scrollBy(0,-14); else if(y>innerHeight-90-bh) window.scrollBy(0,14); },16);
   const stop=save=>{ clearInterval(scroller); h.removeEventListener("pointermove",move); h.removeEventListener("pointerup",up); h.removeEventListener("pointercancel",cancel); blk.classList.remove("hdragging");
     if(save){ try{ localStorage.setItem(ORDK,JSON.stringify([...box.querySelectorAll(".hblk")].map(x=>x.dataset.blk))); }catch(x){} } };
   const up=()=>stop(true), cancel=()=>stop(true);
@@ -6158,6 +6190,12 @@ function loginLink(key,loc){ return loc.origin+"/v2/?k="+encodeURIComponent(key)
 // что показать в профиле: кнопка и подсказка — только в своём профиле; подсказка «Поставить на экран» — только в обычном браузере (блок 4)
 function profLoginModel(isMe,key,standalone){ const copy=!!(isMe&&key); return {copy,hint:copy&&!standalone}; }
 function isStandalone(w){ try{ return !!(w.matchMedia&&w.matchMedia("(display-mode: standalone)").matches)||!!(w.navigator&&w.navigator.standalone); }catch(e){ return false; } }
+// выбор человека на телефоне: одна кнопка с именем и список (ТЗ-025 блок 1); на широком экране остаются вкладки
+function whoSync(){ const w=document.getElementById("whoWrap"), b=document.getElementById("whoBtn"); if(!w||!b) return;
+  const n=Object.keys(DATA).length; w.classList.toggle("single",n<2); w.classList.remove("open"); b.setAttribute("aria-expanded","false");
+  b.textContent=(DATA[cur]&&DATA[cur].short||"")+(n<2?"":" ▾"); }
+function whoToggle(on){ const w=document.getElementById("whoWrap"), b=document.getElementById("whoBtn"); if(!w||!b) return;
+  if(on&&w.classList.contains("single")) return; w.classList.toggle("open",!!on); b.setAttribute("aria-expanded",on?"true":"false"); }
 function shellLogout(){
   if(!window.__MK_KEY){ toast("Вы не входили по коду на этом устройстве"); return; }
   confirmDel("Выйти? На этом устройстве придётся снова открыть ссылку с кодом.",()=>{ try{ ["mk2_key","mk_c_medbook","mk_c_diet","mk_c_sym","mk_fav","mk_homehid","mk_homeorder","mk_taskst","mk_periods","mk_events","mk_doclinks","mk_medplan","mk_wiz_dima","mk_wiz_denis","mk_wiz_anya","mk_wiz_danya"].forEach(k=>localStorage.removeItem(k)); }catch(e){}
@@ -6169,6 +6207,8 @@ function shellClick(e){
   if(bt){ const k=bt.dataset.bt;
     if(k==="add"){ addMenuOpen(); return true; }
     goTab(k==="card"?"sym":k); render(); window.scrollTo({top:0}); return true; }
+  if(t.closest("#whoBtn")){ whoToggle(!document.getElementById("whoWrap").classList.contains("open")); return true; }
+  if(!t.closest("#whoWrap")) whoToggle(false);
   if(t.closest("#searchBtn")){ const h=document.querySelector(".app-header"); h.classList.toggle("search-on"); if(h.classList.contains("search-on")) document.getElementById("q").focus(); return true; }
   if(t.closest("#avatar")){ pmToggle(document.getElementById("profile-menu").hidden); return true; }
   const pm=t.closest("[data-pm]");
@@ -6176,7 +6216,11 @@ function shellClick(e){
   if(!t.closest(".pop-anchor")) pmToggle(false);
   return false;
 }
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ pmToggle(false); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ pmToggle(false); whoToggle(false); } });
+// пока курсор в текстовом поле (или списке), нижняя панель спрятана: экранная клавиатура не поднимает её над полем (ТЗ-025 блок 2)
+function isTextField(el){ return !!el&&(el.tagName==="TEXTAREA"||el.tagName==="SELECT"||(el.tagName==="INPUT"&&!/^(checkbox|radio|button|submit|reset|range|file|color|image|hidden)$/i.test(el.type||"text"))); }
+document.addEventListener("focusin",e=>{ if(isTextField(e.target)) document.body.classList.add("kb"); });
+document.addEventListener("focusout",e=>{ if(isTextField(e.target)) setTimeout(()=>{ if(!isTextField(document.activeElement)) document.body.classList.remove("kb"); },50); });
 
 // ── Календарь и «Добавить в календарь» (компоненты из Компоненты.html; ТЗ-005 блок 19 — задел: файл .ics и ссылка календаря с напоминанием за 3 дня) ──
 const CAL_KIND={visit:"приём",lab:"анализ",med:"курс лекарства",sym:"симптом",plan:"приём"};
@@ -6915,11 +6959,13 @@ const inApp=/(FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|VKClient|TelegramB
 // Сортировка одна: чем ближе дело, тем выше. Просроченное и бессрочное — сверху.
 const MONTHS_RU=[["январ",0],["феврал",1],["март",2],["апрел",3],["ма",4],["июн",5],
   ["июл",6],["август",7],["сентябр",8],["октябр",9],["ноябр",10],["декабр",11]];
-function whenDays(str){
+// точная дата в тексте срока (ТЗ-025 блок 3): «22.11.2026», «11.2026», «конец ноября 2026», «до марта 2027»; слова «не откладывать», «срочно», «идёт» — сегодня.
+// Остальные слова («ближайшие недели», «осень 2026», «постоянно») — не дата, вернётся null. today — «ГГГГ-ММ-ДД», без него — сегодняшний день
+function exactDays(str,today){
   if(!str) return null;
   const s=String(str).toLowerCase();
-  const today=new Date(); today.setHours(0,0,0,0);
-  const day=dt=>Math.round((dt-today)/86400000);
+  const t=today?new Date(+today.slice(0,4),+today.slice(5,7)-1,+today.slice(8,10)):new Date(); t.setHours(0,0,0,0);
+  const day=dt=>Math.round((dt-t)/86400000);
   let m=s.match(/(\d{1,2})[.](\d{1,2})[.](\d{4})/);   // 07.09.2026
   if(m) return day(new Date(+m[3],+m[2]-1,+m[1]));
   m=s.match(/(\d{1,2})[.](\d{4})/);                    // 08.2022
@@ -6929,13 +6975,70 @@ function whenDays(str){
          if(hit){ const dd=/конц|конец/.test(s)?25:/серед/.test(s)?15:/начал/.test(s)?5:1;
                   return day(new Date(+m[2],hit[1],dd)); } }
   if(/не откладыв|срочно|сейчас|тем же заходом|идёт|идет/.test(s)) return 0;
+  return null;
+}
+function whenDays(str,today){
+  if(!str) return null;
+  const e=exactDays(str,today); if(e!=null) return e;
+  const s=String(str).toLowerCase();
+  const t=today?new Date(+today.slice(0,4),+today.slice(5,7)-1,+today.slice(8,10)):new Date(); t.setHours(0,0,0,0);
+  const day=dt=>Math.round((dt-t)/86400000);
   if(/эта недел|на этой недел/.test(s)) return 7;
   if(/ближайшие 2|ближайшие 3|ближайшие недел|ближайшие дни|\d\s*[–-]\s*\d\s*недел/.test(s)) return 21;
   if(/ближайший месяц|ближайшее время/.test(s)) return 30;
   if(/осен|зим|весн|лет[оа]/.test(s)) return 60;
-  m=s.match(/(\d{4})/); if(m) return day(new Date(+m[1],0,1));
+  const m=s.match(/(\d{4})/); if(m) return day(new Date(+m[1],0,1));
   return null;
 }
+// ── План здоровья (ТЗ-025 блок 3): группы по срочности, статус словами, строка дела
+function taskGroup(x,today){
+  const dated=x.kind==="soon"||x.due===true||x.merged===true;
+  const days=dated?exactDays(x.when,today):null;
+  if(days==null) return {group:"nodate",status:"Срок уточнить",days:null};
+  const booked=x.tag==="записан";
+  if(days<0) return {group:"overdue",status:`Просрочено на ${-days} дн.`,days};
+  if(days<=30) return {group:"soon",days,status:booked?"Записан":days===0?(/не откладыв|срочно|сейчас|тем же заходом|идёт|идет/i.test(String(x.when))?"Не откладывать":"Сегодня"):days===1?"Завтра":`Через ${days} дн.`};
+  return {group:"later",days,status:booked?"Записан":days<=99?`Через ${days} дн.`:`Через ${Math.round(days/30)} мес.`};
+}
+// список дел → группы по порядку срочности; limit — сколько дел показать всего (самые срочные)
+function planGroups(list,today,limit){
+  const GI={overdue:0,soon:1,later:2,nodate:3};
+  const rows=list.map(x=>Object.assign({x},taskGroup(x,today))).sort((a,b)=>GI[a.group]-GI[b.group]||(a.group==="nodate"?(a.x.p||99)-(b.x.p||99):a.days-b.days));
+  const cut=limit?rows.slice(0,limit):rows;
+  return [["overdue","Просрочено"],["soon","Ближайшие"],["later","Позже"],["nodate","Без точной даты"]].map(([g,title])=>({group:g,title,items:cut.filter(r=>r.group===g).map(r=>Object.assign(r.x,{_g:r}))})).filter(g=>g.items.length);
+}
+function ruDayMonth(t,days){ const RU_GEN=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"], d=new Date(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)+days); const y=d.getFullYear()!==+t.slice(0,4)?" "+d.getFullYear():""; return `${d.getDate()} ${RU_GEN[d.getMonth()]}${y}`; }
+function planSummary(list,today){
+  const n=list.length, rows=list.map(x=>taskGroup(x,today)).filter(g=>g.days!=null&&g.days>=0).map(g=>g.days);
+  const head=`${n} ${plural(n,"предстоящее действие","предстоящих действия","предстоящих действий")}`;
+  return rows.length?`${head} · ближайшее — ${ruDayMonth(today,Math.min(...rows))}`:head;
+}
+// дата слева в строке: число и месяц или текст срока; без срока — «срока нет»
+// три подписанные строки дат задачи: назначено · срок · основание срока (ТЗ-025 блок 4)
+function taskDates(a){
+  const d=String(a.d||"").trim(), due=String(a.due||"").trim(), why=String(a.due_why||"").trim();
+  let assigned="";
+  if(d){ const m=d.match(/^назначено\s+(.*)$/i), c=d.match(/^(?:тянется\s+)?с\s+(.*)$/i);
+    assigned=m?"Назначено: "+m[1]:c?"Тянется с: "+c[1]:"Ранее: "+d; }
+  return {assigned,due:due?"Срок: "+due:"",basis:due?(why?"Основание срока: "+why:"Основание срока не записано"):""};
+}
+function planDateHtml(x,today){
+  const dated=x.kind==="soon"||x.due===true||x.merged===true, w=String(x.when||"");
+  const m=dated&&w.match(/(\d{1,2})[.](\d{1,2})[.](\d{4})/);
+  if(m) return `<small>срок</small><b>${+m[1]}</b><span>${["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"][+m[2]-1]}${+m[3]!==+String(today||localDay()).slice(0,4)?" "+m[3]:""}</span>`;
+  return dated&&w?`<small>срок</small><span class="plan-word">${esc(w)}</span>`:`<span class="plan-word">срока нет</span>`;
+}
+function planRow(x,today){
+  const g=x._g||Object.assign({x},taskGroup(x,today)), ts=taskState(cur,x.title), done=ts&&ts.s==="done";
+  const status=ts?(done?"Выполнено":"Напомнить с "+ru(ts.until)):g.status, cls=ts?"none":g.group==="overdue"?"bad":g.group==="soon"?"warn":"none";
+  return `<div class="plan-row is-link${ts?" row-done":""}"${todoAttrs(x)}>
+    <div class="plan-date">${planDateHtml(x,today)}</div>
+    <div class="plan-main"><b class="plan-title">${esc(x.title)}</b>
+      <div class="plan-sub"><span class="status status-${cls}">${esc(status)}</span> <span class="muted">${esc(x.tag||"")}${x.sys?" · "+esc(sysName(x.sys)):""}</span></div></div>
+    <button class="plan-done" type="button" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}">${ts?"Вернуть":"Выполнено"}</button>
+    <span class="plan-go" aria-hidden="true">›</span></div>`;
+}
+function planListHtml(groups,today){ return groups.map(g=>`<h3 class="todo-grp plan-grp">${g.title} — ${g.items.length}</h3><div class="plan-list">${g.items.map(x=>planRow(x,today)).join("")}</div>`).join(""); }
 // одно и то же дело нередко записано дважды: как ближайшая запись и как пункт
 // «требует внимания». Схлопываем пару в одну строку: дата от записи, разбор от пункта.
 const nrm=t=>(t||"").toLowerCase().replace(/ё/g,"е").replace(/[^а-я0-9]+/g," ").trim();
@@ -7014,6 +7117,7 @@ function render(){
     clearTimeout(window.__enterT); window.__enterT=setTimeout(()=>mEl.classList.remove("enter"),1100); }
   document.getElementById("who").innerHTML=Object.keys(DATA)
     .map(k=>`<button data-w="${k}" class="${k===cur?"is-active":""}">${esc(DATA[k].short)}</button>`).join("");
+  whoSync();
   shellRender();
   const m=document.getElementById("main");
 
@@ -7048,13 +7152,12 @@ function render(){
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     m.innerHTML=homeAssemble(`
-    <div class="phead"><h2>${esc(d.short||d.name)}</h2></div>
-    <!--B:hp-->${hpTile(d)}${histTile(histPending(window.__entries||[],cur,window.__delPending))}
-    <!--B:todo--><div class="card"><h2>Посещения врачей и обследования — ${todoV.length}</h2>
-      ${todoV.length?[["lab","Сдать анализы"],["doc","Консультация специалиста"],["etc","Прочее: исследования, прививки, вопросы"]].map(([k,name])=>{ const L=todoV.filter(x=>(x.grp||"etc")===k).slice(0,5); const all=todoV.filter(x=>(x.grp||"etc")===k).length;
-        return L.length?`<h3 class="todo-grp">${name} — ${all}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${L.map(todoRow).join("")}</tbody></table></div>`:""; }).join(""):`<div class="muted">Ближайших дел нет.</div>`}
+    <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2></div>
+    <!--B:todo--><div class="card"><h2>План здоровья</h2>
+      ${todoV.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div>${planListHtml(planGroups(todoV,today,5),today)}`:`<div class="muted">Ближайших дел нет.</div>`}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>
 
+    <!--B:hp-->${hpTile(d)}${histTile(histPending(window.__entries||[],cur,window.__delPending))}
     <!--B:body-->${d.nutrition?weightBlock(d):""}
 
     <!--B:watch--><div class="card"><h2>Ключевые показатели</h2>
@@ -7095,12 +7198,8 @@ function render(){
     </div>`:""}
 
     <div class="card">
-      <h2>Посещения врачей и обследования — ${todoVisit.length}</h2>
-      ${(()=>{const shown=cut(todoVisit);
-        const g=k=>shown.filter(x=>x.grp===k);
-        const block=(k,name)=>g(k).length?`<h3 style="font-size:13px;margin:18px 0 4px;color:var(--muted)">${name} — ${g(k).length}</h3>
-          <div class="tbl-wrap"><table class="tbl"><tbody>${g(k).map(todoRow).join("")}</tbody></table></div>`:"";
-        return block("lab","Сдать анализы")+block("doc","Консультация специалиста")+block("etc","Прочее: исследования, прививки, вопросы");})()}
+      <h2>План здоровья — ${todoVisit.filter(x=>!taskState(cur,x.title)).length}</h2>
+      ${(()=>{const shown=cut(todoVisit), t=localDay(); return `<div class="muted plan-sum">${esc(planSummary(shown.filter(x=>!taskState(cur,x.title)),t))}</div>${planListHtml(planGroups(shown,t),t)}`;})()}
       ${todoSelf.length?`<h2 style="margin-top:26px">Рекомендации — что делать самому, ${todoSelf.length} <span class="hint" tabindex="0" title="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность." aria-label="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность.">?</span></h2>
       ${todoTable(todoSelf)}`:""}
       <button class="btn btn-primary btn-block" style="margin-top:12px" id="todoAll">${todoAll?"← Показать только ближайшие":`Все записи (${todoFull.length}) →`}</button>
@@ -7695,8 +7794,8 @@ function render(){
       <div class="card">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
           <span class="status status-${a.st}">${labelOf(a)}</span>
-          <span class="muted">${a.due?`срок: <b>${esc(a.due)}</b> · `:""}${esc(a.d)}</span>
         </div>
+        ${(()=>{ const T=taskDates(a), L=[T.assigned,T.due,T.basis].filter(Boolean); return L.length?`<div class="muted taskdates" style="margin-bottom:8px">${L.map(esc).join("<br>")}</div>`:""; })()}
         <h2 style="font-size:19px;text-transform:none;color:var(--ink);letter-spacing:0">${esc(a.t)}</h2>
         <div style="margin-top:4px">${rich(a.why||a.w)}</div>
         ${(()=>{ const ts=taskState(cur,a.t), tm=new Date(Date.now()+864e5*14); const def=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,"0")}-${String(tm.getDate()).padStart(2,"0")}`;
