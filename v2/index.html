@@ -538,12 +538,16 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .row-done td{color:var(--muted)!important}.row-done .status{background:var(--surface-2,#eceff3)!important;color:var(--muted)!important}.row-done .status::before,.row-done .status i{display:none}.row-done b{font-weight:500}.row-done .rowdone__b{background:transparent}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .plan-sum{margin:-4px 0 6px;font-size:13px}.plan-grp{margin:16px 0 4px}
-.plan-list{display:flex;flex-direction:column}
-.plan-row{display:grid;grid-template-columns:66px 1fr auto;grid-template-areas:"d m g";gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}.plan-list .plan-row:first-child{border-top:0}
-.plan-date{grid-area:d;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:var(--seg);padding:4px 2px;text-align:center;line-height:1.1}.plan-date b{font-size:18px}.plan-date span{font-size:11px;color:var(--muted);text-transform:uppercase}.plan-date .plan-word{text-transform:none;font-size:11px;color:var(--ink);overflow-wrap:break-word;hyphens:auto}
-.plan-main{grid-area:m;min-width:0}.plan-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.3}
-.plan-sub{margin-top:3px;font-size:12.5px}.plan-go{grid-area:g;color:var(--muted);font-size:22px;align-self:center}
-.plan-row.row-done .plan-title{color:var(--muted)}
+.plan-list{display:flex;flex-direction:column;gap:8px}
+.plan-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:var(--surface-1,var(--seg));border-left:4px solid var(--none);cursor:pointer}
+.plan-row.plan-overdue{border-left-color:var(--bad)}.plan-row.plan-soon{border-left-color:var(--warn)}.plan-row.plan-later{border-left-color:var(--accent)}
+.plan-main{flex:1;min-width:0}.plan-line1{line-height:1.35}
+.plan-d{font-weight:700;white-space:nowrap}.plan-overdue .plan-d{color:var(--bad)}.plan-soon .plan-d{color:var(--warn)}
+.plan-chip{display:inline-block;padding:1px 9px;border-radius:9999px;font-size:12.5px;font-weight:700;vertical-align:1px}
+.plan-chip--ok{background:var(--okbg);color:var(--ok)}.plan-chip--acc{background:var(--accentbg);color:var(--accent)}.plan-chip--none{background:var(--nonebg);color:var(--muted)}
+.plan-title{font-size:15px}
+.plan-sub{margin-top:3px;font-size:13px;color:var(--muted)}.plan-overdue .plan-st{color:var(--bad);font-weight:600}.plan-go{color:var(--muted);font-size:22px}
+.plan-row.row-done{opacity:.6}.plan-row.row-done .plan-title{text-decoration:line-through}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
 .sugadd{padding:8px 10px;cursor:pointer;color:var(--accent,#1a6fd3);font-weight:600;border-top:1px solid var(--border,#e3e6ea)}.sugadd:hover{background:var(--surface-2,#f1f3f6)}.medinfo-new{margin:6px 0 10px;font-size:13px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border,#d0d5dd);border-top-color:var(--accent,#1a6fd3);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px;flex:none}
@@ -2670,7 +2674,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 15:29";   // подставляется при публикации
+const BUILD="09.10 15:33";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7042,19 +7046,21 @@ function taskDates(a){
     assigned=m?"Назначено: "+m[1]:c?"Тянется с: "+c[1]:"Ранее: "+d; }
   return {assigned,due:due?"Срок: "+due:"",basis:due?(why?"Основание срока: "+why:"Основание срока не записано"):""};
 }
-function planDateHtml(x,today){
-  const dated=x.kind==="soon"||x.due===true||x.merged===true, w=String(x.when||"");
+// дата в начале строки: «22 ноя», «22 ноя 2027», слова срока как есть или «без срока»
+function planDateText(x,today){
+  const dated=x.kind==="soon"||x.due===true||x.merged===true, w=String(x.when||"").trim();
   const m=dated&&w.match(/(\d{1,2})[.](\d{1,2})[.](\d{4})/);
-  if(m) return `<b>${+m[1]}</b><span>${["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"][+m[2]-1]}${+m[3]!==+String(today||localDay()).slice(0,4)?" "+m[3]:""}</span>`;
-  return dated&&w?`<span class="plan-word">${esc(w)}</span>`:`<span class="plan-word">срока нет</span>`;
+  if(m) return `${+m[1]} ${["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"][+m[2]-1]}${+m[3]!==+String(today||localDay()).slice(0,4)?" "+m[3]:""}`;
+  return dated&&w?w:"без срока";
 }
+// цвет ярлыка действия: сдать — зелёный, записаться / записан — синий, остальное — серый
+function planChipTone(tag){ const t=String(tag||"").toLowerCase(); return /сдать/.test(t)?"ok":/запис/.test(t)?"acc":"none"; }
 function planRow(x,today){
   const g=x._g||Object.assign({x},taskGroup(x,today)), ts=taskState(cur,x.title), done=ts&&ts.s==="done";
-  const status=ts?(done?"Выполнено":"Напомнить с "+ru(ts.until)):g.status, cls=ts?"none":g.group==="overdue"?"bad":g.group==="soon"?"warn":"none";
-  return `<div class="plan-row is-link${ts?" row-done":""}"${todoAttrs(x)}>
-    <div class="plan-date">${planDateHtml(x,today)}</div>
-    <div class="plan-main"><b class="plan-title">${esc(x.title)}</b>
-      <div class="plan-sub"><span class="status status-${cls}">${esc(status)}</span> <span class="muted">${esc(x.tag||"")}${x.sys?" · "+esc(sysName(x.sys)):""}</span></div></div>
+  const status=ts?(done?"выполнено":"напомнить с "+ru(ts.until)):g.status.charAt(0).toLowerCase()+g.status.slice(1), tag=String(x.tag||""), chip=tag?tag.charAt(0).toUpperCase()+tag.slice(1):"";
+  return `<div class="plan-row plan-${ts?"none":g.group} is-link${ts?" row-done":""}"${todoAttrs(x)}>
+    <div class="plan-main"><div class="plan-line1"><span class="plan-d">${esc(planDateText(x,today))}:</span>${chip?` <span class="plan-chip plan-chip--${planChipTone(tag)}">${esc(chip)}</span>`:""} <b class="plan-title">${esc(x.title)}</b></div>
+      <div class="plan-sub">${x.sys?esc(sysName(x.sys))+" · ":""}<span class="plan-st">${esc(status)}</span></div></div>
     <span class="plan-go" aria-hidden="true">›</span></div>`;
 }
 function planListHtml(groups,today){ return groups.map(g=>`<h3 class="todo-grp plan-grp">${g.title} — ${g.items.length}</h3><div class="plan-list">${g.items.map(x=>planRow(x,today)).join("")}</div>`).join(""); }
