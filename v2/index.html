@@ -266,7 +266,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .ins-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
   padding:8px 10px;border:1px solid var(--line);border-radius:9px}
 .ins-row .muted{font-size:11.5px}
-.ins-v{font-size:13.5px;white-space:nowrap;text-align:right}
+.ins-v{font-size:13.5px;white-space:normal;text-align:right;max-width:210px;overflow-wrap:anywhere}
 .ins-v .muted{white-space:normal;max-width:190px;display:block;margin-top:2px}
 .ins-row.stale{opacity:.6;border-style:dashed}
 .ins-row[data-rec]{cursor:pointer}
@@ -274,6 +274,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .ins-row[data-rec]:hover{border-color:var(--ink);background:var(--accentbg)}
 .ins-row[data-rec]>div:first-child b::after{content:"›";margin-left:6px;color:var(--muted);font-weight:400}
 .ins-d{font-size:14px;font-weight:700;white-space:nowrap;min-width:56px;text-align:right}
+.ins-d.neu{color:var(--ink);font-size:13px;font-weight:600;white-space:normal;min-width:84px}.ins-flag{color:var(--bad);font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}.ins-sub{font-size:13px;margin:-2px 0 10px}
 .ins-d.txt{font-size:11px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .ins-d.s-ok{color:var(--ok)}.ins-d.s-warn{color:var(--warn)}.ins-d.s-bad{color:var(--bad)}
 .ins-g{margin:0;padding-left:18px;font-size:13.5px;line-height:1.65}
@@ -544,10 +545,10 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .plan-date{flex:none;width:62px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;background:var(--nonebg);color:var(--ink);text-align:center;line-height:1.05;padding:4px 2px}
 .plan-date b{font-size:24px;font-weight:800}.plan-date span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}.plan-date .plan-word{text-transform:none;font-size:11.5px;font-weight:600;letter-spacing:0;overflow-wrap:anywhere;hyphens:auto}
 .plan-overdue .plan-date{background:var(--badbg);color:var(--bad)}.plan-soon .plan-date{background:var(--warnbg);color:var(--warn)}.plan-later .plan-date{background:var(--accentbg);color:var(--accent)}
-.plan-main{flex:1;min-width:0}.plan-line1{line-height:1.35}
+.plan-main{flex:1;min-width:0}.plan-line1{display:flex;align-items:center;gap:6px;line-height:1.35;min-width:0}.plan-line1 .plan-chip{flex:none}
 .plan-chip{display:inline-block;padding:1px 9px;border-radius:9999px;font-size:12.5px;font-weight:700;vertical-align:1px}
 .plan-chip--ok{background:var(--okbg);color:var(--ok)}.plan-chip--acc{background:var(--accentbg);color:var(--accent)}.plan-chip--none{background:var(--nonebg);color:var(--muted)}
-.plan-title{font-size:15px}
+.plan-title{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .plan-sub{margin-top:3px;font-size:13px;color:var(--muted)}.plan-overdue .plan-st{color:var(--bad);font-weight:600}.plan-go{color:var(--muted);font-size:22px}
 .plan-row.row-done{opacity:.6}.plan-row.row-done .plan-title{text-decoration:line-through}
 .todo-grp{font-size:13px;margin:14px 0 6px;color:var(--muted)}.soon__when{font-size:13px;font-weight:600;color:var(--ink)}
@@ -1923,8 +1924,9 @@ function changed(d,months){
     if(bad) cls="bad";
     else if(worse && dp!=null && Math.abs(dp)>=1) cls="warn";
     else if(worse===null && dp!=null && Math.abs(dp)>=10) cls="warn";
-    const rec=recForSer(d,x,b.d);
-    out.push({n:x.name,u:x.unit,a:a.v,b:b.v,da:a.d,db:b.d,dp,bad,worse,cls,
+    const rec=recForSer(d,x,b.d), nr=x.norm?(x.norm[0]>0&&x.norm[1]!=null?`норма ${nz1(x.norm[0])}–${nz1(x.norm[1])}`:x.norm[1]!=null?`норма до ${nz1(x.norm[1])}`:`норма от ${nz1(x.norm[0])}`):"";
+    const inn=inNorm(x,b.v), state=inn==null?"":inn?"в пределах нормы":(x.norm[1]!=null&&b.v>x.norm[1]?"выше нормы":"ниже нормы");
+    out.push({n:x.name,u:x.unit,a:a.v,b:b.v,da:a.d,db:b.d,dp,bad,worse,cls,state,nrm:nr,
               wide:!fresh, stale:monthsAgo(b.d)>months,
               ri:rec?(d.rec||[]).indexOf(rec):-1, sid:x.id});
   });
@@ -1960,42 +1962,32 @@ function ageRu(iso){
   const m=Math.round(monthsAgo(iso));
   return m>=24?`${yrs(Math.floor(m/12))} назад`:`${m} мес. назад`;
 }
+// как показать изменение: направление словами и клинический контекст; цвет — только у «вне нормы» (рост на 6 или 31 % сам по себе не плохо)
+function changeText(x){
+  const flat=x.dp!=null&&Math.abs(x.dp)<1, up=x.b>x.a;
+  const dir=flat||x.b===x.a?"без изменений":x.dp==null?(up?"вырос":"снизился"):`${x.dp>0?"вырос":"снизился"} на ${Math.abs(Math.round(x.dp))} %`;
+  return {dir,arrow:flat||x.b===x.a?"→":up?"↑":"↓",ctx:[x.state,x.nrm].filter(Boolean).join(" · ")};
+}
+// 0 — свежее вне нормы, 1 — заметный свежий сдвиг (от 5 %), 2 — старое; 9 — незаметный сдвиг, в список не входит
+function changeRank(x){ const big=x.dp==null||Math.abs(x.dp)>=5; return x.stale?(x.cls==="bad"||big?2:9):x.cls==="bad"?0:big?1:9; }
 function insightsChanged(d){
   const M=6, list=changed(d,M);
-  // ряд уже показывает динамику — то же самое из записей не дублируем
   const serN=new Set(list.map(x=>norm(x.n)));
-  const labs=labMarks(d).filter(x=>!serN.has(norm(x.n)))
-    .map(x=>Object.assign({},x,{stale:monthsAgo(x.db)>M}));
+  const labs=labMarks(d).filter(x=>!serN.has(norm(x.n))).map(x=>Object.assign({},x,{stale:monthsAgo(x.db)>M}));
   if(!list.length&&!labs.length) return "";
-  const byAge=(p,q)=>(p.stale?1:0)-(q.stale?1:0)||String(q.db).localeCompare(String(p.db));
-  const G={ok:  list.filter(x=>x.cls==="ok").sort(byAge),
-           warn:list.filter(x=>x.cls==="warn").sort(byAge),
-           bad: list.filter(x=>x.cls==="bad").concat(labs).sort(byAge)};
-  const ok=G.ok.length, wa=G.warn.length, bd=G.bad.length;
-  // наверху карточки — только свежее: старой находкой внимание не занимаем
-  const top=G.bad.filter(x=>!x.stale)
-    .concat(G.warn.filter(x=>!x.stale&&Math.abs(x.dp)>=5)).slice(0,3);
-  const row=x=>`<div class="ins-row${x.stale?" stale":""}"${x.ri>=0
-      ?` data-rec="${x.ri}"${x.sid?` data-ser="${x.sid}"`:""} title="Открыть запись"`:""}>
-      <div><b>${esc(x.n)}</b><div class="muted">${x.a!=null?`${ru(x.da)} → ${ru(x.db)}`:ru(x.db)}${x.stale?` · ${ageRu(x.db)}`:""}</div></div>
-      <div class="ins-v">${x.a!=null
-        ? `${nz1(x.a)} → <b>${nz1(x.b)}</b> <span class="muted" style="display:inline;margin:0">${esc(x.u||"")}</span>`
-        : `<b>${esc(x.val)}</b><span class="muted">норма ${esc(x.nrm)}</span>`}</div>
-      <div class="ins-d s-${x.cls}${x.dp==null?" txt":""}">${x.dp!=null?`${x.dp>0?"+":"−"}${Math.abs(Math.round(x.dp))} %`:"вне нормы"}</div>
-    </div>`;
-  const TITLE={ok:"В норме — либо почти не менялись, либо сдвинулись в хорошую сторону",
-               warn:"Изменились — сдвиг 10 % и больше, но в пределах нормы",
-               bad:"Вне нормы — последнее значение за границей коридора"};
-  const sel=insSel?(G[insSel]||[]):[];
+  const all=list.concat(labs).filter(x=>changeRank(x)<9).sort((p,q)=>changeRank(p)-changeRank(q)||(Math.abs(q.dp)||0)-(Math.abs(p.dp)||0)||String(q.db).localeCompare(String(p.db)));
+  const quiet=list.length+labs.length-all.length, N=5, shown=insSel==="all"?all:all.slice(0,N);
+  const row=x=>{ const c=x.a!=null?changeText(x):null, bad=x.cls==="bad";
+    return `<div class="ins-row${x.stale?" stale":""}"${x.ri>=0?` data-rec="${x.ri}"${x.sid?` data-ser="${x.sid}"`:""} title="Открыть запись"`:""}>
+      <div><b>${esc(x.n)}</b><div class="muted">${x.a!=null?`${ru(x.da)} → ${ru(x.db)}`:ru(x.db)}${x.stale?` · ${ageRu(x.db)}`:""}${c&&c.ctx?` · ${esc(c.ctx)}`:""}${!c?` · норма ${esc(x.nrm)}`:""}</div></div>
+      <div class="ins-v">${x.a!=null?`${nz1(x.a)} → <b>${nz1(x.b)}</b> <span class="muted" style="display:inline;margin:0">${esc(x.u||"")}</span>`:`<b>${esc(x.val)}</b>`}</div>
+      <div class="ins-d neu">${c?`${c.arrow} ${esc(c.dir)}`:""}${bad?`<div class="ins-flag">вне нормы</div>`:""}</div>
+    </div>`; };
   return `<div class="card"><h2>Что изменилось</h2>
-    <div class="ins-c">
-      <button class="ins-p s-ok${insSel==="ok"?" on":""}" data-ins="ok">🟢 ${ok} стабильно</button>
-      <button class="ins-p s-warn${insSel==="warn"?" on":""}" data-ins="warn">🟡 ${wa} изменилось</button>
-      <button class="ins-p s-bad${insSel==="bad"?" on":""}" data-ins="bad">🔴 ${bd} вне нормы</button>
-    </div>
-    ${insSel?`<div class="ins-sel"><div class="ins-t">${esc(TITLE[insSel])} — ${sel.length}</div>
-      ${sel.length?`<div class="ins-top">${sel.map(row).join("")}</div>`:`<div class="empty">Здесь пусто</div>`}</div>`
-    :(top.length?`<div class="ins-t">Самое важное сейчас</div><div class="ins-top">${top.map(row).join("")}</div>`:"")}</div>`;
+    <div class="muted ins-sub">Сравнение последних значений за 6 месяцев. Красным отмечено только то, что вне нормы: рост показателя сам по себе не значит ухудшение.</div>
+    ${shown.length?`<div class="ins-top">${shown.map(row).join("")}</div>`:`<div class="empty">Заметных изменений нет</div>`}
+    ${all.length>N?`<button class="btn btn-secondary btn-block" style="margin-top:10px" data-ins="all">${insSel==="all"?"Свернуть":`Показать все изменения (${all.length})`}</button>`:""}
+    ${quiet>0?`<div class="muted ins-sub" style="margin-top:8px">Ещё ${quiet} ${plural(quiet,"показатель","показателя","показателей")} без заметных изменений.</div>`:""}</div>`;
 }
 function insightsGaps(d){
   const g=[];
@@ -2669,7 +2661,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 15:57";   // подставляется при публикации
+const BUILD="09.10 16:03";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7033,7 +7025,7 @@ function planGroups(list,today,limit){
   const GI={overdue:0,soon:1,later:2,nodate:3};
   const rows=list.map(x=>Object.assign({x},taskGroup(x,today))).sort((a,b)=>GI[a.group]-GI[b.group]||(a.group==="nodate"?(a.x.p||99)-(b.x.p||99):a.days-b.days));
   const cut=limit?rows.slice(0,limit):rows;
-  return [["overdue","Просрочено"],["soon","Ближайшие"],["later","Позже"],["nodate","Без точной даты"]].map(([g,title])=>({group:g,title,items:cut.filter(r=>r.group===g).map(r=>Object.assign(r.x,{_g:r}))})).filter(g=>g.items.length);
+  return [["overdue","Просрочено"],["soon","Скоро"],["later","Позже"],["nodate","Нужно уточнить срок"]].map(([g,title])=>({group:g,title,items:cut.filter(r=>r.group===g).map(r=>Object.assign(r.x,{_g:r}))})).filter(g=>g.items.length);
 }
 function ruDayMonth(t,days){ const RU_GEN=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"], d=new Date(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)+days); const y=d.getFullYear()!==+t.slice(0,4)?" "+d.getFullYear():""; return `${d.getDate()} ${RU_GEN[d.getMonth()]}${y}`; }
 function planSummary(list,today){
@@ -7065,7 +7057,7 @@ function planRow(x,today){
   return `<div class="plan-row plan-${ts?"none":g.group} is-link${ts?" row-done":""}"${todoAttrs(x)}>
     <div class="plan-date">${planDateTile(x,today)}</div>
     <div class="plan-main"><div class="plan-line1">${chip?`<span class="plan-chip plan-chip--${planChipTone(tag)}">${esc(chip)}</span> `:""}<b class="plan-title">${esc(x.title)}</b></div>
-      <div class="plan-sub">${x.sys?esc(sysName(x.sys))+" · ":""}<span class="plan-st">${esc(status)}</span></div></div>
+      <div class="plan-sub">${x.sys?esc(sysName(x.sys)):""}${ts||g.group==="overdue"?`${x.sys?" · ":""}<span class="plan-st">${esc(status)}</span>`:""}</div></div>
     <span class="plan-go" aria-hidden="true">›</span></div>`;
 }
 function planListHtml(groups,today){ return groups.map(g=>`<h3 class="todo-grp plan-grp">${g.title} — ${g.items.length}</h3><div class="plan-list">${g.items.map(x=>planRow(x,today)).join("")}</div>`).join(""); }
