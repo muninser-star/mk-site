@@ -2661,7 +2661,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.10 16:03";   // подставляется при публикации
+const BUILD="09.10 16:52";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7129,6 +7129,9 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
   window.addEventListener("scroll",onScroll,{passive:true});
 }
 let lastView="";
+// Яндекс.Метрика (если подключена загрузчиком): смена раздела — виртуальный просмотр с названием раздела из фиксированного списка; без вебвизора
+function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins"].includes(t)?t:"other"); }
+function ymTab(){ try{ if(!window.__YM||typeof window.ym!=="function") return; const p=ymPath(tab); if(window.__ymLast===undefined){ window.__ymLast=p; return; } if(p===window.__ymLast) return; window.__ymLast=p; window.ym(window.__YM,"hit",p,{title:"Медкнижка"}); }catch(e){} }
 function render(){
   pplLoad(); measLoad(); periodsLoad(); eventsLoad(); medplanLoad();
   if(!DATA[cur]) cur=Object.keys(DATA)[0];   // человека нет в книжке (скрыт для этого кода) — первый из доступных
@@ -7140,6 +7143,7 @@ function render(){
   document.getElementById("who").innerHTML=Object.keys(DATA)
     .map(k=>`<button data-w="${k}" class="${k===cur?"is-active":""}">${esc(DATA[k].short)}</button>`).join("");
   whoSync();
+  ymTab();
   shellRender();
   const m=document.getElementById("main");
 
@@ -8231,6 +8235,15 @@ if(window.__MK_KEY) entriesPull().then(ch=>{ if(ch) render(); });  // запис
   let KEY = ""; try { KEY = localStorage.getItem(KEY_LS) || ""; } catch (e) {}
   const u = new URL(location.href), k = u.searchParams.get("k");
   if (k) { KEY = k; try { localStorage.setItem(KEY_LS, k); } catch (e) {} u.searchParams.delete("k"); history.replaceState(null, "", u.pathname + u.search + u.hash); }
+  // Метрика грузится после того, как из адреса убран код доступа; вебвизор, карта кликов и отслеживание ссылок выключены
+  const YM = 113584347;
+  if (YM) try {
+    (function (m, e, t, r, i, k, a) { m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments); }; m[i].l = 1 * new Date();
+      for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+      k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a); })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    ym(YM, "init", { clickmap: false, trackLinks: false, accurateTrackBounce: true, webvisor: false, trackHash: false, ut: "noindex" });
+    window.__YM = YM;
+  } catch (e) { /* счётчик не должен мешать медкнижке */ }
   // приложение на экране (ТЗ-023 блок 3): регистрируем до проверки кода; на адресах предпросмотра веток не ставим
   if ("serviceWorker" in navigator && ["mk.opalinskiy.ru", "health-peach-five.vercel.app", "localhost"].includes(location.hostname))
     window.addEventListener("load", () => navigator.serviceWorker.register("/v2/sw.js", { scope: "/v2/" }).catch(() => {}));
@@ -8245,6 +8258,7 @@ if(window.__MK_KEY) entriesPull().then(ch=>{ if(ch) render(); });  // запис
       <button id="mkpaste" class="btn btn-secondary btn-block" style="margin-top:8px">Вставить</button>
       <button id="mkgo" class="btn btn-primary btn-block btn-lg" style="margin-top:12px">Открыть</button>
       <div class="t-text-s" style="margin-top:8px;color:var(--text-negative)">${msg ? esc(msg) : ""}</div></div>`;
+    if (window.__YM) ym(window.__YM, "reachGoal", "gate_shown");
     document.getElementById("mkpaste").onclick = () => {
       if (!(navigator.clipboard && navigator.clipboard.readText)) return document.getElementById("mkc").focus();
       navigator.clipboard.readText().then(t => { document.getElementById("mkc").value = t; }).catch(() => document.getElementById("mkc").focus());
@@ -8305,6 +8319,7 @@ if(window.__MK_KEY) entriesPull().then(ch=>{ if(ch) render(); });  // запис
     } catch (e) { /* не вышло — остаются записи из самой медкнижки */ }
     // для записи замеров в базу медкнижке нужны адрес, ключ проекта и код доступа
     window.__MK_URL = SB_URL; window.__MK_APIKEY = SB_KEY; window.__MK_KEY = KEY;
+    if (window.__YM) ym(window.__YM, "reachGoal", "app_opened");
     const s = document.createElement("script");
     s.text = document.getElementById("mk-main").textContent;
     document.body.appendChild(s);
