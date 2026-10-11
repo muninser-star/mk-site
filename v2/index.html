@@ -564,6 +564,8 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .tlbl{display:flex;flex-wrap:wrap;gap:6px}.tlbl__b{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:9999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}.tlbl__b.on{background:var(--accentbg);border-color:var(--accent);color:var(--accent)}
 .hist-grp>summary:focus,.taskwhy>summary:focus{outline:none}.hist-grp>summary:focus-visible,.taskwhy>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.sym-stats{margin:0 0 6px;font:500 15px/22px var(--font);color:var(--text-primary)}
+.sym-cur .addsym{vertical-align:middle}
 .hist-grp{margin-top:6px}.hist-grp>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}.hist-grp>summary::-webkit-details-marker{display:none}.hist-grp>summary::after{content:"▸";margin-left:auto;font-size:13px;color:var(--muted);transition:transform .15s ease}.hist-grp[open]>summary::after{transform:rotate(90deg)}
 .hist-h{font-size:14px;margin:18px 0 6px}.hist-h:first-of-type{margin-top:6px}.plan-sum{margin:-4px 0 6px;font-size:13px;padding-right:48px}.plan-grp{margin:16px 0 4px}
 .plan-list{display:flex;flex-direction:column;gap:8px}
@@ -1527,6 +1529,22 @@ const ST={ok:"норма",warn:"внимание",bad:"проблема",none:"�
 const TYPE={visit:"Посещение",instr:"Исследование",lab:"Анализ"};
 let cur="denis", tab="home", sysFilter=null, query="", taskIdx=null, insSel=null;
 let symAllOpen=false;   // «Все симптомы» раскрыты под картой 30 дней
+let symFocus=null;   // день, с которого открыли карточку симптома («Вся карточка симптома →» из карты дней)
+// записи выбранного дня — «текущие», остальные — «другие»; дня нет или он не найден — берём самую свежую запись
+function symSplit(L,day){
+  const list=L||[]; if(!list.length) return {day:"",cur:[],rest:[]};
+  const days=list.map(x=>x.d), last=days.reduce((a,b)=>a>b?a:b), pick=day&&days.includes(day)?day:last;
+  return {day:pick,cur:list.filter(x=>x.d===pick),rest:list.filter(x=>x.d!==pick)};
+}
+// что ещё было в этот день: события того же дня, кроме записей этого же симптома
+function symAlso(events,day,name){
+  return (events||[]).filter(e=>e.d===day&&!(e.k==="sym"&&sameSym(e.t,name)));
+}
+// плашки 30/90 дней одной строкой
+function symStatsText(a30,a90){
+  const f=n=>`${n} ${plural(n,"раз","раза","раз")}`;
+  return `За 30 дней — ${f(a30.n)}, за 90 дней — ${f(a90.n)}.`+(a90.avg!=null?` Средняя сила — ${String(a90.avg).replace(".",",")}.`:"");
+}
 let symDay=null;   // {n,d} — день, на который нажали в карте «Последние 30 дней»
 let symView="main", symSel=null, medSel=null;   // виды страницы «Симптомы»: main (карта 30 дней + список) · ill (Болезни)
 let todoAll=false;   // «все записи»: снимает лимит 15 и показывает закрытые (зелёные)
@@ -2003,6 +2021,20 @@ const TL_PAGE=15; let tlShown=TL_PAGE;   // сколько событий Лен
 const tlReset=()=>{ tlShown=TL_PAGE; };
 // порция ленты: самые свежие n событий и сколько осталось
 function timelinePage(events,n){ const items=(events||[]).slice(0,n); return {items,rest:Math.max(0,(events||[]).length-items.length)}; }
+// одна строка события (Лента, карточка симптома): значок, название, тип, подробности, правка
+function tlItem(e){
+  const icCls=k=>k==="visit"?" tl-ic--visit":(k==="med"||k==="medend")?" tl-ic--med":k==="sym"?" tl-ic--sym":"";
+
+  const lines=tlLines(e), click=e.id!=null||e.k==="ep"||e.k==="event"||tlMedAttr(e);
+  const acts=e.k==="sym"?`<span class="tl-act"><button class="addsym editrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Исправить запись">✎</button><button class="addsym delrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Удалить запись">✕</button></span>`
+    :e.k==="ep"?`<span class="tl-act"><button class="addsym editep" data-ep="${esc(e.r.id)}" title="Изменить болезнь">✎</button></span>`
+    :e.k==="event"?`<span class="tl-act"><button class="addsym" data-evopen="${esc(e.r.id)}" title="Изменить событие">✎</button></span>`:"";
+  return `<div class="tl-item tl-item--nodate${click?" is-link":""}"${e.id!=null?` data-rec="${e.id}"`:e.k==="ep"?` data-epcard="${esc(e.r.id)}"`:e.k==="event"?` data-evopen="${esc(e.r.id)}"`:tlMedAttr(e)}>
+    <div class="tl-ic${icCls(e.k)}">${tlIc(e)}</div>
+    <div><div class="tl-title">${hl(e.t)}${e.k==="med"&&e.r&&medActive(e.r)?' <span class="status status-ok">идёт</span>':""}${e.st?` <span class="status status-${e.st}">${ST[e.st]}</span>`:""}${acts}</div>
+      <div class="tl-meta"><span class="tag${e.k==="sym"?"":" tag--gray"}">${TL_KIND[e.k]||""}</span>${e.sys&&e.sys!=="other"?" "+esc(sysName(e.sys)):""}</div>
+      ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`;
+}
 function timeline(d){
   const all=tlKindFilter(tlEvents(d),tlKind);
   if(!all.length) return `<div class="empty">Ничего не найдено</div>`;
@@ -2010,18 +2042,8 @@ function timeline(d){
   const total={}; all.forEach(e=>{ const k=monthKey(e.d); total[k]=(total[k]||0)+1; });
   const byMonth={}; ev.forEach(e=>(byMonth[monthKey(e.d)]=byMonth[monthKey(e.d)]||[]).push(e));
   const short=iso=>{ const x=new Date(iso); return `${String(x.getDate()).padStart(2,"0")} ${MON[x.getMonth()]}`; };
-  const icCls=k=>k==="visit"?" tl-ic--visit":(k==="med"||k==="medend")?" tl-ic--med":k==="sym"?" tl-ic--sym":"";
   return Object.keys(byMonth).sort().reverse().map(mk=>`<div class="tl-group"><h3 class="tl-month">${esc(monthName(mk))} · ${total[mk]}</h3>
-    ${tlByDay(byMonth[mk]).map(day=>`<div class="tl-day"><div class="tl-date">${short(day.d)}</div><div class="tl-dayitems">${day.items.map(e=>{
-      const lines=tlLines(e), click=e.id!=null||e.k==="ep"||e.k==="event"||tlMedAttr(e);
-      const acts=e.k==="sym"?`<span class="tl-act"><button class="addsym editrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Исправить запись">✎</button><button class="addsym delrec" data-rk="${encodeURIComponent(JSON.stringify({d:e.r.d,n:e.r.n,p:e.r.p||""}))}" title="Удалить запись">✕</button></span>`
-        :e.k==="ep"?`<span class="tl-act"><button class="addsym editep" data-ep="${esc(e.r.id)}" title="Изменить болезнь">✎</button></span>`
-        :e.k==="event"?`<span class="tl-act"><button class="addsym" data-evopen="${esc(e.r.id)}" title="Изменить событие">✎</button></span>`:"";
-      return `<div class="tl-item tl-item--nodate${click?" is-link":""}"${e.id!=null?` data-rec="${e.id}"`:e.k==="ep"?` data-epcard="${esc(e.r.id)}"`:e.k==="event"?` data-evopen="${esc(e.r.id)}"`:tlMedAttr(e)}>
-        <div class="tl-ic${icCls(e.k)}">${tlIc(e)}</div>
-        <div><div class="tl-title">${hl(e.t)}${e.k==="med"&&e.r&&medActive(e.r)?' <span class="status status-ok">идёт</span>':""}${e.st?` <span class="status status-${e.st}">${ST[e.st]}</span>`:""}${acts}</div>
-          <div class="tl-meta"><span class="tag${e.k==="sym"?"":" tag--gray"}">${TL_KIND[e.k]||""}</span>${e.sys&&e.sys!=="other"?" "+esc(sysName(e.sys)):""}</div>
-          ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`; }).join("")}</div></div>`).join("")}</div>`).join("")
+    ${tlByDay(byMonth[mk]).map(day=>`<div class="tl-day"><div class="tl-date">${short(day.d)}</div><div class="tl-dayitems">${day.items.map(tlItem).join("")}</div></div>`).join("")}</div>`).join("")
     +(page.rest?`<button class="btn btn-secondary btn-block" data-tlmore="1" style="margin-top:12px">Показать ещё ${Math.min(TL_PAGE,page.rest)}</button>`:"");
 }
 // ── Автоматические выводы. Считаются из рядов и записей, ничего не утверждают про причины
@@ -2834,7 +2856,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="12.10 00:17";   // подставляется при публикации
+const BUILD="12.10 00:32";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3818,6 +3840,13 @@ function symVisits(d,name){
 }
 const DOC_NAMES=["Психиатр","Нейропсихолог","Психотерапевт","Психолог","Невролог","Уролог","Нефролог","Педиатр","Кардиолог","Офтальмолог","ЛОР","Аллерголог","Гастроэнтеролог","Эндокринолог","Гематолог","Ортопед","Хирург","Дерматолог","Стоматолог","Гинеколог"];
 const WEEKDAYS=["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+// содержимое выбранного дня: записи с правкой, периоды, болезнь — одно и то же в панели дня и в карточке симптома
+function symDayBody(S,n,day,today){
+  const I=symDayInfo(S,PERIODS,cur,n,day,today);
+  return `${I.rows.length?logLines(I.rows,S.ep):`<div class="muted">В этот день записей нет.</div>`}
+    ${I.periods.map(x=>`<div class="muted daypanel__p">Период: ${ru(x.started_on)} — ${x.ended_on?ru(x.ended_on):"идёт"}</div>`).join("")}
+    ${I.eps.map(e=>`<div class="muted daypanel__p">Болезнь: <span class="eplink" data-epcard="${esc(e.id)}">${esc(e.dx||"без диагноза")}</span> · ${ru(e.d1)} — ${e.d2?ru(e.d2):"идёт"}</div>`).join("")}`;
+}
 function symDayPanel(S,n,day,today){
   const I=symDayInfo(S,PERIODS,cur,n,day,today), wd=WEEKDAYS[new Date(day+"T12:00:00Z").getUTCDay()];
   return `<div class="daypanel" role="region" aria-label="День ${ru(day)}">
@@ -7717,12 +7746,11 @@ function render(){
         <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}
         ${c.red?`<div class="pill" style="background:var(--bad);margin-bottom:8px">при появлении — к врачу сразу, не дожидаясь записи</div>`:""}
         ${c.why?(()=>{ const w=shortWhy(c.why,140); return `<p class="sym-why">${esc(w.head)}</p>${w.rest?`<details class="sym-more"><summary>Подробнее</summary><p>${esc(w.rest)}</p></details>`:""}`; })():""}
-        <div class="kpis">
-          <div class="kpi"><div class="kpi__lab">Последние 30 дней</div><div class="kpi__val">${a30.n}</div><div class="muted kpi__sub">${lastDaysText(today,30)}</div></div>
-          <div class="kpi"><div class="kpi__lab">Последние 90 дней</div><div class="kpi__val">${a90.n}</div><div class="muted kpi__sub">${lastDaysText(today,90)}</div></div>
-          <div class="kpi"><div class="kpi__lab">Средняя сила</div><div class="kpi__val">${a90.avg!=null?String(a90.avg).replace(".",","):"—"}</div><div class="muted kpi__sub">за 90 дней</div></div>
-        </div>
       </div>
+      ${(()=>{ const sp=symSplit(L,symFocus); if(!sp.day) return "";
+        const wd=WEEKDAYS[new Date(sp.day+"T12:00:00Z").getUTCDay()], also=symAlso(tlEvents(d),sp.day,symSel);
+        return `<div class="card sym-cur"><h2>${sp.cur.length>1?"Записи за день":"Запись"} · ${ru(sp.day)}, ${wd}</h2>${symDayBody(S,symSel,sp.day,today)}</div>`
+          +(also.length?`<div class="card"><h2>Что ещё было в этот день <span class="muted" style="text-transform:none">— ${also.length}</span></h2>${also.map(tlItem).join("")}</div>`:""); })()}
       <!--B:doc-->${symDoctorsCard(d,symSel,c)}
       <!--B:ai-->${symAiCard(symSel)}${symChatCard(symSel)}
       <!--B:events-->${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
@@ -7747,14 +7775,14 @@ function render(){
       ${L.length?`<!--B:freq--><div class="card"><h2>Как часто возвращается <span class="hint" tabindex="0" title="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце." aria-label="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.">?</span></h2>
         ${(()=>{const f=L[L.length-1].d, now=new Date();
           const m=(now.getFullYear()-+f.slice(0,4))*12+(now.getMonth()-(+f.slice(5,7)-1))+1;
-          return freqChart(L,Math.min(60,Math.max(12,m)));})()}
+          return `<p class="sym-stats">${symStatsText(a30,a90)}</p>`+freqChart(L,Math.min(60,Math.max(12,m)));})()}
         ${trendVerdict(L,today)}
         <div class="legend">${L.some(x=>x.u==="°C")
           ?TSCALE.map(t=>`<span><i style="background:${t[1]}"></i>${t[2]}</span>`).join("")
           :`<span><i style="background:var(--ok)"></i>1–3 терпимо</span><span><i style="background:var(--warn)"></i>4–6 мешает</span><span><i style="background:var(--bad)"></i>7 сильно</span><span><i style="background:#7d1212"></i>8–10 очень сильно</span>`}</div></div>
 
-      <!--B:recs--><div class="card"><h2>Все записи <span class="muted" style="text-transform:none">— ${L.length}</span></h2>
-        ${logLines(L,S.ep)}</div>`
+      ${symSplit(L,symFocus).rest.length?`<!--B:recs--><div class="card"><h2>Другие записи <span class="muted" style="text-transform:none">— ${symSplit(L,symFocus).rest.length}</span></h2>
+        ${logLines(symSplit(L,symFocus).rest,S.ep)}</div>`:""}`
       :`<!--B:none--><div class="card"><p style="margin:0">Записей по этому симптому пока нет. Он в списке наблюдения, потому что связан с диагнозом${c.dx?`: ${esc(c.dx)}`:""}.</p></div>`}`,homeOrderLoad(SYMORDK),SYMORDK);
     }
 
@@ -8482,7 +8510,7 @@ document.addEventListener("click",e=>{
   const bk=e.target.closest("[data-back]"); if(bk){ const b0=window.__back||{tab:"all",symView:"main"}; tab=b0.tab==="sys"?"all":b0.tab; symView=b0.symView||"main"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
   if(e.target.closest("[data-favpick]")){ favPicker(); return; }
   if(e.target.closest("[data-daycl]")){ symDay=null; render(); return; }
-  const sf=e.target.closest("[data-symfull]"); if(sf){ symSel=sf.dataset.symfull; symDay=null; render(); window.scrollTo({top:0}); return; }
+  const sf=e.target.closest("[data-symfull]"); if(sf){ symSel=sf.dataset.symfull; symFocus=symDay&&symDay.n===symSel?symDay.d:null; symDay=null; render(); window.scrollTo({top:0}); return; }
   const w=e.target.closest("[data-w]"); if(w){WHO_PICKED.v=true;symDay=null;tlReset();cur=w.dataset.w;insSel=null;sysFilter=null;symSel=null;medSel=null;symView="main";tab="home";closeModal();render();return}
   if(shellClick(e)||calClick(e)) return;
   if(docClick(e)||planClick(e)) return;
@@ -8566,7 +8594,7 @@ document.addEventListener("click",e=>{
   if(mw){cur=mw.dataset.medwho;tab="sym";symSel=null;sysFilter=null;closeModal();render();window.scrollTo({top:0});return}
   const md=e.target.closest("[data-med]"); if(md){ if(md.dataset.med) medOpen(md.dataset.med); return; }
   const mnm=e.target.closest("[data-medname]"); if(mnm){ medOpen(mnm.dataset.medname); return; }
-  const sm=e.target.closest("[data-sym]"); if(sm){if(sm.closest(".modal"))closeModal();symSel=sm.dataset.sym||null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
+  const sm=e.target.closest("[data-sym]"); if(sm){if(sm.closest(".modal"))closeModal();symSel=sm.dataset.sym||null;symFocus=null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
   const t=e.target.closest("[data-t]"); if(t){goTab(t.dataset.t);render();window.scrollTo({top:0});return}
   const cp=e.target.closest("[data-copy]");
   if(cp){ e.stopPropagation();
