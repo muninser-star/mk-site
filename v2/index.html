@@ -563,6 +563,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .row-done td{color:var(--muted)!important}.row-done .status{background:var(--surface-2,#eceff3)!important;color:var(--muted)!important}.row-done .status::before,.row-done .status i{display:none}.row-done b{font-weight:500}.row-done .rowdone__b{background:transparent}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
 .tlbl{display:flex;flex-wrap:wrap;gap:6px}.tlbl__b{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:9999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}.tlbl__b.on{background:var(--accentbg);border-color:var(--accent);color:var(--accent)}
+.hist-grp{margin-top:6px}.hist-grp>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}.hist-grp>summary::-webkit-details-marker{display:none}.hist-grp>summary::after{content:"▸";margin-left:auto;font-size:13px;color:var(--muted);transition:transform .15s ease}.hist-grp[open]>summary::after{transform:rotate(90deg)}
 .hist-h{font-size:14px;margin:18px 0 6px}.hist-h:first-of-type{margin-top:6px}.plan-sum{margin:-4px 0 6px;font-size:13px;padding-right:48px}.plan-grp{margin:16px 0 4px}
 .plan-list{display:flex;flex-direction:column;gap:8px}
 .plan-row{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 10px;border-radius:12px;background:var(--surface-1,var(--seg));cursor:pointer}
@@ -1385,6 +1386,28 @@ a,.medlink,.symlink,.linkbtn{color:var(--accent)}
 .tl-ic .ic{width:18px;height:18px;color:var(--text-accent)}
 .tl-ic--visit .ic{color:var(--positive)}.tl-ic--med .ic{color:var(--warning)}.tl-ic--sym .ic{color:var(--negative)}
 .mclose .ic{width:18px;height:18px}
+
+/* поле даты вне форм — как остальные поля сайта, не системное (11.10.2026) */
+input[type=date]:not(.input){height:40px;min-width:150px;padding:0 12px;border:0;border-radius:var(--r-l);background:var(--surface-1);color:var(--text-primary);font:400 15px/20px var(--font);letter-spacing:-.2px;outline:0;transition:box-shadow var(--t-base) var(--ease-std)}
+input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
+:root[data-theme=dark] input[type=date]{color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) input[type=date]{color-scheme:dark}}
+.nvrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nvrow .btn{height:40px;font-size:14px}
+/* страница дела: что сделать — сверху, обоснование — свёрнуто */
+.taskh{margin:6px 0 0;font:600 22px/28px var(--font);letter-spacing:-.3px;text-transform:none;color:var(--ink)}
+.taskdet{margin-top:4px;font:400 16px/22px var(--font);color:var(--muted)}
+.taskact{margin-top:16px;gap:8px;align-items:center;flex-wrap:wrap}
+.taskwhy{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.taskwhy summary{cursor:pointer;font:600 15px/22px var(--font);color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
+.taskwhy summary::-webkit-details-marker{display:none}
+.taskwhy summary::after{content:"+";margin-left:auto;color:var(--muted);font-size:22px;line-height:22px}
+.taskwhy[open] summary::after{content:"−"}
+.taskwhy__t{margin-top:10px;color:var(--ink)}
+.taskwhy__h{margin:16px 0 6px;font:600 14px/20px var(--font)}
+.taskwhy__l{margin:0;padding-left:20px}.taskwhy__l li{margin-bottom:6px}
+.taskwhy .linkbtn{margin-top:12px}
+.plan-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .avatar .ic{width:60%;height:60%}
 </style>
 </head>
@@ -2345,7 +2368,7 @@ function openRec(i,showSer){
   const o=organOf(r.sys);
   const rows=[
     ["Дата",ru(r.d)],...(r.t==="visit"?[["Дата следующего посещения",{html:(()=>{ plansLoad(); const cur0=nvDate(r); window.__nvRec={d:r.d,who:r.who||"",title:r.title||"",plan:(nvPlan(r)||{}).id||null};
-      return `<input type="date" id="nvDate" value="${esc(cur0)}" aria-label="Дата следующего посещения"> <button class="btn btn-secondary" data-nvsave="1" style="height:32px;font-size:13px">Сохранить</button>`; })()}]]:[]),["Тип",TYPE[r.t]],["Система",r.sys?sysName(r.sys):""],
+      return `<div class="nvrow"><input type="date" id="nvDate" value="${esc(cur0)}" aria-label="Дата следующего посещения"><button class="btn btn-secondary" data-nvsave="1">Сохранить</button></div>`; })()}]]:[]),["Тип",TYPE[r.t]],["Система",r.sys?sysName(r.sys):""],
     ["Врач / источник",r.who],["Учреждение",r.place&&r.place!=="—"?r.place:""],
     ["Значение",r.v],["Норма",r.n],["Результат, заключение",r.res],["Статус",ST[r.st]]
   ].filter(x=>x[1]);
@@ -2783,7 +2806,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="11.10 23:02";   // подставляется при публикации
+const BUILD="11.10 23:50";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7341,13 +7364,28 @@ function taskNewerFor(a){
   if(TASKNEW_C.k!==k) TASKNEW_C={k,rows:measRows(cur)};
   return taskNewer(a,TASKNEW_C.rows);
 }
+// короткий заголовок дела: что сделать / к кому — отдельно, подробности — отдельно; ничего не теряется (Денис, 11.10.2026)
+function taskShort(t){
+  t=String(t==null?"":t).replace(/\s+/g," ").trim(); if(!t) return {title:"",detail:""};
+  const MON="(?:январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-я]*";
+  let head=t, rest="", m;
+  if((m=t.match(/^(.{3,48}?):\s+(.+)$/))||(m=t.match(/^(.{3,48}?)\s[—–]\s+(.+)$/))||(m=t.match(/^(.{3,48}?)\s\+\s+(.+)$/))||(m=t.match(/^(.{3,40}?),\s+(.+)$/))){ head=m[1]; rest=m[2]; }
+  if(m&&/^[а-яё]+(?:ть|ться|ти)$/i.test(head)){ head=t; rest=""; m=null; }   // «Решить: …», «Проверить — …»: одно слово-глагол заголовком не годится
+  head=head.replace(new RegExp("[,\\s]+(?:(?:до|к|в|с|на)\\s+)?(?:(?:конце|начале|середине)\\s+)?"+MON+"(?:\\s+\\d{4})?$","i"),"").replace(/[\s,;:]+$/,"")||m&&m[1]||t;
+  if(head.length>50){ const cut=head.slice(0,50).replace(/\s+\S*$/,""); rest=(head.slice(cut.length).trim()+(rest?" — "+rest:"")).trim(); head=cut+"…"; }
+  return {title:head.charAt(0).toUpperCase()+head.slice(1), detail:rest};
+}
 function planRow(x,today){
   const g=x._g||Object.assign({x},taskGroup(x,today)), ts=taskState(cur,x.title), done=ts&&ts.s==="done";
   const status=ts?(done?"выполнено":"напомнить с "+ru(ts.until)):g.status.charAt(0).toLowerCase()+g.status.slice(1), tag=String(x.tag||""), chip=tag?tag.charAt(0).toUpperCase()+tag.slice(1):"";
   return `<div class="plan-row plan-${ts?"none":g.group} is-link${ts?" row-done":""}"${todoAttrs(x)}>
     <div class="plan-date">${planDateTile(x,today)}</div>
-    <div class="plan-main"><div class="plan-line1">${chip?`<span class="plan-chip plan-chip--${planChipTone(tag)}">${esc(chip)}</span> `:""}<b class="plan-title">${esc(x.title)}</b></div>
-      <div class="plan-sub">${x.sys?esc(sysName(x.sys)):""}${ts||g.group==="overdue"?`${x.sys?" · ":""}<span class="plan-st">${esc(status)}</span>`:""}${(()=>{ const a=x.task!=null?DATA[cur].attention[x.task]:null; return a&&taskNewerFor(a).length?`${x.sys||ts||g.group==="overdue"?" · ":""}<span class="plan-new">есть новые результаты</span>`:""; })()}</div></div>
+    <div class="plan-main"><div class="plan-line1">${chip?`<span class="plan-chip plan-chip--${planChipTone(tag)}">${esc(chip)}</span> `:""}<b class="plan-title">${esc(taskShort(x.title).title)}</b></div>
+      <div class="plan-sub">${(()=>{ const s=taskShort(x.title), a=x.task!=null?DATA[cur].attention[x.task]:null,
+      parts=[s.detail?esc(s.detail):x.sys?esc(sysName(x.sys)):""];
+      if(ts||g.group==="overdue") parts.push(`<span class="plan-st">${esc(status)}</span>`);
+      if(a&&taskNewerFor(a).length) parts.push(`<span class="plan-new">есть новые результаты</span>`);
+      return parts.filter(Boolean).join(" · "); })()}</div></div>
     <span class="plan-go" aria-hidden="true">›</span></div>`;
 }
 function planListHtml(groups,today){ return groups.map(g=>`<h3 class="todo-grp plan-grp">${g.title} — ${g.items.length}</h3><div class="plan-list">${g.items.map(x=>planRow(x,today)).join("")}</div>`).join(""); }
@@ -7402,7 +7440,7 @@ const todoRow=x=>{ const ts=taskState(cur,x.title); return `<tr class="row is-li
           (()=>{const sub=x.was&&x.was!==x.when?x.was:(overdue(x)?x.when:"");
             return sub?`<div class="muted" style="font-size:11.5px;margin-top:3px">${esc(sub)}</div>`:"";})()}</td>
         <td><span class="status status-${x.st}">${esc(x.tag)}</span></td>
-        <td><b>${esc(x.title)}</b><div class="muted">${x.sys?esc(sysName(x.sys))+" · ":""}${x.kind==="at"?"подробно →":"запись"}${ts?` · <b>${ts.s==="done"?"готово":"напомнить с "+ru(ts.until)}</b>`:""}</div></td>
+        <td><b>${esc(taskShort(x.title).title)}</b><div class="muted">${(()=>{ const s=taskShort(x.title); return s.detail?esc(s.detail)+" · ":x.sys?esc(sysName(x.sys))+" · ":""; })()}${x.kind==="at"?"подробно →":"запись"}${ts?` · <b>${ts.s==="done"?"готово":"напомнить с "+ru(ts.until)}</b>`:""}</div></td>
         <td class="muted">${esc(x.why)}</td>
         <td class="rowdone"><button class="rowdone__b" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}" title="${ts?"Вернуть в дела":"Отметить выполненным"}" aria-label="${ts?"Вернуть в дела":"Отметить выполненным"}">${ts?"↺":"✓"}</button></td></tr>`; };
 const todoAttrs=x=>x.task!=null?` data-task="${x.task}"`:(x.sys?` data-sys="${x.sys}"`:"");
@@ -8108,8 +8146,8 @@ function render(){
       <div class="kpi__lab">${lab}</div><div class="kpi__val">${n}</div></div>`;
     // «История» по делу: анализы, исследования, посещения и операции одним блоком (Денис, 09.10.2026)
     const hist=[[ops,"Операции и госпитализации","t-ops"],[by("lab"),"Анализы","t-lab"],[by("instr"),"Инструментальные исследования","t-instr"],[by("visit"),"Посещения врачей","t-visit"]].filter(x=>x[0].length);
-    const histCard=hist.length?`<div class="card" id="t-hist"><h2>История <span class="muted" style="text-transform:none">— ${hist.reduce((n,x)=>n+x[0].length,0)}</span></h2>
-      ${hist.map(([l,ttl,id])=>`<h3 class="hist-h" id="${id}">${ttl} <span class="muted">— ${l.length}</span></h3>${tableRows(l,{showSys:false})}`).join("")}</div>`:"";
+    const histCard=hist.length?`<details class="card" id="t-hist"><summary>История<span class="sum-cnt">${hist.reduce((n,x)=>n+x[0].length,0)}</span></summary>
+      ${hist.map(([l,ttl,id])=>`<details class="hist-grp" id="${id}" open><summary class="hist-h">${ttl} <span class="muted">— ${l.length}</span></summary>${tableRows(l,{showSys:false})}</details>`).join("")}</details>`:"";
     m.innerHTML=`
       <button class="back" data-t="home">← На главную</button>
       <div class="card">
@@ -8117,27 +8155,26 @@ function render(){
           ${(()=>{ const cur0=taskLabel(cur,a.t)||labelOf(a); return TLABELS.includes(cur0)||taskLabel(cur,a.t)?`<div class="tlbl" role="group" aria-label="Статус дела">${TLABELS.map(l=>`<button type="button" class="tlbl__b${l===cur0?" on":""}" data-tlbl="${l}">${l.charAt(0).toUpperCase()+l.slice(1)}</button>`).join("")}</div>`:`<span class="status status-${a.st}">${esc(labelOf(a))}</span>`; })()}
         </div>
         ${(()=>{ const T=taskDates(a), L=[T.due].filter(Boolean); return L.length?`<div class="muted taskdates" style="margin-bottom:8px">${L.map(esc).join("<br>")}</div>`:""; })()}
-        <h2 style="font-size:19px;text-transform:none;color:var(--ink);letter-spacing:0">${esc(a.t)}</h2>
-        <div style="margin-top:4px">${rich(a.why||a.w)}</div>
-        ${(()=>{ const nw=taskNewerFor(a); return nw.length?`<div class="note tasknew" style="margin-top:12px"><b>После этого текста сданы новые анализы</b>
-          <div class="muted" style="margin:2px 0 6px">Текст дела написан по данным до ${ru(taskTextDate(a))}. Свежие результаты — ниже; сам текст ещё не пересмотрен.</div>
-          ${nw.map(r=>`<div class="tasknew__r" data-favopen="${esc(r.n)}" role="button" tabindex="0"><b>${esc(r.n)}</b> <span>${esc(r.v)} ${esc(r.u)}</span> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""; })()}
+        ${(()=>{ const s=taskShort(a.t); return `<h2 class="taskh">${esc(s.title)}</h2>${s.detail?`<div class="taskdet">${esc(s.detail)}</div>`:""}`; })()}
         ${(()=>{ const ts=taskState(cur,a.t), tm=new Date(Date.now()+864e5*14); const def=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,"0")}-${String(tm.getDate()).padStart(2,"0")}`;
           return ts?`<div class="note" style="margin-top:12px">${ts.s==="done"?"Отмечено как готово — на главной не показывается.":"Напомню с "+ru(ts.until)+" — до этого на главной не показывается."}</div>
             <button class="btn btn-secondary" data-tsk="clear" style="margin-top:8px">Вернуть на главную</button>`
-          :`<div class="row" style="margin-top:12px;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" data-tsk="done">Готово</button>
+          :`<div class="row taskact"><button class="btn btn-primary" data-tsk="done">Готово</button>
             <span class="muted">или напомнить с</span><input type="date" id="tskDate" value="${def}" aria-label="Напомнить с даты"><button class="btn btn-secondary" data-tsk="snooze">Напомнить</button></div>`; })()}
+        ${(()=>{ const nw=taskNewerFor(a), why=a.why||a.w, fl=(a.facts||[]);
+          if(!why&&!fl.length&&!nw.length) return "";
+          return `<details class="taskwhy"><summary>Почему это нужно${nw.length?` <span class="plan-new">есть новые результаты</span>`:""}</summary>
+            ${why?`<div class="taskwhy__t">${rich(why)}</div>`:""}
+            ${nw.length?`<div class="note tasknew" style="margin-top:12px"><b>После этого текста сданы новые анализы</b>
+              <div class="muted" style="margin:2px 0 6px">Текст дела написан по данным до ${ru(taskTextDate(a))}. Свежие результаты — ниже; сам текст ещё не пересмотрен.</div>
+              ${nw.map(r=>`<div class="tasknew__r" data-favopen="${esc(r.n)}" role="button" tabindex="0"><b>${esc(r.n)}</b> <span>${esc(r.v)} ${esc(r.u)}</span> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""}
+            ${fl.length?`<h3 class="taskwhy__h">На чём основано</h3><ul class="taskwhy__l">${fl.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
+            ${a.fam&&d.family?`<button type="button" class="linkbtn" data-t="anam">Весь семейный анамнез →</button>`:""}
+          </details>`; })()}
       </div>
 
       ${a.sys==="allerg"?allergyCard(d):""}
-      ${a.facts?`<div class="card"><h2>На чём основано</h2>
-        <ul style="margin:0;padding-left:20px">${a.facts.map(f=>`<li style="margin-bottom:6px">${esc(f)}</li>`).join("")}</ul>
-      </div>`:""}
 
-      ${a.fam&&d.family?`<div class="card"><h2>Семейный анамнез</h2>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Кто</th><th>Что было</th></tr></thead><tbody>
-        ${d.family.map(f=>`<tr><td style="white-space:nowrap"><b>${esc(f.who)}</b></td><td>${esc(f.what)}</td></tr>`).join("")}
-        </tbody></table></div></div>`:""}
 
       ${o?`<div class="card"><h2>Система: ${o.ic} ${esc(o.name)}</h2>
         <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
@@ -8365,6 +8402,7 @@ document.addEventListener("click",e=>{
   if(gz&&gz.dataset.goto){
     const el=document.getElementById(gz.dataset.goto);
     if(el){
+      for(let p=el;p;p=p.parentElement) if(p.tagName==="DETAILS") p.open=true;   // цель внутри свёрнутого блока — раскрыть
       // отступ считаем по реальной высоте липкой шапки — она разная на телефоне и на мониторе
       const pad=(document.querySelector("header")?.offsetHeight||0)+(document.querySelector("nav")?.offsetHeight||0)+12;
       el.style.scrollMarginTop=pad+"px";
