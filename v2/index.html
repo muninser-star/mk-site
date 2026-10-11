@@ -293,10 +293,10 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .daypanel{margin:2px 0 14px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--surface-2,#f4f6f8)}
 .daypanel__h{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-bottom:6px}.daypanel__p{margin-top:6px;font-size:13px}
 .mbox .addform>.row:has(>.btn-primary){position:sticky;bottom:-24px;z-index:3;margin:18px -24px -24px;padding:12px 24px;background:var(--card);border-top:1px solid var(--line)}
-.sym-why{margin:0 0 6px}.sym-more,.sd-other,.sd-visits{border:0;background:none;padding:0;box-shadow:none;min-height:0}.sym-more>summary,.sd-other>summary,.sd-visits>summary{padding:4px 0;background:none;border:0}.sym-more{margin:0 0 10px}.sym-more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}.sym-more p{margin:6px 0 0}
+.sym-why{margin:0 0 6px}.sym-more,.sd-other,.sd-visits,.sym-dx{border:0;background:none;padding:0;box-shadow:none;min-height:0}.sym-more>summary,.sd-other>summary,.sd-visits>summary,.sym-dx>summary{padding:4px 0;background:none;border:0}.sym-more{margin:0 0 10px}.sym-more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}.sym-more p{margin:6px 0 0}
 .kpi__sub{font-size:11.5px;margin-top:2px}
 .sd-have,.sd-sug{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.sd-tag{font-size:14px;padding:5px 10px}
-.sd-add{height:36px;font-size:14px}.sd-other,.sd-visits{margin-top:6px}.sd-other summary,.sd-visits summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}
+.sd-add{height:36px;font-size:14px}.sd-other,.sd-visits{margin-top:6px}.sd-other summary,.sd-visits summary,.sym-dx summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}
 .tasknew{border-color:var(--ok)}.tasknew__r{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;padding:6px 0;cursor:pointer;border-top:1px solid var(--line)}.tasknew__r:first-of-type{border-top:0}
 .ins-due{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
 .ins-dueRow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--line)}.ins-dueRow:last-child{border-bottom:0}.ins-dueRow[data-rec]{cursor:pointer}
@@ -2711,7 +2711,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="11.10 18:43";   // подставляется при публикации
+const BUILD="11.10 18:46";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7554,20 +7554,7 @@ function render(){
       ${symAiCard(symSel)}
       ${symChatCard(symSel)}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
-      ${dxs.length?`<div class="card"><h2>С какими диагнозами связан <span class="hint" tabindex="0" title="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы." aria-label="Нажмите диагноз — откроется вся система: анализы, исследования, приёмы.">?</span></h2>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
-        ${dxs.map(x=>`<tr class="dxrow" data-sys="${esc(x.sys||"")}"><td><b>${esc(x.n)}</b></td>
-          <td class="muted">${esc(x.c)}</td><td class="muted">${esc(x.y)}</td><td>${esc(x.s)}</td></tr>`).join("")}
-        </tbody></table></div></div>`:""}
-      ${L.length?`<div class="card"><h2>Как часто возвращается <span class="hint" tabindex="0" title="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце." aria-label="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.">?</span></h2>
-        ${(()=>{const f=L[L.length-1].d, now=new Date();
-          const m=(now.getFullYear()-+f.slice(0,4))*12+(now.getMonth()-(+f.slice(5,7)-1))+1;
-          return freqChart(L,Math.min(60,Math.max(12,m)));})()}
-        ${trendVerdict(L,today)}
-        <div class="legend">${L.some(x=>x.u==="°C")
-          ?TSCALE.map(t=>`<span><i style="background:${t[1]}"></i>${t[2]}</span>`).join("")
-          :`<span><i style="background:var(--ok)"></i>1–3 терпимо</span><span><i style="background:var(--warn)"></i>4–6 мешает</span><span><i style="background:var(--bad)"></i>7 сильно</span><span><i style="background:#7d1212"></i>8–10 очень сильно</span>`}</div></div>
-      <div class="card"><h2>При каких диагнозах и чем лечили <span class="hint" tabindex="0" title="Один и тот же симптом приходит по разным поводам. Отдельная строка — случаи, когда его просто отмечали и не лечили." aria-label="Один и тот же симптом приходит по разным поводам. Отдельная строка — случаи, когда его просто отмечали и не лечили.">?</span></h2>
+      <div class="card"><h2>С какими поводами связан <span class="hint" tabindex="0" title="Повод — по какой болезни или причине приходил симптом. Отдельная строка — случаи, когда его просто отмечали и не лечили. Нажмите повод — откроется болезнь." aria-label="Повод — по какой болезни или причине приходил симптом">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Повод</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
         ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
           const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
@@ -7578,8 +7565,22 @@ function render(){
             <td class="muted">${per}</td>
             <td class="muted">${medLinks(meds)}</td></tr>`;}).join("")}
         </tbody></table></div>
+        ${dxs.length?`<details class="sym-dx"><summary>Диагнозы по этой системе — ${dxs.length}</summary>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
+          ${dxs.map(x=>`<tr class="dxrow" data-sys="${esc(x.sys||"")}"><td><b>${esc(x.n)}</b></td>
+            <td class="muted">${esc(x.c)}</td><td class="muted">${esc(x.y)}</td><td>${esc(x.s)}</td></tr>`).join("")}
+          </tbody></table></div></details>`:""}
         <h3 style="margin-top:14px">Все препараты по этому симптому</h3>
         ${medChips(L)}</div>
+      ${L.length?`<div class="card"><h2>Как часто возвращается <span class="hint" tabindex="0" title="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце." aria-label="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.">?</span></h2>
+        ${(()=>{const f=L[L.length-1].d, now=new Date();
+          const m=(now.getFullYear()-+f.slice(0,4))*12+(now.getMonth()-(+f.slice(5,7)-1))+1;
+          return freqChart(L,Math.min(60,Math.max(12,m)));})()}
+        ${trendVerdict(L,today)}
+        <div class="legend">${L.some(x=>x.u==="°C")
+          ?TSCALE.map(t=>`<span><i style="background:${t[1]}"></i>${t[2]}</span>`).join("")
+          :`<span><i style="background:var(--ok)"></i>1–3 терпимо</span><span><i style="background:var(--warn)"></i>4–6 мешает</span><span><i style="background:var(--bad)"></i>7 сильно</span><span><i style="background:#7d1212"></i>8–10 очень сильно</span>`}</div></div>
+
       <div class="card"><h2>Все записи <span class="muted" style="text-transform:none">— ${L.length}</span></h2>
         ${logLines(L,S.ep)}</div>`
       :`<div class="card"><p style="margin:0">Записей по этому симптому пока нет. Он в списке наблюдения, потому что связан с диагнозом${c.dx?`: ${esc(c.dx)}`:""}.</p></div>`}`;
