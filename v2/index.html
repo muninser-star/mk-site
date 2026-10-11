@@ -1367,29 +1367,94 @@ a,.medlink,.symlink,.linkbtn{color:var(--accent)}
 .empty{color:var(--muted)}
 @media (max-width:520px){ .card,details.card{padding:16px;border-radius:20px} main{padding-left:12px;padding-right:12px} }
 @media (max-width:700px){.tl-item .tl-meta{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}   /* Лента на телефоне: длинные строки в две (ТЗ-011 блок 1); полный текст — по нажатию на запись */
+
+/* иконки набора medemo (ТЗ-027 блок 1; исходник Разработка/Дизайн/Иконки) */
+:root{--icon-cut:var(--card)}
+.ic{width:24px;height:24px;flex:none;display:inline-block;vertical-align:middle}
+.ic--20{width:20px;height:20px}
+.app-title{display:inline-flex;align-items:center;gap:8px}.app-title .ic{color:var(--accent)}
+#addBtn span{display:inline-grid;place-items:center}#addBtn .ic{width:20px;height:20px}
+@media (max-width:700px){#addBtn .ic{width:26px;height:26px}}
+.icon-btn .ic{width:20px;height:20px}
+.menu-item__ic{display:inline-grid;place-items:center}.menu-item__ic .ic{width:20px;height:20px}
+.menu-item.is-active .menu-item__ic .ic{color:var(--text-accent)}
+.additems button span{display:inline-grid;place-items:center}.additems button .ic{width:22px;height:22px;color:var(--accent)}
+.bottombar button span .ic{width:24px;height:24px}
+.bottombar button .ic-fill,.bottombar button.is-active .ic-line{display:none}
+.bottombar button.is-active .ic-fill{display:inline-block}
+.tl-ic .ic{width:18px;height:18px;color:var(--text-accent)}
+.tl-ic--visit .ic{color:var(--positive)}.tl-ic--med .ic{color:var(--warning)}.tl-ic--sym .ic{color:var(--negative)}
+.mclose .ic{width:18px;height:18px}
+.avatar .ic{width:60%;height:60%}
 </style>
 </head>
 <body>
+<!--sprite:start-->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9.5 21v-6.5h5V21"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 3v6l3-1.8L15 9V3"/></symbol>
+<symbol id="i-add" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></symbol>
+<symbol id="i-nutr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v6a3 3 0 0 0 6 0V3M7 3v18"/><path d="M18 21V3c-2.5 1.5-3.5 4-3.5 7 0 1.5 1 2.5 3.5 2.5"/></symbol>
+<symbol id="i-ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-5.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M12.5 8v7M9 11.5h7"/></symbol>
+<symbol id="i-symptoms" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5S5 11 5 15.2a7 7 0 0 0 14 0C19 11 12 2.5 12 2.5Z"/></symbol>
+<symbol id="i-illness" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-visits" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2.5v5M17 2.5v5M3 9h18M8 14l2.2 2.2L16 11"/></symbol>
+<symbol id="i-labs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5l-3 8.5A3.2 3.2 0 0 0 10 21h4a3.2 3.2 0 0 0 3-4.5L14 8V3"/><path d="M8.5 15h7"/></symbol>
+<symbol id="i-studies" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h4l2.5-6 4 10 2.5-6H21"/></symbol>
+<symbol id="i-dynamics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V12M10 19V8M16 19V4M3 20h18"/><path d="m3 8 6-3 5 1 6-4"/></symbol>
+<symbol id="i-feed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5" r="2"/><circle cx="7" cy="12" r="2"/><circle cx="7" cy="19" r="2"/><path d="M7 7v3M7 14v3M12 5h8M12 12h8M12 19h5"/></symbol>
+<symbol id="i-meds" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4a4 4 0 0 1 5.7 0l7.3 7.3a4 4 0 0 1-5.7 5.7L7 10a4 4 0 0 1 0-6Z"/><path d="m9 12 6-6"/></symbol>
+<symbol id="i-vaccines" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-45 12 12)"><rect x="6" y="9.5" width="9" height="5" rx="1"/><path d="M15 12h5.5M6 12H3M3 9.5v5M9 9.5v2M11.5 9.5v1.5"/></g></symbol>
+<symbol id="i-profile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2Z"/></symbol>
+<symbol id="i-family" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20v-2a6.5 6.5 0 0 1 13 0v2ZM15 14a5 5 0 0 1 6.5 4.5V20h-4"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2.5v5M17 2.5v5M3 9h18M8 13h3M8 17h3M15 13h2"/></symbol>
+<symbol id="i-brief" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h10l5 5v13H5Z"/><path d="M15 3v5h5M8.5 15l2.2 2.2L15.5 12"/></symbol>
+<symbol id="i-docs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l5 5v13H6Z"/><path d="M15 3v5h5M9 12h8M9 16h8"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 16V7M8 11l4-4 4 4"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19.5" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18H5a3.5 3.5 0 0 1-.4-7A7 7 0 0 1 18 8a5 5 0 0 1 1 9.9H17"/><rect x="8" y="13" width="8" height="8" rx="1.5"/><path d="m10 17 1.5 1.5L14 16"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4.5H6.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5H10M14 8l4 4-4 4M18 12H9.5"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.5v5.6c0 4.2-2.9 7.3-7 8.9-4.1-1.6-7-4.7-7-8.9V6z"/><path d="M9 12l2.2 2.2L15.3 10"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="3.5"/><path d="M10.6 12.6 19 4.2M16 7.2l2.3 2.3M13.5 9.7l1.8 1.8"/></symbol>
+<symbol id="i-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 9.5a4.5 4.5 0 0 1 7 0M12 12.5l2-2.3"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19.5l.8-4L16.5 4.8a1.8 1.8 0 0 1 2.7 0l.5.5a1.8 1.8 0 0 1 0 2.7L9 18.7z"/><path d="M14.5 6.8l2.7 2.7"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-home-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.8 12 3l9 7.8h-2.5V21h-13V10.8Z" fill="currentColor"/><path d="M9.5 21v-6.5h5V21" stroke="var(--icon-cut,#fff)"/></symbol>
+<symbol id="i-card-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5" fill="currentColor"/><path d="M9 3v6l3-1.8L15 9V3" stroke="var(--icon-cut,#fff)"/></symbol>
+<symbol id="i-nutr-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v6a3 3 0 0 0 6 0V3M7 3v18" stroke-width="2.5"/><path d="M18 21V3c-2.5 1.5-3.5 4-3.5 7 0 1.5 1 2.5 3.5 2.5Z" fill="currentColor" stroke-width="2.2"/></symbol>
+<symbol id="i-ask-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 2v-5.2A7.5 7.5 0 1 1 20 11.5Z" fill="currentColor"/><path d="M12.5 8v7M9 11.5h7" stroke="var(--icon-cut,#fff)"/></symbol>
+<symbol id="i-add-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" fill="currentColor" stroke="none"/><path d="M12 7v10M7 12h10" stroke="var(--icon-cut,#fff)" stroke-width="2"/></symbol>
+</svg>
+<!--sprite:end-->
 
 <header class="app-header">
-  <span class="app-title">🩺 Медкнижка</span>
+  <span class="app-title"><svg class="ic" aria-hidden="true"><use href="#i-card"/></svg>Медкнижка</span>
   <div class="who-wrap" id="whoWrap"><button id="whoBtn" type="button" aria-haspopup="true" aria-expanded="false"></button><div class="seg" id="who"></div></div>
   <input id="q" type="search" placeholder="Поиск: показатель, значение, врач, дата, диагноз…">
-  <button id="addBtn" type="button" aria-label="Добавить"><span>＋</span><b>Добавить</b></button>
-  <button class="icon-btn icon-btn--round" id="searchBtn" type="button" aria-label="Поиск" title="Поиск">🔍</button>
+  <button id="addBtn" type="button" aria-label="Добавить"><span><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></span><b>Добавить</b></button>
+  <button class="icon-btn icon-btn--round" id="searchBtn" type="button" aria-label="Поиск" title="Поиск"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
   <div class="pop-anchor">
     <button class="avatar" id="avatar" type="button" aria-haspopup="true" aria-expanded="false" title="Профиль">?</button>
     <div class="dropdown" id="profile-menu" hidden>
       <div class="menu-head"><span class="avatar avatar--lg" id="pmAv" style="cursor:default">?</span><div><b id="pmName">Профиль</b><span id="pmSub"></span></div></div>
       <div class="menu-sep"></div>
-      <button class="menu-item" data-pm="profile" type="button"><span class="menu-item__ic">👤</span>Мой профиль</button>
-      <button class="menu-item" data-pm="family" type="button"><span class="menu-item__ic">👨‍👩‍👦‍👦</span>Семья<span class="menu-item__cnt" id="pmCnt"></span></button>
-      <button class="menu-item" data-pm="dx" type="button"><span class="menu-item__ic">🧬</span>Здоровье: диагнозы и анамнез</button>
-      <button class="menu-item" data-pm="doc" type="button"><span class="menu-item__ic">📋</span>Подготовка к приёму врача</button>
-      <button class="menu-item" data-pm="signin" type="button"><span class="menu-item__ic">🔑</span>Способы входа</button>
-      <button class="menu-item" data-pm="theme" type="button"><span class="menu-item__ic">◐</span>Тёмная / светлая тема</button>
+      <button class="menu-item" data-pm="profile" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-profile"/></svg></span>Мой профиль</button>
+      <button class="menu-item" data-pm="family" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-family"/></svg></span>Семья<span class="menu-item__cnt" id="pmCnt"></span></button>
+      <button class="menu-item" data-pm="dx" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-illness"/></svg></span>Здоровье: диагнозы и анамнез</button>
+      <button class="menu-item" data-pm="doc" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-brief"/></svg></span>Подготовка к приёму врача</button>
+      <button class="menu-item" data-pm="signin" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg></span>Способы входа</button>
+      <button class="menu-item" data-pm="theme" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-theme"/></svg></span>Тёмная / светлая тема</button>
       <div class="menu-sep"></div>
-      <button class="menu-item is-danger" data-pm="logout" type="button"><span class="menu-item__ic">↪</span>Выйти</button>
+      <button class="menu-item is-danger" data-pm="logout" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></span>Выйти</button>
     </div>
   </div>
 <div class="bottombar" id="bottombar"></div>
@@ -1747,6 +1812,11 @@ function profTabs(){ return [["hp","Профиль здоровья"],["todo","�
 function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"Семейный ИИ-врач"}]; }
+const ICON_IDS=["home", "card", "add", "nutr", "ask", "symptoms", "illness", "visits", "labs", "studies", "dynamics", "feed", "meds", "vaccines", "profile", "family", "calendar", "brief", "docs", "upload", "search", "star", "info", "more", "drive", "lock", "menu", "close", "theme", "logout", "settings", "shield", "key", "scale", "note", "plus", "clock", "home-fill", "card-fill", "nutr-fill", "ask-fill", "add-fill"];   // что есть в спрайте вверху страницы
+// значок из спрайта; неизвестный id — пусто, чтобы не было битой ссылки (ТЗ-027 блок 1)
+function icon(id,cls){ return ICON_IDS.indexOf(id)<0?"":`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${id}"/></svg>`; }
+// нижняя панель: у каждой кнопки линия и заливка, показывается одна из них (по .is-active)
+function bottomBarHtml(keys,isOn,labels){ return keys.map(k=>`<button type="button" data-bt="${k}" class="${isOn(k)?"is-active":""}"><span>${icon(k,"ic-line")}${icon(k+"-fill","ic-fill")}</span>${labels[k]}</button>`).join(""); }
 function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"]:["home","card","add","ask"]; }
 // перейти на страницу по старому или новому значению tab
 function goTab(t){
@@ -1766,7 +1836,8 @@ function idOf(r){return DATA[cur].rec.indexOf(r)}   // это ИНДЕКС: у �
 
 // ── Таймлайн: месяц → день → события. Записи, симптомы и старты препаратов в одной ленте
 const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"],["event","События"],["cal","Календарь"]];
-const TL_ICON={event:"📍",vac:"💉",visit:"👨‍⚕️",lab:"🧪",instr:"🩻",sym:"🤒",ep:"🩹",note:"📝",med:"💊",medend:"🏁",own:"⭐",meas:"⚖️"};
+const TL_ICON={event:"calendar",vac:"vaccines",visit:"visits",lab:"labs",instr:"studies",sym:"symptoms",ep:"illness",note:"note",med:"meds",medend:"clock",own:"star",meas:"scale"};   // id значков набора
+function tlIc(e){ return e.ic||(TL_ICON[e.k]?icon(TL_ICON[e.k]):"")||"•"; }
 const TL_KIND={event:"событие",vac:"прививка",visit:"приём",lab:"анализ",instr:"исследование",sym:"симптом",ep:"болезнь",note:"заметка",med:"начало курса",medend:"конец курса",own:"своё решение",meas:"замер"};
 const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
 const MONTHS1=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
@@ -1896,7 +1967,7 @@ function timeline(d){
         :e.k==="ep"?`<span class="tl-act"><button class="addsym editep" data-ep="${esc(e.r.id)}" title="Изменить болезнь">✎</button></span>`
         :e.k==="event"?`<span class="tl-act"><button class="addsym" data-evopen="${esc(e.r.id)}" title="Изменить событие">✎</button></span>`:"";
       return `<div class="tl-item${click?" is-link":""}"${e.id!=null?` data-rec="${e.id}"`:e.k==="ep"?` data-epcard="${esc(e.r.id)}"`:e.k==="event"?` data-evopen="${esc(e.r.id)}"`:tlMedAttr(e)}>
-        <div class="tl-date">${short(e.d)}</div><div class="tl-ic${icCls(e.k)}">${e.ic||TL_ICON[e.k]||"•"}</div>
+        <div class="tl-date">${short(e.d)}</div><div class="tl-ic${icCls(e.k)}">${tlIc(e)}</div>
         <div><div class="tl-title">${hl(e.t)}${e.k==="med"&&e.r&&medActive(e.r)?' <span class="status status-ok">идёт</span>':""}${e.st?` <span class="status status-${e.st}">${ST[e.st]}</span>`:""}${acts}</div>
           <div class="tl-meta"><span class="tag${e.k==="sym"?"":" tag--gray"}">${TL_KIND[e.k]||""}</span>${e.sys&&e.sys!=="other"?" "+esc(sysName(e.sys)):""}</div>
           ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`; }).join("")}</div>`).join("")
@@ -2320,7 +2391,7 @@ function openRec(i,showSer){
       <td class="muted" style="white-space:nowrap">${TYPE[x.t]}</td><td class="muted">${esc(x.res||x.v||"—")}</td>
       <td><span class="status status-${x.st}">${ST[x.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"";
   const serHtml=ser.length?ser.map(sr=>`${sr.unit?`<div class="muted" style="font-size:13px">${esc(sr.unit)}</div>`:""}${chart(sr)}`).join(""):"";
-  const shell=inner=>`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть">✕</button>${inner}</div>`;
+  const shell=inner=>`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>${inner}</div>`;
   const head=(st,sub)=>`<div class="status status-${st||"none"}" style="margin-bottom:8px">${recBadge(Object.assign({},r,{st}))}</div>
     <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}${r.t==="lab"?indBtn(r.title):""}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>`;
   let cardHtml=null;
@@ -2367,7 +2438,7 @@ function openRec(i,showSer){
   }
   document.getElementById("modal").innerHTML=cardHtml||`
     <div class="mbox" role="dialog" aria-modal="true">
-      <button class="mclose" data-close="1" aria-label="Закрыть">✕</button>
+      <button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
       <div class="status status-${r.st||"none"}" style="margin-bottom:8px">${recBadge(r)}</div>
       <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}</h3>
       <div class="muted" style="margin-bottom:14px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
@@ -2712,7 +2783,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="11.10 19:43";   // подставляется при публикации
+const BUILD="11.10 23:02";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -2753,7 +2824,7 @@ function pendingText(){
 function pendingCount(){ return qLoad().length || (Object.keys(ovLoad().ren||{}).length + (ovLoad().add||[]).length); }
 function showPending(){
   const L=pendingText();
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Правки для переноса</h2>
     ${L.length?`<p class="muted" style="margin:-4px 0 10px">Эти изменения сделаны на этом устройстве и ещё не отправлены.
       В книжке они уже действуют. Нет связи — сохраню, как появится: ничего делать не нужно.</p>
@@ -3358,7 +3429,7 @@ function ideasModal(){
   const I=((DATA[cur].nutrition||{}).ideas)||{}, picked=ideasPicked();
   const meal=MEALS[ideasTab], list=I[meal]||[];
   const cnt=m=>(I[m]||[]).filter(r=>picked.includes(ideaKey(m,r[0]))).length;
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Другие идеи</h2>
     <div class="ctx">Рецепты на каждый приём, все под твою норму. Нажми «в план» — рецепт встанет в меню следующей недели, а пока появится в окне замены приёма пищи. <span id="ideasMsg"></span></div>
     <div class="ideas-tabs">${MEALS.map((m,i)=>`<button class="ideas-tab ${i===ideasTab?"on":""}" data-itab="${i}">${m}${cnt(m)?` · ${cnt(m)}`:""}</button>`).join("")}</div>
@@ -3380,7 +3451,7 @@ function mealEdit(di,mi){
   const mine=idl.filter(r=>pk.includes(ideaKey(MEALS[mi],r[0])))
     .map(r=>["💡 в плане",`${r[0]} (≈${r[1]} ккал)`]);
   alts.unshift(...mine);
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>${esc(MEALS[mi])} · ${esc(rows[di][0])}</h2>
     <div class="ctx">Меняется только в твоей книжке на этом устройстве. План остаётся как был — его можно вернуть кнопкой ниже.</div>
     <div class="addform">
@@ -3870,7 +3941,7 @@ function eventForm(v){
   const d=DATA[cur], S=d.sym||{cat:[],log:[],ep:[]}, names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   v=v||{}; const eps=(S.ep||[]).slice().sort((a,b)=>(!a.d2-!b.d2)||b.d1.localeCompare(a.d1)).slice(0,40);
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>${v.id?"Событие":"Новое событие"}</h2><div class="ctx">Для <b>${esc(d.short)}</b>. Видно в Ленте.</div>
     <div class="addform">
       <div class="fld"><label for="evTitle">Что произошло</label><input id="evTitle" value="${esc(v.title||"")}" list="evSug" placeholder="например, баня" autocomplete="off">
@@ -3968,7 +4039,7 @@ function editRecForm(who,rk){
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   const eps=[...new Set((S.ep||[]).slice(0,40).map(e=>e.dx).filter(Boolean))];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Исправить запись</h2>
     <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}</div>
     <div class="addform">
@@ -4321,7 +4392,7 @@ function epCard(epId){
   const known=new Set((ep.rx||[]).map(r=>medKeyOf(r.m)));
   const others=epMeds(ep,L,today).filter(m=>!known.has(medKeyOf(m.n)));
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="ill${sp.open?"":" ill--closed"}" style="padding:0;background:none">
       <div class="ill__head"><div><h3 class="ill__title">${esc(ep.dx||"Без диагноза")}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div></div>
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
@@ -4446,7 +4517,7 @@ async function medOpen(name){
   const ep=m&&m.ep?((d.sym||{}).ep||[]).find(e=>e.id===m.ep):null;
   modal.className="modal on";
   const full=iso=>iso.split("-").reverse().join(".");
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="status status-${M.state==="on"?"ok":M.state==="plan"?"warn":"none"}" style="margin-bottom:8px">${esc(M.stateText)}</div>
     <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(M.name)}</h2>
     ${m&&m.how?`<div>${esc(m.how)}</div>`:""}${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
@@ -4472,7 +4543,7 @@ function newSymForm(){
   const d=DATA[cur], S=d.sym||{cat:[],log:[],ep:[]};
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   const eps=(S.ep||[]).slice(0,40);
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Симптом</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Болезнь выбирать не обязательно.</div>
     <div class="addform">
@@ -4588,7 +4659,7 @@ function epForm(epId){
   let rx=(ep&&ep.rx?ep.rx:[]).map(r=>Object.assign({},r));
   const today=localDay();
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>${ep?"Болезнь":"Новая болезнь"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>.${ep?"":" Симптомы можно добавить потом кнопкой «+» в строке."}</div>
     <div class="addform">
@@ -4679,9 +4750,9 @@ function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   const meas=d&&d.nutrition?()=>{ tab="home"; render(); const w=document.getElementById("wIn"); if(w){ w.scrollIntoView({block:"center"}); w.focus(); } }:null;
-  return [["doc","📄","Документ или текст",f("docForm")],["food","📸","Еда",food],["visit","🩺","Визит врача",f("visitForm")],
-    ["lab","🧪","Анализ",f("labForm")],["event","📍","Событие",()=>eventForm()],["sym","🩹","Симптом",()=>newSymForm()],["meas","📏","Замер",meas],
-    ["med","💊","Лекарство",f("medForm")],["note","📝","Заметка",f("noteForm")]]
+  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],
+    ["med",icon("meds"),"Лекарство",f("medForm")],["note",icon("note"),"Заметка",f("noteForm")]]
     .filter(x=>x[3]).map(([k,ic,t,open])=>({k,ic,t,open}));
 }
 function addMenuOpen(){
@@ -5275,7 +5346,7 @@ function favPicker(){
   const by={};
   measRows(cur).forEach(r=>{ if(!r.n||!r.d||/сон|засыпани|шаг|среднее|в день/i.test(r.n)) return; const k=favKey(r.n); if(!by[k]||by[k].d<r.d) by[k]={k,n:r.n,d:r.d,v:r.v,u:r.u}; });
   const list=Object.values(by).sort((a,b)=>(isFav(cur,b.k)-isFav(cur,a.k))||b.d.localeCompare(a.d)||a.n.localeCompare(b.n,"ru"));
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Ключевые показатели</h2>
     <p class="muted" style="margin:0 0 8px">Отметьте то, что показывать на главной. Снимите галочку — показатель уберётся оттуда.</p>
     <input id="fpQ" type="search" placeholder="Найти показатель" autocomplete="off" aria-label="Найти показатель" style="width:100%">
@@ -6147,7 +6218,7 @@ function planDraw(){
     ${(p[k]||[]).map((x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="отмечено"><input class="ptext" data-ptext="${k}:${i}" value="${esc(x.t)}"><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать">✕</button></div>`).join("")}
     <div class="planrow"><input class="ptext" id="pnew_${k}" placeholder="${ph}"><button type="button" class="btn btn-secondary" data-padd="${k}" style="padding:6px 12px">＋</button></div>`;
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Предстоящий визит</h2>
     <div class="addform">
       <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
@@ -6187,7 +6258,7 @@ async function planFile(f){
 function planReview(r){
   planSync(); planImport={name:r.source_name||"",purpose:r.purpose||"",rows:[...r.questions.map(t=>({k:"questions",t,on:true})),...r.tests.map(t=>({k:"tests",t,on:true})),...r.other.map(t=>({k:"other",t,on:true}))]};
   const parts={questions:"Вопросы",tests:"Анализы",other:"Что ещё"};
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Проверьте, что нашлось</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Проверьте, что нашлось</h2>
     <div class="muted" style="margin-bottom:8px">Текст пунктов не менялся. Уберите лишнее галочкой или переложите строку в другую часть.</div>
     ${planImport.purpose?`<div class="fld"><label>Для чего пришли</label><input id="rvPurpose" value="${esc(planImport.purpose)}"></div>`:""}
     ${planImport.rows.map((x,i)=>`<div class="planrow"><input type="checkbox" data-rvon="${i}" checked><input class="ptext" data-rvt="${i}" value="${esc(x.t)}">
@@ -6195,7 +6266,7 @@ function planReview(r){
     <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-plan="rvadd">Добавить в визит</button><button class="btn btn-secondary" data-plan="rvback">Назад</button></div></div>`;
 }
 function planPaste(){
-  planSync(); modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Вставить текст</h2>
+  planSync(); modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Вставить текст</h2>
     <div class="muted" style="margin-bottom:8px">Каждая строка — один пункт. Заголовки «Вопросы», «Анализы», «Что ещё», «Цель» раскладывают пункты по частям.</div>
     <textarea id="plPaste" rows="8" style="width:100%"></textarea><div class="row" style="margin-top:10px"><button class="btn btn-primary" data-plan="pasteok">Разобрать</button><button class="btn btn-secondary" data-plan="rvback">Назад</button></div></div>`;
 }
@@ -6281,7 +6352,7 @@ function profOpen(id){
   if(!PPL){ toast("Профиль ещё загружается"); return; }
   const p=PPL.people.find(x=>x.id===(id||PPL.me))||PPL.people[0], today=localDay(), a=p.birth_date?ageOf(p.birth_date,today):null;
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="profile-card"><span class="avatar avatar--lg" style="cursor:default">${esc(initials(p))}</span>
       <div class="profile-card__info"><b>${esc([p.last_name,p.first_name,p.middle_name].filter(Boolean).join(" "))}</b><span>${p.sex==="m"?"мужской":p.sex==="f"?"женский":""}${p.birth_date?` · ${ru(p.birth_date)}`:""}${a?` · ${a.years} ${plural(a.years,"год","года","лет")}, ${a.adult?"взрослый":"ребёнок"}`:""}</span></div>
       <div class="family">${PPL.people.filter(x=>x.id!==p.id).slice(0,4).map((x,i)=>`<span class="avatar ${i%2?"avatar--gray":"avatar--pink"}" title="${esc(x.short||"")}">${esc(initials(x))}</span>`).join("")}</div></div>
@@ -6304,7 +6375,7 @@ function profOpen(id){
 }
 function profAddForm(){
   const today=localDay();
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Добавить человека</h2>
     <div class="addform" id="addPerson">
       <div class="fld"><label for="apLast">Фамилия</label><input id="apLast"></div>
@@ -6346,7 +6417,7 @@ async function profAct(b){
         relation:{role:v("apRole"),of:v("apOf"),note:v("apNote")}});
       const pj=await mkApi("people_list"); pplApply(pj); render(); setProfBtn();
       const nm=v("apShort").trim()||first;
-      modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">${esc(nm)} добавлен(а)</h2>
+      modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">${esc(nm)} добавлен(а)</h2>
         ${j.link?`<p>Ссылка для ${esc(nm)} готова. Отправьте её — по ней откроется медкнижка семьи. Ссылка показывается один раз.</p>
           <input id="newLink" readonly value="${esc(j.link)}" style="width:100%"><div class="row" style="margin-top:10px"><button class="btn btn-primary" data-prof="copy">Скопировать ссылку</button></div>`
           :`<p class="muted">Ребёнку отдельная ссылка не нужна.</p>`}
@@ -6361,12 +6432,12 @@ async function profAct(b){
 function shellRender(){
   if(query) document.querySelector(".app-header").classList.add("search-on");
   const d=DATA[cur]||{}, nut=!!d.nutrition, bt=document.getElementById("bottombar");
-  const ICON={home:["🏠","Главная"],card:["🧪","Медкарта"],add:["➕","Добавить"],nutr:["🍎","Питание"],ask:["🤖","Семейный ИИ-врач"]};
+  const LAB={home:"Главная",card:"Медкарта",add:"Добавить",nutr:"Питание",ask:"Семейный ИИ-врач"};
   const isOn=k=>k===tab||(k==="card"&&(CARDK.includes(tab)))||(k==="nutr"&&tab==="diary");
-  if(bt) bt.innerHTML=bottomBar(d).map(k=>`<button type="button" data-bt="${k}" class="${isOn(k)?"is-active":""}"><span>${ICON[k][0]}</span>${ICON[k][1]}</button>`).join("");
+  if(bt) bt.innerHTML=bottomBarHtml(bottomBar(d),isOn,LAB);
   const me=PPL&&(PPL.people.find(p=>p.id===PPL.me)||PPL.people[0]);
-  const ini=me?initials(me):"👤", av=document.getElementById("avatar"); if(av) av.textContent=ini;
-  const pa=document.getElementById("pmAv"); if(pa) pa.textContent=ini;
+  const setAv=el=>{ if(!el) return; if(me) el.textContent=initials(me); else el.innerHTML=icon("profile"); };   // пока человек не определён — значок профиля
+  setAv(document.getElementById("avatar")); setAv(document.getElementById("pmAv"));
   const pn=document.getElementById("pmName"); if(pn) pn.textContent=me?(me.short||me.first_name):"Профиль";
   const ps=document.getElementById("pmSub"); if(ps&&PPL) ps.textContent=(me&&me.is_prime?"Главная персона · ":"")+PPL.people.length+" "+plural(PPL.people.length,"человек","человека","человек");
   const pc=document.getElementById("pmCnt"); if(pc&&PPL) pc.textContent=PPL.people.length;
@@ -6375,7 +6446,7 @@ function shellRender(){
 const LOGIN_NAMES={yandex:"Яндекс ID",vk:"VK ID"};
 async function loginMethods(){
   if(!window.__MK_KEY||!window.__MK_AUTH){ toast("Сначала войдите по ссылке с кодом"); return; }
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Способы входа</h2><p class="muted" id="lmBody">Загружаю…</p></div>`;
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Способы входа</h2><p class="muted" id="lmBody">Загружаю…</p></div>`;
   modal.classList.add("on");
   let j; try{ j=await window.__MK_AUTH("identities"); }catch(e){ j=null; }
   const box=document.getElementById("lmBody"); if(!box) return;
@@ -6491,7 +6562,7 @@ function calBody(){
 // окно «Добавить в календарь»: ссылка или файл (Apple, Outlook, Яндекс); напоминание за 3 дня
 function calOpen(ev){
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть">✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="addcal"><div class="addcal__date"><span>${MON[+ev.date.slice(5,7)-1]}</span><b>${+ev.date.slice(8,10)}</b></div><div class="addcal__info"><b>${esc(ev.t)}</b><span>${ru(ev.date)}${ev.time?" · "+esc(ev.time):""} · ${esc(DATA[cur].short)}</span></div></div>
     <div style="margin-top:12px"><button class="cal-opt" data-caladd="google"><span class="cal-opt__ic">🟦</span><span>Google Календарь<small>откроется в новой вкладке</small></span></button>
       <button class="cal-opt" data-caladd="ics"><span class="cal-opt__ic">🍏</span><span>Apple, Outlook, Яндекс<small>скачается файл .ics</small></span></button></div>
@@ -6657,7 +6728,7 @@ function docFill(inputId,kind,map,state){
 function labForm(){
   const d=DATA[cur];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Анализ</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Анализ</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Фото бланка или PDF — до 10 файлов. Показатели распознаются, вы проверяете и сохраняете.</div>
     <div class="addform">
       ${pickHtml("labFiles","Фото бланка или PDF","Распознать")}
@@ -6760,7 +6831,7 @@ const docCount=parts=>Object.keys(DOC_T).map(t=>{ const g=parts.filter(p=>p.type
 function docForm(){
   const d=DATA[cur];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>Документ или текст</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Документ или текст</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и дела и разложу по разделам — вы проверите.</div>
     <div class="addform">
       ${pickHtml("docFiles","Фото или PDF — до 10 файлов")}
@@ -6858,7 +6929,7 @@ function visitForm(entryId){
   const d=DATA[cur], today=localDay();
   const old=entryId?(d.rec||[]).find(r=>r.entry===entryId):null, X=visitFormData(old&&old.data,today);
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>${entryId?"Приём врача — изменить":"Визит врача"}</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>${entryId?"Приём врача — изменить":"Визит врача"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. Сфотографируйте заключение — поля заполнятся сами, вы проверите. Или впишите вручную.</div>
     <div class="addform">
       ${entryId?"":docPick("vFile","Фото или PDF заключения")}
@@ -6901,7 +6972,7 @@ function medForm(entryId,ctx){
   const ex=entryId?((d.meds||[]).find(m=>m.entry===entryId)||{}).data||{}:{};
   const st=ex.status||"назначено";
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button><h2>${entryId?"Лекарство":"Новое лекарство"}</h2>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>${entryId?"Лекарство":"Новое лекарство"}</h2>
     <div class="ctx">Для <b>${esc(d.short)}</b>. «Назначено» — ещё не начали; «Принимаем» — с какой даты.</div>
     <div class="addform">
       ${ctx?`<div class="ctx" style="margin:0 0 10px">Назначение с приёма: <b>${esc(ctx.visit.who||"врач")}, ${ru(ctx.visit.d)}</b>${ctx.epDx?` · по <b>${esc(ctx.epDx)}</b>`:""}</div>`:""}
@@ -7006,7 +7077,7 @@ function editAddForm(aid){
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   const eps=[...new Set((S.ep||[]).slice(0,40).map(e=>e.dx).filter(Boolean))];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Исправить запись</h2>
     <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}
       <br>Запись ещё не в медкарте, поэтому править можно свободно.</div>
@@ -7083,7 +7154,7 @@ function delAddForm(aid){
   const {o,i}=addFind(aid); if(i<0) return;
   const a=o.add[i], d=DATA[a.who]||DATA[cur];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Удалить запись</h2>
     <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}
       ${a.f?`<br>${esc(a.f)}`:""}</div>
@@ -7114,7 +7185,7 @@ function addSymForm(epId){
   const ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close>✕</button>
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Добавить симптом</h2>
     <div class="ctx"><b>${esc(ep.dx||"без диагноза")}</b> · ${ru(ep.d1)}${ep.d2?" – "+ru(ep.d2):""}
       ${epSyms(ep,S.log).length?`<br>Уже отмечено: ${esc(epSyms(ep,S.log).join(", "))}`:""}</div>
