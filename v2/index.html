@@ -645,6 +645,23 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   .dh{break-after:avoid}
 }
 .plancard{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.plancard:first-of-type{border-top:0}
+/* ДМС в профиле (ТЗ-005 блоки 13–16) */
+.poltile{display:flex;gap:12px;align-items:center;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;max-width:560px}
+.poltile>div{flex:1;min-width:0}.poltile .ic{width:22px;height:22px;flex:none;color:var(--accent)}
+.poltile--warn{border-color:var(--text-warning)}
+.polcard__head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.polwarn{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--warning-soft);color:var(--text-warning)}
+.polwarn .ic{width:18px;height:18px}.polwarn .muted{flex-basis:100%;font-size:13px}
+.polrows{margin-top:12px}.polrow{display:grid;grid-template-columns:130px 1fr;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px;overflow-wrap:anywhere}.polrow:first-child{border-top:0}
+.polfiles{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.polfiles .chip{height:auto;min-height:26px;padding:4px 10px;max-width:100%}.polfiles .linkbtn{margin:0;text-align:left;overflow-wrap:anywhere}
+.polh{font-size:14px;margin:18px 0 8px}
+.polans{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.polclin{padding:9px 0;border-top:1px solid var(--line)}.polclin:first-of-type{border-top:0}
+.polfile{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.polfile span{flex:1;min-width:140px;overflow-wrap:anywhere;color:var(--ink)}
+.polarch summary{cursor:pointer;list-style:none}.polarch summary::-webkit-details-marker{display:none}.polarch summary h2::after{content:" ▾";color:var(--muted)}.polarch[open] summary h2::after{content:" ▴"}
+.polarch .polcard{box-shadow:none;border:1px solid var(--line);margin-top:10px}
+.mono{font-variant-numeric:tabular-nums;letter-spacing:.3px}
+@media (max-width:480px){.polrow{grid-template-columns:1fr;gap:2px}}
 .planrow{display:flex;gap:6px;align-items:center;margin:4px 0}.planrow .ptext{flex:1;min-width:0}.planrow select{max-width:110px}
 /*КОМП-НАЧАЛО*/
 :root {
@@ -1501,6 +1518,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
       <button class="menu-item" data-pm="profile" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-profile"/></svg></span>Мой профиль</button>
       <button class="menu-item" data-pm="family" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-family"/></svg></span>Семья<span class="menu-item__cnt" id="pmCnt"></span></button>
       <button class="menu-item" data-pm="dx" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-illness"/></svg></span>Здоровье: диагнозы и анамнез</button>
+      <button class="menu-item" data-pm="dms" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span>ДМС и клиники</button>
       <button class="menu-item" data-pm="doc" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-brief"/></svg></span>Подготовка к приёму врача</button>
       <button class="menu-item" data-pm="signin" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg></span>Способы входа</button>
       <button class="menu-item" data-pm="theme" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-theme"/></svg></span>Тёмная / светлая тема</button>
@@ -1867,6 +1885,7 @@ function legacyTab(t){
   if(t==="card") return {page:"card",sub:"sym"};
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
   if(t==="hp") return {page:"profile",sub:"hp"};
+  if(t==="dms") return {page:"profile",sub:"dms"};   // ТЗ-005 блоки 13–16
   if(t==="hist") return {page:"profile",sub:"hist"};
   if(t==="prof") return {page:"profile",sub:"hp"};   // «О человеке» влито в «Профиль здоровья»
   if(t==="ins") return {page:"profile",sub:"insights"};
@@ -1875,7 +1894,7 @@ function legacyTab(t){
   if(["home","ask","sys","task"].includes(t)) return {page:t};
   return {page:"home"};
 }
-function profTabs(){ return [["hp","Профиль здоровья"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
+function profTabs(){ return [["hp","Профиль здоровья"],["dms","ДМС"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
 function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"Семейный ИИ-врач"}]; }
@@ -1890,7 +1909,7 @@ function goTab(t){
   const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
   sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
-  else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist")?t:"dx";
+  else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist"||t==="dms")?t:"dx";
   else if(m.page==="home"){ if(m.sub==="cal"){ tab="all"; tlKind="cal"; } else tab="home"; }
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
   else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
@@ -2856,7 +2875,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="12.10 00:32";   // подставляется при публикации
+const BUILD="12.10 19:44";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5159,9 +5178,11 @@ function profAboutHtml(d){
   return `<div class="phead" style="margin-bottom:16px"><h2>${esc(d.name)}</h2>
       <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
       ${d.note?`<div class="muted" style="margin-top:2px">${esc(d.note)}</div>`:""}
+      ${polTileHtml(cur)}
       <div class="row" style="margin-top:10px"><button class="btn btn-secondary" id="profEdit" style="height:34px">Изменить данные и семья</button></div></div>`; }
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
+  polLoad();   // плитка ДМС в шапке
   return profAboutHtml(d)+profKpiHtml(d)+hpHtml(d);
 }
 // плитка «Профиль здоровья» (ТЗ-025 блок 5): сколько органов известно, чего мало, куда нажать; без процента
@@ -6508,6 +6529,298 @@ async function profAct(b){
   return false;
 }
 
+// ── ДМС в профиле (ТЗ-005 блоки 13–16, 12.10.2026). Полис, программа, список клиник — в базе; статус — по датам на каждый показ.
+// За 20 дней до конца — «Через N дней полис завершится». Прошлые и прекращённые — в «Архивные полисы».
+function polState(p,today){
+  const days=p.valid_to?Math.round((Date.parse(p.valid_to)-Date.parse(today))/864e5):null;
+  const state=p.status==="cancelled"&&(!p.cancelled_on||p.cancelled_on<=today)?"cancelled"
+    :p.valid_from&&p.valid_from>today?"scheduled":p.valid_to&&p.valid_to<today?"expired":"active";
+  return {state,days};
+}
+function polWarn(p,today){
+  const s=polState(p,today); if(s.state!=="active"||s.days==null||s.days>20) return "";
+  if(s.days===0) return "Сегодня последний день полиса";
+  const n=s.days, a=n%10, b=n%100, w=a===1&&b!==11?"день":a>=2&&a<=4&&(b<10||b>=20)?"дня":"дней";
+  return `Через ${n} ${w} полис завершится`;
+}
+function polGroups(list,today){
+  const g={active:[],scheduled:[],archive:[]};
+  for(const p of list){ const s=polState(p,today).state; (s==="active"?g.active:s==="scheduled"?g.scheduled:g.archive).push(p); }
+  g.scheduled.sort((a,b)=>String(a.valid_from).localeCompare(String(b.valid_from)));
+  g.archive.sort((a,b)=>String(b.cancelled_on||b.valid_to||"").localeCompare(String(a.cancelled_on||a.valid_to||"")));
+  return g;
+}
+// что за файл — по имени; человек может поменять в списке
+function polRole(name){
+  const n=String(name||"").toLowerCase().replace(/ё/g,"е");
+  if(/(клиник|лпу|учрежден|список|perech|lpu|klinik)/.test(n)) return "clinics";
+  if(/(правил|pravil)/.test(n)) return "rules";
+  if(/(полис|polis)/.test(n)) return "policy";
+  if(/(программ|услов|до 2|стандарт|бизнес|programm)/.test(n)||/\.docx$/.test(n)) return "program";
+  return "other";
+}
+// zip (docx, xlsx): один файл архива текстом. Распаковка — DecompressionStream браузера
+async function unzipText(buf,name){
+  const u8=buf instanceof Uint8Array?buf:new Uint8Array(buf), dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength), td=new TextDecoder();
+  let e=u8.length-22; while(e>=0&&dv.getUint32(e,true)!==0x06054b50) e--; if(e<0) return null;
+  let p=dv.getUint32(e+16,true); const n=dv.getUint16(e+10,true);
+  for(let i=0;i<n;i++){
+    const method=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true), nl=dv.getUint16(p+28,true), xl=dv.getUint16(p+30,true), cl=dv.getUint16(p+32,true), off=dv.getUint32(p+42,true);
+    if(td.decode(u8.subarray(p+46,p+46+nl))===name){
+      const start=off+30+dv.getUint16(off+26,true)+dv.getUint16(off+28,true), data=u8.subarray(start,start+csize);
+      if(method===0) return td.decode(data);
+      return td.decode(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+    }
+    p+=46+nl+xl+cl;
+  }
+  return null;
+}
+function docxXmlText(xml){
+  return String(xml||"").replace(/<\/w:p>/g,"\n").replace(/<w:tab\/>/g," ").replace(/<w:br\/>/g,"\n").replace(/<[^>]+>/g,"")
+    .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,"&");
+}
+// xlsx → строки первого листа (массивы ячеек)
+async function xlsxRows(buf){
+  const dec=s=>s.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#10;/g,"\n").replace(/&amp;/g,"&");
+  const ssx=await unzipText(buf,"xl/sharedStrings.xml")||"", sheet=await unzipText(buf,"xl/worksheets/sheet1.xml")||"";
+  const ss=[...ssx.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m=>dec([...m[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(x=>x[1]).join("")));
+  const col=r=>{ let n=0; for(const c of r.match(/^[A-Z]+/)[0]) n=n*26+c.charCodeAt(0)-64; return n-1; };
+  const rows=[];
+  for(const m of sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)){
+    const row=[];
+    for(const c of m[1].matchAll(/<c r="([A-Z]+\d+)"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+      const t=(c[2].match(/t="(\w+)"/)||[])[1], v=((c[3]||"").match(/<v>([\s\S]*?)<\/v>/)||[])[1], is=((c[3]||"").match(/<t[^>]*>([\s\S]*?)<\/t>/)||[])[1];
+      row[col(c[1])]=t==="s"?ss[+v]:t==="inlineStr"?dec(is||""):v!=null?dec(v):"";
+    }
+    rows.push(Array.from(row,x=>x==null?"":String(x).trim()));
+  }
+  return rows;
+}
+// строки таблицы → клиники: колонки по заголовку («Наименование ЛПУ», «Адрес», «Телефон», «Виды помощи», «% Франшизы», «Тип Доступа»)
+function clinicRows(rows){
+  const low=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
+  const hi=rows.findIndex(r=>r.some(c=>/наименование\s*(лпу|клиник|учрежд|организ|мед)|^клиника$|^название/.test(low(c)))&&r.some(c=>/адрес/.test(low(c))));
+  if(hi<0) return [];
+  const h=rows[hi].map(low), at=re=>h.findIndex(c=>re.test(c));
+  const ix={name:h.findIndex(c=>/(наименование|клиник|название|учрежд)/.test(c)&&!/программ/.test(c)),address:at(/адрес/),phone:at(/телефон/),help:at(/вид.*помощ|помощ/),franchise:at(/франшиз/),access:at(/доступ|прикреп/)};
+  const g=(r,k)=>ix[k]>=0?String(r[ix[k]]||"").replace(/\r/g,"").trim():"";
+  return rows.slice(hi+1).map(r=>({name:g(r,"name"),address:g(r,"address"),phone:g(r,"phone").replace(/;\s*\n?/g,"; ").replace(/\n/g,"; "),help:g(r,"help"),franchise:g(r,"franchise"),access:g(r,"access")}))
+    .filter(c=>c.name&&c.name!==ix.name);
+}
+// таблица markdown (| a | b |) → строки
+function mdRows(text){ return String(text||"").split("\n").filter(l=>/^\s*\|/.test(l)&&!/^\s*\|[\s\-:|]+\|\s*$/.test(l)).map(l=>l.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim())); }
+// файл → {text, clinics}: PDF и Word — текстом, Excel и таблица markdown — клиниками, картинка — без текста (только хранится)
+async function polFileText(f,role){
+  const n=f.name.toLowerCase(); let text="", rows=null;
+  if(/\.pdf$/.test(n)||/pdf$/.test(f.type)){ const lib=await loadPdfJs(), doc=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+    for(let i=1;i<=Math.min(doc.numPages,120);i++){ const tc=await (await doc.getPage(i)).getTextContent(); text+=tc.items.map(x=>x.str+(x.hasEOL?"\n":" ")).join("")+"\n"; } }
+  else if(/\.docx$/.test(n)) text=docxXmlText(await unzipText(new Uint8Array(await f.arrayBuffer()),"word/document.xml"));
+  else if(/\.xlsx$/.test(n)){ rows=await xlsxRows(new Uint8Array(await f.arrayBuffer())); text=rows.map(r=>r.filter(Boolean).join(" | ")).join("\n"); }
+  else if(/\.(md|txt|csv)$/.test(n)){ text=await f.text(); if(/\.md$/.test(n)) rows=mdRows(text); else if(/\.csv$/.test(n)) rows=text.split("\n").map(l=>l.split(/;|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,"").trim())); }
+  const clinics=role==="clinics"&&rows?clinicRows(rows):[];
+  return {text:clinics.length?"":text, clinics};
+}
+const POL_ROLE={policy:"Полис",program:"Программа",clinics:"Клиники",rules:"Правила",other:"Другое"};
+let POL=null, polBusy=0, polShowNum={}, polCl={}, polAsk={};
+function polLoad(force){
+  if(!window.__MK_KEY||polBusy||(POL&&!force)) return; polBusy=1;
+  mkApi("policy_list").then(j=>{ POL=j; polBusy=0; if(["hp","dms"].includes(tab)) render(); }).catch(()=>{ polBusy=0; if(!POL) POL={policies:[],err:1,home:""}; if(tab==="dms") render(); });
+}
+const polOf=person=>POL?(POL.policies||[]).filter(p=>p.person===person&&p.kind!=="oms"):[];
+const polDate=s=>s?ru(s):"—";
+// плитка ДМС в шапке профиля: страховая, программа, срок, предупреждение
+function polTileHtml(person){
+  if(!POL) return "";
+  const today=localDay(), g=polGroups(polOf(person),today), a=g.active[0]||g.scheduled[0];
+  if(!a) return `<div class="poltile" data-t="dms" role="button" tabindex="0">${icon("shield")}<div><b>ДМС</b><div class="muted">Полиса нет — загрузите полис и программу</div></div><span class="muted">→</span></div>`;
+  const w=polWarn(a,today), s=polState(a,today);
+  return `<div class="poltile${w?" poltile--warn":""}" data-t="dms" role="button" tabindex="0">${icon("shield")}<div><b>ДМС · ${esc(a.insurer||"полис")}</b>${a.program?` <span class="muted">· ${esc(a.program)}</span>`:""}
+    <div class="muted">${s.state==="scheduled"?"начнёт действовать "+polDate(a.valid_from):"действует до "+polDate(a.valid_to)}${a.hotline?" · пульт "+esc(a.hotline):""}</div>
+    ${w?`<span class="status status-warn" style="margin-top:6px">${esc(w)}</span>`:""}</div><span class="muted">→</span></div>`;
+}
+function polCardHtml(p,full){
+  const today=localDay(), s=polState(p,today), w=polWarn(p,today), num=String(p.number||""), shown=polShowNum[p.id];
+  const tel=String(p.hotline||"").split(/[;,]| или /).map(x=>x.trim()).filter(x=>/\d{3}/.test(x));
+  const st={active:["ok","действует"],scheduled:["info","ожидает начала"],expired:["",`закончился ${polDate(p.valid_to)}`],cancelled:["bad",`прекращён ${polDate(p.cancelled_on)}`]}[s.state];
+  const row=(k,v)=>v?`<div class="polrow"><span class="muted">${k}</span><span>${v}</span></div>`:"";
+  return `<div class="card polcard" id="pol-${esc(p.id)}">
+    <div class="polcard__head"><div><h2 style="margin:0;text-transform:none;font-size:18px;color:var(--ink)">ДМС · ${esc(p.insurer||"полис")}</h2>
+      <div class="muted">${esc(p.program||"программа не указана")}</div></div><span class="status${st[0]?" status-"+st[0]:""}">${esc(st[1])}</span></div>
+    ${w?`<div class="polwarn">${icon("clock")}<b>${esc(w)}</b><span class="muted">Загрузите новый полис, когда он появится.</span></div>`:""}
+    <div class="polrows">
+      ${row("Срок",`${polDate(p.valid_from)} — ${polDate(p.valid_to)}${s.state==="active"&&s.days!=null?` <span class="muted">· осталось ${s.days} ${plural(s.days,"день","дня","дней")}</span>`:""}`)}
+      ${num?row("Номер",`<span class="mono">${esc(shown?num:"•••• "+num.replace(/\s/g,"").slice(-4))}</span> <button class="linkbtn" data-pol="num" data-id="${esc(p.id)}">${shown?"Скрыть":"Показать"}</button> <button class="linkbtn" data-pol="copy" data-v="${esc(num)}">Скопировать</button>`):""}
+      ${row("Пульт",tel.length?tel.map(t=>`<a href="tel:${esc(t.replace(/[^\d+]/g,""))}">${esc(t)}</a>`).join(", "):esc(p.hotline||""))}
+      ${full?row("Сайт",p.website?`<a href="${esc(/^https?:/.test(p.website)?p.website:"https://"+p.website)}" target="_blank" rel="noopener">${esc(p.website)}</a>`:""):""}
+      ${full?row("Страхователь",esc(p.holder||"")):""}
+      ${full?row("Как обратиться",esc(p.how_to_apply||"")):""}
+      ${full?row("Франшиза",esc(p.franchise||"")):""}
+      ${full?row("Страховая сумма",esc(p.sum_insured||"")):""}
+      ${full?row("Важно",esc(p.note||"")):""}
+    </div>
+    ${(p.files||[]).length?`<div class="polfiles">${p.files.map(f=>`<span class="chip"><button class="linkbtn" data-pol="file" data-path="${esc(f.path)}" data-name="${esc(f.name)}">${esc(POL_ROLE[f.role]||"Файл")}: ${esc(f.name)}</button>${full?` <button class="linkbtn" data-pol="fdel" data-file="${esc(f.id)}" aria-label="Удалить файл">✕</button>`:""}</span>`).join("")}</div>`:""}
+    ${full?`<div class="row" style="margin-top:12px;flex-wrap:wrap;gap:8px">
+      ${p.clinics?`<button class="btn btn-secondary" data-pol="clinics" data-id="${esc(p.id)}">Клиники · ${p.clinics}</button>`:""}
+      <button class="btn btn-secondary" data-pol="edit" data-id="${esc(p.id)}">Изменить и добавить файлы</button>
+      ${s.state==="cancelled"?`<button class="btn btn-secondary" data-pol="uncancel" data-id="${esc(p.id)}">Вернуть в действующие</button>`:s.state!=="expired"?`<button class="btn btn-secondary" data-pol="cancel" data-id="${esc(p.id)}">Прекращён досрочно</button>`:""}
+      <button class="btn btn-secondary" data-pol="del" data-id="${esc(p.id)}">Удалить</button></div>
+      <div id="polcl-${esc(p.id)}"></div>`:`<div class="row" style="margin-top:10px"><button class="btn btn-secondary" data-pol="edit" data-id="${esc(p.id)}">Открыть</button></div>`}
+  </div>`;
+}
+function dmsHtml(d){
+  polLoad();
+  if(!POL) return `<div class="card"><div class="empty">Загружаю полисы…</div></div>`;
+  if(POL.err) return `<div class="card"><div class="empty">Полисы не загрузились — нет связи. <button class="linkbtn" data-pol="reload">Повторить</button></div></div>`;
+  const today=localDay(), g=polGroups(polOf(cur),today), a=polAsk[cur]||{};
+  const any=g.active.length||g.scheduled.length;
+  return `${any?"":`<div class="card"><h2>ДМС</h2><div class="empty">У ${esc(DAT[d.short]||d.short||"")} полиса ДМС пока нет.</div>
+      <p class="muted" style="margin:6px 0 0">Загрузите полис, программу страхования и список клиник — всё сохранится здесь, а ИИ сможет отвечать, что входит в страховку и куда идти.</p></div>`}
+    ${g.active.map(p=>polCardHtml(p,true)).join("")}
+    ${g.scheduled.length?`<h3 class="polh">Ожидает начала</h3>${g.scheduled.map(p=>polCardHtml(p,true)).join("")}`:""}
+    <div class="row" style="margin:4px 0 16px"><button class="btn btn-primary" data-pol="new">＋ Загрузить полис</button></div>
+    ${any?`<div class="card"><h2>Спросить про страховку</h2>
+      <p class="muted" style="margin:0 0 8px">ИИ смотрит в полис и программу: входит ли услуга, на каких условиях, какая клиника ближе и как туда позвонить.</p>
+      <div class="addform"><div class="fld"><textarea id="polQ" rows="2" placeholder="Например: можно ли по ДМС сделать МРТ колена? Какая поликлиника ближе к дому?">${esc(a.q||"")}</textarea></div>
+      <div class="chips">${["Что входит в мою программу?","Какая поликлиника ближе к дому?","Входит ли стоматология?","Как вызвать врача на дом?"].map(x=>`<button class="chip" data-pol="askchip" data-q="${esc(x)}">${esc(x)}</button>`).join("")}</div>
+      <div class="row"><button class="btn btn-primary" data-pol="ask">Спросить</button></div></div>
+      <div id="polA">${a.busy?`<div class="muted" style="margin-top:10px">Ищу в полисе…</div>`:a.answer?`<div class="polans">${mdLite(a.answer)}</div>`:a.err?`<div class="er" style="margin-top:10px">${esc(a.err)}</div>`:""}</div></div>
+    <div class="card"><h2>Адрес дома</h2><p class="muted" style="margin:0 0 8px">Нужен, чтобы подбирать ближайшую клинику. Один на всю семью.</p>
+      <div class="addform"><div class="fld"><input id="polHome" value="${esc(POL.home||"")}" placeholder="Москва, улица, дом"></div>
+      <div class="row"><button class="btn btn-secondary" data-pol="home">Сохранить адрес</button>${POL.home?`<span class="muted" style="align-self:center">${POL.home_found?"✓ на карте найден":"на карте не найден — уточните"}</span>`:""}</div></div></div>`:""}
+    ${g.archive.length?`<details class="card polarch"><summary><h2 style="display:inline">Архивные полисы <span class="muted" style="text-transform:none">— ${g.archive.length}</span></h2></summary>
+      ${g.archive.map(p=>polCardHtml(p,false)).join("")}</details>`:""}`;
+}
+// клиники полиса: поиск по названию, адресу, метро; ближе к дому — выше, если адрес дома найден
+function polClinicsHtml(id){
+  const c=polCl[id]; if(!c) return `<div class="muted" style="margin-top:10px">Загружаю клиники…</div>`;
+  const q=String(c.q||"").toLowerCase().replace(/ё/g,"е"), words=q.split(/\s+/).filter(Boolean);
+  const list=c.list.filter(x=>!words.length||words.every(w=>(x.name+" "+x.address+" "+x.help).toLowerCase().replace(/ё/g,"е").includes(w)));
+  return `<div class="polcl"><div class="fld" style="margin-top:12px"><input id="polClQ" data-id="${esc(id)}" value="${esc(c.q||"")}" placeholder="Поиск: название, улица, район, «стоматолог»"></div>
+    <div class="muted" style="font-size:13px;margin:4px 0">${list.length} из ${c.list.length}${c.home?" · сверху ближе к дому":""}</div>
+    ${list.slice(0,c.more||30).map(x=>`<div class="polclin"><b>${esc(x.name)}</b>${x.km!=null?` <span class="muted">· ~${x.km} км</span>`:""}
+      <div class="muted" style="font-size:13px">${esc(x.address||"")}${x.help?" · "+esc(x.help):""}${x.access&&x.access!=="Прямое прикрепление"?" · "+esc(x.access):""}${x.franchise&&x.franchise!=="-"?" · франшиза "+esc(x.franchise):""}</div>
+      ${x.phone?`<div style="font-size:13px">${String(x.phone).split(/;\s*/).filter(Boolean).slice(0,3).map(t=>`<a href="tel:${esc(t.replace(/[^\d+]/g,""))}">${esc(t)}</a>`).join(", ")}</div>`:""}</div>`).join("")}
+    ${list.length>(c.more||30)?`<button class="btn btn-secondary" data-pol="clmore" data-id="${esc(id)}" style="margin-top:8px">Показать ещё</button>`:""}</div>`;
+}
+function polKm(a,b){ const r=Math.PI/180, dl=(b.lat-a.lat)*r, dn=(b.lon-a.lon)*r, x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2; return Math.round(2*6371*Math.asin(Math.sqrt(x))*10)/10; }
+function polClick(e){
+  const b=e.target.closest("[data-pol]"); if(!b) return false; polAct(b); return true;
+}
+async function polAct(b){
+  const w=b.dataset.pol, id=b.dataset.id, P=POL&&(POL.policies||[]).find(x=>x.id===id);
+  if(w==="reload"){ POL=null; polLoad(true); render(); return; }
+  if(w==="new"){ polForm(null); return; }
+  if(w==="edit"){ if(P) polForm(P); return; }
+  if(w==="num"){ polShowNum[id]=!polShowNum[id]; render(); return; }
+  if(w==="copy"){ try{ await navigator.clipboard.writeText(b.dataset.v); toast("Номер скопирован"); }catch(x){ toast("Не удалось скопировать"); } return; }
+  if(w==="file"){ const win=window.open("","_blank");
+    mkApi("policy_file_url",{path:b.dataset.path}).then(j=>{ if(win) win.location=j.url; else location.href=j.url; }).catch(()=>{ if(win) win.close(); toast("Файл не открылся — нет связи"); }); return; }
+  if(w==="fdel"){ if(!confirm("Удалить этот файл из полиса?")) return; try{ await mkApi("policy_file_delete",{file:b.dataset.file}); polLoad(true); }catch(x){ toast("Не удалилось — нет связи"); } return; }
+  if(w==="cancel"||w==="uncancel"){
+    let on=localDay();
+    if(w==="cancel"){ on=prompt("С какой даты полис прекращён? (ДД.ММ.ГГГГ)",ru(localDay())); if(!on) return;
+      const m=on.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/); if(!m){ toast("Дата в виде ДД.ММ.ГГГГ"); return; } on=`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`; }
+    try{ await mkApi("policy_cancel",{id,on,cancel:w==="cancel"}); polLoad(true); }catch(x){ toast("Не сохранилось — нет связи"); } return; }
+  if(w==="del"){ if(!confirm("Удалить полис вместе с файлами, программой и списком клиник? Это не отменить.")) return;
+    try{ await mkApi("policy_delete",{id}); polLoad(true); toast("Полис удалён"); }catch(x){ toast("Не удалилось — нет связи"); } return; }
+  if(w==="clinics"){ const box=document.getElementById("polcl-"+id); if(!box) return;
+    if(box.innerHTML){ box.innerHTML=""; return; }
+    box.innerHTML=polClinicsHtml(id);
+    if(!polCl[id]) try{ const j=await mkApi("policy_clinics",{id}); const home=j.home&&j.home.lat!=null?j.home:null;
+        const list=j.clinics.map(c=>({...c,km:home&&c.lat!=null?polKm(home,c):null})).sort((a,b)=>(a.km??1e9)-(b.km??1e9));
+        polCl[id]={list,home:!!home,q:"",more:30}; }catch(x){ box.innerHTML=`<div class="er">Клиники не загрузились — нет связи</div>`; return; }
+    box.innerHTML=polClinicsHtml(id); return; }
+  if(w==="clmore"){ polCl[id].more=(polCl[id].more||30)+30; document.getElementById("polcl-"+id).innerHTML=polClinicsHtml(id); return; }
+  if(w==="askchip"){ const t=document.getElementById("polQ"); if(t){ t.value=b.dataset.q; t.focus(); } return; }
+  if(w==="ask"){ const q=(document.getElementById("polQ")||{}).value||""; if(!q.trim()) return;
+    const who=cur, nm=(DATA[who]||{}).short||""; polAsk[who]={q,busy:1}; render();
+    try{ const j=await mkApi("ask",{person:who,question:/(дмс|полис|страхов)/i.test(q)?q:q+" (по полису ДМС)"});
+      polAsk[who]={q,answer:j.answer||`По полису ${nm} ответа не нашлось.`}; }
+    catch(x){ polAsk[who]={q,err:"Ответ не пришёл — нет связи. Попробуйте ещё раз."}; }
+    render(); return; }
+  if(w==="home"){ const v=(document.getElementById("polHome")||{}).value||"";
+    try{ const j=await mkApi("home_set",{address:v}); toast(j.found?"Адрес сохранён и найден на карте":"Адрес сохранён, но на карте не найден — уточните улицу и дом"); polCl={}; polLoad(true); }
+    catch(x){ toast("Не сохранилось — нет связи"); } return; }
+}
+document.addEventListener("input",e=>{ const i=e.target; if(i&&i.id==="polClQ"){ const id=i.dataset.id; polCl[id].q=i.value; polCl[id].more=30;
+  const box=document.getElementById("polcl-"+id), pos=i.selectionStart; box.innerHTML=polClinicsHtml(id); const n=document.getElementById("polClQ"); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(x){} } });
+// загрузить или поправить полис: файлы → роли → «Распознать» заполняет поля → человек проверяет → «Сохранить»
+function polForm(P){
+  const f=P||{}, today=localDay(), nm=(DATA[cur]||{}).short||"";
+  const st={files:[],P};
+  window.__polForm=st;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h2 style="text-transform:none;font-size:20px;color:var(--ink)">${P?"Полис ДМС — изменить":"Загрузить полис ДМС — "+esc(nm)}</h2>
+    <div class="addform">
+      <div class="fld"><label>Файлы: полис, программа (условия), список клиник, правила</label>
+        <div class="row" style="gap:8px"><button type="button" class="btn btn-secondary" id="polPick">📎 Выбрать файлы</button></div>
+        <input id="polFiles" type="file" multiple hidden accept=".pdf,.docx,.xlsx,.md,.txt,.csv,image/*,application/pdf">
+        <div id="polFl" class="muted" style="font-size:13px;margin-top:6px">PDF, Word, Excel. Список клиник — лучше Excel из личного кабинета страховой.</div></div>
+      <div class="row"><button type="button" class="btn btn-secondary" id="polRec" hidden>Распознать поля из файлов</button></div><div id="polLog" class="formlog"></div>
+      <div class="fld"><label for="pfIns">Страховая</label><input id="pfIns" value="${esc(f.insurer||"")}" placeholder="СОГАЗ"></div>
+      <div class="fld"><label for="pfProg">Программа</label><input id="pfProg" value="${esc(f.program||"")}" placeholder="Дети Москва Стандарт 1-18"></div>
+      <div class="fld"><label for="pfNum">Номер полиса</label><input id="pfNum" value="${esc(f.number||"")}"></div>
+      <div class="row" style="gap:12px"><div class="fld" style="flex:1"><label for="pfFrom">Действует с</label><input id="pfFrom" type="date" value="${esc(f.valid_from||"")}"></div>
+        <div class="fld" style="flex:1"><label for="pfTo">по</label><input id="pfTo" type="date" value="${esc(f.valid_to||"")}"></div></div>
+      <div class="fld"><label for="pfTel">Телефон пульта</label><input id="pfTel" value="${esc(f.hotline||"")}" placeholder="8-800-…"></div>
+      <div class="fld"><label for="pfWeb">Сайт или личный кабинет</label><input id="pfWeb" value="${esc(f.website||"")}"></div>
+      <div class="fld"><label for="pfHold">Страхователь</label><input id="pfHold" value="${esc(f.holder||"")}" placeholder="работодатель или сам"></div>
+      <div class="fld"><label for="pfHow">Как обратиться</label><textarea id="pfHow" rows="2">${esc(f.how_to_apply||"")}</textarea></div>
+      <div class="fld"><label for="pfFr">Франшиза</label><input id="pfFr" value="${esc(f.franchise||"")}"></div>
+      <div class="fld"><label for="pfNote">Важно знать</label><textarea id="pfNote" rows="2" placeholder="что входит: поликлиника, стоматология, вызов на дом…">${esc(f.note||"")}</textarea></div>
+      <div class="row"><button class="btn btn-primary" id="polSave">Сохранить</button></div><div id="polSaveLog" class="formlog"></div>
+    </div></div>`;
+  const inp=document.getElementById("polFiles"), fl=document.getElementById("polFl"), rec=document.getElementById("polRec");
+  const log=(id,t,c)=>{ const el=document.getElementById(id); if(el) el.innerHTML=t?`<div class="${c||""}">${t}</div>`:""; };
+  const draw=()=>{ fl.innerHTML=st.files.length?st.files.map((x,i)=>`<div class="polfile"><span>${esc(x.f.name)}</span>
+      <select data-polrole="${i}">${Object.entries(POL_ROLE).map(([k,v])=>`<option value="${k}"${k===x.role?" selected":""}>${v}</option>`).join("")}</select>
+      <button type="button" class="linkbtn" data-polrm="${i}">убрать</button></div>`).join(""):"PDF, Word, Excel. Список клиник — лучше Excel из личного кабинета страховой.";
+    rec.hidden=!st.files.some(x=>x.role==="policy"||x.role==="program"); };
+  document.getElementById("polPick").onclick=()=>inp.click();
+  inp.onchange=()=>{ for(const x of [...inp.files].slice(0,10-st.files.length)) st.files.push({f:x,role:polRole(x.name)}); inp.value=""; draw(); };
+  fl.onchange=e=>{ const s=e.target.closest("[data-polrole]"); if(s){ st.files[+s.dataset.polrole].role=s.value; st.files[+s.dataset.polrole].done=null; draw(); } };
+  fl.onclick=e=>{ const r=e.target.closest("[data-polrm]"); if(r){ st.files.splice(+r.dataset.polrm,1); draw(); } };
+  // файлы → хранилище + текст; делается один раз на файл
+  const prepare=async()=>{
+    for(const x of st.files){ if(x.done) continue;
+      log("polLog",`Читаю «${esc(x.f.name)}»…`,"muted");
+      const t=await polFileText(x.f,x.role);
+      const u=await mkApi("policy_file_upload",{person:cur,name:x.f.name});
+      const r=await fetch(u.url,{method:"PUT",headers:{"Content-Type":x.f.type||"application/octet-stream"},body:x.f}); if(!r.ok) throw new Error("upload "+r.status);
+      x.done={path:u.path,name:x.f.name,role:x.role,size:x.f.size,text_len:t.text.length,text:t.text,clinics:t.clinics};
+    }
+    log("polLog","");
+  };
+  rec.onclick=async()=>{ if(!privacyOk()) return;
+    try{ await prepare(); log("polLog","Читаю полис… обычно до минуты","muted");
+      const txt=st.files.filter(x=>x.role==="policy").map(x=>x.done.text).join("\n")+"\n"+st.files.filter(x=>x.role==="program").map(x=>x.done.text.slice(0,12000)).join("\n");
+      const j=await mkApi("policy_recognize",{person:cur,text:txt});
+      const set=(id,v)=>{ const el=document.getElementById(id); if(el&&v&&!el.value) el.value=v; };
+      const F=j.fields; set("pfIns",F.insurer); set("pfProg",F.program); set("pfNum",F.number); set("pfFrom",F.valid_from); set("pfTo",F.valid_to); set("pfTel",F.hotline);
+      set("pfWeb",F.website); set("pfHold",F.holder); set("pfHow",F.how_to_apply); set("pfFr",F.franchise); set("pfNote",F.note);
+      log("polLog","Проверьте поля и сохраните","ok"); }
+    catch(err){ log("polLog",/unreadable/.test(err.message)?"Не похоже на полис — проверьте файлы или заполните поля сами":"Не распозналось: "+esc(err.message||"ошибка")+". Поля можно заполнить вручную.","er"); } };
+  document.getElementById("polSave").onclick=async()=>{
+    const v=id=>(document.getElementById(id)||{}).value||"";
+    const fields={kind:"dms",insurer:v("pfIns"),program:v("pfProg"),number:v("pfNum"),valid_from:v("pfFrom"),valid_to:v("pfTo"),hotline:v("pfTel"),website:v("pfWeb"),
+      holder:v("pfHold"),how_to_apply:v("pfHow"),franchise:v("pfFr"),note:v("pfNote")};
+    if(!fields.insurer&&!fields.program){ log("polSaveLog","Впишите страховую или программу","er"); return; }
+    if(!fields.valid_to){ log("polSaveLog","Укажите, до какого числа действует полис","er"); return; }
+    if(fields.valid_from&&fields.valid_to<fields.valid_from){ log("polSaveLog","Дата окончания раньше даты начала","er"); return; }
+    try{ await prepare(); log("polSaveLog","Сохраняю… программа и клиники — до минуты","muted");
+      const D=st.files.map(x=>x.done);
+      const payload={id:P?P.id:undefined,person:P?P.person:cur,fields,files:D.map(x=>({path:x.path,name:x.name,role:x.role,size:x.size,text_len:x.text_len})),
+        texts:D.filter(x=>x.text&&x.role!=="clinics").map(x=>({role:x.role,text:x.text})),clinics:D.flatMap(x=>x.clinics||[])};
+      let j=await mkApi("policy_save",payload);
+      if(j.overlap){ const end=confirm(`У ${DAT[nm]||nm} уже есть действующий полис ДМС до ${polDate(j.overlap.valid_to)}. Старый прекращён досрочно?\n\nОК — да, старый закончился раньше. Отмена — нет, оставить оба.`);
+        j=await mkApi("policy_save",{...payload,end_old:end}); }
+      closeModal(); polCl={}; polLoad(true); toast("Полис сохранён"); }
+    catch(err){ log("polSaveLog","Не сохранилось: "+esc(err.message||"ошибка"),"er"); }
+  };
+  draw();
+}
+
 // ── Оболочка нового дизайна: бургер-меню, меню профиля, тема, нижняя панель (компоненты из Разработка/Дизайн/Компоненты.html)
 function shellRender(){
   if(query) document.querySelector(".app-header").classList.add("search-on");
@@ -6546,7 +6859,7 @@ document.addEventListener("click",async e=>{
   if(u){ confirmDel("Отвязать? Войти этим способом больше не получится, ссылка с кодом останется.",async()=>{ try{ await window.__MK_AUTH("unlink",{provider:u.dataset.lmun}); }catch(err){ toast("Не получилось, попробуйте ещё раз"); } loginMethods(); }); }
 });
 // куда ведёт пункт меню профиля: вкладка или null (выход и смена темы — не вкладки)
-function pmTab(k){ return (k==="logout"||k==="theme"||k==="signin")?null:(k==="dx"||k==="doc")?k:"prof"; }
+function pmTab(k){ return (k==="logout"||k==="theme"||k==="signin")?null:(k==="dx"||k==="doc"||k==="dms")?k:"prof"; }
 function pmToggle(on){ const m=document.getElementById("profile-menu"), a=document.getElementById("avatar"); if(!m) return; m.hidden=!on; a.setAttribute("aria-expanded",on?"true":"false"); }
 function themeApply(t){ const r=document.documentElement; if(t==="dark"||t==="light") r.dataset.theme=t; else delete r.dataset.theme; }
 function themeToggle(){
@@ -7525,7 +7838,7 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
 }
 let lastView="";
 // Яндекс.Метрика (если подключена загрузчиком): смена раздела — виртуальный просмотр с названием раздела из фиксированного списка; без вебвизора
-function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins"].includes(t)?t:"other"); }
+function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins","dms"].includes(t)?t:"other"); }
 function ymTab(){ try{ if(!window.__YM||typeof window.ym!=="function") return; const p=ymPath(tab); if(window.__ymLast===undefined){ window.__ymLast=p; return; } if(p===window.__ymLast) return; window.__ymLast=p; window.ym(window.__YM,"hit",p,{title:"Медкнижка"}); }catch(e){} }
 function render(){
   pplLoad(); measLoad(); periodsLoad(); eventsLoad(); medplanLoad();
@@ -7555,7 +7868,7 @@ function render(){
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
   document.getElementById("nav").innerHTML=navItems(d)
     .map(({k,label})=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard)||(k==="nutr"&&tab==="diary"))?" is-active":""}">${label}</button>`).join("");
-  const inProf=["prof","hp","todo","dx","anam","ins","hist"].includes(tab);
+  const inProf=["prof","hp","dms","todo","dx","anam","ins","hist"].includes(tab);
   const subnav=inCard?`<div class="tabs tabs--scroll subnav">${CARD
     .map(([k,n])=>`<button data-t="${k}" class="tab${k===(tab==="sym"&&symView==="ill"?"ill":tab)?" is-active":""}">${n}</button>`).join("")}</div>`
     :inProf?`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
@@ -7869,6 +8182,7 @@ function render(){
   }
 
   else if(tab==="hp"){ m.innerHTML=profileHealthHtml(d); const pe=document.getElementById("profEdit"); if(pe) pe.onclick=()=>profOpen(cur); }   // «Профиль здоровья»: карточка здоровья → сведения о человеке → полнота и органы (ТЗ-009 блоки 4 и 11)
+  else if(tab==="dms"){ m.innerHTML=dmsHtml(d); }   // ТЗ-005 блоки 13–16: полисы ДМС, архив, клиники, вопрос ИИ
   else if(tab==="hist"){ m.innerHTML=histHtml(d); histBind(m); }   // ТЗ-022 блок 1: история добавлений   // ТЗ-009 блоки 4 и 11
   else if(tab==="ins"){   // «Выводы»: полные «Что изменилось» и «Что стоит проверить»
     m.innerHTML=insightsChanged(d)+insightsGaps(d)||`<div class="card"><div class="empty">Пока выводов нет</div></div>`;
@@ -8515,6 +8829,7 @@ document.addEventListener("click",e=>{
   if(shellClick(e)||calClick(e)) return;
   if(docClick(e)||planClick(e)) return;
   if(profClick(e)) return;
+  if(polClick(e)) return;
   if(hpClick(e)) return;
   const fv=e.target.closest("[data-fav]"); if(fv){ e.preventDefault(); e.stopPropagation(); favToggle(cur,fv.dataset.fav); return; }
   const fo=e.target.closest("[data-favopen]"); if(fo){ tlReset(); query=fo.dataset.favopen; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
