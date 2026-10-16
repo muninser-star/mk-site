@@ -2877,7 +2877,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="15.10 13:21";   // подставляется при публикации
+const BUILD="16.10 11:20";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4136,6 +4136,129 @@ async function recSend(e){
   return ok;
 }
 function findRec(who,rk){ const S=(DATA[who]||{}).sym||{}; const k=JSON.parse(decodeURIComponent(rk)); return (S.log||[]).find(x=>sameKey(recKey(x),k)); }
+// ── Ядро правки и удаления записи журнала: им пользуются окна правки и «Объединить симптомы дня» (ТЗ-030 блок 2) ──
+// запись из базы: правка в recEdits (rec:null — удаление); отправка — recSend
+function recEditApply(who,key,rec,ts){
+  const e={who,key,rec,ts:ts||Date.now()}, o=ovLoad(); o.recEdits=[...(o.recEdits||[]),e]; ovSave(o); ovApply(); return e;
+}
+// запись только на этом устройстве (aid): подмена или удаление в o.add; возвращают прежнюю запись или null
+function addEditApply(aid,rec,sys){
+  const c=addFind(aid); if(c.i<0) return null; const a=c.o.add[c.i];
+  c.o.add[c.i]={who:a.who,d:rec.d,n:rec.n,p:rec.p,sys:sys||a.sys||"other",i:rec.i,f:rec.f,m:rec.m};
+  ovSave(c.o); ovApply(); return a;
+}
+function addRemoveApply(aid){
+  const c=addFind(aid); if(c.i<0) return null; const a=c.o.add[c.i];
+  c.o.add.splice(c.i,1); ovSave(c.o); ovApply(); return a;
+}
+// строки для отправки: «ИСПРАВЛЕНИЕ» и «УДАЛИТЬ»
+function addEditRow(a,rec,short){
+  const было=[`было «${a.n}»`, a.d!==rec.d?`дата ${a.d}`:"", a.i?`интенсивность ${a.i}`:"",
+    a.m?`лечили ${a.m}`:"", a.p?`повод «${a.p}»`:""].filter(Boolean).join(", ");
+  const note=`ИСПРАВЛЕНИЕ записи от ${a.d}: ${было}`+(rec.f?`. ${rec.f}`:"")+(rec.m?` | лечили: ${rec.m}`:"");
+  return [new Date().toISOString().slice(0,10), short, "", rec.d, rec.p, rec.n, rec.i==null?"":rec.i, note, "нет"];
+}
+function addRemoveRow(a,short){
+  const note=`УДАЛИТЬ запись от ${a.d}: «${a.n}»${a.i?`, интенсивность ${a.i}`:""}${a.p?`, повод «${a.p}»`:""}. Отменено в книжке`;
+  return [new Date().toISOString().slice(0,10), short, "", a.d, a.p||"", a.n, a.i??"", note, "не нужно"];
+}
+// ── Объединить симптомы дня одним поводом (ТЗ-030 блок 2) ──
+// записи дня, которые можно объединять: без дней периода (per) и без «записано с телефона, ещё не разобрано» (pend)
+function symDayRows(log,day){ return (log||[]).filter(x=>x.d===day&&!x.per&&!x.pend); }
+// {offer, mode:"auto"|"choose"|"ask", pov, choose, rows}; rows — записи дня без повода. Болезнь покрывает день, если d1 ≤ день ≤ (d2 || сегодня)
+function symMergeOffer(log,eps,day,today){
+  const all=symDayRows(log,day), rows=all.filter(x=>!String(x.p||"").trim()), no={offer:false,mode:"",pov:"",choose:[],rows:[]};
+  if(all.length<2||!rows.length) return no;
+  const pv=[]; all.forEach(x=>{ const p=String(x.p||"").trim(); if(p&&!pv.some(q=>sameIll(q,p))) pv.push(p); });
+  if(pv.length===1) return {offer:true,mode:"auto",pov:pv[0],choose:[],rows};
+  if(pv.length>1) return {offer:true,mode:"choose",pov:"",choose:pv,rows};
+  const ep=(eps||[]).filter(e=>e.d1<=day&&day<=(e.d2||today)&&/[a-zа-яё]{2}/i.test(e.dx||"")).sort((a,b)=>b.d1.localeCompare(a.d1))[0];
+  return ep?{offer:true,mode:"auto",pov:ep.dx,choose:[],rows}:{offer:true,mode:"ask",pov:"",choose:[],rows};
+}
+// отказ «Нет, оставить как есть» — только в браузере, по человеку и дню
+const symMergeMem={};
+function symMergeKey(who,day){ return `mk_merge_no_${who}_${day}`; }
+function symMergeNo(who,day){ try{ if(localStorage.getItem(symMergeKey(who,day))) return true; }catch(e){} return !!symMergeMem[symMergeKey(who,day)]; }
+function symMergeNoSet(who,day){ symMergeMem[symMergeKey(who,day)]=1; try{ localStorage.setItem(symMergeKey(who,day),"1"); }catch(e){} }
+// название симптома — не повод (повод — болезнь); пустой повод допустим
+function symPovOk(pov,S,names){
+  const p=String(pov||"").trim(); if(!p) return true;
+  if((S.ep||[]).some(e=>sameIll(e.dx,p))) return true;
+  return !(names||[]).concat((S.cat||[]).map(x=>x.n)).some(n=>sameIll(n,p));
+}
+// план объединения: {edits:[{key,rec}], deletes:[key]}. Одна запись на симптом в день (В2): выживает та, что с повода, иначе ранняя
+function symMergePlan(log,rows,pov){
+  const key=x=>({d:x.d,n:x.n,p:x.p||""}), edits=[], deletes=[], names=[];
+  const fields=x=>({d:x.d,n:x.n,i:x.i==null?null:x.i,m:x.m||"",p:x.p||"",f:x.f||""});
+  const uniq=(a,b,re,glue)=>{ const out=[]; [a,b].forEach(t=>String(t||"").split(re).map(z=>z.trim()).filter(Boolean).forEach(z=>{ if(!out.some(o=>o.toLowerCase()===z.toLowerCase())) out.push(z); })); return out.join(glue); };
+  const fold=(a,b)=>({...a,i:Math.max(a.i==null?-1:a.i,b.i==null?-1:b.i)<0?null:Math.max(a.i==null?-1:a.i,b.i==null?-1:b.i),m:uniq(a.m,b.m,/,\s*/,", "),f:uniq(a.f,b.f,/;\s*/,"; ")});
+  rows.forEach(r=>{ if(!names.includes(r.n)) names.push(r.n); });
+  for(const n of names){
+    const grp=rows.filter(r=>r.n===n), day=grp[0].d;
+    const have=(log||[]).find(x=>x.d===day&&x.n===n&&!x.per&&!x.pend&&String(x.p||"").trim()&&sameIll(x.p,pov));
+    if(have){
+      const merged=grp.reduce((acc,r)=>fold(acc,r),fields(have)), f0=fields(have);
+      if(JSON.stringify(merged)!==JSON.stringify(f0)) edits.push({key:key(have),rec:fields(merged)});
+      grp.forEach(r=>deletes.push(key(r)));
+    } else {
+      const merged=grp.slice(1).reduce((acc,r)=>fold(acc,r),fields(grp[0]));
+      edits.push({key:key(grp[0]),rec:{...fields(merged),p:pov}});
+      grp.slice(1).forEach(r=>deletes.push(key(r)));
+    }
+  }
+  return {edits,deletes};
+}
+// форма «Симптом» после записи: закрыть окно или показать предложение объединить (ТЗ-030 блок 3); who — чтобы учесть прежний отказ
+function symFormAfter(res,log,eps,today,who){
+  if(!res.ok||res.range) return {close:true};
+  if(who&&symMergeNo(who,res.day)) return {close:true};
+  const o=symMergeOffer(log,eps,res.day,today);
+  return o.offer?{offer:o}:{close:true};
+}
+// баннер «Объединить под поводом …» над записями дня (карточка симптома); пусто, если предлагать нечего или человек отказался
+function symMergeBanner(who,day){
+  const S=(DATA[who]||{}).sym; if(!S||!day||symMergeNo(who,day)) return "";
+  const o=symMergeOffer(S.log,S.ep,day,localDay()); if(!o.offer) return "";
+  const all=symDayRows(S.log,day), names=[...new Set(all.map(x=>String(x.n).toLowerCase()))];
+  const q=o.mode==="auto"?`Объединить под поводом «${esc(o.pov)}»?`:o.mode==="choose"?"Под каким поводом объединить?":"Под какой болезнью объединить?";
+  const pick=o.mode==="choose"?`<div class="fld">${o.choose.map((c,i)=>`<label style="display:block"><input type="radio" name="mergePov" value="${esc(c)}"${i?"":" checked"}> ${esc(c)}</label>`).join("")}</div>`
+    :o.mode==="ask"?`<div class="fld"><input id="mergePovIn" placeholder="например, ОРВИ" autocomplete="off"></div>`:"";
+  return `<div class="note symmerge" data-symmerge="${day}" style="margin:0 0 10px"><button class="addsym" data-mergeno="${day}" title="Закрыть" aria-label="Закрыть" style="float:right">✕</button>
+    <div>За ${ru(day)} записано ${all.length} ${plural(all.length,"запись","записи","записей")}: ${esc(names.join(", "))}. Повод есть не у всех. ${q}</div>${pick}
+    <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-primary" data-mergeyes="${day}" style="height:32px">Объединить</button>
+    <button class="btn btn-secondary" data-mergeno="${day}" style="height:32px">Нет, оставить как есть</button></div><div class="formlog" id="mergeLog"></div></div>`;
+}
+async function symMergeDo(who,day){
+  const S=DATA[who].sym, o=symMergeOffer(S.log,S.ep,day,localDay()), lg=t=>{ const e=document.getElementById("mergeLog"); if(e) e.innerHTML=`<div class="er">${t}</div>`; };
+  if(!o.offer) return false;
+  let pov=o.pov;
+  if(o.mode==="choose"){ const r=document.querySelector('input[name="mergePov"]:checked'); pov=r?r.value:""; }
+  if(o.mode==="ask") pov=((document.getElementById("mergePovIn")||{}).value||"").trim();
+  if(!pov){ lg("Впишите болезнь."); return false; }
+  if(!symPovOk(pov,S,S.log.map(x=>x.n))){ lg(`«${esc(pov)}» — это симптом, а не болезнь. Впишите болезнь, например ОРВИ.`); return false; }
+  if(!findOpenEp(S.ep,pov,day)) epCreate(pov,day);
+  const ok=await symSetPov(who,symMergePlan(S.log,o.rows,pov));
+  render(); toast(ok?`✓ Объединили ${o.rows.length} ${plural(o.rows.length,"запись","записи","записей")} под «${esc(pov)}»`:"Нет связи — сохраню, как появится");
+  return true;
+}
+// исполнитель плана: правки без смены повода → удаления → смена повода (иначе ovApply отбросит запись с совпавшим ключом).
+// Без окон и без «Отменить»; возвращает false, если что-то не ушло в базу (на устройстве всё сохранено)
+async function symSetPov(who,plan){
+  const d=DATA[who], same=e=>(e.rec.p||"")===(e.key.p||"");
+  const ops=[...plan.edits.filter(same).map(e=>({...e,k:"edit"})),...plan.deletes.map(key=>({key,k:"del"})),...plan.edits.filter(e=>!same(e)).map(e=>({...e,k:"edit"}))];
+  let ok=true, ts=Date.now();
+  for(const op of ops){
+    const a=((DATA[who].sym||{}).log||[]).find(x=>sameKey(recKey(x),op.key)); if(!a) continue;
+    if(a.aid){
+      if(op.k==="edit"){ const was=addEditApply(a.aid,op.rec,a.sys); if(was&&!await inboxSend(INBOX,addEditRow(was,op.rec,d.short))){ qPush(INBOX,addEditRow(was,op.rec,d.short)); ok=false; } }
+      else { const was=addRemoveApply(a.aid); if(was&&!await inboxSend(INBOX,addRemoveRow(was,d.short))){ qPush(INBOX,addRemoveRow(was,d.short)); ok=false; } }
+    } else {
+      const e=recEditApply(who,op.key,op.k==="edit"?op.rec:null,ts++);
+      if(!await recSend(e)) ok=false;
+    }
+  }
+  return ok;
+}
 function editRecForm(who,rk){
   const a=findRec(who,rk); if(!a) return;
   if(a.aid) return editAddForm(a.aid);             // запись ещё только на этом устройстве — прежний путь
@@ -4200,8 +4323,7 @@ function editRecForm(who,rk){
     }
     };
     if(names.length>1&&unchanged){ await addExtras(); render(); log("✓ Добавлено: "+esc(names.slice(1).join(", ").toLowerCase())+".","ok"); setTimeout(closeModal,700); return; }
-    const e={who,key:recKey(a),rec,ts:Date.now()};
-    const o=ovLoad(); o.recEdits=[...(o.recEdits||[]),e]; ovSave(o); ovApply();
+    const e=recEditApply(who,recKey(a),rec);
     if(names.length>1) await addExtras();
     render();
     log("✓ Сохранено"+(names.length>1?" · добавлено: "+esc(names.slice(1).join(", ").toLowerCase()):"")+".","ok");
@@ -4224,8 +4346,7 @@ function delRec(who,rk){
   confirmDel(`Удалить запись «${esc(a.n)}, ${ru(a.d)}»?`,()=>delRecNow(who,a));
 }
 function delRecNow(who,a){
-  const e={who,key:recKey(a),rec:null,ts:Date.now()};
-  const o=ovLoad(); o.recEdits=[...(o.recEdits||[]),e]; ovSave(o); ovApply(); render();
+  const e=recEditApply(who,recKey(a),null); render();
   const job=laterUnlessUndo(()=>recSend(e),10000);
   toast(`Запись «${esc(a.n)}, ${ru(a.d)}» удалена`,"Отменить",()=>{
     job.cancel(); const o2=ovLoad(); o2.recEdits=(o2.recEdits||[]).filter(x=>x.ts!==e.ts); ovSave(o2);
@@ -4380,9 +4501,11 @@ function findOpenEp(eps,name,date){
 }
 // что связано с болезнью: симптомы с этим поводом в её датах, приёмы и лекарства, привязанные к ней
 function epLinks(P,ep,today){
-  const end=ep.d2||today;
+  const end=ep.d2||today, inDates=x=>x.d>=ep.d1&&x.d<=end, log=(P.sym||{}).log||[];
+  // записи с повода болезни; плюс записи без повода в её датах — но только если свои записи у болезни есть (ТЗ-030 блок 1, В1)
+  const own=log.filter(x=>sameIll(x.p,ep.dx)&&inDates(x));
   return {
-    sym:((P.sym||{}).log||[]).filter(x=>sameIll(x.p,ep.dx)&&x.d>=ep.d1&&x.d<=end).sort((a,b)=>a.d.localeCompare(b.d)),
+    sym:(own.length?own.concat(log.filter(x=>!String(x.p||"").trim()&&inDates(x))):own).sort((a,b)=>a.d.localeCompare(b.d)),
     visits:(P.rec||[]).filter(r=>r.t==="visit"&&(r.ep===ep.id||(!r.ep&&r.epDx&&sameIll(r.epDx,ep.dx)&&r.d>=ep.d1&&r.d<=end))),
     meds:(P.meds||[]).filter(m=>m.ep===ep.id)
   };
@@ -4479,9 +4602,13 @@ function epMeds(ep,L,today){
   for(const r of (ep.rx||[]).filter(r=>r.m)) add(r.m,rxText([r],today).slice(String(r.m).length).trim());
   for(const m of L.meds||[]) add(m.n,m.why||"");
   for(const v of L.visits||[]) String((v.data||{}).rx||"").split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])|\n/).forEach(n=>add(n,`назначил ${v.who||"врач"} ${ru(v.d)}`));   // «НАЗНАЧЕНИЯ» связанного приёма
-  for(const x of (L.sym||[]).slice().sort((a,b)=>a.d.localeCompare(b.d))) String(x.m||"").split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])/).forEach(n=>add(n,`из записи симптома ${ru(x.d)}`));
+  for(const x of (L.sym||[]).slice().sort((a,b)=>a.d.localeCompare(b.d))) String(x.m||"").split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])/).forEach(n=>add(n,`из записи симптома ${ru(x.d)}`+(String(x.p||"").trim()?"":", повод не указан")));
   return out;
 }
+// сколько лекарств у болезни (курсы, приёмы, записи симптомов — без повторов) и текст всплывашки при закрытии (ТЗ-030 блок 1)
+function epMedCount(ep,L,today){ return epMeds(ep,L,today).length; }
+function epCloseText(ep,today,count){ return `«${ep.dx}» закрыта: ${epSpan({...ep,d2:today},today).text}`+(count?` · лекарств: ${count}`:""); }
+function epMedsEmptyText(){ return "В записях лекарств нет"; }
 // карточка болезни: сроки, симптомы, приёмы, лекарства — с переходами (ТЗ-004 блоки 5, 11)
 function epCard(epId){
   const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
@@ -4503,7 +4630,7 @@ function epCard(epId){
       ${sec("Симптомы — "+L.sym.length,symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">—</div>`)}
       ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)); return sec("Приёмы — "+V.length+(V.length>5?" (последние 5)":""),V.length?V.slice(0,5).map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-${r.st==="ok"?"ok":"bad"}" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`); })()}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>v.ep_id===ep.id); return EV.length?sec("События — "+EV.length,eventsBlock(EV)):""; })()}
-      ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">—</div>`)}
+      ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">${epMedsEmptyText()}</div>`)}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
       ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
       <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button></div>
@@ -4520,7 +4647,9 @@ function epCard(epId){
     o.epEdits=[...(o.epEdits||[]),{who:cur,id:ep.id,rec,ts}]; ovSave(o); ovApply(); render();
     if(rxChanged) inboxSend(TREAT,[today,d.short,ep.id,JSON.stringify(rxNow),String(ts),"нет"]);
     inboxSend(EDITS,[today,d.short,ep.id,ep.d1,"Болезнь целиком",JSON.stringify({id:ep.id,ts}),JSON.stringify({...rec,ts}),"нет"]);
-    epCard(ep.id); toast(`«${esc(ep.dx)}» закрыта: ${epSpan({...ep,d2:today},today).text}`);
+    epCard(ep.id);
+    { const fresh=((DATA[cur].sym||{}).ep||[]).find(x=>x.id===ep.id)||{...ep,d2:today};   // после ovApply: d2 уже today
+      toast(esc(epCloseText(fresh,today,epMedCount(fresh,epLinks(DATA[cur],fresh,today),today)))); }
   };
 }
 // проверка названия лекарства (ошибка 29.09: с фото пришло «Мирамистен»). Сначала справочник семьи и то, что уже давали:
@@ -4673,6 +4802,7 @@ function newSymForm(){
       <div class="fld"><label for="nsNote">Заметка</label>
         <input id="nsNote" placeholder="что чувствовал, после чего"></div>
       <div id="nsLog" class="formlog"></div>
+      <div id="nsMerge"></div>
       <div class="row"><button class="btn btn-primary" id="nsOk">Записать</button>
         <button class="btn btn-secondary" data-close>Отмена</button></div>
     </div></div>`;
@@ -4700,7 +4830,7 @@ function newSymForm(){
     const pov=(document.getElementById("nsPov").value||"").trim();
     const note=[(document.getElementById("nsNote").value||"").trim(), val?("измерено: "+val):""].filter(Boolean).join(". ");
     // повод — это болезнь; симптом в поле повода — подсказка (второе нажатие сохраняет как есть) (ТЗ-004 блок 5)
-    const symAsPov=pov&&!(S.ep||[]).some(e=>sameIll(e.dx,pov))&&names.concat(S.cat.map(x=>x.n)).some(n=>sameIll(n,pov));
+    const symAsPov=!!pov&&!symPovOk(pov,S,names);
     if(symAsPov&&!newSymForm._warned){ newSymForm._warned=1;
       log(`«${esc(pov)}» — это симптом, а не болезнь. Впишите болезнь (например, ОРВИ) или оставьте повод пустым. Нажмите «Записать» ещё раз, чтобы сохранить как есть.`,"wa"); return; }
     newSymForm._warned=0;
@@ -4728,6 +4858,8 @@ function newSymForm(){
     }
     render();
     log("✓ Записано: "+esc(names.join(", ").toLowerCase())+".","ok");
+    const af=symFormAfter({ok,range:false,day:dt},DATA[cur].sym.log,DATA[cur].sym.ep,localDay(),cur);
+    if(af.offer){ document.getElementById("nsMerge").innerHTML=symMergeBanner(cur,dt); return; }   // окно закроется после ответа (ТЗ-030 блок 3)
     if(ok) setTimeout(closeModal,900); else document.getElementById("nsOk").disabled=false;
   });
 }
@@ -7606,15 +7738,9 @@ function editAddForm(aid){
     document.getElementById("eaOk").disabled=true;
     const cat=S.cat.find(z=>z.n===nm);
     const cur2=addFind(aid); if(cur2.i<0){ log("Запись уже в медкарте — закройте окно и откройте правку заново.","er"); return; }
-    const oo=cur2.o;
-    oo.add[cur2.i]={who:a.who,d:dt,n:nm,p:pv,sys:cat?cat.sys:(a.sys||"other"),
-      i:iv?+iv:null,f:nt,m:md};
-    ovSave(oo); ovApply(); render();
-    const было=[`было «${a.n}»`, a.d!==dt?`дата ${a.d}`:"", a.i?`интенсивность ${a.i}`:"",
-      a.m?`лечили ${a.m}`:"", a.p?`повод «${a.p}»`:""].filter(Boolean).join(", ");
-    const note=`ИСПРАВЛЕНИЕ записи от ${a.d}: ${было}`+(nt?`. ${nt}`:"")+(md?` | лечили: ${md}`:"");
-    await sendRow(INBOX,[new Date().toISOString().slice(0,10), d.short, "", dt, pv, nm, iv, note, "нет"],
-      log,"✓ Исправлено. В книжке видно сразу.");
+    const rec={d:dt,n:nm,p:pv,i:iv?+iv:null,f:nt,m:md};
+    addEditApply(aid,rec,cat?cat.sys:(a.sys||"other")); render();
+    await sendRow(INBOX,addEditRow(a,rec,d.short),log,"✓ Исправлено. В книжке видно сразу.");
   });
 }
 
@@ -7640,10 +7766,8 @@ function delAddForm(aid){
   document.getElementById("daOk").addEventListener("click",async ()=>{
     const cur2=addFind(aid); if(cur2.i<0){ log("Запись уже в медкарте — закройте окно и удалите её заново.","er"); return; }
     document.getElementById("daOk").disabled=true;
-    const oo=cur2.o; oo.add.splice(cur2.i,1); ovSave(oo); ovApply(); render();
-    const note=`УДАЛИТЬ запись от ${a.d}: «${a.n}»${a.i?`, интенсивность ${a.i}`:""}${a.p?`, повод «${a.p}»`:""}. Отменено в книжке`;
-    await sendRow(INBOX,[new Date().toISOString().slice(0,10), d.short, "", a.d, a.p||"", a.n, a.i??"", note, "не нужно"],
-      log,"✓ Удалено. Из книжки запись убрана.");
+    addRemoveApply(aid); render();
+    await sendRow(INBOX,addRemoveRow(a,d.short),log,"✓ Удалено. Из книжки запись убрана.");
   });
 }
 
@@ -8136,7 +8260,7 @@ function render(){
       </div>
       ${(()=>{ const sp=symSplit(L,symFocus); if(!sp.day) return "";
         const wd=WEEKDAYS[new Date(sp.day+"T12:00:00Z").getUTCDay()], also=symAlso(tlEvents(d),sp.day,symSel);
-        return `<div class="card sym-cur"><h2>${sp.cur.length>1?"Записи за день":"Запись"} · ${ru(sp.day)}, ${wd}</h2>${symDayBody(S,symSel,sp.day,today)}</div>`
+        return `<div class="card sym-cur"><h2>${sp.cur.length>1?"Записи за день":"Запись"} · ${ru(sp.day)}, ${wd}</h2>${symMergeBanner(cur,sp.day)}${symDayBody(S,symSel,sp.day,today)}</div>`
           +(also.length?`<div class="card"><h2>Что ещё было в этот день <span class="muted" style="text-transform:none">— ${also.length}</span></h2>${also.map(tlItem).join("")}</div>`:""); })()}
       <!--B:doc-->${symDoctorsCard(d,symSel,c)}
       <!--B:ai-->${symAiCard(symSel)}${symChatCard(symSel)}
@@ -8944,6 +9068,8 @@ document.addEventListener("click",e=>{
       .catch(()=>toast("Не получилось, попробуйте ещё раз")).finally(()=>{ window.__symAiBusy=null; render(); }); return; }
   if(wzAct(e)) return;
   const evo=e.target.closest("[data-evopen]"); if(evo){ e.stopPropagation(); const v=EVENTS.find(x=>x.id===evo.dataset.evopen); if(v) eventForm(v); return; }
+  const mn=e.target.closest("[data-mergeno]"); if(mn){ symMergeNoSet(cur,mn.dataset.mergeno); render(); if(mn.closest(".modal")) closeModal(); return; }
+  const my=e.target.closest("[data-mergeyes]"); if(my){ my.disabled=true; const inModal=!!my.closest(".modal"); symMergeDo(cur,my.dataset.mergeyes).then(done=>{ if(done&&inModal) closeModal(); }).finally(()=>{ my.disabled=false; }); return; }
   const pe=e.target.closest("[data-perend],[data-perendd],[data-perdel]"); if(pe){ const id=pe.dataset.perend||pe.dataset.perendd||pe.dataset.perdel;
     const done=()=>mkApi("period_list").then(j=>{ PERIODS=j.rows||[]; periodsSave(); ovApply(); render(); });
     if(pe.dataset.perdel!=null){ confirmDel("Убрать период? Сам симптом за эти дни исчезнет из карты и ленты.",()=>mkApi("period_delete",{id}).then(done).catch(()=>toast("Не получилось, попробуйте ещё раз"))); return; }
