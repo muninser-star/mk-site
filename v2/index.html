@@ -2943,7 +2943,7 @@ function openRec(i,showSer){
       ${M.related.rows.map(p=>`<tr class="row is-link" data-rec="${idOf(p)}"><td><b>${esc(p.title)}</b></td><td><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td><td style="font-size:13px">${prevCell(p)}</td>
       <td><span class="status status-${p.st}">${ST[p.st]||ST.none}</span></td></tr>`).join("")}</tbody></table></div>`):"";
     const concl=(r.full&&r.full.length)?fold("Заключение",fullRows(r.full)):"";
-    const dyn=(M.hist||ser.length)?fold(`Динамика${M.hist?` — ${M.hist.length} значений`:""}`,
+    const dyn=(M.hist||ser.length)?fold(`Динамика: ${esc(r.title)}${M.hist?` — ${M.hist.length} ${plural(M.hist.length,"значение","значения","значений")}`:""}`,
       (M.hist?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th><th></th></tr></thead><tbody>
         ${M.hist.map(h=>`<tr${h===r?' style="background:var(--accentbg)"':''}><td class="muted">${ru(h.d)}</td><td><b>${esc(h.v||"—")}</b></td><td class="muted">${esc(h.n||"—")}</td>
         <td><span class="status status-${h.st}">${ST[h.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"")+(chartHtml?"":serHtml)):"";
@@ -3329,7 +3329,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 22:42";   // подставляется при публикации
+const BUILD="18.10 22:54";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
