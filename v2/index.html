@@ -2892,7 +2892,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 13:38";   // подставляется при публикации
+const BUILD="18.10 13:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4081,10 +4081,14 @@ function rzLabel(topic){
   const m=String(topic).match(/^(lab|ind|symptom):[^:]+:(.*)$/); if(!m) return "Разбор";
   return m[1]==="lab"?"Анализ от "+ru(m[2]):m[1]==="ind"?"Показатель: "+m[2]:"Симптом: "+m[2];
 }
-function razbHtml(d){
+function razbLoad(then){
   const st=RAZBS[cur]||(RAZBS[cur]={rows:[],loaded:false,filter:""});
   if(!st.loaded&&window.__MK_KEY){ st.loaded=true; const who=cur;
-    mkApi("ask_list",{person:who}).then(j=>{ st.rows=j.rows||[]; if(tab==="razb"&&cur===who) render(); }).catch(()=>{ st.loaded=false; }); }
+    mkApi("ask_list",{person:who}).then(j=>{ st.rows=j.rows||[]; if(then&&cur===who) then(); }).catch(()=>{ st.loaded=false; }); }
+  return st;
+}
+function razbHtml(d){
+  const st=razbLoad(()=>{ if(tab==="razb") render(); });
   const rows=st.filter?st.rows.filter(r=>String(r.topic).startsWith(st.filter+":")):st.rows;
   const chips=[["","Все"],["lab","Анализы"],["symptom","Симптомы"],["ind","Показатели"]].map(([k,n])=>`<button type="button" class="chip${st.filter===k?" on":""}" data-rzf="${k}">${n}</button>`).join(" ");
   return `<div class="card"><h2>Разборы семейного ИИ-врача</h2><div class="muted" style="font-size:13px;margin-bottom:8px">Разговоры с врачом по анализам, показателям и симптомам: они остаются здесь, даже когда симптом закрыт.</div>
@@ -4108,7 +4112,7 @@ document.addEventListener("click",e=>{
   const m=String(o.dataset.rzopen).match(/^(lab|ind|symptom):[^:]+:(.*)$/); if(!m) return;
   if(m[1]==="lab"){ const D=DATA[cur], i=(D.rec||[]).findIndex(x=>x.t==="lab"&&x.d===m[2]); if(i>=0) openRec(i); else toast("Анализ этой даты в медкнижке не найден"); }
   else if(m[1]==="ind"){ window.__indBack=null; tlReset(); query=m[2]; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); }
-  else { const tp=symTopic(cur,m[2]); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; tab="sym"; symView="main"; symSel=m[2]; render(); window.scrollTo({top:0}); }
+  else { closeModal(); const tp=symTopic(cur,m[2]); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; tab="sym"; symView="main"; symSel=m[2]; render(); window.scrollTo({top:0}); }
 });
 // ── Карта «Последние 30 дней»: выделите клетки — период симптома расширится на эти дни ──
 let HSEL=null, HSEL_T=null;
@@ -4848,6 +4852,8 @@ function epCard(epId){
       <div class="ill__head"><div><h3 class="ill__title">${esc(ep.dx||"Без диагноза")}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div></div>
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
       ${sec("Симптомы — "+L.sym.length,symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">—</div>`)}
+      ${(()=>{ const rz=razbLoad(()=>{ if(modal.classList.contains("on")) epCard(epId); }), R=rz.rows.filter(r=>symNames.some(n=>r.topic===symTopic(cur,n)));
+        return R.length?sec("Разборы — "+R.length,R.map(r=>`<div class="plancard" data-rzopen="${esc(r.topic)}"><div><b>${esc(rzLabel(r.topic))}</b> <span class="muted">· ${ru(String(r.created_at).slice(0,10))}</span><div class="muted" style="font-size:13px">${esc(r.first||"")}</div></div><span class="muted">→</span></div>`).join("")):""; })()}
       ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)); return sec("Приёмы — "+V.length+(V.length>5?" (последние 5)":""),V.length?V.slice(0,5).map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-${r.st==="ok"?"ok":"bad"}" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`); })()}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>v.ep_id===ep.id); return EV.length?sec("События — "+EV.length,eventsBlock(EV)):""; })()}
       ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">${epMedsEmptyText()}</div>`)}
