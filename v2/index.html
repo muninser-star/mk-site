@@ -2620,6 +2620,11 @@ function instrCardModel(r){
 // шапка и кнопка «Все записи» карточки (ТЗ-004 блок 4): у приёма с сайта нет статуса и системы — без «undefined» и «null»
 function recBadge(r){ return ST[r.st]?TYPE[r.t]+" · "+ST[r.st]:TYPE[r.t]; }
 function recGoAll(r){ const n=r.sys?sysName(r.sys):""; return n?`<button class="btn btn-primary btn-block" data-f="${r.sys}" data-close="1">Все записи: ${esc(n)} →</button>`:""; }
+// что известно о человеке для рекомендаций: курение из паспорта (HABITS), у ребёнка — не применимо; нет данных — null
+function personFacts(p){
+  const h=(typeof HABITS!=="undefined"&&HABITS[p])||{}, age=(DATA[p]||{}).age;
+  return {smoking:h.smoking||(age!=null&&age<16?"na":null)};
+}
 // ── рекомендованные разбором врачи и рекомендации по показателю (Денис, 18.10.2026) ──
 // специальность по названию врача; «психотерапевт» проверяется раньше «терапевта»
 function docSpecOf(text){
@@ -2671,11 +2676,13 @@ function labSpecFor(r){
   return M[sys]||"ped";
 }
 // что проверить и сделать в первую очередь — по показателю и направлению (общие советы, не назначения)
-function labTipsFor(title,dir){
+function labTipsFor(title,dir,facts){
   const t=String(title||"").toLowerCase().replace(/ё/g,"е"), hi=dir==="high", lo=dir==="low";
   if(/гликир|hba1c/.test(t)&&hi) return ["Сдайте глюкозу натощак (8–12 часов без еды): HbA1c показывает средний сахар за 2–3 месяца.","Меньше быстрых углеводов и сладких напитков, больше ходьбы — безопасно; цели и лечение подбирает эндокринолог."];
   if(/глюкоз/.test(t)&&hi) return ["Пересдайте натощак (8–12 часов без еды, без стресса и нагрузки накануне) и сдайте HbA1c.","Меньше быстрых углеводов и сладких напитков, больше ходьбы; цели и лечение подбирает эндокринолог."];
-  if(/гемоглобин/.test(t)&&hi) return ["Проверьте питьевой режим: обезвоживание повышает гемоглобин.","Курение, жизнь на высоте, приём препаратов железа или тестостерона тоже поднимают гемоглобин — скажите врачу, если это про вас.","Препараты железа и витамины с железом без назначения не принимайте."];
+  if(/гемоглобин/.test(t)&&hi){
+    const sm=facts&&facts.smoking, smoke=sm==="yes"?["Курение повышает гемоглобин — это самая вероятная причина; обсудите с врачом, как бросить."]:sm==="no"||sm==="na"?[]:["В профиле нет данных о курении: оно повышает гемоглобин — если курите, скажите об этом врачу."];
+    return ["Проверьте питьевой режим: обезвоживание повышает гемоглобин.",...smoke,"Жизнь на высоте, приём препаратов железа или тестостерона тоже поднимают гемоглобин — скажите врачу, если это про вас.","Препараты железа и витамины с железом без назначения не принимайте."]; }
   if(/гемоглобин/.test(t)&&lo) return ["Сдайте ферритин и железо сыворотки — так видно, в железе ли причина.","Препараты железа начинайте только по назначению: лишнее железо вредно."];
   if(/ферритин/.test(t)&&lo) return ["Низкий ферритин — запас железа на исходе, даже если гемоглобин в норме: уточните у врача причину (месячные, питание, потери крови).","Добавки железа — только по назначению и с контролем ферритина."];
   if(/ферритин/.test(t)&&hi) return ["Ферритин растёт и при воспалении: сдайте вместе с СРБ и железом — по одной цифре судить нельзя.","Железо без назначения не принимайте."];
@@ -2688,12 +2695,12 @@ function labTipsFor(title,dir){
   return [];
 }
 // блок «что это значит и что делать» в карточке показателя: вне нормы или у границы
-function labAdviceFor(r,parts){
+function labAdviceFor(r,parts,facts){
   if(!r||!(r.st==="bad"||r.st==="warn")) return null;
   const val=String(r.v||"").split(/\s/)[0];
   const dir=r.st==="warn"?(normEdge(r.v,r.n)||""):(flagByNorm(val,r.n)==="выше"?"high":flagByNorm(val,r.n)==="ниже"?"low":"");
   const ref=(parts||[])[0]||{}, consequence=dir&&ref[dir]?ref[dir]:"";
-  const level=r.st==="warn"?"edge":"bad", tips=labTipsFor(r.title,dir);
+  const level=r.st==="warn"?"edge":"bad", tips=labTipsFor(r.title,dir,facts);
   const tl=String(r.title||"").toLowerCase().replace(/ё/g,"е");
   // срок пересдачи зависит от показателя: HbA1c и витамин D за две недели не меняются
   const retest=/гликир|hba1c/.test(tl)?"Пересдайте через 3 месяца (HbA1c отражает средний сахар за 2–3 месяца) и сдайте глюкозу натощак."
@@ -2768,7 +2775,7 @@ function razbRecsCard(){
 }
 // блок «Что это значит и что делать» в карточке показателя вне нормы или у границы
 function labAdvHtml(r,idx){
-  const a=labAdviceFor(r,indicatorParts(r.title)); if(!a) return "";
+  const a=labAdviceFor(r,indicatorParts(r.title),personFacts(cur)); if(!a) return "";
   return `<div class="labadv labadv--${a.level}"><h3 class="labsec" style="margin-top:0">${a.level==="bad"?"Что это значит и что делать":"Значение у границы нормы — что делать"}</h3>
     ${a.consequence?`<p style="margin:6px 0"><b>${a.level==="edge"?(a.dir==="high"?"Если выйдет за верхнюю границу нормы:":"Если выйдет за нижнюю границу нормы:"):(a.dir==="high"?"Если выше нормы:":"Если ниже нормы:")}</b> ${esc(a.consequence)}</p>`:""}
     <ol class="labadv__l">${a.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
@@ -2780,7 +2787,7 @@ document.addEventListener("click",e=>{
     const c=RLINKS[cur]; const rec=c&&c.L&&razborRecs(c.L,PLANS||[],localDay(),{},cur).find(x=>x.key===rp.dataset.rzplan); if(rec) rzrecPlan(rec); return; }
   const rh=e.target.closest&&e.target.closest("[data-rzhide]"); if(rh){ const h=rzrecHidden(); h[rh.dataset.rzhide]=1; try{ localStorage.setItem(RZREC_K,JSON.stringify(h)); }catch(x){} render(); return; }
   const lp=e.target.closest&&e.target.closest("[data-labplan]"); if(lp){
-    const r=(DATA[cur].rec||[])[+lp.dataset.labplan], a=r&&labAdviceFor(r,indicatorParts(r.title)); if(!a) return;
+    const r=(DATA[cur].rec||[])[+lp.dataset.labplan], a=r&&labAdviceFor(r,indicatorParts(r.title),personFacts(cur)); if(!a) return;
     closeModal(); planOpen({id:null,person:cur,specialty:a.spec,planned_date:"",purpose:`${r.title}: ${r.v}${r.n?" (норма "+r.n+")":""} — ${a.level==="bad"?"вне нормы":"у границы нормы"}`.slice(0,500),
       questions:[{t:`Что означает ${r.title} ${r.v}${r.n?" при норме "+r.n:""}?`,done:false},{t:"Нужно ли пересдать или обследоваться дополнительно?",done:false}],tests:[{t:r.title,done:false}],other:[],status:"planned",source_name:null}); return; }
   const la=e.target.closest&&e.target.closest("[data-labask]"); if(la){
@@ -3236,7 +3243,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 21:58";   // подставляется при публикации
+const BUILD="18.10 22:02";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6224,6 +6231,7 @@ function favPicker(){
 document.addEventListener("change",e=>{ const c=e.target.closest&&e.target.closest("[data-fppick]"); if(c) favToggle(cur,c.dataset.fppick); });
 document.addEventListener("input",e=>{ if(e.target.id!=="fpQ") return; const q=e.target.value.trim().toLowerCase();
   document.querySelectorAll(".fp-row").forEach(r=>{ r.hidden=!!q&&!r.dataset.fpn.includes(q); }); });
+/*HAB*/const HABITS={"denis":{"smoking":"no"},"anya":{"smoking":"no"}};/*/HAB*/
 /*REG*/const REG_LINKS=[{"keys":["вальгус","плоскостоп","осанк","искривление позвоночника"],"spec":"ortho","why":"Стопы и осанка: смотреть динамику роста","months":0},{"keys":["миопи","пвхрд","гиперметроп"],"spec":"ophth","why":"Глаза: осмотр глазного дна и зрения","months":0},{"keys":["овальн","межпредсердн"],"spec":"cardio","why":"Сердце: контроль открытого овального окна","months":0},{"keys":["энурез"],"spec":"uro","why":"Ночной энурез: наблюдение","months":0},{"keys":["аллергический ринит"],"spec":"allergo","why":"Аллергия: подготовка к сезону пыльцы","months":0},{"keys":["дефицит железа","железодефицит"],"spec":"hema","why":"Железо: контроль после курса","months":0},{"keys":["узловой зоб","щитовидн"],"spec":"endo","why":"Щитовидная железа: контроль узлов","months":0},{"keys":["предиабет","толерантность к глюкозе"],"spec":"endo","why":"Сахар: контроль обмена","months":0},{"keys":["гипертенз","повышенное давление"],"spec":"cardio","why":"Давление: контроль и подбор терапии","months":0},{"keys":["миома","аденомиоз","мирена"],"spec":"gyn","why":"Гинеколог: контроль миомы и ВМС","months":0},{"keys":["мастопат"],"spec":"mammo","why":"Молочные железы: плановое обследование","months":0},{"keys":["варикоз"],"spec":"phleb","why":"Вены: контроль у флеболога","months":0},{"keys":["гепатоз"],"spec":"gastro","why":"Печень: контроль гепатоза","months":0},{"keys":["баланопостит"],"spec":"uro","why":"Баланопостит: контроль течения","months":0},{"keys":["витилиго"],"spec":"derm","why":"Кожа: наблюдение витилиго","months":0},{"keys":["тревожн"],"spec":"psych","why":"Тревожность: наблюдение","months":0}];/*/REG*/
 // ── Справка по показателю — значок «i» (ТЗ-014): справочник IND_INFO встроен скриптом, сопоставление точное, без подстрок ──
 function indKey(s){ return String(s||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
