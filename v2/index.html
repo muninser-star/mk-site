@@ -552,6 +552,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .fold>summary{cursor:pointer;padding:11px 0;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:10px}
 .fold>summary::-webkit-details-marker{display:none}.fold>summary::after{content:"＋";color:var(--muted);flex:none}.fold[open]>summary::after{content:"−"}
 .fold-b{padding:0 0 12px;font-size:14px;line-height:1.5}
+.labown{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;margin:2px 0 6px} .labown b{font-size:26px;letter-spacing:-.5px} .labsec{font-size:14px;margin:14px 0 6px;color:var(--muted)} .ind-chart-row td{padding:0 0 10px!important} .ind-chart-row .btn{margin-top:6px}
 .labvals{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;font-size:22px;letter-spacing:-.4px;margin:2px 0}
 .verdict-line{margin:6px 0 12px;color:var(--ink)}
 .figs{margin:0 0 4px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -2411,6 +2412,12 @@ function labInstrHtml(labs,instr){
       ${pg.rest?`<button class="btn btn-secondary btn-block" data-pgmore="${key}" style="margin-top:8px">Показать ещё ${Math.min(10,pg.rest)} · осталось ${pg.rest}</button>`:""}</div>`; };
   return blk("lab","Анализы",labs)+blk("instr","Исследования",instr,`<button class="btn btn-secondary" id="recAddInstr" style="float:right;height:30px;font-size:13px">＋ Исследование</button>`);
 }
+// кто и где: у анализа лаборатория в списке не нужна (Денис, 18.10.2026); у остальных — врач и место без повтора
+function recWhoHtml(r,hl){
+  if(r.t==="lab"||!r.who) return "";
+  const pl=r.place&&r.place!=="—"&&r.place!==r.who?" · "+hl(r.place):"";
+  return `<div class="muted">${hl(r.who)}${pl}</div>`;
+}
 function tableRows(list,opt){
   opt=opt||{};
   if(!list.length)return `<div class="empty">${opt.empty||"Ничего не найдено"}</div>`;
@@ -2421,7 +2428,7 @@ function tableRows(list,opt){
     ${list.map(r=>`<tr class="row is-link" data-rec="${idOf(r)}">
       <td class="muted" style="white-space:nowrap">${ru(r.d)}</td>
       ${showType?`<td class="muted">${TYPE[r.t]}</td>`:""}
-      <td><b>${hl(r.title)}</b>${r.t==="lab"?indBtn(r.title):""}${r.who?`<div class="muted">${hl(r.who)}${r.place&&r.place!=="—"?" · "+hl(r.place):""}</div>`:""}
+      <td><b>${hl(r.title)}</b>${r.t==="lab"?indBtn(r.title):""}${recWhoHtml(r,hl)}
         ${r.v?(()=>{const mk=markVN(r.v,r.n);
           return `<div class="muted">Значение: <b${mk?` style="color:${mk.c}" title="${esc(mk.why)}"`:""}>${hl(r.v)}</b>${r.n?` · норма ${esc(r.n)}`:""}</div>`;})():""}
         ${r.t==="lab"?`<div class="muted" style="font-size:12.5px">Было: ${prevCell(r)}</div>`:""}</td>
@@ -2575,13 +2582,13 @@ function labCardModel(D,r){
   const hist=(D.rec||[]).filter(x=>x.t==="lab"&&x.title===r.title).sort((a,b)=>b.d.localeCompare(a.d));
   const pv=other.slice(0,3).map(x=>`${x.title} ${x.v||""} → ${ST[x.st]||ST.none}`.replace(/\s+→/," →").replace(/\s{2,}/," "));
   return {
-    title:r.title, date:r.d, status, values:vals.slice(0,3), moreValues:Math.max(0,vals.length-3),
+    title:r.title, date:r.d, status, own:{v:r.v||"",n:r.n||"",st:r.st||"none"},
     summary:`${same.length} ${plural(same.length,"показатель","показателя","показателей")}`+(off?`, ${off} вне нормы`:", все в норме"),
     verdict:firstSentence(r.res,140),
     table:same.map(x=>({title:x.title,v:x.v||"",n:x.n||"",st:x.st||"none",rec:x})),
     related:other.length?{preview:pv.join(", ")+(other.length>3?` +${other.length-3}`:""),rows:other}:null,
     hist:hist.length>1?hist:null, baseline:r.t==="lab"&&hist.length===1,
-    details:{place:r.place&&r.place!=="—"?r.place:"",norm:r.n||""}
+    details:{place:r.place&&r.place!=="—"?r.place:"",norm:r.n||"",from:r.from||""}
   };
 }
 // «ЧСС 81 при норме 0,5–1,2 мс. PQ 150 мс (норма 90–160)» → по строке на цифру; запятая в числах не рвёт строку
@@ -2663,11 +2670,11 @@ function openRec(i,showSer){
   const serHtml=ser.length?ser.map(sr=>`${sr.unit?`<div class="muted" style="font-size:13px">${esc(sr.unit)}</div>`:""}${chart(sr)}`).join(""):"";
   const shell=inner=>`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>${inner}</div>`;
   const head=(st,sub)=>`<div class="status status-${st||"none"}" style="margin-bottom:8px">${recBadge(Object.assign({},r,{st}))}</div>
-    <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}${r.t==="lab"?indBtn(r.title):""}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>`;
+    <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}${r.t==="lab"?indBtn(r.title):""}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who&&r.t!=="lab"?" · "+esc(r.who):""}</div>`;   // лаборатория в шапке анализа не нужна (Денис, 18.10.2026): она в «Подробнее»
   let cardHtml=null;
   if(r.t==="lab"){            // ТЗ-010 блок 12: шапка и ключевые показатели видны, остальное свёрнуто
     const M=labCardModel(D,r);
-    const MR=measRows(cur);
+    const MR=measRows(cur), chartHtml=indChartFor(r.title,MR);
     const row=p=>labRowHtml(p,{sel:p.rec===r,graph:indSeriesCount(MR,p.title)>=2,from:{i:idOf(r),d:r.d}});
     const rel=M.related?fold(`В тот же день: ${esc(M.related.preview)}`,`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Было раньше</th><th>Статус</th></tr></thead><tbody>
       ${M.related.rows.map(p=>`<tr class="row is-link" data-rec="${idOf(p)}"><td><b>${esc(p.title)}</b></td><td><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td><td style="font-size:13px">${prevCell(p)}</td>
@@ -2676,16 +2683,17 @@ function openRec(i,showSer){
     const dyn=(M.hist||ser.length)?fold(`Динамика${M.hist?` — ${M.hist.length} значений`:""}`,
       (M.hist?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th><th></th></tr></thead><tbody>
         ${M.hist.map(h=>`<tr${h===r?' style="background:var(--accentbg)"':''}><td class="muted">${ru(h.d)}</td><td><b>${esc(h.v||"—")}</b></td><td class="muted">${esc(h.n||"—")}</td>
-        <td><span class="status status-${h.st}">${ST[h.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"")+serHtml):"";
-    const det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm]].filter(x=>x[1]);
+        <td><span class="status status-${h.st}">${ST[h.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"")+(chartHtml?"":serHtml)):"";
+    const det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm],["Добавлено",M.details.from]].filter(x=>x[1]);
     const detHtml=(det.length||M.baseline)?fold("Подробнее",(det.length?`<table class="tbl">${det.map(([k,v])=>`<tr><td class="muted" style="width:42%">${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table>`:"")
       +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка. Вторая сдача превратит цифру в направление.</div>`:"")):"";
     cardHtml=shell(`${head(M.status)}
       <div style="margin:-4px 0 6px">${favStar(cur,r.title)} <span class="muted" style="font-size:13px">следить за показателем</span></div>
-      <div class="labvals">${M.values.map(v=>`<b>${esc(v)}</b>`).join("")}${M.moreValues?`<span class="muted">+${M.moreValues}</span>`:""}</div>
-      <div class="muted" style="margin-bottom:6px">${esc(M.summary)}</div>
+      ${M.own.v?`<div class="labown"><b style="color:${statusColor(M.own.st)}">${esc(M.own.v)}</b>${M.own.n?`<span class="muted">норма ${esc(M.own.n)}</span>`:""}</div>`:""}
+      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:`<div class="muted" style="margin:2px 0 8px">${M.baseline?"Сдавался один раз — сравнить пока не с чем":""}</div>`}
       ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
       ${(()=>{ const tp=rzTopic("lab",cur,r.d); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",payload:{person:cur,mode:"lab",lab_date:r.d}}); return rzHtml(tp); })()}
+      <h3 class="labsec">Показатели этой сдачи — ${esc(M.summary)}</h3>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>
       ${rel}${concl}${dyn}${detHtml}
       ${sameDay.length?fold(`В этот же день — ещё ${sameDay.length}`,sameDayHtml):""}
@@ -3053,7 +3061,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 14:51";   // подставляется при публикации
+const BUILD="18.10 21:26";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5490,7 +5498,7 @@ function entriesInto(D,rows){
       for(const it of x.items) addPt(P,x.d||"",it);
       for(const it of x.items) (P.rec=P.rec||[]).push({t:"lab",d:x.d||String(e.created_at).slice(0,10),title:it.name,who:x.lab||"",place:x.lab||"",
         sys:it.sys||labSysFor(it.name,known),st:ST2[it.flag]||"",v:[it.value,it.unit].filter(Boolean).join(" "),n:it.norm||"",
-        res:[it.raw?`на бланке: ${it.raw}`:"",from].filter(Boolean).join(" · "),from,full:[],files:e.files||[],entry:e.id});
+        res:it.raw?`на бланке: ${it.raw}`:"",from,full:[],files:e.files||[],entry:e.id});
       continue;
     }
     const full=x.full||(e.kind==="visit"?[["ЖАЛОБЫ",x.complaints],["ОСМОТР",x.exam],["ДИАГНОЗ",[x.dx,x.mkb?`(${x.mkb})`:""].filter(Boolean).join(" ")],
@@ -6080,12 +6088,22 @@ function indOpen(btn){
   p.querySelector(".indp__x").focus();
 }
 // 📈 в строке анализа: закрыть окно и открыть динамику показателя (как из избранного); на карточке — «← К анализу»
+// 📈 в таблице показателей сдачи: график раскрывается прямо под строкой; «Вся динамика →» ведёт в поиск показателя
+function indGraphToggle(gr){
+  const tr=gr.closest("tr"); if(!tr) return;
+  const nx=tr.nextElementSibling; if(nx&&nx.classList.contains("ind-chart-row")){ nx.remove(); return; }
+  const ch=indChartFor(gr.dataset.grind,measRows(cur)); if(!ch) return;
+  const row=document.createElement("tr"); row.className="ind-chart-row";
+  row.innerHTML=`<td colspan="${tr.children.length}"><div class="ind-ch">${ch}</div><button type="button" class="btn btn-secondary" data-grind-go="1" data-grind="${esc(gr.dataset.grind)}" data-grd="${esc(gr.dataset.grd||"")}" data-gri="${esc(gr.dataset.gri||"")}" style="font-size:13px;padding:5px 12px">Вся динамика →</button></td>`;
+  tr.after(row);
+}
 function indGraphOpen(gr){
   window.__indBack={q:gr.dataset.grind,i:gr.dataset.gri===""?-1:+gr.dataset.gri,d:gr.dataset.grd};
   closeModal(); tlReset(); query=gr.dataset.grind; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0});
 }
 document.addEventListener("click",e=>{
-  const g=e.target.closest&&e.target.closest("[data-grind]"); if(g){ e.preventDefault(); e.stopPropagation(); indGraphOpen(g); return; }
+  const go=e.target.closest&&e.target.closest("[data-grind-go]"); if(go){ e.preventDefault(); e.stopPropagation(); indGraphOpen(go); return; }
+  const g=e.target.closest&&e.target.closest("[data-grind]"); if(g){ e.preventDefault(); e.stopPropagation(); indGraphToggle(g); return; }
   const b=e.target.closest&&e.target.closest("[data-ind]");
   if(b){ e.preventDefault(); e.stopPropagation(); const open=document.getElementById("indpop"); if(open&&open.__btn===b) indClose(); else indOpen(b); return; }
   const p=document.getElementById("indpop"); if(p&&!e.target.closest("#indpop")) indClose();
@@ -7583,6 +7601,16 @@ function measLoad(){
     mkApi("measurements").then(j=>{ window.__MEAS=j.measurements||[]; render(); }).catch(()=>{ window.__MEAS=[]; });
   }
 }
+// график показателя по значениям из базы и книжки; одно значение — графика нет
+function indCardChart(c){
+  const pts=c.dyn.map(x=>[ru(x.d),x.v]); if(pts.length<2) return "";
+  const nm=((c.rows.find(r=>r.norm)||{}).norm||"").match(/^\s*(-?[\d.,]+)\s*[-–—]\s*(-?[\d.,]+)\s*$/);
+  return chart({name:c.name,unit:c.unit,pts,lo:nm?parseFloat(nm[1].replace(",",".")):null,hi:nm?parseFloat(nm[2].replace(",",".")):null});
+}
+function indChartFor(name,rows){
+  const cards=indicatorCards(name,rows), c=cards.find(x=>indicatorMatch(name,x.name)===3)||cards[0];
+  return c?indCardChart(c):"";
+}
 function indicatorBlock(){
   measLoad();
   const d=DATA[cur], cards=indicatorCards(query,measRows(cur));
@@ -7595,9 +7623,7 @@ function indicatorBlock(){
     const span=first&&last&&first.d!==last.d?`с ${ru(first.d)} по ${ru(last.d)}`:(last?ru(last.d):"");
     const sum=[span, `${c.rows.length} ${c.rows.length%10===1&&c.rows.length%100!==11?"значение":c.rows.length%10>=2&&c.rows.length%10<=4&&(c.rows.length%100<10||c.rows.length%100>=20)?"значения":"значений"}`,
       tone(last.flag)==="bad"?`последнее — ${last.flag} нормы`:out?`вне нормы ${out} из ${c.rows.length}`:c.rows.some(r=>r.flag)?"все в норме":""].filter(Boolean).join(" · ");
-    const pts=c.dyn.map(x=>[ru(x.d),x.v]);
-    const nm=((c.rows.find(r=>r.norm)||{}).norm||"").match(/^\s*(-?[\d.,]+)\s*[-–—]\s*(-?[\d.,]+)\s*$/);
-    const ch=pts.length>1?chart({name:c.name,unit:c.unit,pts,lo:nm?parseFloat(nm[1].replace(",",".")):null,hi:nm?parseFloat(nm[2].replace(",",".")):null}):"";
+    const ch=indCardChart(c);
     const body=`<div class="ind-dyn"><span class="ind-lab">📈 Динамика</span> ${c.dyn.map(x=>`<b class="ind-v ${tone(x.flag)}">${fmt(x.v)}</b>`).join(' <span class="muted">→</span> ')||"—"}</div>
       <div class="muted ind-sum">${esc(sum)}</div>
       ${ch?`<div class="ind-ch">${ch}</div>`:""}
