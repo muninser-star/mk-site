@@ -61,6 +61,7 @@ textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px sol
 .fixform{display:flex;gap:8px;margin-top:8px;width:100%}
 .fixform input{flex:1}
 .q{font-weight:700;margin-bottom:6px}
+.ans .tbl-wrap{overflow-x:auto;margin:8px 0}.ans table{border-collapse:collapse;font-size:13px}.ans th,.ans td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.ans h3.mdh,.ans h2.mdh1{font-size:15px;margin:12px 0 4px}.ans blockquote{margin:6px 0;padding-left:10px;border-left:3px solid var(--line);color:var(--muted)}.ans ul,.ans ol{margin:6px 0;padding-left:20px}
 </style>
 </head>
 <body>
@@ -109,15 +110,31 @@ async function api(action, payload = {}, retry = true) {
     : j.code === "config" ? "Сервис ответов не настроен." : "Не получилось ответить. Попробуйте переформулировать вопрос.");
   return j;
 }
-// ответ, после которого стоит поправить медкнижку: «в медкнижке этого нет» или ничего не нашлось (ТЗ-003 блок 2)
-function askNeedsFix(answer) {
+// ответ, после которого стоит поправить медкнижку: ничего не нашлось или у ответа нет ни одного источника (ТЗ-003 блок 2, ТЗ-031 блок 6)
+function askNeedsFix(answer, sources) {
   if (!answer || !String(answer).trim()) return true;
-  return /в медкнижке (этого|такого|об этом|про это|пока)?\s*(нет|не записано|не нашлось)|нет в медкнижке|в записях (этого )?нет/i.test(String(answer).slice(0, 400));
+  return !(sources && sources.length);
 }
-// ответ модели: жирный текст, списки и ссылки [1] на источники
+// ответ модели: заголовки, жирный текст, списки, таблицы и ссылки [1] на источники (тот же разбор, что в карточке симптома)
 function fmt(t) {
-  return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
-    .replace(/\[(\d{1,2})\]/g, (m, n) => `<span class="ref" data-ref="${n}">${n}</span>`);
+  const text = t;
+  const inl=x=>esc(x).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>").replace(/\[(\d{1,2})\]/g,(m,n)=>`<span class="ref" data-ref="${n}">${n}</span>`);
+  const L=String(text||"").replace(/\r/g,"").replace(/^---[\s\S]*?\n---\n/,"").split("\n"), out=[]; let i=0;
+  while(i<L.length){
+    const l=L[i];
+    if(/^\s*\|/.test(l)){ const rows=[]; while(i<L.length&&/^\s*\|/.test(L[i])){ rows.push(L[i]); i++; }
+      const cells=r=>r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      const body=rows.filter(r=>!/^\s*\|?\s*:?-{2,}/.test(r)); if(!body.length) continue;
+      out.push(`<div class="tbl-wrap"><table class="tbl"><thead><tr>${cells(body[0]).map(c=>`<th>${inl(c)}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r=>`<tr>${cells(r).map(c=>`<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`); continue; }
+    let h=l.match(/^(#{1,3})\s+(.+)/); if(h){ out.push(h[1].length===1?`<h2 class="mdh1">${inl(h[2])}</h2>`:`<h3 class="mdh">${inl(h[2])}</h3>`); i++; continue; }
+    if(/^\s*-{3,}\s*$/.test(l)){ out.push('<hr class="mdhr">'); i++; continue; }
+    if(/^\s*>/.test(l)){ const q=[]; while(i<L.length&&/^\s*>/.test(L[i])){ q.push(L[i].replace(/^\s*>\s?/,"")); i++; } out.push(`<blockquote class="mdq">${q.filter(x=>x.trim()).map(x=>`<p style="margin:4px 0">${inl(x)}</p>`).join("")}</blockquote>`); continue; }
+    if(/^\s*\d+[.)]\s+/.test(l)){ const it=[]; while(i<L.length&&(/^\s*\d+[.)]\s+/.test(L[i])||(/^\s{2,}\S/.test(L[i])&&it.length))){ if(/^\s*\d+[.)]\s+/.test(L[i])) it.push(L[i].replace(/^\s*\d+[.)]\s+/,"")); else it[it.length-1]+=" "+L[i].trim(); i++; } out.push(`<ol style="margin:4px 0 8px;padding-left:22px">${it.map(x=>`<li>${inl(x)}</li>`).join("")}</ol>`); continue; }
+    if(/^\s*[-•]\s+/.test(l)){ const it=[]; while(i<L.length&&(/^\s*[-•]\s+/.test(L[i])||(/^\s{2,}\S/.test(L[i])&&it.length))){ if(/^\s*[-•]\s+/.test(L[i])) it.push(L[i].replace(/^\s*[-•]\s+/,"")); else it[it.length-1]+=" "+L[i].trim(); i++; } out.push(`<ul style="margin:4px 0 8px;padding-left:20px">${it.map(x=>`<li>${inl(x)}</li>`).join("")}</ul>`); continue; }
+    if(!l.trim()){ i++; continue; }
+    out.push(`<p style="margin:6px 0">${inl(l)}</p>`); i++;
+  }
+  return out.join("");
 }
 function view() {
   app.innerHTML = `
@@ -165,7 +182,7 @@ function card(h, hi) {
   const fixUi = !h.id || h.error ? "" : flagged
     ? `<div class="fixbar"><span class="fixed">📌 отмечено — поправим</span>${h.flag_note ? `<span class="muted" style="font-size:13px">«${esc(h.flag_note)}»</span>` : ""}
         <button data-unfix="${hi}">Снять отметку</button></div>`
-    : `${askNeedsFix(h.answer) ? `<div class="fixhint">Похоже, в медкнижке этого нет. Отметить, чтобы поправили?</div>` : ""}
+    : `${askNeedsFix(h.answer, h.sources) ? `<div class="fixhint">Похоже, в медкнижке этого нет. Отметить, чтобы поправили?</div>` : ""}
        <div class="fixbar">${fixOpen === hi
          ? `<div class="fixform"><input id="fixnote" placeholder="Что не так или чего не хватает (необязательно)"><button class="primary" data-fixgo="${hi}">Отметить</button></div>`
          : `<button data-fix="${hi}">📌 Поправить медкнижку</button>`}</div>`;
@@ -214,7 +231,7 @@ async function ask(q) {
   document.querySelector(".hints")?.remove();
   paint();
   const item = { q, person, open: true, at: new Date().toISOString() };
-  try { const r = await api("ask", { question: q, person: person || null });
+  try { const r = await api("ask", { question: q, person: person || null, mode: "doctor", general: true, search: q, prefer_kind: ["razbor", "passport"] });
     Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data }); }
   catch (e) { item.error = e.message; }
   busy = false; hist.unshift(item); fixOpen = null; paint();
