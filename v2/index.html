@@ -1470,7 +1470,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .dz-card{position:relative;display:block;width:100%;text-align:left;min-height:112px;padding:16px;border:0;border-radius:var(--r-2xl);background:var(--card);color:var(--text-primary);cursor:pointer;font:inherit}
 .dz-card.is-off{opacity:.6}
 .dz-card__t{display:block;padding-right:40px;font:600 16px/22px var(--font)} .dz-card__h{display:block;margin-top:4px;font:400 14px/20px var(--font);color:var(--text-secondary)}
-.dz-card__pv{display:flex;gap:6px;margin-top:12px} .dz-card__pv i{display:block;width:24px;height:24px;border-radius:8px;background:var(--surface-2)} .dz-card.is-on .dz-card__pv i{background:var(--accent-soft)}
+.dz-card__pv{display:flex;gap:8px;margin-top:12px} .dz-card__pv i{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--surface-2);color:var(--text-secondary)} .dz-card__pv .ic{width:22px;height:22px} .dz-card.is-on .dz-card__pv i{background:var(--accent-soft);color:var(--text-accent)}
 .dz-card__sel{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;color:#fff}
 .dz-card.is-on .dz-card__sel{background:var(--accent)} .dz-card__sel .ic{width:16px;height:16px}
 .dz-card:focus-visible,.dz-chip:focus-visible,.dz-tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -3053,7 +3053,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 14:24";   // подставляется при публикации
+const BUILD="18.10 14:42";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8490,7 +8490,7 @@ function diaryGroups(cat,enabledIds){
   const on=new Set(enabledIds||[]), out=[], by={};
   for(const d of cat){
     if(!by[d.group]){ by[d.group]={group:d.group,diaries:[]}; out.push(by[d.group]); }
-    by[d.group].diaries.push({id:d.id,title:d.title,hint:d.hint,on:on.has(d.id)});
+    by[d.group].diaries.push({id:d.id,title:d.title,hint:d.hint,on:on.has(d.id),icons:d.symptoms?d.symptoms.slice(0,4).map(x=>x.icon):d.measure?[d.measure.icon]:d.icon?[d.icon]:[]});
   }
   return out;
 }
@@ -8579,7 +8579,7 @@ function dzSettingsHtml(){
   return `<div class="dz-settings"><h2 class="dz-h1">Настройка дневников</h2>`+groups.map(g=>`<section class="dz-group"><h3 class="dz-group__t">${esc(g.group)}</h3><div class="dz-grid">`+
     g.diaries.map(d=>`<button type="button" class="dz-card ${d.on?"is-on":"is-off"}" data-dz-pick="${d.id}" aria-pressed="${d.on}">
       <span class="dz-card__t">${esc(d.title)}</span><span class="dz-card__h">${d.on?"Включён":esc(d.hint)}</span>
-      <span class="dz-card__pv"><i></i><i></i><i></i></span>
+      <span class="dz-card__pv">${d.icons.map(i=>`<i>${dzIcon(i)}</i>`).join("")}</span>
       <span class="dz-card__sel" aria-hidden="true">${d.on?dzIcon("check"):""}</span></button>`).join("")+`</div></section>`).join("")+
     `<div class="dz-bar"><button type="button" class="btn btn-secondary" id="dzCancel">Отмена</button><button type="button" class="btn btn-primary" id="dzSave">Сохранить</button></div></div>`;
 }
