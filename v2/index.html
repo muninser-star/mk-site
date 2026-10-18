@@ -1457,6 +1457,72 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .plan-list{display:grid;gap:8px}
 @media (max-width:560px){ .addcal.plan-row{flex-wrap:wrap} .addcal.plan-row .plan-cal{width:100%;margin-left:0} .addcal.plan-row .addcal__info{flex-basis:calc(100% - 80px)} }
 .avatar .ic{width:60%;height:60%}
+/* ── Дневники здоровья (ТЗ-032) ── */
+.dz-h1{font:600 20px/26px var(--font);margin:0}
+.dz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px}
+.dz-empty{text-align:center;max-width:360px;margin:56px auto 0;padding:24px}
+.dz-empty__ic{width:72px;height:72px;border-radius:50%;background:var(--accent-soft);color:var(--text-accent);display:grid;place-items:center;margin:0 auto 20px}
+.dz-empty h3{margin:0 0 8px;font:600 16px/22px var(--font)} .dz-empty p{margin:0 0 20px}
+.dz-group{margin:0 0 24px}
+.dz-group__t{margin:0 0 12px;padding-left:12px;border-left:4px solid var(--accent);font:600 20px/26px var(--font)}
+.dz-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.dz-grid{grid-template-columns:1fr 1fr}}
+.dz-card{position:relative;display:block;width:100%;text-align:left;min-height:112px;padding:16px;border:0;border-radius:var(--r-2xl);background:var(--card);color:var(--text-primary);cursor:pointer;font:inherit}
+.dz-card.is-off{opacity:.6}
+.dz-card__t{display:block;padding-right:40px;font:600 16px/22px var(--font)} .dz-card__h{display:block;margin-top:4px;font:400 14px/20px var(--font);color:var(--text-secondary)}
+.dz-card__pv{display:flex;gap:6px;margin-top:12px} .dz-card__pv i{display:block;width:24px;height:24px;border-radius:8px;background:var(--surface-2)} .dz-card.is-on .dz-card__pv i{background:var(--accent-soft)}
+.dz-card__sel{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center;color:#fff}
+.dz-card.is-on .dz-card__sel{background:var(--accent)} .dz-card__sel .ic{width:16px;height:16px}
+.dz-card:focus-visible,.dz-chip:focus-visible,.dz-tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dz-bar{position:sticky;bottom:0;margin:20px -16px -16px;padding:16px 16px max(16px,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--surface-2);display:flex;gap:12px;z-index:3}
+.dz-bar .btn{flex:1;height:48px;border-radius:var(--r-l)}
+@media (max-width:700px){.dz-bar{bottom:calc(64px + env(safe-area-inset-bottom));margin:20px -16px 0;padding:12px 16px}}
+.dz-date{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 20px} .dz-date b{font:600 16px/22px var(--font)}
+.dz-nav{width:44px;height:44px;border:0;border-radius:50%;background:var(--surface-2);color:var(--text-primary);display:grid;place-items:center;cursor:pointer}
+.dz-nav:disabled{opacity:.4;cursor:default} .dz-nav:focus-visible,.dz-add:focus-visible,.dz-smile:focus-visible,.dz-sec__h:focus-visible,.dz-del:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dz-sec__h{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0;margin:0 0 12px;border:0;background:none;color:var(--text-primary);cursor:pointer;text-align:left;min-height:44px}
+.dz-sec__h h3{margin:0;font:600 20px/26px var(--font)}
+.dz-c{background:var(--card);border-radius:var(--r-2xl);padding:16px;margin:0 0 12px}
+.dz-c__h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px} .dz-c__h h4{margin:0;font:600 16px/22px var(--font);display:flex;align-items:center;gap:6px} .dz-c__h h4 .ic{width:20px;height:20px;color:var(--text-accent)}
+.dz-time{font:400 14px/20px var(--font);color:var(--text-secondary);flex:none}
+.dz-big{display:flex;align-items:baseline;gap:6px;margin:4px 0 8px} .dz-big b{font:600 32px/36px var(--font);letter-spacing:-.7px} .dz-big span{font:400 16px/24px var(--font);color:var(--text-secondary)}
+.dz-trend{margin:0 0 12px} .dz-trend::before{display:none} .dz-trend .ic{width:16px;height:16px;margin-right:4px}
+.dz-spark{display:block;width:100%;height:56px;margin-top:4px} .dz-spark__l{display:flex;justify-content:space-between;font:400 12px/16px var(--font);color:var(--text-secondary);margin:2px 0 12px}
+.dz-none{margin:0 0 12px;color:var(--text-secondary);font:400 14px/20px var(--font)}
+.dz-add{display:block;width:100%;min-height:48px;border:0;border-radius:var(--r-l);background:var(--accent-soft);color:var(--text-accent);font:600 14px/18px var(--font);cursor:pointer}
+.dz-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--surface-2)} .dz-item:first-of-type{border-top:0}
+.dz-item__t{flex:1;font:400 14px/20px var(--font);min-width:0;overflow-wrap:anywhere} .dz-del{flex:none;width:44px;height:44px;margin:-10px -8px -10px 0;border:0;background:none;color:var(--text-secondary);display:grid;place-items:center;cursor:pointer}
+.dz-hday{background:var(--card);border-radius:var(--r-2xl);padding:12px 16px;margin:0 0 12px} .dz-hday h4{margin:0 0 4px;font:600 14px/20px var(--font);color:var(--text-secondary)}
+.dz-smiles{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.dz-smile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;padding:4px 0;border:0;background:none;color:var(--text-secondary);cursor:pointer;font:inherit}
+.dz-smile__f{width:56px;height:56px;border-radius:50%;border:2px solid var(--surface-3);display:grid;place-items:center} .dz-smile__f .ic{width:28px;height:28px}
+.dz-smile__t{font:400 12px/16px var(--font);text-align:center;min-height:32px} .dz-smile__at{font:400 12px/16px var(--font);color:var(--text-accent-2)}
+.dz-smile.is-on{color:var(--text-accent-2)} .dz-smile.is-on .dz-smile__f{border-color:var(--accent-2);background:color-mix(in srgb,var(--accent-2) 12%,transparent)}
+.dz-week{margin:8px 0 0;font:400 14px/20px var(--font);color:var(--text-secondary)}
+.dz-form{max-width:520px;width:100%;max-height:92vh;overflow:auto} .dz-form__t{margin:0 0 12px;font:600 20px/26px var(--font)} .dz-sub{margin:16px 0 8px;font:600 14px/20px var(--font);color:var(--text-secondary)}
+.dz-numrow{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:12px 0 4px} .dz-numrow span{font:400 16px/24px var(--font);color:var(--text-secondary)}
+.dz-num{width:9ch;text-align:center;font:600 32px/36px var(--font);border:0;border-bottom:2px solid var(--surface-3);background:none;color:var(--text-primary);padding:4px 0;outline:none} .dz-num:focus,.dz-num.is-bad{border-color:var(--accent)} .dz-num.is-bad{border-color:var(--negative)}
+.dz-err{min-height:20px;margin:6px 0;color:var(--text-negative);font:400 14px/20px var(--font);text-align:center}
+.dz-lab{display:block;margin:12px 0 4px;font:600 14px/20px var(--font);color:var(--text-secondary)}
+.dz-when,.dz-field{width:100%;min-height:44px;padding:0 12px;border:0;border-radius:var(--r-l);background:var(--surface-1);color:var(--text-primary);font:400 16px/24px var(--font);box-sizing:border-box;margin:4px 0}
+.dz-save{width:100%;margin-top:8px} .dz-save:disabled{opacity:.5}
+.dz-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 4px}
+.dz-tile{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;color:var(--text-primary);padding:0 0 4px;cursor:pointer;font:inherit;min-height:44px}
+.dz-tile__r{position:relative;width:72px;height:72px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);background:var(--card);display:grid;place-items:center}
+.dz-tile__t{font:400 12px/16px var(--font);text-align:center;min-height:32px}
+.dz-tile.is-on .dz-tile__r{border-width:3px;background:var(--accent-soft)} .dz-tile.is-okay.is-on .dz-tile__r{border-color:var(--positive);background:var(--positive-soft);color:var(--text-positive)}
+.dz-tile:focus-visible .dz-tile__r{outline:2px solid var(--accent);outline-offset:2px}
+.dz-chips{display:flex;flex-wrap:wrap;gap:8px}
+.dz-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1.5px solid var(--accent);border-radius:var(--r-pill);background:transparent;color:var(--text-accent);font:400 14px/20px var(--font);cursor:pointer}
+.dz-chip.is-on{background:var(--accent);color:#fff} .dz-chip .ic{width:20px;height:20px;flex:none}
+.dz-how{display:inline-flex;align-items:center;min-height:44px;margin:-6px 0 6px;padding:0;border:0;background:none;color:var(--text-accent);font:600 14px/20px var(--font);cursor:pointer}
+.dz-ins{background:var(--surface-1);border-radius:var(--r-2xl);padding:16px;margin:0 0 12px}
+.dz-ins__h{display:flex;justify-content:space-between;align-items:center;font:400 12px/16px var(--font);letter-spacing:.4px;color:var(--text-secondary)} .dz-ins__x{width:44px;height:44px;margin:-14px -14px -14px 0;border:0;background:none;color:var(--text-secondary);display:grid;place-items:center;cursor:pointer}
+.dz-ins__b{display:flex;gap:12px;align-items:flex-start;margin:8px 0 12px} .dz-ins__b p{margin:0;font:600 16px/22px var(--font)} .dz-ins__ic{color:var(--accent-2);flex:none} .dz-ins__ic .ic{width:24px;height:24px}
+.dz-pill{min-height:44px;padding:0 18px;border:0;border-radius:var(--r-pill);background:var(--accent);color:#fff;font:600 14px/18px var(--font);cursor:pointer}
+.dz-slide{text-align:center;padding:24px 0 0} .dz-slide__i{width:200px;height:200px;margin:0 auto 20px;border-radius:50%;background:var(--surface-1);display:grid;place-items:center} .dz-slide h3{margin:0 0 8px;font:600 28px/34px var(--font)} .dz-slide p{margin:0 0 20px;color:var(--text-secondary);font:400 16px/24px var(--font)}
+.dz-dots{display:flex;gap:8px;justify-content:center;margin:0 0 20px} .dz-dots i{width:8px;height:8px;border-radius:50%;background:var(--surface-3)} .dz-dots i.is-on{background:var(--accent)}
+.dz-sec{margin:0 0 24px} .dz-sec__t{margin:0 0 12px;font:600 20px/26px var(--font)}
 </style>
 </head>
 <body>
@@ -1506,6 +1572,101 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 <symbol id="i-add-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" fill="currentColor" stroke="none"/><path d="M12 7v10M7 12h10" stroke="var(--icon-cut,#fff)" stroke-width="2"/></symbol>
 </svg>
 <!--sprite:end-->
+<!--sprite-diary:start-->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-left" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-chevron" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z"/><path d="m14.5 6 3.5 3.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m12 2 1.7 7.3L21 12l-7.3 1.7L12 21l-1.7-7.3L3 12l7.3-2.7L12 2Z"/><path d="m19 2 .6 2.4L22 5l-2.4.6L19 8l-.6-2.4L16 5l2.4-.6L19 2Z"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.1M3.5 12h.1M3.5 18h.1"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 3v18h18"/><path d="m6 14 4-4 4 3 5-7"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/></symbol>
+<symbol id="i-birch" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V3M12 8c-4 0-6-2-7-5 4 0 6 2 7 5ZM12 13c4 0 6-2 7-5-4 0-6 2-7 5Z"/></symbol>
+<symbol id="i-alder" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v18M12 5c-4 0-5 3-2 5M12 9c4 0 5 3 2 5M12 13c-4 0-5 3-2 5"/></symbol>
+<symbol id="i-grass" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 22V3M12 8 7 5M12 12l5-4M12 16 7 13M12 19l5-4"/></symbol>
+<symbol id="i-mugwort" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V4M12 8 6 5M12 12l6-4M12 16 5 13M12 19l6-3"/></symbol>
+<symbol id="i-ambrosia" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 22V3M12 7l-4-3M12 11l5-4M12 15l-5-3M12 19l5-3"/><circle cx="8" cy="4" r="1"/><circle cx="17" cy="7" r="1"/></symbol>
+<symbol id="i-smile" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="15" cy="10" r=".8" fill="currentColor"/><path d="M8 14c1.2 2.4 6.8 2.4 8 0"/></symbol>
+<symbol id="i-sneeze" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 4c3-1 5 1 5 4l1 4 3 2c1 1 0 3-2 3H8l-1 3"/><path d="M16 7l3-2M17 11h4M16 15l3 2"/></symbol>
+<symbol id="i-rhinitis" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 4c3-1 5 1 5 4l1 4 3 2c1 1 0 3-2 3H8l-1 3"/><path d="M13 17c0 1.5-2 2.5-2 4a2 2 0 0 0 4 0c0-1.5-2-2.5-2-4Z"/></symbol>
+<symbol id="i-nose" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 4c2-1 4 1 4 4l1 4 3 2c1 1 0 3-2 3H8l-1 3"/><path d="M9 12h4M10 14h4"/></symbol>
+<symbol id="i-eye-itch" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M2.5 12s3.5-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.5 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2"/><path d="m7 3 1 2-2 1 2 1M12 2l1 2-2 1 2 1M17 3l1 2-2 1"/></symbol>
+<symbol id="i-tearing" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M2.5 10.5s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="10.5" r="2"/><path d="M16 16c0 1.3-1.5 2-1.5 3.2a1.5 1.5 0 0 0 3 0C17.5 18 16 17.3 16 16Z"/></symbol>
+<symbol id="i-eye-red" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M2.5 12s3.5-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.5 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2"/><path d="m5 10 2 1-1 2M17 9l-1 2 2 1"/></symbol>
+<symbol id="i-cough" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 8c0-2 2-3 4-3h2v5c0 2-1 3-3 3H5Z"/><path d="M5 13c1 3 3 4 6 4"/><path d="M15 7c2 1 3 2 3 4M16 12c2 1 3 2 3 4M15 17l2 2"/></symbol>
+<symbol id="i-sore-throat" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 20v-4a7 7 0 1 1 10-1v5M6 20h10"/><path d="m12 12-2 2 2 1-1 2 3-3-2-1 1-1"/></symbol>
+<symbol id="i-fever" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="9" y="3" width="6" height="13" rx="3"/><circle cx="12" cy="18" r="3"/><path d="M12 7v11M17 6h3M17 10h2"/></symbol>
+<symbol id="i-chest-pain" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M7 4 4 8l1 12h14l1-12-3-4M7 4l5 4 5-4"/><path d="m13 9-2 4 2 1-2 4 4-5-2-1 1-3"/></symbol>
+<symbol id="i-smell-loss" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 4c2-1 4 1 4 4l1 4 3 2c1 1 0 3-2 3H8l-1 3"/><path d="m4 4 16 16"/></symbol>
+<symbol id="i-dyspnea" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v7"/><path d="M10 7C8 5 7 7 6 10l-3 7c-1 3 2 4 4 3l5-4V9M14 7c2-2 3 0 4 3l3 7c1 3-2 4-4 3l-5-4"/><path d="M2 7h3M19 7h3"/></symbol>
+<symbol id="i-headache" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 20v-4a7 7 0 1 1 10-1v5M6 20h10"/><path d="m13 5-2 4 2 1-2 3 4-4-2-1 1-3"/></symbol>
+<symbol id="i-nausea" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="9.5" r=".8" fill="currentColor"/><circle cx="15" cy="9.5" r=".8" fill="currentColor"/><path d="M8 15c2 2 6 2 8 0M18 3c0 1.2-1.5 2-1.5 3.2a1.5 1.5 0 0 0 3 0C19.5 5 18 4.2 18 3Z"/></symbol>
+<symbol id="i-photophobia" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 13s3-5 9-5 9 5 9 5-3 5-9 5-9-5-9-5Z"/><path d="M6 8l3 2M9 7l3 2M12 2v2M17 3l-1 2M21 6l-2 1"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 9a5 5 0 0 0 0 6c2 2 4 1 5 4V5c-1 3-3 2-5 4Z"/><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-aura" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="m12 5 1 2-2 1 2 1-1 2"/><circle cx="19" cy="5" r="1"/></symbol>
+<symbol id="i-stomach-pain" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M9 3v5c0 2 2 3 4 2s4 0 4 3v3a5 5 0 0 1-10 0v-2M9 3H6"/><path d="m13 10-2 3 2 1-2 3 4-4-2-1 1-2"/></symbol>
+<symbol id="i-bloating" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M7 4c-3 3-4 7-3 11 1 4 4 6 8 6s7-2 8-6c1-4 0-8-3-11"/><path d="M3 9 1 8M3 14l-2 1M21 9l2-1M21 14l2 1"/></symbol>
+<symbol id="i-heartburn" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v6c0 2 2 2 2 4v5"/><path d="M12 9c-3 2-4 4-3 7 1 3 5 4 7 1 2-3 0-5-1-7l-1 3-2-4Z"/></symbol>
+<symbol id="i-stool-loose" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 4h14v4a7 7 0 0 1-14 0V4Z"/><path d="M8 15v4h8v-4"/><path d="M4 21h16"/><path d="M8 10c0 1-1 1.5-1 2.5M12 10c0 1-1 1.5-1 2.5M16 10c0 1-1 1.5-1 2.5"/></symbol>
+<symbol id="i-constipation" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 4h14v4a7 7 0 0 1-14 0V4Z"/><path d="M8 15v4h8v-4M4 21h16"/><circle cx="17" cy="6" r="3"/><path d="M17 4.5V6l1 1"/></symbol>
+<symbol id="i-itch" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 13c3-5 6-7 10-7s6 3 8 7"/><path d="m8 7-2-3M12 6V2M16 7l2-3M9 11l-2 3M13 10l-2 3M17 11l-2 3"/></symbol>
+<symbol id="i-rash" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8.5"/><circle cx="8" cy="8" r="1"/><circle cx="15" cy="7" r=".7"/><circle cx="11" cy="13" r="1.2"/><circle cx="16" cy="16" r="1"/><circle cx="7" cy="16" r=".7"/></symbol>
+<symbol id="i-skin-dry" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 12 3-3 2 3 3-3 2 3"/></symbol>
+<symbol id="i-skin-red" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="2"/></symbol>
+<symbol id="i-other" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><circle cx="7" cy="12" r=".8" fill="currentColor"/><circle cx="12" cy="12" r=".8" fill="currentColor"/><circle cx="17" cy="12" r=".8" fill="currentColor"/></symbol>
+<symbol id="i-sick-contact" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="6" cy="7" r="3"/><path d="M1 20v-3a5 5 0 0 1 10 0v3"/><circle cx="18" cy="7" r="3"/><path d="M13 20v-3a5 5 0 0 1 10 0v3M11 10h2m2 0h1"/></symbol>
+<symbol id="i-wheeze" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v7M10 7C8 5 7 7 6 10l-3 7c-1 3 2 4 4 3l5-4V9M14 7c2-2 3 0 4 3l3 7c1 3-2 4-4 3l-5-4"/><path d="M7 12c2-2 2 2 4 0M14 12c2-2 2 2 4 0"/></symbol>
+<symbol id="i-chest-tight" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M7 4 4 8l1 12h14l1-12-3-4M7 4l5 4 5-4"/><path d="m3 11 3 2-3 2M21 11l-3 2 3 2"/></symbol>
+<symbol id="i-night-wake" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M18 15A7 7 0 0 1 9 5a7 7 0 1 0 9 10Z"/><path d="M17 7c2-2 4 0 3 2-.5 1-2 1-3 0M17 3v1"/></symbol>
+<symbol id="i-sputum" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3c-3 4-6 7-6 11a6 6 0 0 0 12 0c0-4-3-7-6-11Z"/><path d="M18 8c0 1.5-2 2-2 3.5a2 2 0 0 0 4 0C20 10 18 9.5 18 8Z"/></symbol>
+<symbol id="i-lungs" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v8M10 7C8 5 7 7 6 10l-3 7c-1 3 2 4 4 3l5-4V9M14 7c2-2 3 0 4 3l3 7c1 3-2 4-4 3l-5-4"/></symbol>
+<symbol id="i-trig-pollen-trees" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V11"/><path d="M12 3C8 3 6 6 7 9c-3 1-3 5 1 6h8c4-1 4-5 1-6 1-3-1-6-5-6Z"/><circle cx="4" cy="5" r=".8" fill="currentColor"/><circle cx="20" cy="4" r=".8" fill="currentColor"/><circle cx="19" cy="17" r=".8" fill="currentColor"/></symbol>
+<symbol id="i-trig-pollen-grass" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 21V5M12 13 6 8M12 16l6-7M12 10 9 4M4 19l2-2M19 20l1-2"/></symbol>
+<symbol id="i-trig-dust" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 15c-2-3 1-6 4-5 1-5 8-5 9 0 4-1 6 4 3 6H6Z"/><circle cx="4" cy="5" r=".8" fill="currentColor"/><circle cx="19" cy="4" r=".8" fill="currentColor"/><circle cx="20" cy="20" r=".8" fill="currentColor"/><circle cx="3" cy="20" r=".8" fill="currentColor"/></symbol>
+<symbol id="i-trig-animals" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 10 3 4l5 3a9 9 0 0 1 8 0l5-3-1 6c1 5-3 9-8 9s-9-4-8-9Z"/><path d="M9 12h.01M15 12h.01M9 16c2 1 4 1 6 0"/></symbol>
+<symbol id="i-trig-cold" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9 5l3 2 3-2M9 19l3-2 3 2M5 11l-.5-3 3 .5M19 13l.5 3-3-.5"/></symbol>
+<symbol id="i-trig-hot" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></symbol>
+<symbol id="i-trig-air" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 12c-2-3 1-6 4-5 1-4 7-4 8 0 4-1 6 4 3 6H6Z"/><path d="M5 17c2-2 4 2 6 0s4 2 7 0M6 20c2-2 4 2 6 0s4 2 6 0"/></symbol>
+<symbol id="i-trig-smoke" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6 20c-3-3 3-4 0-7s3-4 0-7M12 20c-3-3 3-4 0-7s3-4 0-7M18 20c-3-3 3-4 0-7s3-4 0-7"/></symbol>
+<symbol id="i-trig-cigarette" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="3" y="13" width="16" height="4" rx="1"/><path d="M7 13v4M16 10c-2-2 2-3 0-5M20 12c-2-2 2-3 0-5"/></symbol>
+<symbol id="i-trig-hookah" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M8 9h8l-1 5H9L8 9ZM10 14v5h4v-5M8 19h8M12 9V5h5c2 0 2-2 1-3"/></symbol>
+<symbol id="i-trig-vape" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="7" y="8" width="7" height="13" rx="2"/><path d="M9 8V5h3v3M16 7c-2-2 2-3 0-5M20 9c-2-2 2-3 0-5"/></symbol>
+<symbol id="i-trig-stress" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><path d="m12 5-3 4 4 2-3 4 3 4"/></symbol>
+<symbol id="i-trig-exercise" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 9v6M6 7v10M6 12h12M18 7v10M21 9v6"/></symbol>
+<symbol id="i-trig-infection" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 4h14v11H5Z"/><path d="M8 7c2 2-2 3 0 5M15 7c0 2-2 3-1 5M12 16c0 1-1.5 2-1.5 3a1.5 1.5 0 0 0 3 0c0-1-1.5-2-1.5-3Z"/></symbol>
+<symbol id="i-trig-food" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 3v7M3 3v4c0 2 4 2 4 0V3M5 10v11M15 3v18M15 3c4 2 4 7 0 8"/></symbol>
+<symbol id="i-trig-sleep" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M19 15A7 7 0 0 1 9 5a7 7 0 1 0 10 10Z"/><circle cx="18" cy="5" r=".8" fill="currentColor"/><circle cx="21" cy="8" r=".8" fill="currentColor"/></symbol>
+<symbol id="i-trig-hunger" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/></symbol>
+<symbol id="i-trig-weather" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 13c-2-3 1-6 4-5 1-4 7-4 8 0 4-1 6 4 3 6H6Z"/><path d="m8 19 0-3m-2 2 2 2 2-2M16 16v5m-2-2 2-2 2 2"/></symbol>
+<symbol id="i-trig-detergent" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M8 5h7v4l2 2v9H5v-9l3-2Z"/><path d="M8 5V3h5M15 6h4v3M18 12l3 1"/></symbol>
+<symbol id="i-trig-meds" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="4" y="7" width="16" height="10" rx="5"/><path d="M12 7v10"/></symbol>
+<symbol id="i-m-glucose" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M7 3c-2 3-4 5-4 8a4 4 0 0 0 8 0c0-3-2-5-4-8Z"/><rect x="14" y="9" width="7" height="10" rx="1.5"/><path d="M16 12h3"/></symbol>
+<symbol id="i-m-pef" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="3" y="9" width="13" height="6" rx="2"/><path d="M16 12h5m-3-3 3 3-3 3"/></symbol>
+<symbol id="i-m-measure" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 14l4-5M4 18h16"/></symbol>
+<symbol id="i-act-bath" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 12h18v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5Z"/><path d="M5 12V7a3 3 0 0 1 6 0M9 3l1-1M16 4l1-2M13 6l1-1"/></symbol>
+<symbol id="i-act-dress" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m7 4-4 3 3 4 2-2v11h8V9l2 2 3-4-4-3-3 2h-4Z"/></symbol>
+<symbol id="i-act-cook" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 10h16l-1 10H5Z"/><path d="M3 10h18M8 7c-2-2 2-3 0-5M12 7c-2-2 2-3 0-5M16 7c-2-2 2-3 0-5"/></symbol>
+<symbol id="i-act-walk" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M7 3c-2 3-1 6 1 9l3 3M16 7c3 2 4 5 3 8l-1 4"/><circle cx="7" cy="3" r="1"/><circle cx="16" cy="7" r="1"/></symbol>
+<symbol id="i-act-stairs" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 20h6v-5h5v-5h7"/><path d="m16 6 5 4-5 4"/></symbol>
+<symbol id="i-act-home" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m4 20 8-8M9 4l3 3-5 5-3-3ZM12 12l4 4M15 15l5-5M16 4l4 4"/></symbol>
+<symbol id="i-zone-green" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-zone-yellow" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 5 19 18H5Z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-zone-red" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="m12 3 9 9-9 9-9-9Z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-trend-up" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+<symbol id="i-trend-down" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+<symbol id="i-trend-same" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 9h14M5 15h14"/></symbol>
+<symbol id="i-face-1" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><path d="m7 9 3 1m4 0 3-1M8 17l8-2M8 7l2 2m4 0 2-2"/></symbol>
+<symbol id="i-face-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8 10h.01M16 10h.01M8 16c2-2 6-2 8 0"/></symbol>
+<symbol id="i-face-3" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8 10h.01M16 10h.01M8 15h8"/></symbol>
+<symbol id="i-face-4" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 13c1 5 9 5 10 0"/></symbol>
+<symbol id="i-stool-loose-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 5h14v4a7 7 0 0 1-14 0Z"/><path d="M8 15v4h8v-4M4 21h16"/><path d="M7 12c1 1 2 1 3 0M14 12c1 1 2 1 3 0"/></symbol>
+<symbol id="i-constipation-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 5h14v4a7 7 0 0 1-14 0Z"/><path d="M8 15v4h8v-4M4 21h16"/><path d="M10 9h4"/></symbol>
+<symbol id="i-aura-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="m12 5 1.2 2.4L16 8l-2 1.8.4 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.8 2.7-.6Z"/></symbol>
+</svg>
+<!--sprite-diary:end-->
 
 <header class="app-header">
   <span class="app-title"><svg class="ic" aria-hidden="true"><use href="#i-card"/></svg>Медкнижка</span>
@@ -1875,16 +2036,16 @@ function silhouette(){
 }
 
 // ── Вкладки
-const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["sym","Симптомы"],["dx","Диагнозы"],["anam","Анамнез"]];
+const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["sym","Симптомы"],["dz","Дневники"],["dx","Диагнозы"],["anam","Анамнез"]];
 // Медкарта — один пункт верхнего меню, внутри разделы. Симптомы первыми
 // ── Навигация (ТЗ-011 блоки 2–3): одно меню Медкарты и нижняя панель
-function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["all","Лента"],["doc","Для врача"]]; }
-const CARD=cardTabs(), CARDK=["sym","visit","lab","dyn","all","doc"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
+function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["dz","Дневники"],["visit","Посещения"],["lab","Анализы и исследования"],["dyn","Динамика"],["all","Лента"],["doc","Для врача"]]; }
+const CARD=cardTabs(), CARDK=["sym","dz","visit","lab","dyn","all","doc"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
 // старые значения tab → {page, sub}; нужны ссылкам и карточкам, которые ставили прежние вкладки
 function legacyTab(t){
   if(t==="ill") return {page:"card",sub:"ill"};
   if(t==="instr") return {page:"card",sub:"lab"};   // исследования объединены с анализами
-  if(["sym","visit","lab","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
+  if(["sym","dz","visit","lab","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
   if(t==="card") return {page:"card",sub:"sym"};
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
   if(t==="hp") return {page:"profile",sub:"hp"};
@@ -2892,7 +3053,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 13:40";   // подставляется при публикации
+const BUILD="18.10 14:24";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8293,6 +8454,372 @@ let lastView="";
 // Яндекс.Метрика (если подключена загрузчиком): смена раздела — виртуальный просмотр с названием раздела из фиксированного списка; без вебвизора
 function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins","dms","razb"].includes(t)?t:"other"); }
 function ymTab(){ try{ if(!window.__YM||typeof window.ym!=="function") return; const p=ymPath(tab); if(window.__ymLast===undefined){ window.__ymLast=p; return; } if(p===window.__ymLast) return; window.__ymLast=p; window.ym(window.__YM,"hit",p,{title:"Медкнижка"}); }catch(e){} }
+// ═══════════ Дневники здоровья (ТЗ-032) ═══════════
+// Каталог дневников живёт здесь (сервер знает только форму id). Иконки — спрайт «пиктограммы дневников» (<!--sprite-diary-->).
+function dzIcon(id,cls){ return `<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${id}"/></svg>`; }
+function diaryCatalog(){
+  const S=(n,icon)=>({n,icon});
+  const TN={"pollen-trees":"Пыльца деревьев","pollen-grass":"Пыльца трав",dust:"Пыль",animals:"Животные",cold:"Холодный воздух",food:"Определённая еда",stress:"Стресс",
+    "sick-contact":"Контакт с больным",meds:"Лекарства",sleep:"Недосып",hunger:"Голод",weather:"Погода",detergent:"Моющие средства"};
+  const T=id=>({id,n:TN[id],icon:id==="sick-contact"?"sick-contact":"trig-"+id});
+  const act=(id,title,icon)=>({id,title,group:"Ежедневные активности",hint:"Оценка смайлом",scale:true,icon});
+  return [
+    {id:"allergy",title:"Дневник аллергии",group:"Аллергология",hint:"Симптомы и триггеры",
+      symptoms:[S("Чихание","sneeze"),S("Насморк","rhinitis"),S("Заложенность носа","nose"),S("Зуд в носу и глазах","eye-itch"),S("Слезотечение","tearing"),S("Покраснение глаз","eye-red"),S("Кашель","cough"),S("Высыпания","rash")],
+      triggers:["pollen-trees","pollen-grass","dust","animals","cold","food","stress"].map(T)},
+    {id:"arvi",title:"Симптомы ОРВИ",group:"ОРВИ и COVID-19",hint:"Симптомы",
+      symptoms:[S("Температура выше 37,3°","fever"),S("Кашель","cough"),S("Боль в горле","sore-throat"),S("Боль в груди","chest-pain"),S("Потеря вкуса и обоняния","smell-loss"),S("Затруднение дыхания","dyspnea"),S("Заложенность носа","nose")],
+      triggers:[T("sick-contact")]},
+    {id:"gi",title:"Дневник ЖКТ",group:"Расстройства ЖКТ",hint:"Симптомы и триггеры",
+      symptoms:[S("Боль в животе","stomach-pain"),S("Вздутие","bloating"),S("Тошнота","nausea"),S("Изжога","heartburn"),S("Жидкий стул","stool-loose"),S("Запор","constipation")],
+      triggers:["food","stress","meds"].map(T)},
+    {id:"migraine",title:"Дневник мигрени и головной боли",group:"Неврология",hint:"Симптомы и триггеры",
+      symptoms:[S("Головная боль","headache"),S("Тошнота","nausea"),S("Светобоязнь","photophobia"),S("Звуки раздражают","sound"),S("Аура","aura")],
+      triggers:["sleep","stress","hunger","food","weather"].map(T)},
+    {id:"dermatitis",title:"Дневник дерматита",group:"Кожные заболевания",hint:"Симптомы и триггеры",
+      symptoms:[S("Зуд","itch"),S("Высыпания","rash"),S("Сухость кожи","skin-dry"),S("Покраснение","skin-red")],
+      triggers:["dust","food","stress","detergent"].map(T)},
+    {id:"diabetes",title:"Дневник сахара",group:"Эндокринология",hint:"Глюкоза",
+      measure:{m:"glucose",title:"Глюкоза",unit:"ммоль/л",min:0.5,max:40,dec:1,icon:"m-glucose"}},
+    act("act_bath","Принятие ванны и гигиена","act-bath"),act("act_dress","Надевание одежды","act-dress"),act("act_cook","Приготовление пищи","act-cook"),
+    act("act_walk","Ходьба по дому","act-walk"),act("act_stairs","Подъём по лестнице","act-stairs"),act("act_home","Домашние дела","act-home"),
+  ];
+}
+// каталог → группы для экрана настройки; группы идут в порядке первого появления в каталоге
+function diaryGroups(cat,enabledIds){
+  const on=new Set(enabledIds||[]), out=[], by={};
+  for(const d of cat){
+    if(!by[d.group]){ by[d.group]={group:d.group,diaries:[]}; out.push(by[d.group]); }
+    by[d.group].diaries.push({id:d.id,title:d.title,hint:d.hint,on:on.has(d.id)});
+  }
+  return out;
+}
+// ── чистые функции дневников (ТЗ-032 блоки 3–5, 7): без cur и DATA, «сегодня» параметром ──
+function dzDayOf(iso){ const x=new Date(iso); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); }
+// карточки дневника за день: измерение, симптомы, оценка смайлом; день — по местному времени
+function dayModel(def,entries,symptoms,day){
+  const E=(entries||[]).filter(e=>e.diary===def.id&&dzDayOf(e.occurred_at)===day).sort((a,b)=>String(a.occurred_at).localeCompare(String(b.occurred_at)));
+  const out=[];
+  if(def.measure){ const L=E.filter(e=>e.kind==="measure"&&e.data&&e.data.m===def.measure.m); out.push({card:"measure",empty:!L.length,entries:L,last:L[L.length-1]||null}); }
+  if(def.symptoms){
+    const items=[], by={};
+    for(const r of (symptoms||[])){
+      if(r.diary!==def.id) continue;
+      const at=r.occurred_at||(r.occurred_on+"T12:00:00"); if((r.occurred_at?dzDayOf(r.occurred_at):r.occurred_on)!==day) continue;
+      const key=r.batch||("row"+items.length);
+      if(!by[key]){ by[key]={kind:"batch",batch:r.batch||null,at,names:[],triggers:r.triggers||[],note:r.feeling||""}; items.push(by[key]); }
+      by[key].names.push(r.symptom);
+    }
+    const ord=n=>{ const i=def.symptoms.findIndex(x=>x.n===n); return i<0?99:i; };
+    items.forEach(it=>it.names.sort((a,b)=>ord(a)-ord(b)));   // порядок как в форме, а не как отдала база
+    for(const e of E.filter(e=>e.kind==="ok")) items.push({kind:"ok",id:e.id,at:e.occurred_at});
+    items.sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+    out.push({card:"symptoms",empty:!items.length,items});
+  }
+  if(def.scale){ const L=E.filter(e=>e.kind==="scale"); out.push({card:"scale",empty:!L.length,entries:L,last:L[L.length-1]||null}); }
+  return out;
+}
+// сравнение с предыдущей записью: изменение на 10 % и больше — «ниже/выше», иначе «как раньше»
+function trendOf(prev,cur){
+  if(prev==null||cur==null||!(prev>0)) return null;
+  const r=Math.round((cur-prev)/prev*1000)/1000;
+  return {kind:r<=-0.1?"lower":r>=0.1?"higher":"same",pct:Math.round(Math.abs(r)*100)};
+}
+// ряд для графика: значение последней записи за каждый из days дней, заканчивая today; нет записей — null
+function daySeries(entries,m,days,today){
+  const out=[], base=new Date(today+"T12:00:00");
+  for(let i=days-1;i>=0;i--){
+    const x=new Date(base); x.setDate(x.getDate()-i); const day=dzDayOf(x.toISOString());
+    const L=(entries||[]).filter(e=>e.kind==="measure"&&e.data&&e.data.m===m&&dzDayOf(e.occurred_at)===day).sort((a,b)=>String(a.occurred_at).localeCompare(String(b.occurred_at)));
+    out.push({day,v:L.length?L[L.length-1].data.v:null});
+  }
+  return out;
+}
+// ввод измерения: запятая и точка, диапазон из каталога
+function dzMeasureCheck(def,text){
+  const t=String(text==null?"":text).trim().replace(",","."), v=Number(t);
+  const num=x=>String(x).replace(".",",");
+  if(!/^\d+(\.\d+)?$/.test(t)||!isFinite(v)||v<def.min||v>def.max)
+    return {ok:false,error:`Проверьте число: ${def.title.toLowerCase()} обычно от ${num(def.min)} до ${num(def.max)} ${def.unit}`};
+  const k=Math.pow(10,def.dec||0); return {ok:true,v:Math.round(v*k)/k};
+}
+// «Всё в порядке» исключает симптомы, симптом снимает «Всё в порядке»
+function toggleSymptom(selected,id){
+  const s=selected||[];
+  if(id==="ok") return s.includes("ok")?[]:["ok"];
+  const base=s.filter(x=>x!=="ok");
+  return base.includes(id)?base.filter(x=>x!==id):[...base,id];
+}
+// отправка формы симптомов: по строке журнала на симптом, общие дневник, триггеры, время, код отправки и заметка
+function dzSymptomPayloads(o){
+  return o.names.map(n=>String(n).replace(/^Другое:\s*/,"")).filter(Boolean).map(n=>({action:"symptom_add",person:o.person,d:o.day,n,diary:o.diary,
+    triggers:o.triggers||[],at:o.at,batch:o.batch,...(o.note?{f:o.note}:{}),...(o.sys?{sys:o.sys}:{})}));
+}
+function dzSmiles(){ return ["Совсем не справляюсь","Справляюсь с трудом","Нормально справляюсь","Легко справляюсь"]; }
+// оценки активности за 7 дней (сегодня и 6 предыдущих): среднее и ближайшая подпись; меньше двух оценок — подписи нет
+function scaleWeek(entries,today){
+  const base=new Date(today+"T12:00:00"), days=new Set();
+  for(let i=0;i<7;i++){ const x=new Date(base); x.setDate(x.getDate()-i); days.add(dzDayOf(x.toISOString())); }
+  const V=(entries||[]).filter(e=>e.kind==="scale"&&e.data&&days.has(dzDayOf(e.occurred_at))).map(e=>e.data.v);
+  if(!V.length) return {avg:null,n:0,label:null};
+  const avg=Math.round(V.reduce((a,b)=>a+b,0)/V.length*10)/10;
+  return {avg,n:V.length,label:V.length<2?null:dzSmiles()[Math.min(3,Math.max(0,Math.round(avg)))]};
+}
+
+const DZ={ok:{},rows:{},busy:null,err:false,view:"day",draft:null,day:null,data:{},dataBusy:null,dataErr:false,hist:null};   // rows[человек] = включённые дневники из базы
+function dzEnabled(p){ return (DZ.rows[p]||[]).map(r=>r.diary); }
+function dzLoad(force){
+  if(!window.__MK_KEY||DZ.busy===cur||(DZ.ok[cur]&&!force)) return;
+  const p=cur; DZ.busy=p; DZ.err=false;
+  mkApi("diary_list",{person:p}).then(j=>{ DZ.rows[p]=j.rows||[]; DZ.ok[p]=true; DZ.busy=null; if(tab==="dz"&&cur===p) render(); })
+    .catch(()=>{ DZ.busy=null; DZ.err=true; if(tab==="dz") render(); });
+}
+function dzSettingsHtml(){
+  const cat=diaryCatalog(), groups=diaryGroups(cat,[...DZ.draft]);
+  return `<div class="dz-settings"><h2 class="dz-h1">Настройка дневников</h2>`+groups.map(g=>`<section class="dz-group"><h3 class="dz-group__t">${esc(g.group)}</h3><div class="dz-grid">`+
+    g.diaries.map(d=>`<button type="button" class="dz-card ${d.on?"is-on":"is-off"}" data-dz-pick="${d.id}" aria-pressed="${d.on}">
+      <span class="dz-card__t">${esc(d.title)}</span><span class="dz-card__h">${d.on?"Включён":esc(d.hint)}</span>
+      <span class="dz-card__pv"><i></i><i></i><i></i></span>
+      <span class="dz-card__sel" aria-hidden="true">${d.on?dzIcon("check"):""}</span></button>`).join("")+`</div></section>`).join("")+
+    `<div class="dz-bar"><button type="button" class="btn btn-secondary" id="dzCancel">Отмена</button><button type="button" class="btn btn-primary" id="dzSave">Сохранить</button></div></div>`;
+}
+async function dzSaveSettings(){
+  const cat=diaryCatalog(), was=new Set(dzEnabled(cur)), p=cur, btn=document.getElementById("dzSave"); if(btn){ btn.disabled=true; btn.textContent="Сохраняем…"; }
+  try{
+    await Promise.all(cat.map((d,i)=>{ const now=DZ.draft.has(d.id), had=was.has(d.id); return now===had?null:mkApi("diary_set",{person:p,diary:d.id,on:now,pos:i}); }).filter(Boolean));
+    const j=await mkApi("diary_list",{person:p}); DZ.rows[p]=j.rows||[]; DZ.ok[p]=true;
+    DZ.view="day"; DZ.draft=null; render(); window.scrollTo(0,0); toast("Сохранено");
+    if(!was.size&&dzEnabled(p).length&&!dzIntroSeen(p)) setTimeout(dzIntro,400);
+  }catch(e){ if(btn){ btn.disabled=false; btn.textContent="Сохранить"; } toast("Не получилось сохранить. Попробуйте ещё раз"); }
+}
+function dzTab(m){
+  if(!window.__MK_KEY){ m.innerHTML=`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Дневники доступны после входа по коду доступа.</p></div>`; return; }
+  dzLoad();
+  if(!DZ.ok[cur]){
+    m.innerHTML=DZ.err?`<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить дневники.</p><button class="btn btn-primary" id="dzRetry" type="button">Повторить</button></div>`
+      :`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем…</p></div>`;
+    const r=document.getElementById("dzRetry"); if(r) r.onclick=()=>{ DZ.err=false; dzLoad(true); render(); };
+    return;
+  }
+  if(DZ.view==="settings"&&DZ.draft){
+    m.innerHTML=dzSettingsHtml();
+    m.querySelectorAll("[data-dz-pick]").forEach(b=>b.onclick=()=>{ const id=b.dataset.dzPick; DZ.draft.has(id)?DZ.draft.delete(id):DZ.draft.add(id);
+      const on=DZ.draft.has(id), d=diaryCatalog().find(x=>x.id===id);
+      b.classList.toggle("is-on",on); b.classList.toggle("is-off",!on); b.setAttribute("aria-pressed",on);
+      b.querySelector(".dz-card__h").textContent=on?"Включён":d.hint; b.querySelector(".dz-card__sel").innerHTML=on?dzIcon("check"):""; });
+    document.getElementById("dzCancel").onclick=()=>{ DZ.view="day"; DZ.draft=null; render(); window.scrollTo(0,0); };
+    document.getElementById("dzSave").onclick=dzSaveSettings;
+    return;
+  }
+  const on=dzEnabled(cur);
+  const openSet=()=>{ DZ.draft=new Set(dzEnabled(cur)); DZ.view="settings"; render(); window.scrollTo(0,0); };
+  if(!on.length){
+    m.innerHTML=`<div class="dz-empty"><span class="dz-empty__ic">${dzIcon("list","ic--32")}</span><h3>Выберите дневники, которые хотите вести</h3>
+      <p class="muted">Симптомы, измерения и оценки за день — в одном месте, чтобы показать врачу.</p><button class="btn btn-primary btn-lg" id="dzPick" type="button">Выбрать</button></div>`;
+    document.getElementById("dzPick").onclick=openSet; return;
+  }
+  dzLoadData();
+  m.innerHTML=dzDayHtml(on);
+  const ns=document.getElementById("dzSet"); if(ns) ns.onclick=openSet;
+  dzDayBind(m);
+}
+// ── экран дневника на день (блок 3), измерения (4), симптомы (5), смайлы (7) ──
+function dzLoadData(force){
+  if(!window.__MK_KEY) return; const p=cur;
+  if(DZ.dataBusy===p||(DZ.data[p]&&!force)) return; DZ.dataBusy=p; DZ.dataErr=false;
+  Promise.all([mkApi("diary_entry_list",{person:p}),mkApi("symptoms_list",{person:p})]).then(([a,b])=>{
+    DZ.data[p]={entries:a.rows||[],sym:(b.rows||[]).filter(r=>r.diary)}; DZ.dataBusy=null; if(tab==="dz"&&cur===p) render();
+  }).catch(()=>{ DZ.dataBusy=null; DZ.dataErr=true; if(tab==="dz") render(); });
+}
+const dzHM=iso=>{ const x=new Date(iso); return String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0"); };
+const dzNum=(v,dec)=>Number(v).toFixed(dec||0).replace(".",",");
+function dzDateText(day,today){ const [y,m,d]=day.split("-"); return `${+d} ${MONTHS[+m-1]}${y!==today.slice(0,4)?" "+y:""}`; }
+function dzShift(day,n){ const x=new Date(day+"T12:00:00"); x.setDate(x.getDate()+n); return dzDayOf(x.toISOString()); }
+// когда писать: сегодня — сейчас, прошлый день — 12:00; значение для поля datetime-local
+function dzWhenDefault(day,today){ if(day===today){ const x=new Date(); return today+"T"+dzHM(x.toISOString()); } return day+"T12:00"; }
+function dzTrigName(def,id){ const t=(def.triggers||[]).find(x=>x.id===id); return t?t.n:id; }
+function dzSparkHtml(series){
+  const pts=series.map((s,i)=>({i,v:s.v})).filter(s=>s.v!=null); if(!pts.length) return "";
+  const W=280,H=56,pad=6, vs=pts.map(p=>p.v), lo=Math.min(...vs), hi=Math.max(...vs), span=(hi-lo)||1, n=series.length-1;
+  const X=i=>pad+(W-2*pad)*i/n, Y=v=>H-pad-(H-2*pad)*(v-lo)/span;
+  let runs=[], cur2=[]; series.forEach((s,i)=>{ if(s.v==null){ if(cur2.length) runs.push(cur2); cur2=[]; } else cur2.push(X(i).toFixed(1)+","+Y(s.v).toFixed(1)); }); if(cur2.length) runs.push(cur2);
+  return `<svg class="dz-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="График за 14 дней">`+
+    runs.filter(r=>r.length>1).map(r=>`<polyline points="${r.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`).join("")+
+    pts.map(p=>`<circle cx="${X(p.i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3" fill="var(--accent)"/>`).join("")+`</svg><div class="dz-spark__l"><span>14 дн. назад</span><span>сегодня</span></div>`;
+}
+function dzTrendHtml(t){
+  if(!t) return "";
+  const map={lower:["status-warn","trend-down",`Ниже предыдущего на ${t.pct} %`],higher:["status-info","trend-up",`Выше предыдущего на ${t.pct} %`],same:["status-none","trend-same","Как раньше"]}[t.kind];
+  return `<span class="status ${map[0]} dz-trend">${dzIcon(map[1])}${map[2]}</span>`;
+}
+// ── подсказки по записям (блок 8): правила, без модели; записи никуда не уходят ──
+function dzDaysBetween(a,b){ return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5); }
+// П2: триггер, который отмечали в большинстве дней с одним и тем же симптомом; П3: давно нет записей. П1 (ПСВ) — итерация 2
+function insightFor(def,entries,symptoms,today){
+  const S=(symptoms||[]).filter(r=>r.diary===def.id), E=(entries||[]).filter(e=>e.diary===def.id);
+  const dayOfRow=r=>r.occurred_at?dzDayOf(r.occurred_at):r.occurred_on;
+  const days=new Set([...S.map(dayOfRow),...E.map(e=>dzDayOf(e.occurred_at))]);
+  if(def.symptoms&&days.size>=14){
+    const by={};
+    for(const r of S){ const d=dayOfRow(r), o=by[r.symptom]||(by[r.symptom]={days:new Set(),trig:{}}); o.days.add(d); for(const t of (r.triggers||[])) (o.trig[t]=o.trig[t]||new Set()).add(d); }
+    let best=null;
+    for(const [sym,o] of Object.entries(by)){ const n=o.days.size;
+      for(const [t,set] of Object.entries(o.trig)){ const k=set.size;
+        if(n>=3&&k>=3&&k/n>=0.6&&(!best||k/n>best.k/best.n||(k/n===best.k/best.n&&k>best.k))) best={sym,t,k,n}; } }
+    if(best) return {id:"П2",text:`«${dzTrigName(def,best.t)}» отмечена в ${best.k} из ${best.n} дней с симптомом «${best.sym}». Это совпадение, а не причина — обсудите с врачом`};
+  }
+  if(days.size){ const last=[...days].sort().pop(); if(dzDaysBetween(last,today)>7) return {id:"П3",text:"Вы давно не записывали. Записи за неделю помогают увидеть картину"}; }
+  return null;
+}
+// крестик скрывает подсказку на 7 дней на этом устройстве
+function insightHidden(hidden,key,today){ const d=hidden&&hidden[key]; return !!d&&dzDaysBetween(d,today)<7; }
+function dzHideLoad(){ try{ return JSON.parse(localStorage.getItem("mk_dz_hide")||"{}")||{}; }catch(e){ return {}; } }
+function dzHideSave(h){ try{ localStorage.setItem("mk_dz_hide",JSON.stringify(h)); }catch(e){} }
+function dzIntroSeen(p){ try{ return !!localStorage.getItem("mk_dz_intro|"+p); }catch(e){ return true; } }
+function dzIntroMark(p){ try{ localStorage.setItem("mk_dz_intro|"+p,"1"); }catch(e){} }
+function dzInsightHtml(def,E,Y,today){
+  const ins=insightFor(def,E,Y,today), key=ins?`${cur}|${def.id}|${ins.id}`:"";
+  if(!ins||insightHidden(dzHideLoad(),key,today)) return `<button type="button" class="dz-how" data-dz-how="1">Как это работает?</button>`;
+  return `<div class="dz-ins"><div class="dz-ins__h"><span>ПОДСКАЗКИ ПО ЗАПИСЯМ</span><button type="button" class="dz-ins__x" data-dz-hide="${esc(key)}" aria-label="Скрыть подсказку на 7 дней">${dzIcon("close","ic--20")}</button></div>
+    <div class="dz-ins__b"><span class="dz-ins__ic">${dzIcon("spark")}</span><p>${esc(ins.text)}</p></div><button type="button" class="dz-pill" data-dz-how="1">Как это работает?</button></div>`;
+}
+// два слайда «Что это такое / Как это работает»; «Сделать запись» открывает форму первой карточки
+function dzIntro(){
+  const A=`<svg viewBox="0 0 120 120" width="120" height="120" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="24" width="64" height="62" rx="9" fill="var(--accent-soft)"/><path d="M14 44h64M32 16v14M60 16v14"/><circle cx="46" cy="62" r="5" stroke="var(--accent-2)"/><path d="M78 70a22 22 0 1 1 22 22V70Z" fill="var(--accent-soft)"/></svg>`;
+  const B=`<svg viewBox="0 0 120 120" width="120" height="120" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="24" y="14" width="64" height="86" rx="9" fill="var(--accent-soft)"/><path d="M38 40h36M38 54h36M38 68h24"/><path d="m70 98 24-24 8 8-24 24-11 3Z" stroke="var(--accent-2)"/></svg>`;
+  const S=[{i:A,t:"Что это такое?",x:"Подсказки по записям помогают лучше понять своё самочувствие: мы ищем закономерности в ваших записях",b:"Хорошо"},
+    {i:B,t:"Как это работает?",x:"Ведите дневник как можно чаще и получайте подсказки. Это не диагноз и не замена врача",b:"Сделать запись"}];
+  let n=0; const box=dzModalOpen("");
+  const draw=()=>{ const s=S[n]; box.innerHTML=`<button class="mclose" data-close="1" aria-label="Закрыть">${dzIcon("close")}</button><div class="dz-slide"><div class="dz-slide__i">${s.i}</div><h3>${s.t}</h3><p>${s.x}</p>
+    <div class="dz-dots"><i class="${n===0?"is-on":""}"></i><i class="${n===1?"is-on":""}"></i></div><button type="button" class="btn btn-primary btn-lg dz-save" id="dzSlideOk">${s.b}</button></div>`;
+    box.querySelector("#dzSlideOk").onclick=()=>{ if(n===0){ n=1; draw(); return; } closeModal(); dzIntroMark(cur);
+      const today=localDay(), on=dzEnabled(cur), def=diaryCatalog().find(d=>on.includes(d.id)&&(d.measure||d.symptoms));
+      if(def) (def.measure?dzMeasureForm:dzSymptomForm)(def,DZ.day&&DZ.day<=today?DZ.day:today,today); }; };
+  draw(); dzIntroMark(cur);
+}
+function dzCardHtml(def,c,E,day,today){
+  if(c.card==="measure"){
+    const M=def.measure, all=(E||[]).filter(e=>e.diary===def.id&&e.kind==="measure"&&e.data&&e.data.m===M.m).sort((a,b)=>String(a.occurred_at).localeCompare(String(b.occurred_at)));
+    let body="";
+    if(c.last){
+      const i=all.findIndex(e=>e.id===c.last.id), prev=i>0?all[i-1].data.v:null;
+      body=`<div class="dz-big"><b>${dzNum(c.last.data.v,M.dec)}</b><span>${esc(M.unit)}</span></div>${dzTrendHtml(trendOf(prev,c.last.data.v))}`+dzSparkHtml(daySeries(E.filter(e=>e.diary===def.id),M.m,14,today));
+    } else body=`<p class="dz-none">За этот день записей нет</p>`;
+    return `<div class="dz-c"><div class="dz-c__h"><h4>${dzIcon(M.icon)}${esc(M.title)}</h4>${c.last?`<span class="dz-time">${day===today?"Сегодня":dzDateText(day,today)} в ${dzHM(c.last.occurred_at)}</span>`:""}</div>${body}
+      <button type="button" class="dz-add" data-dz-meas="${def.id}">＋ Добавить измерение</button></div>`;
+  }
+  if(c.card==="symptoms"){
+    const lines=c.items.map(it=>{
+      const del=it.kind==="ok"?`data-dz-delok="${it.id}"`:`data-dz-delb="${esc(it.batch||"")}"`;
+      const txt=it.kind==="ok"?"Всё в порядке":esc(it.names.join(", "))+(it.triggers.length?` · Триггеры: ${esc(it.triggers.map(t=>dzTrigName(def,t)).join(", "))}`:"")+(it.note?` · ${esc(it.note)}`:"");
+      return `<div class="dz-item"><span class="dz-time">${dzHM(it.at)}</span><span class="dz-item__t">${txt}</span>${it.kind==="ok"||it.batch?`<button type="button" class="dz-del" ${del} aria-label="Удалить запись">${dzIcon("trash","ic--20")}</button>`:""}</div>`;
+    }).join("");
+    return `<div class="dz-c"><div class="dz-c__h"><h4>Симптомы</h4></div>${lines||`<p class="dz-none">За этот день записей нет</p>`}
+      <button type="button" class="dz-add" data-dz-sym="${def.id}">＋ Добавить симптомы</button></div>`;
+  }
+  if(c.card==="scale"){
+    const sel=c.last?c.last.data.v:-1, wk=scaleWeek((E||[]).filter(e=>e.diary===def.id),today), L=dzSmiles();
+    return `<div class="dz-c"><div class="dz-smiles">`+L.map((t,v)=>`<button type="button" class="dz-smile${v===sel?" is-on":""}" data-dz-sc="${def.id}|${v}" aria-pressed="${v===sel}">
+      <span class="dz-smile__f">${dzIcon("face-"+(v+1))}</span><span class="dz-smile__t">${t}</span>${v===sel?`<span class="dz-smile__at">в ${dzHM(c.last.occurred_at)}</span>`:""}</button>`).join("")+`</div>`+
+      (wk.label?`<p class="dz-week">За 7 дней в среднем: ${wk.label}</p>`:"")+`</div>`;
+  }
+  return "";
+}
+function dzDayHtml(on){
+  const p=cur, D=DZ.data[p], today=localDay(), day=DZ.day&&DZ.day<=today?DZ.day:today;
+  if(DZ.dataErr&&!D) return `<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить записи.</p><button class="btn btn-primary" id="dzRetry2" type="button">Повторить</button></div>`;
+  if(!D) return `<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем записи…</p></div>`;
+  const cat=diaryCatalog(), defs=on.map(id=>cat.find(d=>d.id===id)).filter(Boolean);
+  if(DZ.hist){ const def=cat.find(d=>d.id===DZ.hist); if(def) return dzHistHtml(def,D,today); DZ.hist=null; }
+  const nav=`<div class="dz-date"><button type="button" class="dz-nav" id="dzPrev" aria-label="Предыдущий день">${dzIcon("left")}</button><b>${dzDateText(day,today)}</b>
+    <button type="button" class="dz-nav" id="dzNext" aria-label="Следующий день"${day>=today?" disabled":""}>${dzIcon("right")}</button></div>`;
+  return `<div class="dz-top"><h2 class="dz-h1">Дневники</h2><button class="btn btn-secondary" id="dzSet" type="button">Настроить</button></div>${nav}`+
+    defs.map(def=>`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="${def.id}"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${dzInsightHtml(def,D.entries,D.sym,today)}`+
+      dayModel(def,D.entries,D.sym,day).map(c=>dzCardHtml(def,c,D.entries,day,today)).join("")+`</section>`).join("");
+}
+// история дневника: 30 дней списком, новые сверху
+function dzHistHtml(def,D,today){
+  let rows="";
+  for(let i=0;i<30;i++){
+    const day=dzShift(today,-i), L=[];
+    for(const c of dayModel(def,D.entries,D.sym,day)){
+      if(c.card==="measure") c.entries.forEach(e=>L.push([e.occurred_at,`${dzNum(e.data.v,def.measure.dec)} ${esc(def.measure.unit)}`]));
+      else if(c.card==="symptoms") c.items.forEach(it=>L.push([it.at,it.kind==="ok"?"Всё в порядке":esc(it.names.join(", "))+(it.triggers.length?` · ${esc(it.triggers.map(t=>dzTrigName(def,t)).join(", "))}`:"")]));
+      else if(c.card==="scale") c.entries.forEach(e=>L.push([e.occurred_at,dzSmiles()[e.data.v]]));
+    }
+    if(L.length) rows+=`<div class="dz-hday"><h4>${dzDateText(day,today)}</h4>`+L.sort((a,b)=>String(a[0]).localeCompare(String(b[0]))).map(([at,t])=>`<div class="dz-item"><span class="dz-time">${dzHM(at)}</span><span class="dz-item__t">${t}</span></div>`).join("")+`</div>`;
+  }
+  return `<div class="dz-top"><button type="button" class="btn btn-secondary" id="dzBack">‹ Назад</button></div><h2 class="dz-h1" style="margin-bottom:12px">${esc(def.title)}</h2>${rows||`<p class="muted">Записей за последние 30 дней нет</p>`}`;
+}
+function dzModalOpen(html){ const mo=document.getElementById("modal"); mo.innerHTML=`<div class="mbox dz-form" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть">${dzIcon("close")}</button>${html}</div>`; mo.classList.add("on"); return mo.querySelector(".dz-form"); }
+async function dzSaveEntry(def,kind,data,atIso){ await mkApi("diary_entry_save",{person:cur,diary:def.id,kind,occurred_at:atIso,data}); }
+function dzMeasureForm(def,day,today){
+  const M=def.measure, box=dzModalOpen(`<h3 class="dz-form__t">${esc(M.title)}</h3>
+    <div class="dz-numrow"><input id="dzV" class="dz-num" inputmode="decimal" autocomplete="off" aria-label="${esc(M.title)}"><span>${esc(M.unit)}</span></div>
+    <p class="dz-err" id="dzErr" role="alert"></p>
+    <label class="dz-lab" for="dzWhen">Когда</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenDefault(day,today)}">
+    <button type="button" class="btn btn-primary btn-lg dz-save" id="dzOk">Сохранить</button>`);
+  const v=box.querySelector("#dzV"), err=box.querySelector("#dzErr"); v.focus();
+  box.querySelector("#dzOk").onclick=async()=>{
+    const r=dzMeasureCheck(M,v.value); if(!r.ok){ err.textContent=r.error; v.classList.add("is-bad"); return; }
+    const at=new Date(box.querySelector("#dzWhen").value); if(isNaN(+at)||+at>Date.now()+60000){ err.textContent="Время не может быть в будущем"; return; }
+    const b=box.querySelector("#dzOk"); b.disabled=true;
+    try{ await dzSaveEntry(def,"measure",{m:M.m,v:r.v},at.toISOString()); closeModal(); dzLoadData(true); toast("Записано"); }
+    catch(e){ b.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
+  };
+}
+function dzSymptomForm(def,day,today){
+  let sel=[], trig=[];
+  const tiles=[{n:"ok",t:"Всё в порядке",icon:"smile"},...def.symptoms.map(s=>({n:s.n,t:s.n,icon:s.icon})),{n:"Другое",t:"Другое",icon:"other"}];
+  const box=dzModalOpen(`<h3 class="dz-form__t">Симптомы</h3><h4 class="dz-sub">Что беспокоит</h4>
+    <div class="dz-tiles">`+tiles.map((t,i)=>`<button type="button" class="dz-tile${t.n==="ok"?" is-okay":""}" data-dzi="${i}" aria-pressed="false"><span class="dz-tile__r">${dzIcon(t.icon,"ic--32")}</span><span class="dz-tile__t">${esc(t.t)}</span></button>`).join("")+`</div>
+    <input id="dzOther" class="dz-field" maxlength="40" placeholder="Что именно" aria-label="Другое" hidden>
+    ${(def.triggers||[]).length?`<h4 class="dz-sub">Триггеры</h4><div class="dz-chips">`+def.triggers.map(t=>`<button type="button" class="dz-chip" data-dzt="${t.id}" aria-pressed="false">${dzIcon(t.icon,"ic--20")}${esc(t.n)}</button>`).join("")+`</div>`:""}
+    <h4 class="dz-sub">Заметка</h4><input id="dzNote" class="dz-field" maxlength="200" placeholder="Например, после прогулки">
+    <label class="dz-lab" for="dzWhen">Когда</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenDefault(day,today)}">
+    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="dzOk" disabled>Записать</button>`);
+  const ok=box.querySelector("#dzOk"), other=box.querySelector("#dzOther");
+  const names=()=>sel.map(n=>n==="Другое"?"Другое: "+other.value.trim():n).filter(n=>n!=="Другое: ");
+  const refresh=()=>{ box.querySelectorAll(".dz-tile").forEach((b,i)=>{ const on=sel.includes(tiles[i].n); b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); });
+    other.hidden=!sel.includes("Другое"); ok.disabled=!names().length; };
+  box.querySelectorAll(".dz-tile").forEach((b,i)=>b.onclick=()=>{ sel=toggleSymptom(sel,tiles[i].n); refresh(); if(sel.includes("Другое")) other.focus(); });
+  box.querySelectorAll(".dz-chip").forEach(b=>b.onclick=()=>{ const id=b.dataset.dzt; trig=trig.includes(id)?trig.filter(x=>x!==id):[...trig,id]; b.classList.toggle("is-on",trig.includes(id)); b.setAttribute("aria-pressed",trig.includes(id)); });
+  other.oninput=refresh;
+  ok.onclick=async()=>{
+    const at=new Date(box.querySelector("#dzWhen").value), err=box.querySelector("#dzErr");
+    if(isNaN(+at)||+at>Date.now()+60000){ err.textContent="Время не может быть в будущем"; return; }
+    ok.disabled=true;
+    try{
+      if(sel.includes("ok")) await dzSaveEntry(def,"ok",{},at.toISOString());
+      else{
+        const batch="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+        const P=dzSymptomPayloads({person:cur,diary:def.id,day:dzDayOf(at.toISOString()),at:at.toISOString(),names:names(),triggers:trig,note:box.querySelector("#dzNote").value.trim(),batch});
+        await Promise.all(P.map(({action,...rest})=>mkApi(action,rest)));
+      }
+      closeModal(); dzLoadData(true); toast("Записано");
+    }catch(e){ ok.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
+  };
+}
+function dzDayBind(m){
+  const today=localDay(), cat=diaryCatalog(), day=()=>DZ.day&&DZ.day<=today?DZ.day:today, def=id=>cat.find(d=>d.id===id);
+  const go=n=>{ DZ.day=dzShift(day(),n); if(DZ.day>today) DZ.day=today; render(); };
+  const r=document.getElementById("dzRetry2"); if(r) r.onclick=()=>{ DZ.dataErr=false; dzLoadData(true); render(); };
+  const pv=document.getElementById("dzPrev"), nx=document.getElementById("dzNext"), bk=document.getElementById("dzBack");
+  if(pv) pv.onclick=()=>go(-1); if(nx) nx.onclick=()=>go(1); if(bk) bk.onclick=()=>{ DZ.hist=null; render(); window.scrollTo(0,0); };
+  m.querySelectorAll("[data-dz-how]").forEach(b=>b.onclick=dzIntro);
+  m.querySelectorAll("[data-dz-hide]").forEach(b=>b.onclick=()=>{ const h=dzHideLoad(); h[b.dataset.dzHide]=today; dzHideSave(h); render(); });
+  m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ DZ.hist=b.dataset.dzHist; render(); window.scrollTo(0,0); });
+  m.querySelectorAll("[data-dz-meas]").forEach(b=>b.onclick=()=>dzMeasureForm(def(b.dataset.dzMeas),day(),today));
+  m.querySelectorAll("[data-dz-sym]").forEach(b=>b.onclick=()=>dzSymptomForm(def(b.dataset.dzSym),day(),today));
+  const del=async(fn)=>{ if(!confirm("Удалить эту запись?")) return; try{ await fn(); dzLoadData(true); toast("Удалено"); }catch(e){ toast("Не получилось удалить. Попробуйте ещё раз"); } };
+  m.querySelectorAll("[data-dz-delb]").forEach(b=>b.onclick=()=>del(()=>mkApi("symptom_batch_delete",{person:cur,batch:b.dataset.dzDelb})));
+  m.querySelectorAll("[data-dz-delok]").forEach(b=>b.onclick=()=>del(()=>mkApi("diary_entry_delete",{id:+b.dataset.dzDelok})));
+  m.querySelectorAll("[data-dz-sc]").forEach(b=>b.onclick=async()=>{
+    const [id,v]=b.dataset.dzSc.split("|"), at=day()===today?new Date():new Date(day()+"T12:00:00");
+    b.disabled=true; try{ await dzSaveEntry(def(id),"scale",{v:+v},at.toISOString()); dzLoadData(true); }catch(e){ b.disabled=false; toast("Не получилось сохранить. Попробуйте ещё раз"); }
+  });
+}
+
 function render(){
   pplLoad(); measLoad(); periodsLoad(); eventsLoad(); medplanLoad();
   Promise.resolve().then(navSync);
@@ -8431,6 +8958,7 @@ function render(){
   }
 
   else if(tab==="doc"){ if(docSt.manual) docTab(m); else wizTab(m); }
+  else if(tab==="dz"){ dzTab(m); }   // ТЗ-032: дневники здоровья
   else if(tab==="cal"){ calTab(m); }
 
   else if(tab==="dyn"){
