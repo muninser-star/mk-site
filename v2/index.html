@@ -483,6 +483,7 @@ main.enter .macchart text{animation:fadeIn .3s var(--ease) .45s both}
   opacity:0;pointer-events:none;transition:opacity .14s var(--ease)}
 .addmenu.on{opacity:1;pointer-events:auto}
 .vt-hero{text-align:center;padding:26px 14px;border-radius:18px;background:linear-gradient(135deg,hsl(215 70% 55% / .35),hsl(300 60% 55% / .3));margin-bottom:14px}.vt-cnt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.vt-cnt>div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column}.vt-cnt b{font-size:22px}.vt-g{font-size:15px;margin:16px 0 4px}.vt-offer{margin:8px 0}.sv__sub{text-align:center;margin:-10px 0 14px}
+.iv-row{margin:14px 0}.iv-l{display:flex;justify-content:space-between;margin-bottom:4px}
 .chip--plus{min-width:44px;font-weight:700}
 .addsheet{background:var(--card);width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));
   box-shadow:var(--shadow-lg);transform:translateY(100%);transition:transform .16s var(--ease)}
@@ -3598,7 +3599,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 23:45";   // подставляется при публикации
+const BUILD="19.10 00:06";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6448,13 +6449,13 @@ function svFinishHtml(sv,A,sex){
   return `${svTop(sv,A,true)}<div class="sv__body"><h2 class="sv__q">Готово. Спасибо!</h2>
     ${flags.length?`<div class="sv__flag" role="alert"><b>${esc(SV_RED_TEXT)}</b><div class="muted" style="margin-top:6px">Вы отметили: ${flags.map(f=>esc(f.text)).join("; ")}</div></div>`:""}
     <p class="muted">Ответы учтены в профиле здоровья. ${take.length?`По ответам можно сдать: ${take.slice(0,3).map(x=>esc(x.name)).join(", ")}${take.length>3?" и другое":""}.`:"По вашим ответам ничего добавлять не нужно."}</p></div>
-    <div class="sv__foot"><button type="button" class="btn btn-secondary" data-sv="results">Мои ответы</button>${take.length?`<button type="button" class="btn btn-secondary" data-sv="take">Что сдать</button>`:""}<button type="button" class="btn btn-primary sv__go" data-sv="close">Закрыть</button></div>`;
+    <div class="sv__foot"><button type="button" class="btn btn-secondary" data-sv="insight">Разобрать</button><button type="button" class="btn btn-secondary" data-sv="results">Мои ответы</button>${take.length?`<button type="button" class="btn btn-secondary" data-sv="take">Что сдать</button>`:""}<button type="button" class="btn btn-primary sv__go" data-sv="close">Закрыть</button></div>`;
 }
 function svTakeHtml(){
   const sex=svSex(SVU.p), A=svGet(SVU.p).answers, take=svAnalysesToTake(A,sex,n=>svLastDone(n,measRows(SVU.p),(DATA[SVU.p]||{}).rec),localDay());
   return `<div class="sv__top"><button type="button" class="sv__ic" data-sv="results-back" aria-label="Назад">←</button><b class="sv__title">Что сдать</b><button type="button" class="sv__ic" data-sv="close" aria-label="Закрыть">✕</button></div>
     <div class="sv__body"><p class="muted">Список составлен по вашим ответам. Назначает анализы врач.</p>
-    ${take.length?take.map(x=>`<div class="sv__take"><b>${esc(x.name)}</b>${indBtn(x.name)}<div class="muted">${esc(x.reason.charAt(0).toUpperCase()+x.reason.slice(1))}</div><div class="muted">${x.last?"Последний раз: "+ru(x.last):"Ещё не сдавали"}</div></div>`).join(""):`<p>По вашим ответам ничего добавлять не нужно.</p>`}</div>`;
+    ${take.length?take.map(x=>`<div class="sv__take"><b>${esc(x.name)}</b>${indBtn(x.name)}<div class="muted">${esc(x.reason.charAt(0).toUpperCase()+x.reason.slice(1))}</div><div class="muted">${x.last?"Последний раз: "+ru(x.last):"Ещё не сдавали"}</div>${svPlannedTag(SVU.p,x.name)}</div>`).join(""):`<p>По вашим ответам ничего добавлять не нужно.</p>`}</div>`;
 }
 function svResultsHtml(){
   const s=svGet(SVU.p), sex=svSex(SVU.p), A=svAnswers(), M=svFilterResults(svResultsModel(A,s.state,sex),SVU.query);
@@ -6474,7 +6475,9 @@ function svCommit(ans){
   if(edit){ SVU.pend[ans.q]={value:ans.skipped?null:ans.value,skipped:!!ans.skipped,survey:SVU.sid,version:sv.version||1}; SVU.view="results"; SVU.qid=null; SVU.edit=false; SVU.initFor=null; svDraw(); return; }
   const before=svGet(p).answers; const A=Object.assign({},before,{[ans.q]:{value:ans.value,skipped:!!ans.skipped}});
   const nq=svNext(sv,A), done=!nq;
-  svSave(p,SVU.sid,[ans],nq?nq.id:null,done); SVU.qid=null; SVU.initFor=null; svDraw();
+  svSave(p,SVU.sid,[ans],nq?nq.id:null,done); SVU.qid=null; SVU.initFor=null;
+  if(done&&SVU.sid==="base"){ svClose(); ivOpen(p,"general",true); return; }   // после базового опроса общий разбор собирается сам (В13)
+  svDraw();
 }
 function svBack(){
   const {sv,q,A}=svCurrent(); const vis=svVisible(sv,A);
@@ -6500,6 +6503,7 @@ function svBind(o){
     if(k==="results"){ SVU.view="results"; SVU.qid=null; SVU.edit=false; return svDraw(); }
     if(k==="results-back"){ SVU.view="results"; return svDraw(); }
     if(k==="take"){ SVU.view="take"; return svDraw(); }
+    if(k==="insight"){ const sid=SVU.sid, pp=SVU.p; svClose(); return ivOpen(pp,sid==="base"?"general":sid); }
     if(k==="cancel"){ if(Object.keys(SVU.pend).length&&!confirm("Выйти без сохранения?")) return; return svClose(); }
     if(k==="update") return svUpdate();
     if(k==="wipe"){ if(!confirm("Удалить все ответы? Это нельзя отменить.")) return; const p=SVU.p; mkApi("survey_reset",{person:p}).then(()=>{ SV[p]={answers:{},state:{},loaded:true,busy:false}; SVU.pend={}; svDraw(); }).catch(()=>svToast("Не удалось удалить")); }
@@ -6581,7 +6585,7 @@ function vitaminCards(rows,answers,today){
     if(pick("vit_which",["single"]).length&&["iron","vitd","b12","folate"].includes(e.id)) take.push("отдельные витамины (какие именно — не указано)");
     for(const id of e.takes||[]) if(pick("vit_bads",[id]).length) take.push(optText("vit_bads",id).toLowerCase());
     const group=state==="old"?3:(state==="fresh"&&vals.some(v=>v.out))?0:uniq.length?1:2;
-    return {id:e.id,name:e.name,state,vals,last,group,idx,
+    return {id:e.id,name:e.name,tests:e.tests,state,vals,last,group,idx,
       text:uniq.length?`Вы отметили: ${uniq.join(", ")}. Такое бывает при разных причинах, в том числе при нехватке ${e.gen}; по симптомам причину определить нельзя.`:"",
       take:take.length?"Принимаете (со слов): "+take.join(", "):""};
   });
@@ -6643,7 +6647,7 @@ function vtDraw(){
   const rows=measRows(p), A=s.answers, cards=vitaminCards(rows,A,today), cnt=vitaminCounters(rows,today), passed=!!(s.state.vitamins&&s.state.vitamins.status==="completed");
   const offer=shouldOfferSurvey({hasAnalyses:cnt.n>0,passed,snoozed:vtGet("snooze",p)},today);
   const list=vitaminChecklist(cards,rows,today), G=["Вне нормы по бланку","Есть связь с вашими ответами","Остальные элементы","Устаревшие анализы"];
-  const card=c=>`<details class="sv__sec"><summary><b>${esc(c.name)}</b> <span class="muted">${c.state==="none"?"Не сдавали":c.state==="old"?"Старше 12 месяцев":c.vals.some(v=>v.out)?"вне нормы по бланку":"в норме"}</span></summary>
+  const card=c=>`<details class="sv__sec"><summary><b>${esc(c.name)}</b> ${c.state==="none"?svStatus("none","Не сдавали"):c.state==="old"?svStatus("none","Старше 12 месяцев"):c.vals.some(v=>v.out)?svStatus("warn","Вне нормы по бланку"):svStatus("ok","В норме")} ${c.tests.map(t=>svPlannedTag(VT.p,t)).filter(Boolean).slice(0,1).join("")}</summary>
     <div><b>Что показывают анализы</b>${c.vals.length?c.vals.map(v=>`<div class="sv__take"><b>${esc(v.name)}</b>${indBtn(v.name)}: <span${c.state==="old"?"":v.out?' style="color:var(--warn)"':""}>${esc(v.v)} ${esc(v.u)}</span> <span class="muted">· ${ru(v.d)}${v.norm?" · норма "+esc(v.norm):""}${v.flag&&c.state!=="old"?" · "+v.flag:""}</span></div>`).join(""):`<div class="muted">Не сдавали</div>`}</div>
     ${c.text?`<div style="margin-top:8px"><b>Что в ваших ответах</b><div>${esc(c.text)}</div></div>`:""}${c.take?`<div style="margin-top:8px">${esc(c.take)}</div>`:""}</details>`;
   let last=-1; const body=cards.map(c=>{ const h=c.group!==last?`<h3 class="vt-g">${G[c.group]}</h3>`:""; last=c.group; return h+card(c); }).join("");
@@ -6653,7 +6657,7 @@ function vtDraw(){
     <div class="row" style="gap:8px;margin:8px 0"><button type="button" class="btn ${passed?"btn-secondary":"btn-primary"}" data-vt="survey">${passed?"Пройти опрос заново":"Пройти опрос о витаминах"}</button></div>
     ${body}
     <h3 class="vt-g">Чекап: какие витамины проверить в первую очередь</h3>
-    ${list.length?list.map(x=>`<div class="sv__take"><b>${esc(x.name)}</b>${indBtn(x.name)}<div class="muted">${esc(x.reason.charAt(0).toUpperCase()+x.reason.slice(1))} · ${x.last?"последний раз "+ru(x.last):"ещё не сдавали"}</div></div>`).join("")+`<button type="button" class="btn btn-secondary" style="margin-top:8px" data-vt="download">Скачать список</button>`:`<div class="muted">Свежие анализы по всем элементам есть — добавлять нечего.</div>`}
+    ${list.length?list.map(x=>`<div class="sv__take"><b>${esc(x.name)}</b>${indBtn(x.name)}<div class="muted">${esc(x.reason.charAt(0).toUpperCase()+x.reason.slice(1))} · ${x.last?"последний раз "+ru(x.last):"ещё не сдавали"}</div>${svPlannedTag(VT.p,x.name)}</div>`).join("")+`<button type="button" class="btn btn-secondary" style="margin-top:8px" data-vt="download">Скачать список</button>`:`<div class="muted">Свежие анализы по всем элементам есть — добавлять нечего.</div>`}
     <p class="muted" style="font-size:13px;margin-top:14px">Список составлен по ответам. Назначает анализы врач. Это не медицинское заключение.</p></div>`;
   vtBind(o);
 }
@@ -6668,6 +6672,97 @@ function vtBind(o){
   }; });
 }
 document.addEventListener("click",e=>{ const t=e.target.closest&&e.target.closest("[data-vtopen]"); if(t&&!document.getElementById("vtov")&&!document.getElementById("svov")){ vtOpen(cur); } });
+
+// анализ уже запланирован (дело в «Плане здоровья»): статус зелёный «Запланировано» (Денис, 19.10.2026)
+function svPlannedFor(soon,name){
+  const keys=[...svKeys(name)].filter(k=>k.length>=4);
+  return (soon||[]).find(x=>{ const t=indKey(x&&x.what||""); return keys.some(k=>t.includes(k)); })||null;
+}
+function svStatus(kind,text){ return `<span class="status status-${kind}">${esc(text)}</span>`; }
+function svPlannedTag(p,name){ const x=svPlannedFor((DATA[p]||{}).soon,name); return x?svStatus("ok","Запланировано"+(x.when?" · "+x.when:x.due?" · до "+ru(x.due):"")):""; }
+// ── Разбор по ответам и анализам (ТЗ-009 блоки 7–8, личная версия): факты для модели, экран ожидания, «Мой разбор» ──
+function ivHash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(16); }
+// Факты — единственное, что уходит в модель (вместе с возрастом и полом): ответы, показатели с нормой и датой, диагнозы и назначения из заключений.
+// ФИО, почты, телефона, даты рождения, названий клиник и врачей здесь нет.
+function ivFacts(answers,sex,rows,diagnoses,meds,today,surveyIds){
+  const facts=[], fmt=d=>String(d||"").split("-").reverse().join(".");
+  let ai=0, mi=0, di=0, ri=0;
+  for(const s of svSurveys()){
+    if(surveyIds&&!surveyIds.includes(s.id)) continue;
+    for(const q of svVisible(s,answers)){ const a=answers&&answers[q.id]; if(!a||a.skipped||a.value==null) continue;
+      const t=svAnswerText(q,a,sex); facts.push({id:"a"+(++ai),text:`Вопрос: ${q.text} Ответ: ${t}`.slice(0,400),label:("ваш ответ: "+t).slice(0,120),q:q.id,v:a.value}); if(ai>=40) break; }
+  }
+  const cut=addMonthsIso(today,-36), by=new Map();
+  for(const r of rows||[]){ if(!r.d||r.d<cut||String(r.v||"")==="") continue; const k=svNorm(r.n); (by.get(k)||by.set(k,[]).get(k)).push(r); }
+  const list=[...by.values()].map(a=>a.sort((x,y)=>y.d<x.d?-1:y.d>x.d?1:0)).map(a=>{ const r=a[0], f=flagByNorm(r.v,r.norm); return {r,prev:a[1]||null,out:f==="ниже"||f==="выше"}; })
+    .sort((a,b)=>Number(b.out)-Number(a.out)||(b.r.d<a.r.d?-1:1)).slice(0,25);
+  for(const x of list){ const r=x.r, nm=String(r.n).split(" — ")[0];
+    const text=`${nm} ${String(r.v).replace(".",",")}${r.u?" "+r.u:""}${r.norm?", норма "+String(r.norm).replace(/\./g,",").replace(/-/g,"–"):""}, ${fmt(r.d)}${x.prev?`; раньше ${String(x.prev.v).replace(".",",")}, ${fmt(x.prev.d)}`:""}`;
+    facts.push({id:"m"+(++mi),text:text.slice(0,400),label:`${nm} ${String(r.v).replace(".",",")}, ${fmt(r.d)}`}); }
+  for(const d of (diagnoses||[]).slice(0,8)) if(d&&d.n) facts.push({id:"d"+(++di),text:("Диагноз из заключения: "+d.n).slice(0,400),label:("диагноз в заключении: "+d.n).slice(0,120)});
+  for(const m of (meds||[]).slice(0,8)) if(m&&m.n) facts.push({id:"r"+(++ri),text:("Назначено в заключениях (принимает ли — неизвестно): "+m.n).slice(0,400),label:("назначено: "+m.n).slice(0,120)});
+  return {facts,hash:ivHash(facts.map(f=>f.text).join("|"))};
+}
+// строки экрана ожидания: проценты берутся из состояния задачи, а не из таймера; незавершённые — 0 %, третья не больше 90 пока идёт запрос
+function loaderModel(task){
+  const labels=["Читаем ответы и анализы","Подбираем анализы для чекапа","Готовим наблюдения и вопросы врачу","Проверяем и сохраняем"], s=task&&task.stage||1, done=!!(task&&task.status==="done");
+  return labels.map((label,i)=>{ const n=i+1; let pct=done?100:n<s?100:n===s?Math.max(0,Math.min(100,task&&task.progress||0)):0; if(n===3&&!done) pct=Math.min(90,pct); return {label,pct}; });
+}
+let IV=null;
+function ivOpen(p,scope,auto){
+  IV={p,scope:scope||"general",state:"loading",task:null,row:null,msg:""}; ivDraw(); svLoad(p);
+  mkApi("insight_get",{person:p,scope:IV.scope}).then(j=>{
+    const r=(j.rows||[])[0]; if(!IV||IV.p!==p) return;
+    if(r&&r.status==="running"){ IV.state="wait"; IV.task={id:r.id,stage:r.stage,progress:r.progress,status:"running"}; ivDraw(); ivPoll(); }
+    else if(r&&r.status==="done"){ IV.state="done"; IV.row=r; ivDraw(); if(auto&&ivStale()) ivStart(); }
+    else if(auto) ivStart(); else { IV.state="none"; ivDraw(); }
+  }).catch(()=>{ if(IV){ IV.state="none"; ivDraw(); } });
+}
+function ivScopeIds(){ return IV.scope==="general"?null:[IV.scope,"base"]; }
+function ivCurrent(){ const p=IV.p, d=DATA[p]||{}, s=svGet(p), sex=svSex(p), F=ivFacts(s.answers,sex,measRows(p),d.diagnoses,d.meds,localDay(),ivScopeIds());
+  const sug=svAnalysesToTake(s.answers,sex,n=>svLastDone(n,measRows(p),d.rec),localDay()).map(x=>x.name); return {...F,age:d.age,sex,suggested:sug}; }
+function ivStale(){ if(!IV||!IV.row) return false; return IV.row.input_hash!==ivCurrent().hash; }
+function ivStart(){
+  const c=ivCurrent(); IV.state="wait"; IV.task={stage:1,progress:0,status:"running"}; IV.msg=""; ivDraw();
+  mkApi("insight_generate",{person:IV.p,scope:IV.scope,age:c.age,sex:c.sex,hash:c.hash,facts:c.facts,suggested:c.suggested}).then(j=>{
+    if(j.empty){ IV.state="empty"; ivDraw(); return; }
+    IV.task.id=j.task_id; ivPoll();
+  }).catch(e=>{ IV.state="error"; IV.msg=String(e.message||"").includes("limit")?"На сегодня лимит разборов исчерпан. Попробуйте завтра.":"Не получилось собрать разбор. Ответы сохранены."; ivDraw(); });
+}
+function ivPoll(){
+  const iv=IV; if(!iv||!iv.task||!iv.task.id) return;
+  clearTimeout(iv.timer);
+  iv.timer=setTimeout(()=>{ if(IV!==iv) return;
+    mkApi("insight_status",{task_id:iv.task.id}).then(j=>{ if(IV!==iv) return; const t=j.task;
+      if(t.status==="running"){ iv.task={id:t.id,stage:t.stage,progress:t.progress,status:"running"}; ivDraw(); ivPoll(); }
+      else if(t.status==="done"){ iv.row={id:t.id,input_hash:t.input_hash,result:t.result,created_at:t.created_at,status:"done"}; iv.state="done"; ivDraw(); }
+      else { iv.state="error"; iv.msg="Не получилось собрать разбор. Ответы сохранены."; ivDraw(); } }).catch(()=>{ if(IV===iv){ ivPoll(); } });
+  },1500);
+}
+function ivClose(){ if(IV) clearTimeout(IV.timer); IV=null; const o=document.getElementById("ivov"); if(o) o.remove(); if(!document.getElementById("svov")&&!document.getElementById("vtov")) document.body.classList.remove("sv-lock"); }
+function ivDraw(){
+  if(!IV) return;
+  let o=document.getElementById("ivov"); if(!o){ o=document.createElement("div"); o.id="ivov"; o.className="sv"; o.setAttribute("role","dialog"); o.setAttribute("aria-modal","true"); document.body.appendChild(o); document.body.classList.add("sv-lock"); }
+  const top=`<div class="sv__top"><span class="sv__ic"></span><b class="sv__title">Мой разбор</b><button type="button" class="sv__ic" data-iv="close" aria-label="Закрыть">✕</button></div>`;
+  const disc=`<p class="muted" style="font-size:13px">Собрано по вашим ответам и документам. Не является медицинским заключением.</p>`;
+  let body="";
+  if(IV.state==="loading") body=`<div class="sv__body"><p class="muted">Загружаем…</p></div>`;
+  else if(IV.state==="none") body=`<div class="sv__body"><p>Разбор покажет, что в ответах и анализах стоит обсудить с врачом. Он не ставит диагнозов.</p>${disc}</div><div class="sv__foot"><button type="button" class="btn btn-primary sv__go" data-iv="start">Собрать разбор</button></div>`;
+  else if(IV.state==="empty") body=`<div class="sv__body"><h2 class="sv__q">Пока не из чего собирать</h2><p class="muted" style="text-align:center">Пройдите опрос или загрузите анализы.</p></div><div class="sv__foot"><button type="button" class="btn btn-primary sv__go" data-iv="close">Понятно</button></div>`;
+  else if(IV.state==="error") body=`<div class="sv__body"><h2 class="sv__q">${esc(IV.msg||"Не получилось собрать разбор. Ответы сохранены.")}</h2></div><div class="sv__foot"><button type="button" class="btn btn-primary sv__go" data-iv="start">Попробовать ещё раз</button></div>`;
+  else if(IV.state==="wait") body=`<div class="sv__body"><h2 class="sv__q">Собираем ваш разбор…</h2>${loaderModel(IV.task).map(r=>`<div class="iv-row"><div class="iv-l"><span>${esc(r.label)}</span><b>${r.pct}%</b></div><div class="sv__bar"><i style="width:${r.pct}%"></i></div></div>`).join("")}<p class="muted" style="text-align:center;font-size:13px">Можно закрыть страницу — разбор достроится сам.</p></div>`;
+  else { const R=IV.row.result||{}, L=R.labels||{}, src=ids=>(ids||[]).map(i=>L[i]).filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join(" ");
+    const flags=[]; svSurveys().forEach(s=>svRedFlags(s,svGet(IV.p).answers,svSex(IV.p)).forEach(f=>flags.push(f.text)));
+    body=`<div class="sv__body">${flags.length?`<div class="sv__flag" role="alert"><b>${esc(SV_RED_TEXT)}</b><div class="muted" style="margin-top:6px">Вы отметили: ${flags.map(esc).join("; ")}</div></div>`:""}
+      ${ivStale()?`<div class="note" style="margin:8px 0">Вы изменили ответы. Обновить разбор? <button type="button" class="btn btn-secondary" data-iv="start" style="margin-left:6px">Обновить разбор</button></div>`:""}
+      <h3 class="vt-g">Что мы заметили</h3>${(R.observations||[]).map(x=>`<div class="sv__take">${esc(x.text)}<div style="margin-top:4px">${src(x.source_ids)}</div></div>`).join("")}
+      ${(R.to_check||[]).length?`<h3 class="vt-g">Что стоит проверить</h3>${R.to_check.map(x=>`<div class="sv__take"><b>${esc(x.text)}</b>${indBtn(x.text)}</div>`).join("")}`:""}
+      <h3 class="vt-g">Что спросить у врача</h3><ol>${(R.ask_doctor||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ol>${disc}</div>
+      <div class="sv__foot"><button type="button" class="btn btn-secondary" data-iv="start">Обновить разбор</button><button type="button" class="btn btn-primary" data-iv="close">Закрыть</button></div>`; }
+  o.innerHTML=top+body;
+  o.querySelectorAll("[data-iv]").forEach(b=>{ b.onclick=()=>{ if(b.dataset.iv==="close") return ivClose(); if(b.dataset.iv==="start") return ivStart(); }; });
+}
+document.addEventListener("click",e=>{ const t=e.target.closest&&e.target.closest("[data-ivopen]"); if(t&&!document.getElementById("ivov")) ivOpen(cur,t.dataset.ivopen); });
 
 // ── Профиль здоровья (ТЗ-009 блоки 4 и 11): плитка на главной, страница «Профиль здоровья», страница органа ──
 let hpOrgan=null;
@@ -6789,7 +6884,7 @@ function svCardHtml(m){
         <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-svgo="base">${baseStarted?"Продолжить опрос":"Пройти опрос"}</button></div></div>`}
     <h3 style="font-size:15px;margin:14px 0 6px">Опросы по органам${L.left?` · осталось пройти ${L.left}`:""}</h3>${L.items.map(row).join("")}
     <div class="muted" style="margin-top:6px;font-size:13px">Опрос заменяет анализы, пока их мало: он закрывает часть профиля и подсказывает, что сдать.</div>
-    ${any?`<div class="row" style="margin-top:10px;gap:8px"><button type="button" class="btn btn-secondary" data-svres="1">Мои ответы</button><button type="button" class="btn btn-secondary" data-svtake="1">Что сдать</button></div>`:""}</div>`;
+    ${any?`<div class="row" style="margin-top:10px;gap:8px"><button type="button" class="btn btn-secondary" data-ivopen="general">Мой разбор</button><button type="button" class="btn btn-secondary" data-svres="1">Мои ответы</button><button type="button" class="btn btn-secondary" data-svtake="1">Что сдать</button></div>`:""}</div>`;
 }
 function hpHtml(d){
   const m=hpModel(d);
