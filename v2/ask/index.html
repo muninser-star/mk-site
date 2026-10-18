@@ -49,6 +49,8 @@ textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px sol
 .err{color:var(--bad);font-size:13.5px}
 .note{font-size:12px;color:var(--muted);margin-top:10px}
 .qa{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.card.fu{margin-left:14px;border-left:3px solid var(--accent)}
+.fu-box{display:flex;gap:8px;align-items:flex-end;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.fu-box textarea{flex:1}.fu-box button{flex:none;padding:10px 16px}
 .past{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 2px 8px}
 .card.closed .body-a{display:none}
 .card.closed .q{cursor:pointer;margin-bottom:0}
@@ -91,8 +93,18 @@ const qs = new URLSearchParams(location.search);
 let person = PEOPLE.some(([k]) => k === qs.get("p")) ? qs.get("p") : "";
 let busy = false, fixOpen = null;
 let hist = [];
-const fromRow = r => ({ id: r.id, q: r.question, person: r.person || "", answer: r.answer || null, no_data: !r.answer,
+let uidN = 0;
+const newUid = () => "u" + (++uidN) + Math.random().toString(36).slice(2, 6);
+const fromRow = r => ({ uid: "h" + r.id, parent: null, id: r.id, q: r.question, person: r.person || "", answer: r.answer || null, no_data: !r.answer,
   sources: r.sources || [], at: r.created_at, flag: r.flag, flag_note: r.flag_note, open: false });
+// уточнения (Денис, 18.10.2026): цепочка идёт сверху вниз — первый вопрос, под ним уточнения; врач получает последние три пары «вопрос — ответ»
+function askChain(hist, hi) {
+  const out = []; let h = hist[hi];
+  while (h) { if (h.answer) out.unshift({ q: h.q, a: h.answer }); h = h.parent ? hist.find(x => x.uid === h.parent) : null; }
+  return out.slice(-3);
+}
+// поле «Уточнить» — только под последним ответом цепочки
+function askIsLast(hist, hi) { const next = hist[hi + 1]; return !(next && next.parent === hist[hi].uid); }
 async function loadHistory() {
   try { const r = await api("ask_history"); hist = (r.rows || []).map(fromRow); paint(); } catch (e) { /* без истории страница работает как раньше */ }
 }
@@ -186,7 +198,10 @@ function card(h, hi) {
        <div class="fixbar">${fixOpen === hi
          ? `<div class="fixform"><input id="fixnote" placeholder="Что не так или чего не хватает (необязательно)"><button class="primary" data-fixgo="${hi}">Отметить</button></div>`
          : `<button data-fix="${hi}">📌 Поправить медкнижку</button>`}</div>`;
-  return `<div class="card${h.open ? "" : " closed"}" data-card="${hi}">
+  const fu = h.open && !h.error && askIsLast(hist, hi)
+    ? `<div class="fu-box"><textarea data-fuq="${hi}" rows="2" placeholder="Уточнить: задайте вопрос по этому ответу"></textarea>
+        <button class="primary" data-fugo="${hi}"${busy ? " disabled" : ""}>Спросить</button></div>` : "";
+  return `<div class="card${h.open ? "" : " closed"}${h.parent ? " fu" : ""}" data-card="${hi}">
     <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person ? ` <span class="muted" style="font-weight:400">· ${esc(NAME[h.person])}</span>` : ""}
       ${h.at ? `<span class="qdate">· ${esc(ru(String(h.at).slice(0, 10)))}</span>` : ""}${flagged && !h.open ? ' <span class="fixed" style="font-size:12px">📌</span>' : ""}</div>
     <div class="body-a">
@@ -196,6 +211,7 @@ function card(h, hi) {
          ${h.sources.length ? (() => { const sp = splitSources(h.answer, h.sources);
            return `<div class="srcs">${sp.cited.length ? `<div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники — нажмите, чтобы раскрыть</div>${sp.cited.map(srcHtml).join("")}` : ""}
            ${sp.rest.length ? `<details class="more-src"><summary class="muted" style="font-size:12.5px;cursor:pointer">${sp.cited.length ? "Ещё найдено" : "Что искал"}: ${sp.rest.length}</summary>${sp.rest.map(srcHtml).join("")}</details>` : ""}</div>`; })() : ""}`}
+    ${fu}
     ${fixUi}
     </div></div>`;
 }
@@ -205,7 +221,9 @@ function paint() {
       <div class="muted" style="text-align:center">Ищу в медкнижке и собираю ответ…</div></div>` : "")
     + (!busy && !hist.length ? `<div class="past">Прошлые вопросы</div><div class="muted" style="padding:0 2px">Здесь появятся ваши вопросы.</div>` : "")
     + hist.map((h, hi) => (hi === hist.findIndex(x => !x.open) && hist.some(x => !x.open) ? `<div class="past">Прошлые вопросы</div>` : "") + card(h, hi)).join("");
+  out.onkeydown = e => { const t = e.target; if (t && t.dataset && t.dataset.fuq !== undefined && e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); followUp(+t.dataset.fuq); } };
   out.onclick = async e => {
+    const fg = e.target.closest("[data-fugo]"); if (fg) { followUp(+fg.dataset.fugo); return; }
     const tg = e.target.closest("[data-toggle]");
     if (tg && tg.closest(".card.closed")) { hist[+tg.dataset.toggle].open = true; paint(); return; }
     const fx = e.target.closest("[data-fix]"); if (fx) { fixOpen = +fx.dataset.fix; paint(); document.getElementById("fixnote")?.focus(); return; }
@@ -224,17 +242,26 @@ function paint() {
 }
 // о ком спрашивают — тот человек и открывается в медкнижке (страница-родитель переключает «Дима»/«Даня» вверху)
 function tellPerson() { try { if (person && window.parent !== window) window.parent.postMessage({ mk: "person", person }, "*"); } catch (e) {} }
-async function ask(q) {
+function followUp(hi) {
+  const ta = document.querySelector(`[data-fuq="${hi}"]`), q = (ta && ta.value || "").trim();
+  if (q) ask(q, hist[hi]);
+}
+async function ask(q, parent) {
   if (!q || busy) return;
-  tellPerson();
+  if (!parent) tellPerson();
   busy = q;
   document.querySelector(".hints")?.remove();
   paint();
-  const item = { q, person, open: true, at: new Date().toISOString() };
-  try { const r = await api("ask", { question: q, person: person || null, mode: "doctor", general: true, search: q, prefer_kind: ["razbor", "passport"] });
+  const who = parent ? parent.person : person;
+  const item = { uid: newUid(), parent: parent ? parent.uid : null, q, person: who, open: true, at: new Date().toISOString() };
+  // уточнение: врач видит предыдущие вопросы и ответы, а поиск по медкнижке идёт по вопросу вместе с прежним
+  const history = parent ? askChain(hist, hist.indexOf(parent)) : [];
+  try { const r = await api("ask", { question: q, person: who || null, mode: "doctor", general: true, search: parent ? parent.q + " " + q : q, prefer_kind: ["razbor", "passport"], ...(history.length ? { history } : {}) });
     Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data }); }
   catch (e) { item.error = e.message; }
-  busy = false; hist.unshift(item); fixOpen = null; paint();
+  busy = false; fixOpen = null;
+  if (parent) hist.splice(hist.indexOf(parent) + 1, 0, item); else hist.unshift(item);   // уточнение — сразу под вопросом, к которому относится
+  paint();
   if (!KEY) view();
 }
 view();
