@@ -2576,14 +2576,14 @@ function labCardModel(D,r){
   const all=(D.rec||[]).filter(x=>x.t==="lab"&&x.d===r.d).sort((a,b)=>(a.st==="ok")-(b.st==="ok")||String(a.title).localeCompare(String(b.title)));
   let same=all.filter(x=>x.sys===r.sys); if(!same.length) same=[r];
   const other=all.filter(x=>x.sys!==r.sys);
-  const off=same.filter(x=>x.st!=="ok").length;
-  const status=same.reduce((w,x)=>(RANK[x.st]||0)>(RANK[w]||0)?x.st:w,same[0].st||"none");
+  const off=same.filter(x=>x.st==="bad").length, edge=same.filter(x=>x.st==="warn").length;
+  const status=r.st||"none";   // статус — самого показателя: цифра в шапке его же
   const vals=same.map(x=>x.v).filter(Boolean);
   const hist=(D.rec||[]).filter(x=>x.t==="lab"&&x.title===r.title).sort((a,b)=>b.d.localeCompare(a.d));
   const pv=other.slice(0,3).map(x=>`${x.title} ${x.v||""} → ${ST[x.st]||ST.none}`.replace(/\s+→/," →").replace(/\s{2,}/," "));
   return {
-    title:r.title, date:r.d, status, own:{v:r.v||"",n:r.n||"",st:r.st||"none"},
-    summary:`${same.length} ${plural(same.length,"показатель","показателя","показателей")}`+(off?`, ${off} вне нормы`:", все в норме"),
+    title:r.title, date:r.d, status, own:{v:r.v||"",n:r.n||"",st:r.st||"none",edge:r.st==="warn"?normEdge(r.v,r.n):null},
+    summary:`${same.length} ${plural(same.length,"показатель","показателя","показателей")}`+(off||edge?(off?`, ${off} вне нормы`:"")+(edge?`, ${edge} у границы нормы`:""):", все в норме"),
     verdict:firstSentence(r.res,140),
     table:same.map(x=>({title:x.title,v:x.v||"",n:x.n||"",st:x.st||"none",rec:x})),
     related:other.length?{preview:pv.join(", ")+(other.length>3?` +${other.length-3}`:""),rows:other}:null,
@@ -2689,7 +2689,7 @@ function openRec(i,showSer){
       +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка. Вторая сдача превратит цифру в направление.</div>`:"")):"";
     cardHtml=shell(`${head(M.status)}
       <div style="margin:-4px 0 6px">${favStar(cur,r.title)} <span class="muted" style="font-size:13px">следить за показателем</span></div>
-      ${M.own.v?`<div class="labown"><b style="color:${statusColor(M.own.st)}">${esc(M.own.v)}</b>${M.own.n?`<span class="muted">норма ${esc(M.own.n)}</span>`:""}</div>`:""}
+      ${M.own.v?`<div class="labown"><b style="color:${statusColor(M.own.st)}">${esc(M.own.v)}</b>${M.own.n?`<span class="muted">норма ${esc(M.own.n)}</span>`:""}${M.own.edge?`<span class="muted" style="color:var(--warn)">${M.own.edge==="high"?"у верхней":"у нижней"} границы нормы</span>`:""}</div>`:""}
       ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:`<div class="muted" style="margin:2px 0 8px">${M.baseline?"Сдавался один раз — сравнить пока не с чем":""}</div>`}
       ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
       ${(()=>{ const tp=rzTopic("lab",cur,r.d); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",payload:{person:cur,mode:"lab",lab_date:r.d}}); return rzHtml(tp); })()}
@@ -3061,7 +3061,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 21:30";   // подставляется при публикации
+const BUILD="18.10 21:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5409,6 +5409,16 @@ if(typeof document!=="undefined"&&!window.__addBound){
 
 // ── Записи с сайта (ТЗ-001 блок 3): анализ, визит, лекарство, заметка из таблицы entries ──
 // Показываются вместе с книжкой, пока регистратор их не перенёс; перенесённые — уже из книжки, дубля нет.
+// значение внутри нормы, но у самого края: крайние 10 % коридора «от–до» (у «до X» — от 0,9·X, у «от X» — до 1,1·X); иначе null
+function normEdge(value,norm){
+  const num=x=>parseFloat(String(x).replace(",",".")), v=num(String(value==null?"":value).replace(/\s/g,"")), t=String(norm==null?"":norm).replace(/\s/g,"").toLowerCase();
+  if(!isFinite(v)||!t) return null;
+  let m=t.match(/^(-?[\d.,]+)[-–—](-?[\d.,]+)$/);
+  if(m){ const lo=num(m[1]), hi=num(m[2]), w=hi-lo; if(!(w>0)||v<lo||v>hi) return null; return v>=hi-0.1*w?"high":v<=lo+0.1*w?"low":null; }
+  m=t.match(/^(?:до|<|≤|<=)(-?[\d.,]+)$/); if(m){ const hi=num(m[1]); return hi>0&&v<=hi&&v>=0.9*hi?"high":null; }
+  m=t.match(/^(?:от|>|≥|>=)(-?[\d.,]+)$/); if(m){ const lo=num(m[1]); return lo>0&&v>=lo&&v<=1.1*lo?"low":null; }
+  return null;
+}
 // система показателя для анализа с сайта: сначала как у тех же показателей в книжке семьи (known: название без скобок → система), потом по названию
 function labBare(t){ return String(t||"").toLowerCase().replace(/ё/g,"е").replace(/\s*\(.*?\)\s*/g," ").replace(/\s+/g," ").trim(); }
 function labSysFor(name,known){
@@ -5497,7 +5507,7 @@ function entriesInto(D,rows){
       const ST2={"выше":"bad","ниже":"bad","норма":"ok"};
       for(const it of x.items) addPt(P,x.d||"",it);
       for(const it of x.items) (P.rec=P.rec||[]).push({t:"lab",d:x.d||String(e.created_at).slice(0,10),title:it.name,who:x.lab||"",place:x.lab||"",
-        sys:it.sys||labSysFor(it.name,known),st:ST2[it.flag]||"",v:[it.value,it.unit].filter(Boolean).join(" "),n:it.norm||"",
+        sys:it.sys||labSysFor(it.name,known),st:it.flag==="норма"&&normEdge(it.value,it.norm)?"warn":(ST2[it.flag]||""),v:[it.value,it.unit].filter(Boolean).join(" "),n:it.norm||"",
         res:it.raw?`на бланке: ${it.raw}`:"",from,full:[],files:e.files||[],entry:e.id});
       continue;
     }
