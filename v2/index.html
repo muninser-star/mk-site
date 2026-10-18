@@ -482,6 +482,7 @@ main.enter .macchart text{animation:fadeIn .3s var(--ease) .45s both}
 .addmenu{position:fixed;inset:0;z-index:90;background:rgba(15,20,26,.45);display:flex;align-items:flex-end;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .14s var(--ease)}
 .addmenu.on{opacity:1;pointer-events:auto}
+.chip--plus{min-width:44px;font-weight:700}
 .addsheet{background:var(--card);width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));
   box-shadow:var(--shadow-lg);transform:translateY(100%);transition:transform .16s var(--ease)}
 .addmenu.on .addsheet{transform:none}
@@ -1495,8 +1496,8 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .addcal.plan-row .plan-cal{flex:none;margin-left:auto}
 .addcal.plan-row .plan-go{margin-left:auto}
 .addcal.plan-row:hover{background:var(--surface-2)}
-.plan-list{display:grid;gap:8px}
-@media (max-width:560px){ .addcal.plan-row{flex-wrap:wrap} .addcal.plan-row .plan-cal{width:100%;margin-left:0} .addcal.plan-row .addcal__info{flex-basis:calc(100% - 80px)} }
+.plan-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (max-width:560px){ .addcal.plan-row{flex-wrap:wrap} .addcal.plan-row .plan-cal{flex:1 1 100%;width:auto;min-width:0;margin-left:0} .addcal.plan-row .addcal__info{flex-basis:calc(100% - 80px)} }
 .avatar .ic{width:60%;height:60%}
 /* ── Дневники здоровья (ТЗ-032) ── */
 .dz-h1{font:600 20px/26px var(--font);margin:0}
@@ -3141,8 +3142,9 @@ document.addEventListener("click",e=>{
       questions:[{t:`Что означает ${r.title} ${r.v}${r.n?" при норме "+r.n:""}?`,done:false},{t:"Нужно ли пересдать или обследоваться дополнительно?",done:false}],tests:[{t:r.title,done:false}],other:[],status:"planned",source_name:null}); return; }
   const la=e.target.closest&&e.target.closest("[data-labask]"); if(la){
     const r=(DATA[cur].rec||[])[+la.dataset.labask]; if(!r) return;
-    const tp=rzTopic("lab",cur,r.d); rzSend(tp,`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`);
-    const box=document.querySelector(`.rzb[data-rzb="${tp}"]`); if(box) box.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+    const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}});
+    rzSend(tp,`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`);
+    const box=document.querySelector(`.rzb[data-rzb="${tp}"]`); if(box){ const f=box.closest("details"); if(f) f.open=true; box.scrollIntoView({block:"center",behavior:"smooth"}); } return; }
 });
 function openRec(i,showSer){
   const D=DATA[cur], r=D.rec[i]; if(!r)return;
@@ -3219,9 +3221,9 @@ function openRec(i,showSer){
       ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:`<div class="muted" style="margin:2px 0 8px">${M.baseline?"Сдавался один раз — сравнить пока не с чем":""}</div>`}
       ${labAdvHtml(r,idOf(r))}
       ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
-      ${(()=>{ const tp=rzTopic("lab",cur,r.d); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",payload:{person:cur,mode:"lab",lab_date:r.d}}); return rzHtml(tp); })()}
-      <h3 class="labsec">Показатели этой сдачи — ${esc(M.summary)}</h3>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>
+      ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,firstLabel:"Разобрать этот показатель",
+        legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return fold("Семейный ИИ-врач",rzHtml(tp)); })()}
+      ${fold(`Показатели этой сдачи — ${esc(M.summary)}`,`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>`)}
       ${rel}${concl}${dyn}${detHtml}
       ${sameDay.length?fold(`В этот же день — ещё ${sameDay.length}`,sameDayHtml):""}
       <div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>
@@ -3331,16 +3333,19 @@ function openRec(i,showSer){
   { const mb=document.querySelector("#modal .mbox"); if(mb) mb.scrollTop=0; }
 }
 
+let fbOpen=false;   // чипы систем свёрнуты под «＋», пока человек не развернул (Денис, 18.10.2026: тегов много)
 function filterBar(){
   const d=DATA[cur], today=localDay(), hm=tab==="lab"?hpModel(d):null;
+  const chip=g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
+      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false}), v="grp:"+g.id;
+      return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":t.bad?`Показателей: ${t.n}, вне нормы или давно: ${t.bad}`:`Показателей: ${t.n}, всё в норме`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; };
+  const shown=fbOpen?SYS_GROUPS:SYS_GROUPS.filter(g=>sysFilter==="grp:"+g.id);
   return `<div class="filters">
     <button data-f="" class="chip${sysFilter?"":" chip--main"}">Все системы</button>
-    ${SYS_GROUPS.map(g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
-      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false}), v="grp:"+g.id;
-      return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":t.bad?`Показателей: ${t.n}, вне нормы или давно: ${t.bad}`:`Показателей: ${t.n}, всё в норме`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; }).join("")}
+    ${shown.map(chip).join("")}
+    <button type="button" class="chip chip--plus" data-fbtoggle="1" aria-expanded="${fbOpen}" aria-label="${fbOpen?"Свернуть системы":"Показать все системы"}">${fbOpen?"−":"＋"}</button>
   </div>`;
 }
-
 
 // ===== карта симптомов =====
 const MON=["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
@@ -3592,7 +3597,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="18.10 23:17";   // подставляется при публикации
+const BUILD="18.10 23:42";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4709,15 +4714,21 @@ function rzTopic(kind,p,key){ return `${kind}:${p}:${kind==="ind"?String(key).to
 function rzGet(topic,cfg){ const c=RZB[topic]||(RZB[topic]={rows:[],busy:false,loaded:false,err:"",cfg}); if(cfg) c.cfg=cfg; return c; }
 function rzLoad(topic){
   const c=RZB[topic]; if(!c||c.loaded||!window.__MK_KEY) return; c.loaded=true;
-  mkApi("ask_history",{topic}).then(j=>{ c.rows=j.rows||[]; rzPaint(topic); }).catch(()=>{ c.loaded=false; });
+  const lg=c.cfg&&c.cfg.legacy;
+  Promise.all([mkApi("ask_history",{topic}),lg?mkApi("ask_history",{topic:lg.topic}).catch(()=>({rows:[]})):Promise.resolve({rows:[]})]).then(([j,o])=>{
+    // разговор за дату анализа общий для всех показателей: берём из него только вопросы про этот показатель (Денис, 18.10.2026)
+    const mine=lg?(o.rows||[]).filter(r=>String(r.question||"").startsWith("Что значит "+lg.title+" ")):[];
+    c.rows=mine.concat(j.rows||[]); rzPaint(topic); }).catch(()=>{ c.loaded=false; });
 }
 // «Добавить в дела»: действия из блока «ДЕЛА:» ответа; все отмечены, можно снять лишние
+function rzTodoAdded(rowId){ return new Set((window.__entries||[]).filter(e=>e&&e.kind==="task"&&e.status!=="deleted"&&e.data&&String(e.data.src||"").startsWith(rowId+":")).map(e=>+String(e.data.src).split(":")[1])); }
 function rzTodosHtml(row,topic){
   const t=Array.isArray(row.todos)?row.todos:[];
   if(!row.id||!t.length||row.todoSkip) return "";
-  if(row.todoDone) return `<div class="muted" style="font-size:13px;margin:6px 0">✓ Добавлено в дела — смотрите «План здоровья» на главной</div>`;
+  const added=rzTodoAdded(row.id), left=t.map((x,i)=>({x,i})).filter(o=>!added.has(o.i));
+  if(row.todoDone||!left.length) return `<div class="muted" style="font-size:13px;margin:6px 0">✓ Уже в списке дел — «План здоровья» на главной</div>`;
   return `<div class="rz-todo" data-rzt="${row.id}"><b>Добавить в дела</b>
-    ${t.map((x,i)=>`<label class="rz-t"><input type="checkbox" data-rzti="${i}" checked><span>${esc(x.what)}${x.term?` <span class="muted">· ${esc(x.term)}</span>`:""}</span></label>`).join("")}
+    ${left.map(o=>`<label class="rz-t"><input type="checkbox" data-rzti="${o.i}" checked><span>${esc(o.x.what)}${o.x.term?` <span class="muted">· ${esc(o.x.term)}</span>`:""}</span></label>`).join("")}
     <div class="row" style="margin-top:6px"><button type="button" class="btn btn-primary" data-rzadd="${row.id}" data-rztopic="${esc(topic)}">Добавить выбранные</button>
     <button type="button" class="btn btn-secondary" data-rzskip="${row.id}" data-rztopic="${esc(topic)}">Не нужно</button></div></div>`;
 }
@@ -4727,7 +4738,7 @@ function rzHtml(topic){
   rzLoad(topic);
   const cfg=c.cfg||{};
   const msgs=c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${rzSrc(r)}</div>${rzTodosHtml(r,topic)}`:""}`).join("");
-  return `<div class="rzb card" data-rzb="${esc(topic)}"><h3 style="font-size:15px;margin:0 0 6px">Семейный ИИ-врач</h3>
+  return `<div class="rzb${cfg.bare?"":" card"}" data-rzb="${esc(topic)}">${cfg.bare?"":`<h3 style="font-size:15px;margin:0 0 6px">Семейный ИИ-врач</h3>`}
     ${msgs}
     ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Врач разбирает… это до минуты</div>`:""}
     ${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}
@@ -6512,6 +6523,37 @@ function svUpdate(){
 }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&SVU&&document.getElementById("svov")){ if(SVU.view==="results"&&Object.keys(SVU.pend).length&&!confirm("Выйти без сохранения?")) return; svClose(); } });
 
+// ── Семейный анамнез из опроса (ТЗ-009 блок 9): хронические болезни родителей и сестёр/братьев «со слов» + свой ответ о родственниках ──
+function svChronicMap(){ return {pressure:{name:"давление",dx:/гипертони|давлен/i},diabetes:{name:"диабет",dx:/диабет/i},thyroid:{name:"щитовидная железа",dx:/щитовид|тиреоид|гипотиреоз|тиреотоксикоз/i},asthma:{name:"астма",dx:/астм/i},heart:{name:"болезни сердца",dx:/сердц|ишемическ|кардио|инфаркт|аритми/i}}; }
+function svRelLabel(rel,name){ return ({mother:"Мама",father:"Папа",sister:"Сестра",brother:"Брат"}[rel]||"Родственник")+" ("+name+")"; }
+// rows — ответ survey_relatives; dxOf(id) → диагнозы человека из книжки; врачебный диагноз длиннее общего «Диабет» и заменяет его без пометки «со слов» (ответ Дениса на В17)
+function svFamilyLines(rows,names,dxOf,fmt){
+  const M=svChronicMap(), out=[], seen=new Set();
+  for(const r of rows||[]){ const who=svRelLabel(r.rel,names[r.person]||r.person), when=fmt(String(r.at||"").slice(0,10));
+    for(const it of r.items||[]){
+      const other=String(it).startsWith("other:"), name=other?String(it).slice(6).trim():(M[it]||{}).name; if(!name) continue;
+      const dx=!other&&M[it]?(dxOf(r.person)||[]).find(x=>M[it].dx.test(String(x.n||""))):null;
+      const what=dx?dx.n:`${name} (со слов, опрос от ${when})`, k=who+"|"+what; if(seen.has(k)) continue; seen.add(k); out.push({who,what,survey:!dx}); } }
+  return out;
+}
+// собственный ответ о близких родственниках (В18): одной строкой, без привязки к человеку
+function svOwnFamilyLine(a,fmt){
+  const v=a&&a.b_family; if(!v||v.skipped||!Array.isArray(v.value)||!v.value.length) return null;
+  const T={diabetes:"диабет",heart:"давление, инфаркт или инсульт до 60 лет",cancer:"онкология"};
+  const w=v.value.map(x=>String(x).startsWith("other:")?String(x).slice(6).trim():T[x]).filter(Boolean); if(!w.length) return null;
+  return {who:"Близкие родственники",what:`${w.join(", ")} (со слов, опрос от ${fmt(String(v.at||"").slice(0,10))})`,survey:true};
+}
+let SVR={};
+function svRelLoad(p){
+  const s=SVR[p]||(SVR[p]={rows:[],loaded:false,busy:false}); if(!window.__MK_KEY||s.busy||s.loaded) return; s.busy=true;
+  mkApi("survey_relatives",{person:p}).then(j=>{ s.rows=j.rows||[]; s.loaded=true; s.busy=false; if(!SVU&&(tab==="anam"||tab==="prep")&&cur===p) render(); }).catch(()=>{ s.busy=false; s.loaded=true; });
+}
+function svFamilyRows(p){
+  svRelLoad(p); svLoad(p);
+  const d=(k)=>(DATA[k]||{}).diagnoses||[], names={}; Object.keys(DATA).forEach(k=>{ names[k]=ENTRY_WHO_DB[k]||(DATA[k].short)||(DATA[k].name||k); });
+  const lines=svFamilyLines((SVR[p]||{}).rows,names,d,x=>x?ru(x):""), own=svOwnFamilyLine(svGet(p).answers,x=>x?ru(x):"");
+  return lines.concat(own?[own]:[]);
+}
 // ── Профиль здоровья (ТЗ-009 блоки 4 и 11): плитка на главной, страница «Профиль здоровья», страница органа ──
 let hpOrgan=null;
 function hpPerson(d){
@@ -7292,7 +7334,7 @@ function doctorPack(d,key,today,opt){
   // анамнез
   const dx=(d.diagnoses||[]).filter(x=>allSys||!x.sys||sys.has(x.sys));
   const topical=DOC_FAM[key]||null;
-  const fam=(d.family||[]).map(f=>({who:f.who,what:f.what,topical:!!(topical&&topical.test(f.who+" "+f.what))})).sort((a,b)=>b.topical-a.topical);
+  const fam=(d.family||[]).concat(typeof svFamilyRows==="function"?svFamilyRows(cur):[]).map(f=>({who:f.who,what:f.what,topical:!!(topical&&topical.test(f.who+" "+f.what))})).sort((a,b)=>b.topical-a.topical);
   // анализы: последний по каждому показателю; вне нормы — до 4 последних значений
   const labsAll=R.filter(r=>r.t==="lab"&&r.title&&inS(r)), by={};
   labsAll.forEach(r=>(by[r.title]=by[r.title]||[]).push(r));
@@ -10330,11 +10372,11 @@ function render(){
     const risks=(d.risks||[]).filter(x=>has(x.r,x.why));
     const eps=(d.episodes||[]).filter(x=>has(x.dx,x.sym,x.tx));
     const contra=(d.contra||[]).filter(x=>has(x.q,x.doc,x.ok));
-    const nothing=!d.risks&&!d.family&&!d.episodes&&!d.contra&&!d.preg&&!d.vac;
+    const famAll=(d.family||[]).concat(svFamilyRows(cur)), nothing=!d.risks&&!famAll.length&&!d.episodes&&!d.contra&&!d.preg&&!d.vac;
     m.innerHTML=nothing?`<div class="card"><div class="empty">По этому человеку анамнез ещё не заполнен</div></div>`:`
-      ${d.family?`<div class="card"><h2>Наследственность</h2>
+      ${famAll.length?`<div class="card"><h2>Наследственность</h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Кто</th><th>Что было</th></tr></thead><tbody>
-        ${d.family.map(f=>`<tr><td style="white-space:nowrap"><b>${esc(f.who)}</b></td><td>${hl(f.what)}</td></tr>`).join("")}
+        ${famAll.map(f=>`<tr><td style="white-space:nowrap"><b>${esc(f.who)}</b></td><td>${hl(f.what)}</td></tr>`).join("")}
         </tbody></table></div></div>`:""}
 
       ${risks.length?`<div class="card"><h2>Предрасположенность — ${risks.length} <span class="hint" tabindex="0" title="Оценка риска, а не диагнозы. Нажмите строку — откроется система" aria-label="Оценка риска, а не диагнозы. Нажмите строку — откроется система">?</span></h2>
@@ -10794,6 +10836,7 @@ document.addEventListener("click",e=>{
   const k=e.target.closest("[data-task]"); if(k){taskIdx=+k.dataset.task;tab="task";sysFilter=null;
     render();window.scrollTo({top:0,behavior:"smooth"});return}
   const g=e.target.closest("[data-sys]"); if(g){toSys(g.dataset.sys);return}
+  if(e.target.closest("[data-fbtoggle]")){ fbOpen=!fbOpen; render(); return; }
   const f=e.target.closest("[data-f]"); if(f){tlReset();sysFilter=f.dataset.f||null;render();return}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
