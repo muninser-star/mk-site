@@ -284,6 +284,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .indp{position:fixed;z-index:80;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-popup,0 12px 32px rgba(0,0,0,.25));padding:16px 18px;overflow:auto;max-height:70vh;font-size:14px;line-height:1.5}
 .indp--pop{border-radius:14px}.indp--sheet{left:0;right:0;bottom:0;border-radius:18px 18px 0 0;max-height:75vh;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
 .indp h3{margin:0 0 6px;font-size:16px;padding-right:32px}.indp__s+.indp__s{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.indp__s div{margin-top:6px}
+.bp-big{font-size:34px;font-weight:700;line-height:1.1;margin:4px 0}
 .regrow{padding:10px 0;border-top:1px solid var(--line)}.regrow:first-of-type{border-top:0}
 .rz-todo{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0;background:var(--accentbg)}.rz-t{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14px}.rz-t input{margin-top:3px}.rzb{margin:10px 0}
 .indp__d{margin-top:6px}.indp__o{margin-top:6px}.indp__o summary{cursor:pointer;color:var(--muted)}.ind-g{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;margin-left:6px;padding:0 4px;border:0;border-radius:8px;background:none;cursor:pointer;font-size:15px;position:relative}.ind-g::before{content:"";position:absolute;inset:-8px}.ind-g:hover,.ind-g:focus-visible{background:var(--accentbg)}
@@ -3728,7 +3729,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="19.10 12:33";   // подставляется при публикации
+const BUILD="19.10 23:08";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -3901,6 +3902,7 @@ function kpiLive(d){
       bp.sub=`среднее по ${sb.length} замерам · последний ${ls[1]}/${ld[1]} от ${ls[0]}${bp.note?`. ${bp.note}`:""}`;
     }
   }
+  if(bp) bpKpi(bp,BPS[cur]||[],localDay());
   const md=out.find(k=>k.auto==="meds"); if(md) medsKpi(d,md);
   return out;
 }
@@ -5535,6 +5537,108 @@ let visitQ="";
 // «Дата следующего посещения» у приёма: хранится как предстоящий визит, помеченный приёмом-основанием
 function nvMarker(r){ return `Повторный приём после ${ru(r.d)} · ${r.who||r.title}`; }
 function nvPlan(r){ return (PLANS||[]).find(p=>p.person===cur&&p.status==="planned"&&p.purpose===nvMarker(r))||null; }
+// ── Давление (ТЗ-035): замеры в Supabase (bp_readings), несколько в день; виджет на главной, форма «Давление», история
+const BPS={}, BPL={};   // человек → замеры (новые сверху); BPL — загрузка идёт или уже была
+function bpLoad(force){
+  const who=cur; if(!window.__MK_KEY||(BPL[who]&&!force)) return; BPL[who]=1;
+  mkApi("bp_list",{person:who}).then(j=>{ BPS[who]=j.rows||[]; if(cur===who) render(); }).catch(()=>{ BPL[who]=0; BPS[who]=BPS[who]||[]; });
+}
+// ориентир по тем же порогам, что в плитке «Давление» (130/85 — повышенное, 140/90 — высокое); это не диагноз
+function bpClass(sys,dia){
+  if(sys>=180||dia>=110) return {st:"bad",word:"очень высокое",urgent:true};
+  if(sys>=140||dia>=90) return {st:"bad",word:"высокое"};
+  if(sys>=130||dia>=85) return {st:"warn",word:"повышенное"};
+  if(sys<90||dia<60) return {st:"warn",word:"пониженное"};
+  return {st:"ok",word:"в норме"};
+}
+// rows — новые сверху; today — «ГГГГ-ММ-ДД». → {last, n, avgSys, avgDia, days}
+function bpSummary(rows,today,days){
+  days=days||7; const R=(rows||[]).slice().sort((a,b)=>String(b.measured_at).localeCompare(String(a.measured_at)));
+  const from=dzDayOf(new Date(new Date(today+"T12:00:00").getTime()-(days-1)*864e5).toISOString());
+  const W=R.filter(r=>dzDayOf(r.measured_at)>=from&&dzDayOf(r.measured_at)<=today);
+  const avg=k=>W.length?Math.round(W.reduce((a,r)=>a+r[k],0)/W.length):null;
+  return {last:R[0]||null,n:W.length,avgSys:avg("sys"),avgDia:avg("dia"),days};
+}
+function bpWhen(iso,today){
+  const d=dzDayOf(iso), t=new Date(iso), hm=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0");
+  const diff=Math.round((new Date(today+"T12:00:00")-new Date(d+"T12:00:00"))/864e5);
+  return diff===0?"сегодня "+hm:diff===1?"вчера "+hm:`${ru(d)} ${hm}`;
+}
+function bpCard(){
+  bpLoad();
+  const today=localDay(), rows=BPS[cur]||[], sm=bpSummary(rows,today), L=sm.last, c=L?bpClass(L.sys,L.dia):null;
+  const body=L?`<div class="bp-big" style="color:${statusColor(c.st)}">${L.sys}/${L.dia}</div>
+      <div class="muted">${L.pulse?`пульс ${L.pulse} · `:""}${c.word} · ${esc(bpWhen(L.measured_at,today))}${L.note?` · ${esc(L.note)}`:""}</div>
+      ${c.urgent?`<div class="note" style="margin-top:6px;background:var(--badbg,#fdecea);color:var(--bad)">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}
+      ${sm.n>1?`<div class="muted" style="margin-top:6px">За ${sm.days} дней: среднее ${sm.avgSys}/${sm.avgDia}, замеров ${sm.n}</div>`:""}`
+    :`<div class="muted">${window.__MK_KEY?(BPL[cur]&&!BPS[cur]?"Загружаю…":"Замеров пока нет. Запишите первый — здесь появятся среднее и динамика."):"Нужен вход по ссылке с кодом"}</div>`;
+  return `<div class="card bpcard"><h2>Давление</h2>${body}
+    <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-bpadd="1">Записать давление</button>${rows.length?`<button type="button" class="btn btn-secondary" data-bphist="1">История</button>`:""}</div>
+    <div class="muted" style="font-size:12px;margin-top:8px">Ориентир, не диагноз: 130/85 и выше — повышенное, 140/90 и выше — высокое. Измеряйте сидя, после 5 минут покоя.</div></div>`;
+}
+function bpForm(){
+  const now=new Date(), pad=n=>String(n).padStart(2,"0"), local=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 6px;font-size:18px">Давление — ${esc(DATA[cur].short)}</h3>
+    <div class="addform">
+      <div class="row" style="gap:10px"><div class="fld" style="flex:1"><label for="bpSys">Верхнее</label><input id="bpSys" inputmode="numeric" autocomplete="off" placeholder="120"></div>
+        <div class="fld" style="flex:1"><label for="bpDia">Нижнее</label><input id="bpDia" inputmode="numeric" autocomplete="off" placeholder="80"></div>
+        <div class="fld" style="flex:1"><label for="bpPulse">Пульс</label><input id="bpPulse" inputmode="numeric" autocomplete="off" placeholder="—"></div></div>
+      <div class="fld"><label for="bpAt">Когда</label><input id="bpAt" type="datetime-local" value="${local}" max="${local}"></div>
+      <div class="fld"><label for="bpNote">Как измеряли (необязательно)</label><select id="bpNote"><option value="">—</option><option>в покое</option><option>после нагрузки</option><option>после лекарства</option><option>плохое самочувствие</option><option>стоя</option></select></div>
+      <div class="row"><button type="button" class="btn btn-primary" data-bpsave="1">Сохранить</button><button type="button" class="btn btn-secondary" data-close>Отмена</button></div>
+      <div id="bpLog" class="formlog"></div></div></div>`;
+  const f=document.getElementById("bpSys"); if(f) f.focus();
+}
+// проверка полей формы: → {ok, sys, dia, pulse, error}
+function bpParse(sys,dia,pulse){
+  const n=v=>{ const x=parseInt(String(v||"").trim(),10); return isFinite(x)&&/^\d+$/.test(String(v).trim())?x:null; };
+  const S=n(sys), D=n(dia), P=String(pulse||"").trim()===""?null:n(pulse);
+  if(S==null||D==null) return {ok:false,error:"Введите верхнее и нижнее давление числами."};
+  if(S<60||S>260) return {ok:false,error:"Верхнее давление — от 60 до 260."};
+  if(D<30||D>160) return {ok:false,error:"Нижнее давление — от 30 до 160."};
+  if(D>=S) return {ok:false,error:"Нижнее должно быть меньше верхнего — проверьте цифры."};
+  if(P!=null&&(P<30||P>220)) return {ok:false,error:"Пульс — от 30 до 220."};
+  if(String(pulse||"").trim()!==""&&P==null) return {ok:false,error:"Пульс — число."};
+  return {ok:true,sys:S,dia:D,pulse:P};
+}
+async function bpSave(){
+  const log=t=>{ const e=document.getElementById("bpLog"); if(e) e.innerHTML=t; };
+  const v=bpParse(document.getElementById("bpSys").value,document.getElementById("bpDia").value,document.getElementById("bpPulse").value);
+  if(!v.ok){ log(`<div class="er">${esc(v.error)}</div>`); return; }
+  if(!window.__MK_KEY){ log(`<div class="er">Нужен вход по ссылке с кодом.</div>`); return; }
+  const at=document.getElementById("bpAt").value, note=document.getElementById("bpNote").value, who=cur;
+  try{ await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:at?new Date(at).toISOString():undefined,note:note||undefined});
+    BPL[who]=0; bpLoad(true); const c=bpClass(v.sys,v.dia); closeModal(); toast(`Давление ${v.sys}/${v.dia} — ${c.word}`); }
+  catch(e){ log(`<div class="er">Не сохранилось — нет связи. Попробуйте ещё раз.</div>`); }
+}
+// плитка «Давление» в ключевых показателях: свежие замеры из приложения важнее ряда книжки
+function bpKpi(bp,rows,today){
+  if(!rows.length) return;
+  const sm=bpSummary(rows,today), L=sm.last;
+  if(sm.n){ bp.val=`${sm.avgSys}/${sm.avgDia}`; bp.st=bpClass(sm.avgSys,sm.avgDia).st; bp.sub=`среднее за ${sm.days} дней по ${sm.n} замерам · последний ${L.sys}/${L.dia} от ${ru(dzDayOf(L.measured_at))}${bp.note?`. ${bp.note}`:""}`; }
+  else { bp.val=`${L.sys}/${L.dia}`; bp.st=bpClass(L.sys,L.dia).st; bp.sub=`последний замер от ${ru(dzDayOf(L.measured_at))}`; }
+}
+function bpHistory(){
+  const rows=(BPS[cur]||[]).slice(0,60), today=localDay();
+  const asc=rows.slice().reverse(), mk=k=>asc.map(r=>[ru(dzDayOf(r.measured_at)),r[k]]);
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 6px;font-size:18px">Давление — история, ${esc(DATA[cur].short)}</h3>
+    ${asc.length>1?`<div class="muted" style="font-size:13px">Верхнее</div>${chart({name:"Верхнее",unit:"мм рт. ст.",pts:mk("sys"),lo:90,hi:140})}<div class="muted" style="font-size:13px">Нижнее</div>${chart({name:"Нижнее",unit:"мм рт. ст.",pts:mk("dia"),lo:60,hi:90})}`:""}
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
+    ${rows.map(r=>{ const c=bpClass(r.sys,r.dia); return `<tr><td>${esc(bpWhen(r.measured_at,today))}${r.note?`<div class="muted" style="font-size:12px">${esc(r.note)}</div>`:""}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted" style="font-size:12px">${c.word}</span></td>
+      <td>${r.pulse||"—"}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">✕</button></td></tr>`; }).join("")}</tbody></table></div></div>`;
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest&&e.target.closest("[data-bpadd]")){ bpForm(); return; }
+  if(e.target.closest&&e.target.closest("[data-bphist]")){ bpHistory(); return; }
+  if(e.target.closest&&e.target.closest("[data-bpsave]")){ bpSave(); return; }
+  const d=e.target.closest&&e.target.closest("[data-bpdel]");
+  if(d){ if(!confirm("Удалить этот замер?")) return; const who=cur;
+    mkApi("bp_delete",{id:+d.dataset.bpdel}).then(()=>{ BPL[who]=0; bpLoad(true); closeModal(); toast("Замер удалён"); }).catch(()=>toast("Не получилось удалить — нет связи")); }
+});
 // ── Регулярные врачи (ТЗ-031 блок 8): «был N дней назад», срок, «пора записаться»; связки — REG_LINKS из «Связки болезнь-врач.csv»
 const REGV={};   // человек → {key: {months, muted}} — настройки этого кода доступа
 function regLoad(){
@@ -6055,7 +6159,7 @@ function addItems(d){
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   const meas=d&&d.nutrition?()=>{ tab="home"; render(); const w=document.getElementById("wIn"); if(w){ w.scrollIntoView({block:"center"}); w.focus(); } }:null;
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],
-    ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],["bp",icon("dynamics"),"Давление",()=>bpForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["vac",icon("vaccines"),"Прививка",f("vacForm")],["note",icon("note"),"Заметка",f("noteForm")]]
     .filter(x=>x[3]).map(([k,ic,t,open])=>({k,ic,t,open}));
 }
@@ -10146,6 +10250,8 @@ function render(){
         <div class="muted watchtile__s">${x.prev?`было ${esc(x.prev)} · `:""}${esc(x.trend.word)}</div></div>`).join("")}</div>`
       :`<div class="muted">Пока ничего не выбрано. Нажмите «Выбрать» и отметьте показатели, которые хотите видеть здесь.</div>
         ${sug.length?`<div style="margin-top:8px">Выше или ниже нормы: ${sug.map(k=>`<span class="tag2 eplink" data-favopen="${esc(k)}">${esc(k)}</span>`).join(" ")}</div>`:""}`}</div>
+
+    <!--B:bp-->${bpCard()}
 
     <!--B:changes-->${insightsChanged(d)}
 
