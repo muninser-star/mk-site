@@ -3548,7 +3548,7 @@ function openRec(i,showSer){
 let fbOpen=false;   // чипы систем свёрнуты под «＋», пока человек не развернул (Денис, 18.10.2026: тегов много)
 function filterBar(){
   const d=DATA[cur], today=localDay(), hm=tab==="lab"?hpModel(d):null;
-  const chip=g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
+  const chip=g=>{ const og=ORGANS.find(o=>o.id===g.id)||(g.id==="vit"?VIT_ORGAN:null), rk=og&&og!==VIT_ORGAN?organRisk(og.id,d.family,d.diagnoses):null,
       t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false,grp:g.id}), v="grp:"+g.id;
       return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":(t.bad||t.old)?`Показателей: ${t.n}${t.bad?(/^r/.test(t.tone)?`, плохо: ${t.bad}`:`, требует внимания: ${t.bad}`):""}${t.old?`, давно не сдавались: ${t.old}`:""}`:`Показателей: ${t.n}, всё хорошо`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; };
   const shown=fbOpen?SYS_GROUPS:SYS_GROUPS.filter(g=>sysFilter==="grp:"+g.id);
@@ -3810,7 +3810,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 17:37";   // подставляется при публикации
+const BUILD="20.10 17:49";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6481,10 +6481,11 @@ const ORGAN_IND={
   creat:["Креатинин",["креатинин"]], urea:["Мочевина",["мочевина"]], uric:["Мочевая кислота",["мочевая кислота"]], oam:["Общий анализ мочи",["общий анализ мочи","оам"]],
   copro:["Копрограмма",["копрограмма"]], iga:["Общий IgA",["iga общий","общий iga","иммуноглобулин a общий"]], hp:["Хеликобактер",["helicobacter pylori","хеликобактер"]],
   glu:["Глюкоза",["глюкоза","глюкоза натощак"]], hba1c:["HbA1c",["гликированный гемоглобин","гликированный гемоглобин (hba1c)","hba1c"]], insulin:["Инсулин",["инсулин"]],
-  ca:["Кальций",["кальций"]], phos:["Фосфор",["фосфор"]], pth:["Паратгормон",["паратгормон","птг"]], vitd:["Витамин D",["витамин d","25(oh)d","25-он витамин d"]],
+  ca:["Кальций",["кальций","кальций общий","кальций ионизированный"]], phos:["Фосфор",["фосфор"]], pth:["Паратгормон",["паратгормон","птг"]], vitd:["Витамин D",["витамин d","25(oh)d","25-он витамин d","25-oh витамин d","витамин d (25-oh)","витамин d 25-oh","25 oh витамин d"]],
   eos:["Эозинофилы",["эозинофилы","эозинофилы %","эозинофилы абсолютные"]], ige:["Общий IgE",["общий ige","ige общий","иммуноглобулин e общий"]], igg:["IgG",["igg","иммуноглобулин g"]],
   lymph:["Лимфоциты",["лимфоциты","лимфоциты %","лимфоциты абсолютные","лимфоциты относительные"]], vgd:["Внутриглазное давление",["внутриглазное давление","вгд"]], refr:["Рефракция",["рефракция","авторефрактометрия"]], fundus:["Осмотр глазного дна",["осмотр глазного дна"]], biom:["Биометрия (ПЗО)",["биометрия (пзо)"]], visus:["Острота зрения",["острота зрения"]], perim:["Периметрия",["периметрия"]],
-  b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]]
+  b12:["Витамин B12",["витамин b12"]], mg:["Магний",["магний"]], folate:["Фолиевая кислота",["фолиевая кислота","витамин b9"]],
+  zn:["Цинк",["цинк","цинк (zn)","zn"]], se:["Селен",["селен","селен (se)"]]
 };
 // панельные записи без отдельных значений: «Клинический анализ крови с лейкоформулой и СОЭ», «Общий анализ крови (6 месяцев)», «Липидный профиль» — засчитываются показателям панели
 const ORGAN_PANELS={
@@ -6541,8 +6542,19 @@ function organCoverage(id,rows,rec,today,topicsDone){
   const score=a+dyn+(ie||(ieM?20:0)); return {id,score,a,dyn,ie:ie||(ieM?20:0),bySurvey,have,missing,...organLevel(score)};
 }
 // страница органа: показатели набора с последним значением, нормой, прошлым; не сданные — v:null
+// «Витамины и микроэлементы» — не орган профиля (в 12 органов и процент профиля не входит), но у фильтра есть своя карточка ключевых показателей
+const VIT_ORGAN={id:"vit",name:"Витамины и микроэлементы",set:["vitd","b12","folate","mg","zn","se","ca"],sys:["vit"]};
+const organDef=id=>ORGANS.find(x=>x.id===id)||(id==="vit"?VIT_ORGAN:null);
+// последняя сдача, о которой знает только список «никогда не сдавалось / отсутствует» («25(OH)D после 12.2023»): значения в записях нет
+function hpNeverNote(d,k,today){
+  const ent=Object.values(ORGAN_IND).find(v=>v[0]===k); if(!ent) return null;
+  for(const t of (d&&d.never)||[]){ const low=String(t).toLowerCase(); if(!ent[1].some(sn=>low.includes(sn))) continue;
+    const m=low.match(/после\s+(\d{2})\.(\d{4})/); if(!m) continue;
+    return {text:`в последний раз ${m[1]}.${m[2]}, значения в записях нет`,ageM:monthsSince(`${m[2]}-${m[1]}-01`,today),why:`сдавался ${m[1]}.${m[2]}, значения в записях нет`}; }
+  return null;
+}
 function organDetail(id,rows,today,risk){
-  const o=ORGANS.find(x=>x.id===id), from12="0000-01-01", months=12;
+  const o=organDef(id), from12="0000-01-01", months=12;
   // единая отметка: «в норме» / «выше» / «ниже» / «вне нормы»; статус записи главнее разбора строки нормы
   const fl=(v,n,st)=>{ const f=flagByNorm(v,n), fn=f==="норма"?"в норме":f;
     if(st==="ok") return "в норме"; if(st==="warn"||st==="bad") return fn==="выше"||fn==="ниже"?fn:"вне нормы"; return fn; };
@@ -7299,6 +7311,7 @@ const hpNormText=n=>/^норма$/i.test(String(n||"").trim())?"":String(n||"");
 // «В план» у показателя, который давно не сдавали или не сдавали вовсе в зоне риска (Денис, 20.10.2026)
 function hpNeedPlan(x){ return x.v==null?x.tone==="o2":x.ageM>=x.months; }
 function hpPlanItem(x){
+  if(x.v==null&&x.why) return {what:"Пересдать: "+x.k,why:x.why};
   return x.v==null?{what:"Сдать: "+x.k,why:"не сдавали, а в зоне риска это нужно"}:{what:"Пересдать: "+x.k,why:`сдан ${x.ageM} мес. назад, повторять раз в ${x.months} мес.`};
 }
 // уже в плане: добавлено отсюда или такое дело уже есть в плане здоровья (по названию показателя)
@@ -7316,16 +7329,22 @@ async function hpPlanAdd(b){
 }
 function hpAgeText(x){ return x.ageM>=1?`сдан ${x.ageM} мес. назад${x.tone?` · пора пересдать (раз в ${x.months} мес.)`:""}`:"сдан в этом месяце"; }
 function hpOrgCard(d,sys){
-  const i=String(sys).startsWith("grp:")?ORGANS.findIndex(o=>o.id===sys.slice(4)):ORGANS.findIndex(o=>o.sys.includes(sys)); if(i<0) return "";
-  const o=ORGANS[i], m=hpModel(d), c=m.covs[i], rk=m.risks[i], det=organDetail(o.id,m.rows,m.today,rk.risk);
+  const isVit=sys==="grp:vit";
+  const i=isVit?-2:String(sys).startsWith("grp:")?ORGANS.findIndex(o=>o.id===sys.slice(4)):ORGANS.findIndex(o=>o.sys.includes(sys)); if(i===-1) return "";
+  const o=isVit?VIT_ORGAN:ORGANS[i], m=hpModel(d), c=isVit?null:m.covs[i], rk=isVit?{risk:false,reasons:[]}:m.risks[i];
+  const det=organDetail(o.id,m.rows,m.today,rk.risk).map(x=>{ if(x.v!=null) return x; const nv=hpNeverNote(d,x.k,m.today);
+    return nv?Object.assign({},x,{note:nv.text,why:nv.why,ageM:nv.ageM,months:12,tone:nv.ageM>=12?"o2":x.tone}):x; });
   const fl=hpFlagHtml;
   let titles=[]; try{ titles=buildTodo(d).map(t=>t.title); }catch(e){}
   const planBtn=x=>{ if(!hpNeedPlan(x)) return ""; const it=hpPlanItem(x);
     return hpInPlan(x,window.__entries,titles,cur)?`<span class="cal-done hp-plan">${icon("u-task","ic--16")}В плане</span>`
       :`<button type="button" class="btn btn-secondary hp-plan" data-hpplan="${esc(x.k)}" data-hpwhat="${esc(it.what)}" data-hpwhy="${esc(it.why)}">В план</button>`; };
-  const cells=det.map(x=>{ if(x.v==null) return `<div class="hpmini hpmini--no${x.tone==="o2"?" hpmini--o2":""}"><b>${esc(x.k)}</b><span class="muted">${x.tone==="o2"?"не сдавали — в зоне риска нужно":"нет данных"}</span>${planBtn(x)}</div>`;
+  const cells=det.map(x=>{ if(x.v==null) return `<div class="hpmini hpmini--no${x.tone==="o2"?" hpmini--o2":""}"><b>${esc(x.k)}${indBtn(x.k)}</b><span class="muted">${x.note?esc(x.note):x.tone==="o2"?"не сдавали — в зоне риска нужно":"нет данных"}</span>${planBtn(x)}</div>`;
     const ri=recForMeasurement(d.rec,x.d,x.n||x.k);   // карточка открывает сам анализ; нет записи — поиск показателя
     return `<div class="hpmini hpmini--link${hpAnom(x)||(x.tone?" hpmini--"+x.tone:"")}" ${ri>=0?`data-rec="${ri}"`:`data-favopen="${esc(x.k)}"`} title="Открыть анализ"><b>${esc(x.k)}${indBtn(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span><span class="muted">${esc(hpAgeText(x))}</span>${planBtn(x)}</div>`; }).join("");
+  if(isVit) return `<div class="hpcard"><div class="hpcard__h"><span>${icon("meds","ic--20")} <b>${esc(o.name)}</b> — что известно</span></div>
+    <div class="hpminis">${cells}</div>
+    <div class="muted" style="margin-top:6px">Какие анализы сдать в первую очередь, подскажет <a href="#" data-svgo="vitamins">опрос о витаминах</a>.</div></div>`;
   return `<div class="hpcard"><div class="hpcard__h"><span>${orgIc(o.id,o.icon)} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
     ${hpRiskLine(rk)}<div class="hpminis">${cells}</div>
     <div class="muted" style="margin-top:6px">${esc(hpHint(c))} · <a href="#" data-hpopen="${o.id}">подробнее →</a></div></div>`;
