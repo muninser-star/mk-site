@@ -628,11 +628,11 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .filters .chip--r1{background:rgba(176,92,92,.14)}.filters .chip--r2{background:rgba(176,92,92,.26)}.filters .chip--r3{background:rgba(176,92,92,.40)}
 .filters .chip.chip--main{box-shadow:inset 0 0 0 2px var(--accent);color:var(--text-primary,var(--ink));font-weight:600}
 .hpcard{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px 14px;margin:2px 0 14px}.hpcard__h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
-.hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface-2,#f3f4f6);font-size:13.5px}.hpmini--no{opacity:.65}.hpmini--no.hpmini--r2{opacity:1}
+.hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:rgba(76,140,104,.16);font-size:13.5px}.hpmini--no{opacity:.65;background:var(--surface-2,#f3f4f6)}.hpmini--no.hpmini--o2{opacity:1;background:rgba(105,118,130,.28)}
 .hpmini--o1{background:rgba(105,118,130,.16)}.hpmini--o2{background:rgba(105,118,130,.28)}.hpmini--o3{background:rgba(105,118,130,.40)}
 .hpmini--r1{background:rgba(176,92,92,.14)}.hpmini--r2{background:rgba(176,92,92,.26)}.hpmini--r3{background:rgba(176,92,92,.40)}
 .hptag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:9999px;margin-left:6px;vertical-align:1px}
-.hpmini.hpw1,tr.hpw1>td{background:rgba(214,168,64,.20)}.hpmini.hpw2,tr.hpw2>td{background:rgba(214,150,40,.34)}
+.hpmini.hpw1,tr.hpw1>td{background:rgba(232,190,50,.24)}.hpmini.hpw2,tr.hpw2>td{background:rgba(176,92,92,.24)}
 .hprisk{font-size:13px;margin:4px 0 8px}.hprisk--on{padding:7px 10px;border-radius:10px}.hprisk--l1,.hptag--l1{background:rgba(222,150,160,.16)}.hprisk--l2,.hptag--l2{background:rgba(190,90,110,.28)}.hprisk--l3,.hptag--l3{background:rgba(140,40,70,.42)}
 .hpold--o1{color:var(--muted)}.hpold--o2,.hpold--o3{color:var(--muted);font-weight:600}
 .hpold--r1{color:rgba(176,92,92,.95)}.hpold--r2{color:rgba(190,80,80,1)}.hpold--r3{color:rgba(200,70,70,1);font-weight:600}
@@ -3798,7 +3798,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 16:58";   // подставляется при публикации
+const BUILD="20.10 17:17";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6568,7 +6568,9 @@ const ORGAN_FAM={blood:/анеми|лейкоз|тромб|гемофил/i,horm
   gut:/гастрит|язв|целиаки|колит|кишечник|прямой кишки|желудк/i,metabolism:/диабет|ожирен|гликирован/i,bones:/остеопороз|перелом|артрит|подагр/i,lungs:/астм|туберкул|бронх|легких|лёгких/i,
   nerves:/эпилепс|паркинсон|деменци|мигрен|шизофрен/i,eyes:/миопи|глауком|катаракт|отслойк|сетчатк|зрени|слеп/i,immune:/аллерги|астм|атоп|аутоиммун|псориаз|экзем|витилиго/i};
 // диагноз относится к органу по коду системы, кроме аллергических: они — «Иммунитет, кожа и аллергия», даже если записаны в ЛОР или лёгких
-function dxOrgan(x){ if(/аллерг|атопи|поллиноз|крапивниц/i.test(x&&x.n||"")) return "immune"; const g=SYS_GROUPS.find(o=>o.sys.includes(x&&x.sys)); return g?g.id:"other"; }
+function dxOrgan(x){ if(/аллерг|атопи|поллиноз|крапивниц/i.test(x&&x.n||"")) return "immune";
+  if(/баланит|баланопостит|простатит|эректил|фимоз/i.test(x&&x.n||"")) return "repro";   // болезни половых органов — не «Почки и мочевыделение», даже если записаны в урологии (Денис, 20.10.2026)
+  const g=SYS_GROUPS.find(o=>o.sys.includes(x&&x.sys)); return g?g.id:"other"; }
 function organRisk(id,family,diagnoses){
   const o=ORGANS.find(x=>x.id===id), re=ORGAN_FAM[id], reasons=[];
   (family||[]).forEach(f=>{ const what=String(f&&f.what||""); if(!re||!f||/✅|не было|не выявлен|отсутств/i.test(what)) return;
@@ -6594,7 +6596,7 @@ function organTone(det){
   return {tone:L.length>=4?"g3":L.length>=2?"g2":"g1",n:L.length,bad:0,old:0};
 }
 // отклонение показателя от нормы — янтарная подложка (давность анализа — красная, это разные вещи)
-function hpAnom(x){ return x&&x.v!=null&&x.flag&&x.flag!=="в норме"?(x.st==="bad"?" hpw2":" hpw1"):""; }
+function hpAnom(x){ return x&&x.v!=null&&x.flag&&x.flag!=="в норме"?(x.st==="warn"?" hpw1":" hpw2"):""; }   // «внимание» — жёлтый, вне нормы — светло-красный (схема Дениса, 20.10.2026)
 // ── /карта органов
 // ═══════════ Опросы о здоровье (ТЗ-009 блоки 1–3, 5, 6; личная версия) ═══════════
 // Определения — SURVEYS (встроить_опросы.js из опросы/*.json). Ответ: {value, skipped}; value — число, id варианта или массив id (+ "other:текст").
