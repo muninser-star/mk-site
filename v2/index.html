@@ -285,6 +285,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .indp--pop{border-radius:14px}.indp--sheet{left:0;right:0;bottom:0;border-radius:18px 18px 0 0;max-height:75vh;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
 .indp h3{margin:0 0 6px;font-size:16px;padding-right:32px}.indp__s+.indp__s{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.indp__s div{margin-top:6px}
 .bp-big{font-size:34px;font-weight:700;line-height:1.1;margin:4px 0}
+.empty-il{display:block;width:160px;max-width:70%;height:auto;margin:6px auto;color:var(--muted);--il-a:var(--accent)}.empty-state{text-align:center;padding:4px 0 8px}.empty-state .muted,.empty-state .empty{text-align:center}
 .regrow{padding:10px 0;border-top:1px solid var(--line)}.regrow:first-of-type{border-top:0}
 .cal-done{display:inline-flex;align-items:center;gap:4px;color:var(--ok);font-weight:600;font-size:13px;white-space:nowrap}.cal-done--icon{padding:0 6px}.plan-cal.cal-done{padding:0 4px}
 .rz-todo{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0;background:var(--accentbg)}.rz-t{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14px}.rz-t input{margin-top:3px}.rzb{margin:10px 0}
@@ -1842,6 +1843,59 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 <symbol id="i-aura-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="m12 5 1.2 2.4L16 8l-2 1.8.4 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.8 2.7-.6Z"/></symbol>
 </svg>
 <!--sprite-diary:end-->
+<!--sprite-organs:start-->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="o-blood" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2C10.2 6.1 6.3 10.9 6.3 15a5.7 5.7 0 0 0 11.4 0C17.7 10.9 13.8 6.1 12 3.2Z"/><circle cx="10" cy="14" r="1" fill="currentColor"/><circle cx="14" cy="16" r="1" fill="currentColor"/></symbol>
+<symbol id="o-hormones" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11.4 11.8C8.4 7.1 4.2 7 3.5 9.8c-.6 2.4 2.5 4.4 7.2 3.1M12.6 11.8c3-4.7 7.2-4.8 7.9-2 .6 2.4-2.5 4.4-7.2 3.1M12 8.2v7.8"/></symbol>
+<symbol id="o-liver" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 9.1C5.3 6.5 9.1 5.6 13.2 6.3l5.5 1.1c1.8.4 2.4 2.2.9 3.6-3.1 2.9-8.2 4.5-13.7 4.8l-2.5-.2c-.9-1.8-1-4.5-.2-6.5Z"/><path d="M12.7 6.5c-.2 2.1-1.1 3.9-3.1 5.3"/></symbol>
+<symbol id="o-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 4.7 13.2C.9 9.6 5.1 4.5 9 6.9l3 2.4 3-2.4c3.9-2.4 8.1 2.7 4.3 6.3Z"/><path d="M9 3.3v2.4M15 3.3v2.4"/></symbol>
+<symbol id="o-kidney" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13.8 4.2C9.5 2.5 5.4 5.8 5.2 10.8c-.2 4.3 2.1 7.5 5.3 7.2 2.1-.2 3.4-2.1 2.7-4-.5-1.5-2-2.1-2.2-3.6-.2-1.9 1-3.3 2.8-3.7"/><path d="M13.3 14.2c.4 2.1.5 4.1 1.8 5.8"/></symbol>
+<symbol id="o-gut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 4v3c0 1.6 1 2.5 2.5 2.5S11.2 8.6 11.2 7V4h3c2.4 0 3.8 1.7 3.8 4 0 1.8-1.2 2.6-1.2 4.1 0 1.5.9 2.2 2.1 2.2"/><path d="M5 15.5c-1.3 0-1.8 1.2-1.8 2.3v1.5h14.5v-1.5c0-1.1-.5-2.3-1.8-2.3H5Z"/><path d="M7 16.1v2.5M10 16.1v2.5M13 16.1v2.5"/></symbol>
+<symbol id="o-metabolism" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="8.8" cy="9" r="1" fill="currentColor"/><circle cx="15.2" cy="15" r="1" fill="currentColor"/></symbol>
+<symbol id="o-bones" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.7 7.7 16.3 16.3"/><path d="M6.2 8.8a2.1 2.1 0 1 1 2.6-2.6 2.1 2.1 0 1 1 2.6 2.6L8.8 11.4M17.8 15.2a2.1 2.1 0 1 1-2.6 2.6 2.1 2.1 0 1 1-2.6-2.6l2.6-2.6"/></symbol>
+<symbol id="o-lungs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2v7.1M10.8 7.5 8.4 10M13.2 7.5l2.4 2.5"/><path d="M10.3 8.8c-1.6.6-2.5 2.6-3.3 4.7l-2 4.4c-.7 1.5.5 2.8 2.1 2.2l3.1-1.5c1.1-.6 1.8-1.5 1.8-3V8.8ZM13.7 8.8c1.6.6 2.5 2.6 3.3 4.7l2 4.4c.7 1.5-.5 2.8-2.1 2.2l-3.1-1.5c-1.1-.6-1.8-1.5-1.8-3V8.8Z"/></symbol>
+<symbol id="o-nerves" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.8 3.5c-4.5-.4-8.1 3-8.1 7.8v3.1c0 1.8-.8 3-2 3.8 1.5 1.7 3.7 2.7 6.2 2.7h3.5c2.4 0 4-1.6 4-4V9.4c0-3.3-1.1-5.6-3.6-5.9Z"/><path d="M9 9.5c1.1-1.2 3.2-.8 3.2.8 0 1.5-2.2 1.7-2.2 3.3 0 1.3 1.5 1.8 3.1.8"/></symbol>
+<symbol id="o-eyes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 12s3.3-4.8 9.2-4.8 9.2 4.8 9.2 4.8-3.3 4.8-9.2 4.8S2.8 12 2.8 12Z"/><circle cx="12" cy="12" r="2.3"/><path d="M7.3 5.6c1.4-.9 2.9-1.4 4.7-1.4"/></symbol>
+<symbol id="o-immune" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 19.5 6v5.2c0 4.4-2.8 7.4-7.5 9.5-4.7-2.1-7.5-5.1-7.5-9.5V6L12 3Z"/><path d="M12 8c-1.1 1.8-2.2 3.2-2.2 4.5a2.2 2.2 0 0 0 4.4 0C14.2 11.2 13.1 9.8 12 8Z"/></symbol>
+<symbol id="s-ped" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.7" cy="7" r="2.2"/><path d="M3.2 18v-2.5a3.5 3.5 0 0 1 7 0V18"/><circle cx="16.8" cy="6.2" r="3.1"/><path d="M12.5 19.5v-3.2a4.3 4.3 0 0 1 8.6 0v3.2"/></symbol>
+<symbol id="s-cardio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 4.8 13.1C1 9.5 5.3 4.5 9.1 7l2.9 2.3L14.9 7c3.8-2.5 8.1 2.5 4.3 6.1Z"/><path d="M4.6 5.4c1.2-1 2.6-1.4 4-1.1M15.4 4.3c1.4-.3 2.8.1 4 1.1"/></symbol>
+<symbol id="s-phleb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 3.2c-.2 2.4.2 4.8 1.1 7l.8 2.1-.8 6.7c-.1 1 .5 1.7 1.5 1.7h1.8c1 0 1.6-.7 1.5-1.7l-.8-6.7.8-2.1c.9-2.2 1.3-4.6 1.1-7"/><path d="M8.8 8.2c1.1.7 2-.6 3.1.1s1.9-.6 2.8.1"/></symbol>
+<symbol id="s-endo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11.2 11.5C8.6 7.2 4.1 6.3 3.2 9.2c-.8 2.5 2.5 5.4 7.8 3.6M12.8 11.5c2.6-4.3 7.1-5.2 8-2.3.8 2.5-2.5 5.4-7.8 3.6M12 8.2v8.6M10.2 12h3.6"/></symbol>
+<symbol id="s-hema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3.2C6.7 5.7 4.8 8.5 4.8 11a3.4 3.4 0 0 0 6.8 0c0-2.5-1.9-5.3-3.4-7.8Z"/><circle cx="16" cy="7.2" r="1" fill="currentColor"/><circle cx="18.5" cy="11.2" r="1" fill="currentColor"/><circle cx="15.5" cy="15.4" r="1" fill="currentColor"/></symbol>
+<symbol id="s-neuro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 20c-2-1.6-3.1-4-3.1-7 0-4.9 3.2-8.4 7.6-8.4 4.2 0 7.3 3.1 7.3 7.2 0 4-2.7 7-6.8 7H7.4Z"/><path d="m8.3 10.1 3.6 2 4.1-3.1M11.9 12.1l-1 3.8"/><circle cx="8.3" cy="10.1" r=".8" fill="currentColor"/><circle cx="16" cy="9" r=".8" fill="currentColor"/><circle cx="10.9" cy="15.9" r=".8" fill="currentColor"/></symbol>
+<symbol id="s-psych" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 20c-2-1.6-3.1-4-3.1-7 0-4.9 3.2-8.4 7.6-8.4 4.2 0 7.3 3.1 7.3 7.2 0 4-2.7 7-6.8 7H7.4Z"/><path d="M7.8 12c1.4-2.1 2.8 2.1 4.2 0s2.8 2.1 4.2 0"/></symbol>
+<symbol id="s-ophth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 12s3.3-4.8 9.2-4.8 9.2 4.8 9.2 4.8-3.3 4.8-9.2 4.8S2.8 12 2.8 12Z"/><circle cx="12" cy="12" r="2.4"/></symbol>
+<symbol id="s-ent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.3 4C4.4 4 3.3 6.6 3.8 10c.4 3 2 6.1 4 6.1 1.5 0 2.2-1.1 1.5-2.3-.5-1.1-1.3-1.7-1-2.8.3-1.1 1.3-1.5 1.3-3 0-2.2-.9-4-2.3-4Z"/><path d="M15 8.5c1.8-.8 3.5-.2 4 1.2l-1.1 1.4.7 2-2.3 1.2"/></symbol>
+<symbol id="s-allergo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="11" r="1.7"/><path d="M9.5 9.3V4.7M8.2 9.9 4.9 7.2M7.9 11.8l-4.1 1.4M10.9 12.2l3.2 2.6M10.8 9.8l3-3"/><circle cx="17.1" cy="5.1" r=".9" fill="currentColor"/><circle cx="19.1" cy="9" r=".9" fill="currentColor"/><circle cx="17.1" cy="13" r=".9" fill="currentColor"/></symbol>
+<symbol id="s-pulmo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2v6.4M10.8 7.3 8.5 9.8M13.2 7.3l2.3 2.5"/><path d="M10.3 8.7c-1.5.6-2.4 2.4-3.2 4.4l-2 4.4c-.7 1.5.5 2.7 2 2.1l3.1-1.5c1.1-.5 1.8-1.5 1.8-2.9V8.7ZM13.7 8.7c1.5.6 2.4 2.4 3.2 4.4l2 4.4c.7 1.5-.5 2.7-2 2.1l-3.1-1.5c-1.1-.5-1.8-1.5-1.8-2.9V8.7Z"/></symbol>
+<symbol id="s-nephro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13.8 4C9.3 2.4 5.3 5.7 5.2 10.6c-.1 4.3 2.2 7.3 5.3 7.1 2.2-.2 3.3-2.2 2.6-4-.6-1.4-2-2-2.1-3.5-.2-1.8 1.1-3.1 2.8-3.6"/><path d="M13.2 14.1c1.3-.5 2.6-.1 3.7 1"/></symbol>
+<symbol id="s-uro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4.2v4.1c0 2.1 1.2 3.1 2.5 4.4M17.5 4.2v4.1c0 2.1-1.2 3.1-2.5 4.4"/><path d="M9 11.4c-2.2 1-3.5 2.9-3.5 5.1 0 2.6 2.5 4.2 6.5 4.2s6.5-1.6 6.5-4.2c0-2.2-1.3-4.1-3.5-5.1"/><path d="M12 20.7v1"/></symbol>
+<symbol id="s-gyn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.8 5.8C6 4.1 4.3 3.5 2.8 3.5M16.2 5.8c1.8-1.7 3.5-2.3 5-2.3"/><path d="M7.5 5.5c-1.2 1.5-1.4 3.5-.4 5.1.8 1.3 2.2 1.9 3.5 2.9.6.5 1.1 1.2 1.4 2 .3-.8.8-1.5 1.4-2 1.3-1 2.7-1.6 3.5-2.9 1-1.6.8-3.6-.4-5.1"/><path d="M12 15.5v4.8"/></symbol>
+<symbol id="s-mammo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8.7" r="3.2"/><circle cx="16" cy="8.7" r="3.2"/><path d="M3.5 19c2.2-2.6 5-3.9 8.5-3.9s6.3 1.3 8.5 3.9"/></symbol>
+<symbol id="s-gastro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.2v3c0 1.5 1.1 2.4 2.5 2.4S11 8.7 11 7V4h3c2.5 0 4 1.7 4 4.1 0 1.8-1.2 2.7-1.2 4.1 0 1.4.9 2.1 2 2.1"/><path d="M12.4 16c2-2.2 5.3-2.7 7.9-1.7-.8 2.4-3.5 4.2-7.3 4.3l-2.1-.1"/></symbol>
+<symbol id="s-derm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="8" cy="8" r=".9" fill="currentColor"/><circle cx="15.5" cy="10.5" r=".9" fill="currentColor"/><circle cx="11" cy="16" r=".9" fill="currentColor"/></symbol>
+<symbol id="s-ortho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7.7 7.7 16.3 16.3"/><path d="M6.2 8.8a2.1 2.1 0 1 1 2.6-2.6 2.1 2.1 0 1 1 2.6 2.6L8.8 11.4M17.8 15.2a2.1 2.1 0 1 1-2.6 2.6 2.1 2.1 0 1 1-2.6-2.6l2.6-2.6"/></symbol>
+<symbol id="s-surgeon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="6" rx="1.5" transform="rotate(45 12 12)"/><rect x="3.5" y="9" width="17" height="6" rx="1.5" transform="rotate(-45 12 12)"/></symbol>
+<symbol id="s-dent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5C4.8 3.5 3.7 5.1 4 7.7c.2 2.5 1.1 4.8 2 6.9.7 1.8 1.2 4.2 2.2 4.2 1 0 1.3-4.8 2.8-4.8s1.8 4.8 2.8 4.8c1 0 1.5-2.4 2.2-4.2.9-2.1 1.8-4.4 2-6.9.3-2.6-.8-4.2-3-4.2-1.7 0-2.5.9-4 .9s-2.3-.9-4-.9Z"/></symbol>
+<symbol id="s-gen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5c9 2.5 3 6.5 12 9M18 3.5c-9 2.5-3 6.5-12 9M6 11.5c9 2.5 3 6.5 12 9M18 11.5c-9 2.5-3 6.5-12 9"/><path d="M7.5 5.5h9M7 9h10M7 15h10M7.5 18.5h9"/></symbol>
+<symbol id="s-other" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 1 1 4.9 2c-1.2 1-2.1 1.5-2.1 3.1M12 17.4v.1"/></symbol>
+<symbol id="m-bp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.8a9 9 0 0 1 18 0"/><rect x="13.5" y="5.2" width="5.2" height="7" rx="1.2"/><path d="M16.1 12.2v2.4M7.2 17.8v-3a2 2 0 0 1 2-2h1.4l2.9-2.3"/></symbol>
+<symbol id="m-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+<symbol id="u-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 4.2a2.1 2.1 0 0 1 3.6 0l6.7 12.1a2.2 2.2 0 0 1-1.9 3.3H5.4a2.2 2.2 0 0 1-1.9-3.3Z"/><path d="M12 8v4.5"/><circle cx="12" cy="16" r=".8" fill="currentColor"/></symbol>
+<symbol id="u-tip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="6.2"/><path d="M9.5 15.5v2.1h5v-2.1M10 20h4"/></symbol>
+<symbol id="u-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14V5.5a2.5 2.5 0 0 1 5 0V14a4.5 4.5 0 1 1-5 0Z"/><path d="M12 8v8"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></symbol>
+<symbol id="u-clip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 12.8 15.4 6a3 3 0 0 1 4.2 4.2l-8.8 8.7a4.5 4.5 0 0 1-6.4-6.4l8.4-8.4a2.5 2.5 0 0 1 3.5 3.5l-8 8"/></symbol>
+<symbol id="u-task" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M7.5 9h9M7.5 14h9"/></symbol>
+<symbol id="u-regular" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 9h16"/><path d="M18.5 13.5a5.2 5.2 0 0 1-5.4 5.2M18.5 13.5l-2.2.2M18.5 13.5l-.4 2.2"/></symbol>
+<symbol id="u-added" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 9h17M8 14l2.2 2.2 4.5-4.5"/></symbol>
+<symbol id="u-survey" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h11l3 3V20.5H5Z"/><path d="M16 3.5v3.2h3M9 10h6M9 14h6M9 18h6"/><circle cx="6.8" cy="10" r=".6" fill="currentColor"/><circle cx="6.8" cy="14" r=".6" fill="currentColor"/><circle cx="6.8" cy="18" r=".6" fill="currentColor"/></symbol>
+<symbol id="e-bp" viewBox="0 0 160 120" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M33 53a23 23 0 0 1 46 0"/><path d="M39 53v-8a6 6 0 0 1 6-6h8"/><rect x="53" y="29" width="18" height="23" rx="4"/><path d="M62 52v9M18 91h124"/><path d="M24 91v-8M48 91v-8M72 91v-8M96 91v-8M120 91v-8"/><path d="M24 82h24v-5h24v5h24v-7h24v7" style="stroke:var(--il-a,currentColor)"/></symbol>
+<symbol id="e-razbor" viewBox="0 0 160 120" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M37 20h47l15 15v51H37Z"/><path d="M84 20v15h15M49 47h35M49 58h29M49 69h21"/><circle cx="104" cy="73" r="14"/><path d="m114 83 12 12"/><path d="m104 65 2 5 5 1-4 3 1 5-4-3-4 2 1-5-3-4 5 1Z" style="stroke:var(--il-a,currentColor)"/></symbol>
+<symbol id="e-day" viewBox="0 0 160 120" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M42 24h58l18 18v53H42Z"/><path d="M100 24v18h18M54 54h40M54 66h28M54 78h34"/><path d="M100 24v18h18" style="stroke:var(--il-a,currentColor)"/></symbol>
+<symbol id="e-offline" viewBox="0 0 160 120" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M45 78h51a17 17 0 0 0 1-34 25 25 0 0 0-47-4 19 19 0 0 0-5 38Z"/><path d="m51 43 39 31"/><path d="M104 82a14 14 0 0 1 19-10M123 72l-1 8-7-3M120 91a14 14 0 0 1-19 10M101 101l1-8 7 3" style="stroke:var(--il-a,currentColor)"/></symbol>
+<symbol id="e-done" viewBox="0 0 160 120" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="105" cy="27" r="13"/><path d="m98 27 5 5 9-11" style="stroke:var(--il-a,currentColor)"/><path d="M39 37h49v60H39Z"/><path d="M48 51h7M62 51h18M48 65h7M62 65h18M48 79h7M62 79h18"/><path d="m46 49 34 4M46 63l34 4M46 77l34 4" style="stroke:var(--il-a,currentColor)"/></symbol>
+</svg>
+<!--sprite-organs:end-->
 
 <header class="app-header">
   <span class="app-title"><svg class="ic" aria-hidden="true"><use href="#i-card"/></svg>Медкнижка</span>
@@ -2240,7 +2294,13 @@ let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"Семейный ИИ-врач"}]; }
 const ICON_IDS=["home", "card", "add", "nutr", "ask", "symptoms", "illness", "visits", "labs", "studies", "dynamics", "feed", "meds", "vaccines", "profile", "family", "calendar", "brief", "docs", "upload", "search", "star", "info", "more", "drive", "lock", "menu", "close", "theme", "logout", "settings", "shield", "key", "scale", "note", "plus", "clock", "home-fill", "card-fill", "nutr-fill", "ask-fill", "add-fill"];   // что есть в спрайте вверху страницы
 // значок из спрайта; неизвестный id — пусто, чтобы не было битой ссылки (ТЗ-027 блок 1)
-function icon(id,cls){ return ICON_IDS.indexOf(id)<0?"":`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${id}"/></svg>`; }
+// Органы, специальности, мелкие значки (ТЗ-037): id вида o-blood, s-ortho, m-bp, u-warn берутся из спрайта без префикса i-
+function icon(id,cls){ if(/^(o-(blood|hormones|liver|heart|kidney|gut|metabolism|bones|lungs|nerves|eyes|immune)|s-(ped|cardio|phleb|endo|hema|neuro|psych|ophth|ent|allergo|pulmo|nephro|uro|gyn|mammo|gastro|derm|ortho|surgeon|dent|gen|other)|m-(bp|pulse)|u-(warn|tip|temp|clip|task|regular|added|survey))$/.test(id)) return `<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#${id}"/></svg>`;
+  return ICON_IDS.indexOf(id)<0?"":`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${id}"/></svg>`; }
+// иллюстрация пустого экрана (160×120): акцент берёт цвет из --il-a
+function illus(id){ return /^e-(bp|razbor|day|offline|done)$/.test(id)?`<svg class="empty-il" viewBox="0 0 160 120" aria-hidden="true"><use href="#${id}"/></svg>`:""; }
+// значок органа: рисунок из набора, у остальных тем (базовый опрос, витамины) — прежний эмодзи
+function orgIc(id,fallback,cls){ const r=icon("o-"+id,cls||"ic--20"); return r||(fallback||""); }
 // нижняя панель: у каждой кнопки линия и заливка, показывается одна из них (по .is-active)
 function bottomBarHtml(keys,isOn,labels){ return keys.map(k=>`<button type="button" data-bt="${k}" class="${isOn(k)?"is-active":""}"><span>${icon(k,"ic-line")}${icon(k+"-fill","ic-fill")}</span>${labels[k]}</button>`).join(""); }
 function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"]:["home","card","add","ask"]; }
@@ -3730,7 +3790,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 15:38";   // подставляется при публикации
+const BUILD="20.10 15:59";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4861,7 +4921,7 @@ function rzTodosHtml(row,topic){
   if(!row.id||!t.length||row.todoSkip) return "";
   const added=rzTodoAdded(row.id), left=t.map((x,i)=>({x,i})).filter(o=>!added.has(o.i));
   if(row.todoDone||!left.length) return `<div class="muted" style="font-size:13px;margin:6px 0">✓ Уже в списке дел — «План здоровья» на главной</div>`;
-  return `<div class="rz-todo" data-rzt="${row.id}"><b>Добавить в дела</b>
+  return `<div class="rz-todo" data-rzt="${row.id}"><b>${icon("u-task","ic--20")} Добавить в дела</b>
     ${left.map(o=>`<label class="rz-t"><input type="checkbox" data-rzti="${o.i}" checked><span>${esc(o.x.what)}${o.x.term?` <span class="muted">· ${esc(o.x.term)}</span>`:""}</span></label>`).join("")}
     <div class="row" style="margin-top:6px"><button type="button" class="btn btn-primary" data-rzadd="${row.id}" data-rztopic="${esc(topic)}">Добавить выбранные</button>
     <button type="button" class="btn btn-secondary" data-rzskip="${row.id}" data-rztopic="${esc(topic)}">Не нужно</button></div></div>`;
@@ -4939,7 +4999,7 @@ function razbHtml(d){
   return `<div class="card"><h2>Разборы семейного ИИ-врача</h2><div class="muted" style="font-size:13px;margin-bottom:8px">Разговоры с врачом по анализам, показателям и симптомам: они остаются здесь, даже когда симптом закрыт.</div>
     <div class="row" style="gap:6px;margin-bottom:8px;flex-wrap:wrap">${chips}</div>
     ${rows.length?rows.map(r=>`<div class="plancard" data-rzopen="${esc(r.topic)}"><div><b>${esc(rzLabel(r.topic))}</b> <span class="muted">· ${ru(String(r.created_at).slice(0,10))}</span>
-      <div class="muted" style="font-size:13px">${esc(r.first||"")}</div></div><span class="muted">→</span></div>`).join(""):`<div class="empty">${st.loaded&&!window.__MK_KEY?"Нужен вход по ссылке с кодом":"Разборов пока нет. Откройте анализ или симптом и нажмите «Разобрать»."}</div>`}</div>`;
+      <div class="muted" style="font-size:13px">${esc(r.first||"")}</div></div><span class="muted">→</span></div>`).join(""):`<div class="empty-state">${window.__MK_KEY?illus("e-razbor"):""}<div class="empty">${st.loaded&&!window.__MK_KEY?"Нужен вход по ссылке с кодом":"Разборов пока нет. Откройте анализ или симптом и нажмите «Разобрать»."}</div></div>`}</div>`;
 }
 function symRazbCard(name){
   const topic=symTopic(cur,name), c=SYMCHAT[topic]||(SYMCHAT[topic]={open:false,rows:[],busy:false,loaded:false});
@@ -5569,11 +5629,11 @@ function bpCard(){
   bpLoad();
   const today=localDay(), rows=BPS[cur]||[], sm=bpSummary(rows,today), L=sm.last, c=L?bpClass(L.sys,L.dia):null;
   const body=L?`<div class="bp-big" style="color:${statusColor(c.st)}">${L.sys}/${L.dia}</div>
-      <div class="muted">${L.pulse?`пульс ${L.pulse} · `:""}${c.word} · ${esc(bpWhen(L.measured_at,today))}${L.note?` · ${esc(L.note)}`:""}</div>
-      ${c.urgent?`<div class="note" style="margin-top:6px;background:var(--badbg,#fdecea);color:var(--bad)">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}
+      <div class="muted">${L.pulse?`${icon("m-pulse","ic--16")} пульс ${L.pulse} · `:""}${c.word} · ${esc(bpWhen(L.measured_at,today))}${L.note?` · ${esc(L.note)}`:""}</div>
+      ${c.urgent?`<div class="note" style="margin-top:6px;background:var(--badbg,#fdecea);color:var(--bad)">${icon("u-warn","ic--20")} Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}
       ${sm.n>1?`<div class="muted" style="margin-top:6px">За ${sm.days} дней: среднее ${sm.avgSys}/${sm.avgDia}, замеров ${sm.n}</div>`:""}`
-    :`<div class="muted">${window.__MK_KEY?(BPL[cur]&&!BPS[cur]?"Загружаю…":"Замеров пока нет. Запишите первый — здесь появятся среднее и динамика."):"Нужен вход по ссылке с кодом"}</div>`;
-  return `<div class="card bpcard"><h2>Давление</h2>${body}
+    :`<div class="empty-state">${window.__MK_KEY&&!(BPL[cur]&&!BPS[cur])?illus("e-bp"):""}<div class="muted">${window.__MK_KEY?(BPL[cur]&&!BPS[cur]?"Загружаю…":"Замеров пока нет. Запишите первый — здесь появятся среднее и динамика."):"Нужен вход по ссылке с кодом"}</div></div>`;
+  return `<div class="card bpcard"><h2>${icon("m-bp","ic--24")} Давление</h2>${body}
     <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-bpadd="1">Записать давление</button>${rows.length?`<button type="button" class="btn btn-secondary" data-bphist="1">История</button>`:""}</div>
     <div class="muted" style="font-size:12px;margin-top:8px">Ориентир, не диагноз: 130/85 и выше — повышенное, 140/90 и выше — высокое. Измеряйте сидя, после 5 минут покоя.</div></div>`;
 }
@@ -5581,7 +5641,7 @@ function bpForm(){
   const now=new Date(), pad=n=>String(n).padStart(2,"0"), local=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h3 style="margin:0 0 6px;font-size:18px">Давление — ${esc(DATA[cur].short)}</h3>
+    <h3 style="margin:0 0 6px;font-size:18px">${icon("m-bp","ic--24")} Давление — ${esc(DATA[cur].short)}</h3>
     <div class="addform">
       <div class="row" style="gap:10px"><div class="fld" style="flex:1"><label for="bpSys">Верхнее</label><input id="bpSys" inputmode="numeric" autocomplete="off" placeholder="120"></div>
         <div class="fld" style="flex:1"><label for="bpDia">Нижнее</label><input id="bpDia" inputmode="numeric" autocomplete="off" placeholder="80"></div>
@@ -5680,7 +5740,7 @@ function regRowHtml(r){
     :`<span class="status status-ok">${r.planned?"запись "+ru(r.planned):"запланировано, дата не выбрана"}</span>`;
   const btn=r.planned!==null?"":r.status==="noterm"?`<button type="button" class="btn btn-secondary" data-regterm="${esc(r.key)}">Задать срок</button> `:"";
   const plan=r.planned===null?`<button type="button" class="btn btn-secondary" data-regplan="${esc(r.spec)}">Запланировать посещение</button>`:"";
-  return `<div class="regrow" data-regkey="${esc(r.key)}"><div><b>${esc(specName(r.spec))}</b> <span class="muted">· ${esc(lastTxt)}${r.due&&r.status!=="nodata"?` · срок ${ru(r.due)}`:""}</span> ${mid}
+  return `<div class="regrow" data-regkey="${esc(r.key)}"><div><b>${icon("s-"+r.spec,"ic--20")} ${esc(specName(r.spec))}</b> <span class="muted">· ${esc(lastTxt)}${r.due&&r.status!=="nodata"?` · срок ${ru(r.due)}`:""}</span> ${mid}
     <div class="muted" style="font-size:13px">${esc(r.why)}</div></div>
     <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${btn}${plan}<button type="button" class="linkbtn" data-regmute="${esc(r.key)}">Не нужно напоминать</button></div></div>`;
 }
@@ -5688,7 +5748,7 @@ function regCard(d,plans,today){
   regLoad();
   const all=regVisits(d,plans,REGV[cur],today,typeof REG_LINKS!=="undefined"?REG_LINKS:[]), rows=all.filter(r=>!r.muted), hid=all.filter(r=>r.muted);
   if(!rows.length&&!hid.length) return "";
-  return `<div class="card"><h2>Регулярные визиты</h2>${rows.map(regRowHtml).join("")||`<div class="muted">Всё скрыто.</div>`}
+  return `<div class="card"><h2>${icon("u-regular","ic--24")} Регулярные визиты</h2>${rows.map(regRowHtml).join("")||`<div class="empty-state">${illus("e-done")}<div class="muted">Всё скрыто.</div></div>`}
     ${hid.length?`<details style="margin-top:8px"><summary class="muted">Скрытые — ${hid.length}</summary>${hid.map(r=>`<div class="row" style="justify-content:space-between;margin-top:6px"><span>${esc(specName(r.spec))} <span class="muted">· ${esc(r.why)}</span></span><button type="button" class="btn btn-secondary" data-regunmute="${esc(r.key)}">Вернуть</button></div>`).join("")}</details>`:""}</div>`;
 }
 async function regSet(key,patch,msg){
@@ -5709,7 +5769,7 @@ document.addEventListener("click",e=>{
   const pl=e.target.closest&&e.target.closest("[data-regplan]"); if(pl){ const spec=pl.dataset.regplan, last=((DATA[cur]||{}).rec||[]).filter(r=>r.t==="visit"&&regWhoMatch(r.who||r.title,spec)).sort((a,b)=>b.d.localeCompare(a.d))[0];
     const r=last?{d:last.d,who:last.who||"",title:last.title||"",data:last.data||{}}:{d:localDay(),who:specName(spec),title:specName(spec)+": приём",data:{}};
     modal.className="modal on"; modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-      <h3 style="margin:0 0 6px;font-size:18px">${esc(specName(spec))}</h3>${nvFormHtml(r,{after:true})}</div>`; window.__nvRec.spec=spec; return; }
+      <h3 style="margin:0 0 6px;font-size:18px">${icon("s-"+spec,"ic--24")} ${esc(specName(spec))}</h3>${nvFormHtml(r,{after:true})}</div>`; window.__nvRec.spec=spec; return; }
 });
 // ── ТЗ-031 блок 7: кнопка «Запланировать посещение» в карточке приёма и сразу после сохранения приёма
 function nvFormModel(r){
@@ -6160,7 +6220,7 @@ function addItems(d){
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   const meas=d&&d.nutrition?()=>{ tab="home"; render(); const w=document.getElementById("wIn"); if(w){ w.scrollIntoView({block:"center"}); w.focus(); } }:null;
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],
-    ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],["bp",icon("dynamics"),"Давление",()=>bpForm()],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],["bp",icon("m-bp"),"Давление",()=>bpForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["vac",icon("vaccines"),"Прививка",f("vacForm")],["note",icon("note"),"Заметка",f("noteForm")]]
     .filter(x=>x[3]).map(([k,ic,t,open])=>({k,ic,t,open}));
 }
@@ -6612,7 +6672,7 @@ function svProfileFacts(answers,sex){
 function svFactsCard(){
   const s=svGet(cur), F=svProfileFacts(s.answers,svSex(cur));
   if(!F.rows.length) return "";
-  return `<div class="card"><h2>Из опроса</h2><div class="tbl-wrap"><table class="tbl"><tbody>${F.rows.map(r=>`<tr><td class="muted" style="width:42%">${esc(r.k)}</td><td>${esc(r.v)}</td></tr>`).join("")}</tbody></table></div>
+  return `<div class="card"><h2>${icon("u-survey","ic--24")} Из опроса</h2><div class="tbl-wrap"><table class="tbl"><tbody>${F.rows.map(r=>`<tr><td class="muted" style="width:42%">${esc(r.k)}</td><td>${esc(r.v)}</td></tr>`).join("")}</tbody></table></div>
     <div class="muted" style="font-size:13px;margin-top:6px">Со слов${kidWho()}${F.at?", опрос от "+ru(F.at):""}. Это не запись врача: диагнозы, лекарства и аллергии в медкарте вносятся отдельно.</div>
     <div class="row" style="margin-top:8px"><button type="button" class="btn btn-secondary" data-svres="1">Мои ответы</button></div></div>`;
 }
@@ -6740,7 +6800,7 @@ function svTakeHtml(){
 function svResultsHtml(){
   const s=svGet(SVU.p), sex=svSex(SVU.p), A=svAnswers(), M=svFilterResults(svResultsModel(A,s.state,sex),SVU.query);
   const dirty=Object.keys(SVU.pend).length>0, any=Object.keys(A).length>0;
-  const sec=m=>`<details class="sv__sec"${m.open?" open":""}><summary><b>${m.icon?m.icon+" ":""}${esc(m.title)}</b>${m.state==="none"?` <span class="muted">Не пройден</span>`:""}</summary>
+  const sec=m=>`<details class="sv__sec"${m.open?" open":""}><summary><b>${m.icon?orgIc(m.id,m.icon)+" ":""}${esc(m.title)}</b>${m.state==="none"?` <span class="muted">Не пройден</span>`:""}</summary>
     ${m.rows.map(r=>`<button type="button" class="sv__row" data-svedit="${esc(m.id)}|${esc(r.qid)}"><b>${esc(r.q)}</b><span>${esc(r.a)}</span></button>`).join("")}
     ${m.state==="none"?`<button type="button" class="btn btn-secondary" data-svgo="${esc(m.id)}">Пройти</button>`:`<button type="button" class="sv__link" data-svredo="${esc(m.id)}">Пройти заново</button>`}</details>`;
   return `<div class="sv__top"><button type="button" class="sv__ic" data-sv="cancel" aria-label="Отмена">←</button><b class="sv__title">Результаты опроса · ${esc(svWho())}</b><button type="button" class="btn btn-primary sv__upd" data-sv="update"${dirty?"":" disabled"}>Обновить</button></div>
@@ -7157,7 +7217,7 @@ function hpHint(c){ return c.score<=0?"Нет данных":c.bySurvey?"По о�
 function svCardHtml(m){
   const s=svGet(cur), A=s.answers, st=s.state, kid=svIsKid(cur), baseDone=!!(st.base&&st.base.status==="completed"), baseStarted=!!st.base;
   const enough=ORGANS.filter((o,i)=>m.covs[i].a>=35&&!m.covs[i].bySurvey).map(o=>o.id), L=svOrgansList(A,st,enough), any=Object.keys(A).length>0;
-  const row=x=>`<div class="sv__orow"><span>${x.icon} ${esc(x.title)}</span>${x.passed?`<span class="status status-ok">пройден</span>`:x.enough?`<span class="muted">Анализов достаточно</span>`:`<button type="button" class="btn btn-secondary" data-svgo="${x.id}">${x.started?"Продолжить":"Пройти"}</button>`}</div>`;
+  const row=x=>`<div class="sv__orow"><span>${orgIc(x.id,x.icon)} ${esc(x.title)}</span>${x.passed?`<span class="status status-ok">пройден</span>`:x.enough?`<span class="muted">Анализов достаточно</span>`:`<button type="button" class="btn btn-secondary" data-svgo="${x.id}">${x.started?"Продолжить":"Пройти"}</button>`}</div>`;
   return `<div class="card" id="hpSurveys"><h2>Опросы о здоровье</h2>${kid?`<div class="muted" style="margin-bottom:6px">Профиль ребёнка заполняет родитель.</div>`:""}
     ${baseDone?`<div class="sv__orow"><span><b>Базовый опрос</b></span><span class="status status-ok">пройден</span></div>`
       :`<div class="hpnext"><div class="hpnext__h"><b>Пройдите базовый опрос о здоровье</b><span class="hpnext__p">+10%</span></div><div class="muted">Это займёт всего пять минут. Ответы нужны для подсказок и списка анализов.</div>
@@ -7170,7 +7230,7 @@ function hpHtml(d){
   const m=hpModel(d);
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpOrgHtml(d,m,hpOrgan);
   const rowsH=ORGANS.map((o,i)=>{ const c=m.covs[i];
-    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${o.icon}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag hptag--l${m.risks[i].level||1}" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
+    return `<button type="button" class="hporg" data-hporg="${o.id}"><span class="hporg__ic">${orgIc(o.id,o.icon,"ic--24")}</span><span class="hporg__t"><b>${esc(o.name)}${m.risks[i].risk?` <span class="hptag hptag--l${m.risks[i].level||1}" title="${esc(m.risks[i].reasons.join("; "))}">зона риска</span>`:""}</b><span class="muted">${esc(hpHint(c))}${hpDx(d,o).length?` · диагнозов: ${hpDx(d,o).length}`:""}</span></span>
       <span class="hporg__s">${hpBar(c.divs)}<span class="muted">${esc(c.label)}</span></span><span class="hptile__go" aria-hidden="true">›</span></button>`; }).join("");
   const next=m.weak.length?`<div class="card"><h2>Что делать дальше?</h2><div class="hpnext"><div class="hpnext__h"><b>Загрузите анализы</b><span class="hpnext__p">+${m.gain}%</span></div>
       <div class="muted">Не хватает показателей по ${m.weak.length} ${plural(m.weak.length,"органу","органам","органам")}: больше всего у «${esc(m.weak.slice().sort((a,b)=>a.c.a-b.c.a)[0].o.name)}».</div>
@@ -7191,7 +7251,7 @@ function hpOrgHtml(d,m,id){
     :`<tr class="${hpAnom(x).trim()}"><td>${esc(x.k)}${indBtn(x.k)}${x.n&&favKey(x.n)!==favKey(x.k)?` <span class="muted">(${esc(x.n)})</span>`:""}</td><td><b>${esc(x.v)}</b> ${esc(x.u)}</td><td>${flag(x.flag)}${x.prev?`<div class="muted">было ${esc(x.prev.v)} (${ru(x.prev.d)})</div>`:""}</td><td class="muted">${ru(x.d)}${hpNormText(x.norm)?`<br>норма ${esc(hpNormText(x.norm))}`:""}<br><span class="${x.tone?"hpold hpold--"+x.tone:""}">${esc(hpAgeText(x))}</span></td></tr>`).join("");
   const src=(ok,t)=>`<div class="hpsrc"><span class="${ok?"hpok":"hpno"}">${ok?"✓":"—"}</span> ${t}</div>`;
   return `<div class="card"><button type="button" class="btn btn-secondary" data-hporg="" style="height:34px">← Все органы</button>
-    <h2 style="margin:12px 0 4px">${o.icon} ${esc(o.name)}</h2><div class="row" style="gap:10px;align-items:center">${hpBar(c.divs)}<span><b>${organShown(c.score)}</b> из 100 · ${esc(c.label)}</span></div>
+    <h2 style="margin:12px 0 4px">${orgIc(o.id,o.icon,"ic--24")} ${esc(o.name)}</h2><div class="row" style="gap:10px;align-items:center">${hpBar(c.divs)}<span><b>${organShown(c.score)}</b> из 100 · ${esc(c.label)}</span></div>
     ${hpRiskLine(rk)}<div style="margin-top:10px">${src(c.have.length>0,`Анализы за 12 месяцев: ${c.have.length} из ${o.set.length}${c.bySurvey?" (засчитано по опросу)":""}`)}${src(c.dyn>0,"Повторные анализы (динамика)")}${src(c.ie>0,"Исследования и приёмы по органу за 24 месяца"+(c.ie>0?` — засчитано, всего ${ieAll}:`:": нет")+(c.ie>0?ieList.filter(r=>r.d>=from24).slice(0,3).map(r=>` <a href="#" data-rec="${(m.recAll||DATA[cur].rec).indexOf(r)}">${esc(String(r.title||r.who||"").slice(0,60))}, ${ru(r.d)}</a>`).join(";")+(ieMeas.length?` ${esc("показатели исследования: "+ieMeas.join(", "))}`:""):""))}</div></div>
     <div class="card"><h3 style="font-size:15px;margin:0 0 6px">Ключевые показатели</h3><div class="tblwrap"><table class="tbl"><tbody>${tbl}</tbody></table></div>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-hpadd="lab">Добавить анализ</button><button class="btn btn-secondary" data-hpadd="visit">Добавить визит</button></div></div>
@@ -7211,7 +7271,7 @@ function hpOrgCard(d,sys){
   const fl=hpFlagHtml;
   const cells=det.map(x=>x.v==null?`<div class="hpmini hpmini--no${x.tone==="r2"?" hpmini--r2":""}"><b>${esc(x.k)}</b><span class="muted">${x.tone==="r2"?"не сдавали — в зоне риска нужно":"нет данных"}</span></div>`
     :`<div class="hpmini${hpAnom(x)||(x.tone?" hpmini--"+x.tone:"")}"><b>${esc(x.k)}${indBtn(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span><span class="muted">${esc(hpAgeText(x))}</span></div>`).join("");
-  return `<div class="hpcard"><div class="hpcard__h"><span>${o.icon} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
+  return `<div class="hpcard"><div class="hpcard__h"><span>${orgIc(o.id,o.icon)} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
     ${hpRiskLine(rk)}<div class="hpminis">${cells}</div>
     <div class="muted" style="margin-top:6px">${esc(hpHint(c))} · <a href="#" data-hpopen="${o.id}">подробнее →</a></div></div>`;
 }
@@ -8248,7 +8308,7 @@ const specName=k=>(DOC_SPECS.find(x=>x[0]===k)||DOC_SPECS[0])[1];
 const planCount=(p,k)=>(p[k]||[]).length;
 function planCard(p,today){
   const q=planCount(p,"questions"), t=planCount(p,"tests");
-  return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${esc(specName(p.specialty))}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
+  return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${icon("s-"+p.specialty,"ic--20")} ${esc(specName(p.specialty))}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
     <div class="muted" style="font-size:13px">${esc(planLabel(p,today))} · ${q} ${plural(q,"вопрос","вопроса","вопросов")}${t?` · ${t} ${plural(t,"анализ","анализа","анализов")}`:""}</div></div><span class="muted">→</span></div>`;
 }
 function plansBlock(){
@@ -8893,7 +8953,7 @@ function calKey(ev,who){ return [who||cur,ev.t,ev.date].join("|"); }
 function calAddedList(){ try{ return JSON.parse(localStorage.getItem(CALK)||"[]")||[]; }catch(e){ return []; } }
 function calIsAdded(ev,who){ return calAddedList().includes(calKey(ev,who)); }
 function calMarkAdded(ev,who){ try{ const a=calAddedList(), k=calKey(ev,who); if(!a.includes(k)){ a.push(k); localStorage.setItem(CALK,JSON.stringify(a.slice(-400))); } }catch(e){} }
-function calDoneHtml(cls){ return `<span class="cal-done${cls?" "+cls:""}" title="Уже добавлено в календарь"><svg class="ic ic--20" aria-hidden="true"><use href="#i-check"/></svg>В календаре</span>`; }
+function calDoneHtml(cls){ return `<span class="cal-done${cls?" "+cls:""}" title="Уже добавлено в календарь">${icon("u-added","ic--20")}В календаре</span>`; }
 let calSt=null;
 function calTab(m){ m.innerHTML=`<div class="card"><h2 class="t-h2">Календарь</h2>${calBody()}</div>`; }
 // календарь без внешней карточки — вкладка «Календарь» в ленте событий
@@ -8911,7 +8971,7 @@ function calBody(){
     <div class="cal__grid" style="margin-top:4px">${cells.map(c=>`<button class="cal__day${c.out?" is-out":""}${c.k===today?" is-today":""}${c.k===calSt.sel?" is-sel":""}" data-calday="${c.k}" aria-label="${c.k}">${c.d}<span class="cal__dots">${(E[c.k]||[]).slice(0,3).map(e=>`<i data-k="${e.k==="plan"?"visit":e.k}"></i>`).join("")}</span></button>`).join("")}</div>
     <div class="cal-legend"><span style="--c:var(--accent)"><i></i>приём</span><span style="--c:var(--positive)"><i></i>анализ</span><span style="--c:var(--warning)"><i></i>курс лекарства</span><span style="--c:var(--negative)"><i></i>симптом</span></div>
     <div class="cal-events">${list.length?list.map((e,i)=>`<div class="cal-ev" style="--c:${({visit:"var(--accent)",plan:"var(--accent)",lab:"var(--positive)",med:"var(--warning)",sym:"var(--negative)"})[e.k]};--i:${i}"><div><b>${esc(e.t)}</b><span>${+sd} ${MONTHS[+sm-1]}${e.time?" · "+esc(e.time):""}</span></div>
-      ${calIsAdded(e)?calDoneHtml("cal-done--icon"):`<button class="icon-btn" title="Добавить в календарь" data-calev="${i}" ${calSt.sel<today?"disabled":""}>📅</button>`}</div>`).join(""):`<div class="empty"><span class="empty__ic">📭</span>На этот день записей нет</div>`}</div></div>`;
+      ${calIsAdded(e)?calDoneHtml("cal-done--icon"):`<button class="icon-btn" title="Добавить в календарь" data-calev="${i}" ${calSt.sel<today?"disabled":""}>📅</button>`}</div>`).join(""):`<div class="empty">${illus("e-day")}<div>На этот день записей нет</div></div>`}</div></div>`;
 }
 // окно «Добавить в календарь»: ссылка или файл (Apple, Outlook, Яндекс); напоминание за 3 дня
 function calOpen(ev){
