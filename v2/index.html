@@ -286,6 +286,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .indp h3{margin:0 0 6px;font-size:16px;padding-right:32px}.indp__s+.indp__s{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.indp__s div{margin-top:6px}
 .bp-big{font-size:34px;font-weight:700;line-height:1.1;margin:4px 0}
 .empty-il{display:block;width:160px;max-width:70%;height:auto;margin:6px auto;color:var(--muted);--il-a:var(--accent)}.empty-state{text-align:center;padding:4px 0 8px}.empty-state .muted,.empty-state .empty{text-align:center}
+.stor-help{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line)}.stor-steps{margin:8px 0 0;padding-left:20px;line-height:1.5}.stor-steps li{margin:6px 0}.stor-steps code,.stor-help code{background:var(--seg);padding:1px 5px;border-radius:5px;font-size:12.5px;overflow-wrap:anywhere}
 .regrow{padding:10px 0;border-top:1px solid var(--line)}.regrow:first-of-type{border-top:0}
 .cal-done{display:inline-flex;align-items:center;gap:4px;color:var(--ok);font-weight:600;font-size:13px;white-space:nowrap}.cal-done--icon{padding:0 6px}.plan-cal.cal-done{padding:0 4px}
 .rz-todo{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0;background:var(--accentbg)}.rz-t{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:14px}.rz-t input{margin-top:3px}.rzb{margin:10px 0}
@@ -2300,6 +2301,7 @@ function legacyTab(t){
   if(t==="dms") return {page:"profile",sub:"dms"};   // ТЗ-005 блоки 13–16
   if(t==="hist") return {page:"profile",sub:"hist"};
   if(t==="razb") return {page:"profile",sub:"razb"};   // ТЗ-031 блок 9
+  if(t==="stor") return {page:"profile",sub:"stor"};   // хранение данных и Яндекс.Диск
   if(t==="prof") return {page:"profile",sub:"hp"};   // «О человеке» влито в «Профиль здоровья»
   if(t==="ins") return {page:"profile",sub:"insights"};
   if(t==="cal") return {page:"home",sub:"cal"};
@@ -2307,7 +2309,7 @@ function legacyTab(t){
   if(["home","ask","sys","task"].includes(t)) return {page:t};
   return {page:"home"};
 }
-function profTabs(){ return [["hp","Профиль здоровья"],["chk","Чекапы"],["razb","Разборы"],["dms","ДМС"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
+function profTabs(){ return [["hp","Профиль здоровья"],["chk","Чекапы"],["razb","Разборы"],["dms","ДМС"],["stor","Хранение данных"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
 function nutrTabs(d){ return !(d&&d.nutrition)?[]:d.nutrition.lite?[["weight","Вес"],["diary","Дневник"]]:[["today","Сегодня"],["week","Неделя"],["weight","Вес"],["diary","Дневник"]]; }
 let nutSub="today";
 function navItems(d){ return [{k:"home",label:"Главная"},{k:"card",label:"Медкарта"},...((d&&d.nutrition)?[{k:"nutr",label:"Питание"}]:[]),{k:"ask",label:"Семейный ИИ-врач"}]; }
@@ -2328,7 +2330,7 @@ function goTab(t){
   const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
   sysFilter=null; symSel=null; medSel=null; insSel=null;
   if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
-  else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist"||t==="dms"||t==="razb"||t==="chk")?t:"dx";
+  else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist"||t==="dms"||t==="razb"||t==="chk"||t==="stor")?t:"dx";
   else if(m.page==="home"){ if(m.sub==="cal"){ tab="all"; tlKind="cal"; } else tab="home"; }
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
   else if(m.page==="nutr"){ if(t==="diary") tab="diary"; else { tab="nutr"; nutSub="today"; } }
@@ -3810,7 +3812,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 17:49";   // подставляется при публикации
+const BUILD="20.10 17:55";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5721,6 +5723,79 @@ document.addEventListener("click",e=>{
   const d=e.target.closest&&e.target.closest("[data-bpdel]");
   if(d){ if(!confirm("Удалить этот замер?")) return; const who=cur;
     mkApi("bp_delete",{id:+d.dataset.bpdel}).then(()=>{ BPL[who]=0; bpLoad(true); closeModal(); toast("Замер удалён"); }).catch(()=>toast("Не получилось удалить — нет связи")); }
+});
+// ── Профиль → «Хранение данных»: где лежат оригиналы и данные; подключение Яндекс.Диска по ключу доступа ──
+// Ключ уходит на сервер один раз и дальше хранится там зашифрованным; страница получает только состояние (аккаунт, место, папки).
+const STOR={loaded:false,busy:false,st:null,err:"",change:false};
+const storGb=n=>(Math.round(n/1073741824*10)/10).toString().replace(".",",")+" ГБ";
+const STOR_ERR={bad_key:"Яндекс не принял этот ключ. Проверьте, что скопировали его целиком и что вошли под тем аккаунтом Яндекса, где лежит Яндекс.Диск.",
+  folders:"Ключ принят, но папки на Диске создать не вышло. Проверьте, что при получении ключа выдан доступ на запись.",
+  upstream:"Яндекс сейчас не отвечает. Попробуйте ещё раз через несколько минут.",forbidden:"Подключение Яндекс.Диска настраивают взрослые."};
+function storLoad(force){
+  if(!window.__MK_KEY||STOR.busy||(STOR.loaded&&!force)) return; STOR.busy=true; STOR.loaded=true;
+  mkApi("disk_status").then(j=>{ STOR.st=j; STOR.err=""; }).catch(e=>{ STOR.st=null; STOR.err=STOR_ERR[e.message]||"Не получилось проверить подключение — нет связи."; })
+    .finally(()=>{ STOR.busy=false; if(tab==="stor") render(); });
+}
+function storWhereHtml(){
+  const rows=[["Оригиналы анализов и документов (PDF, фото)","Яндекс.Диск, папки «Здоровье / Анализы_Имя»; главный экземпляр — на Маке Дениса","Имя файла в карточке анализа открывает оригинал, если Яндекс.Диск подключён"],
+    ["Файлы, добавленные с телефона","Закрытое хранилище медкнижки, пока их не перенесли на Мак и Яндекс.Диск","Видны всей семье сразу после сохранения"],
+    ["Значения показателей, приёмы, болезни, лекарства","База медкнижки (серверы в Европе) и файлы на Маке","Источник правды — файлы на Маке, база — их копия для телефона и поиска"],
+    ["Замеры давления и веса, разборы семейного ИИ-врача, ответы опросов","Только база медкнижки","Копия базы входит в резервную"],
+    ["Резервные копии","Раз в неделю: файлы и база уходят в облако Mail.ru, хранятся 5 последних","Если что-то пропало — восстанавливается из копии"]];
+  return `<div class="card"><h2>Где хранятся оригиналы и данные</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Что</th><th>Где лежит</th><th>Что это даёт</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td class="muted">${esc(r[2])}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+function storHelpHtml(open){
+  return `<details class="stor-help"${open?" open":""}><summary><b>Где взять ключ доступа</b></summary>
+    <ol class="stor-steps">
+      <li>Откройте <a href="https://oauth.yandex.ru/client/new" target="_blank" rel="noopener">oauth.yandex.ru/client/new</a> и войдите под тем аккаунтом Яндекса, где лежит ваш Яндекс.Диск.</li>
+      <li>Название — «Медкнижка», платформа — «Веб-сервисы», адрес возврата (Callback URI) — <code>https://oauth.yandex.ru/verification_code</code>.</li>
+      <li>В доступах выберите «Яндекс.Диск REST API» и отметьте три пункта: информация о диске, чтение всего Яндекс.Диска, запись в любом месте Яндекс.Диска. Нажмите «Создать приложение» и скопируйте его ID.</li>
+      <li>Откройте адрес <code>https://oauth.yandex.ru/authorize?response_type=token&amp;client_id=ВАШ_ID</code> (подставьте свой ID) и нажмите «Разрешить».</li>
+      <li>Яндекс покажет ключ или адрес со словом <code>access_token=</code>. Скопируйте всё это целиком и вставьте в поле выше — лишнее программа отрежет сама.</li>
+    </ol>
+    <p class="muted" style="font-size:13px;margin:6px 0 0">Быстрее, но с общими правами: ключ можно получить в <a href="https://yandex.ru/dev/disk/poligon/" target="_blank" rel="noopener">«Полигоне» Яндекс.Диска</a> кнопкой «Получить OAuth-токен». Ключ действует около года, потом придётся получить новый. Отозвать его можно в настройках Яндекс ID, раздел «Безопасность».</p></details>`;
+}
+function storDiskHtml(){
+  const st=STOR.st, fld=(label)=>`<div class="fld"><label for="storKey">Ключ доступа к Яндекс.Диску</label><input id="storKey" type="password" autocomplete="off" spellcheck="false" placeholder="Вставьте ключ или адрес с access_token">
+      <div class="row" style="margin-top:8px"><button type="button" class="btn btn-primary" data-storconnect="1"${STOR.busy?" disabled":""}>${label}</button>${STOR.change?`<button type="button" class="btn btn-secondary" data-storcancel="1">Отмена</button>`:""}</div></div>`;
+  const safe=`<p class="muted" style="font-size:12.5px;margin:8px 0 0">Ключ даёт доступ к вашему Яндекс.Диску. Он хранится на сервере в зашифрованном виде, нигде не показывается и уходит только в Яндекс. Подключить Яндекс.Диск может только взрослый.</p>`;
+  const errHtml=STOR.err?`<div class="er" style="margin:8px 0">${esc(STOR.err)}</div>`:"";
+  let body;
+  if(!window.__MK_KEY) body=`<div class="muted">Нужен вход по ссылке с кодом.</div>`;
+  else if(!st) body=STOR.busy?`<div class="muted"><span class="spin"></span> Проверяю подключение…</div>`:errHtml||`<div class="muted">Нет данных о подключении.</div>`;
+  else if(st.can_manage===false) body=`<div class="muted">${st.connected?"Яндекс.Диск подключён.":"Яндекс.Диск не подключён."} Менять подключение могут только взрослые.</div>`;
+  else if(!st.connected) body=`<p style="margin:0 0 10px">Яндекс.Диск не подключён. Подключите его, чтобы оригиналы лежали в вашем облаке и открывались из карточки анализа.</p>${errHtml}${fld("Подключить Яндекс.Диск")}${safe}${storHelpHtml(true)}`;
+  else if(!st.ok) body=`<div class="note" style="background:var(--warnbg);color:var(--warn)">${st.error==="reconnect"?"Яндекс больше не принимает ключ: он устарел или отозван. Вставьте новый.":"Яндекс сейчас не отвечает. Попробуйте позже."}</div>${errHtml}${st.error==="reconnect"?fld("Подключить заново")+storHelpHtml(true):`<div class="row" style="margin-top:8px"><button type="button" class="btn btn-secondary" data-storcheck="1">Проверить ещё раз</button></div>`}`;
+  else {
+    const low=st.free<1073741824;
+    body=`<p style="margin:0 0 6px"><span class="status status-ok">✓ Подключён</span> аккаунт <b>${esc(st.login||"Яндекса")}</b></p>
+      <div class="muted" style="margin-bottom:8px">Свободно ${storGb(st.free)} из ${storGb(st.total)}.${low?` <b style="color:var(--warn)">Места почти нет: новые файлы могут не поместиться.</b>`:""}</div>
+      <div class="tbl-wrap"><table class="tbl"><tbody>${(st.folders||[]).map(f=>`<tr><td>Здоровье / ${esc(f.name)}</td><td>${f.exists?`<span class="status status-ok">папка есть</span>`:`<span class="status status-none">нет папки</span>`}</td></tr>`).join("")}</tbody></table></div>
+      ${errHtml}
+      ${STOR.change?fld("Сохранить новый ключ")+storHelpHtml(true):`<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-secondary" data-storcheck="1"${STOR.busy?" disabled":""}>Проверить</button><button type="button" class="btn btn-secondary" data-storchange="1">Заменить ключ</button><button type="button" class="btn btn-secondary" data-stordisc="1" style="color:var(--bad)!important">Отключить Яндекс.Диск</button></div>
+        <p class="muted" style="font-size:12.5px;margin:8px 0 0">Отключение забывает ключ. Файлы на Диске остаются как есть.</p>`}`;
+  }
+  return `<div class="card"><h2>Яндекс.Диск</h2>${body}</div>`;
+}
+function storHtml(){ storLoad(); return storWhereHtml()+storDiskHtml(); }
+async function storConnect(){
+  const inp=document.getElementById("storKey"), key=(inp&&inp.value||"").trim();
+  if(!key){ STOR.err="Вставьте ключ доступа."; render(); return; }
+  if(inp) inp.value="";   // ключ в странице не остаётся
+  STOR.busy=true; STOR.err=""; render();
+  try{ STOR.st=await mkApi("disk_connect",{key}); STOR.change=false; toast("Яндекс.Диск подключён"); }
+  catch(e){ STOR.err=STOR_ERR[e.message]||"Не получилось подключить — нет связи. Попробуйте ещё раз."; }
+  STOR.busy=false; render();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest&&e.target.closest("[data-storconnect],[data-storcheck],[data-storchange],[data-storcancel],[data-stordisc]"); if(!t) return;
+  if(t.dataset.storconnect){ storConnect(); return; }
+  if(t.dataset.storcheck){ storLoad(true); STOR.loaded=false; storLoad(true); return; }
+  if(t.dataset.storchange){ STOR.change=true; STOR.err=""; render(); return; }
+  if(t.dataset.storcancel){ STOR.change=false; STOR.err=""; render(); return; }
+  if(t.dataset.stordisc){ if(!confirm("Отключить Яндекс.Диск? Ключ будет забыт, файлы на Диске останутся как есть.")) return;
+    mkApi("disk_disconnect").then(()=>{ STOR.st={status:"ok",connected:false,can_manage:true}; STOR.err=""; toast("Яндекс.Диск отключён"); render(); }).catch(()=>toast("Не получилось отключить — нет связи")); }
 });
 // ── Регулярные врачи (ТЗ-031 блок 8): «был N дней назад», срок, «пора записаться»; связки — REG_LINKS из «Связки болезнь-врач.csv»
 const REGV={};   // человек → {key: {months, muted}} — настройки этого кода доступа
@@ -10002,7 +10077,7 @@ if(typeof window!=="undefined"&&!window.__scrollBound){
 }
 let lastView="";
 // Яндекс.Метрика (если подключена загрузчиком): смена раздела — виртуальный просмотр с названием раздела из фиксированного списка; без вебвизора
-function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins","dms","razb"].includes(t)?t:"other"); }
+function ymPath(t){ return "/v2/"+(["home","nutr","all","visit","lab","dyn","sym","dx","anam","hp","todo","hist","doc","ask","diary","task","prof","sys","ins","dms","razb","stor"].includes(t)?t:"other"); }
 function ymTab(){ try{ if(!window.__YM||typeof window.ym!=="function") return; const p=ymPath(tab); if(window.__ymLast===undefined){ window.__ymLast=p; return; } if(p===window.__ymLast) return; window.__ymLast=p; window.ym(window.__YM,"hit",p,{title:"Медкнижка"}); }catch(e){} }
 // ═══════════ Дневники здоровья (ТЗ-032) ═══════════
 // Каталог дневников живёт здесь (сервер знает только форму id). Иконки — спрайт «пиктограммы дневников» (<!--sprite-diary-->).
@@ -10398,7 +10473,7 @@ function render(){
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
   document.getElementById("nav").innerHTML=navItems(d)
     .map(({k,label})=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard)||(k==="nutr"&&tab==="diary"))?" is-active":""}">${label}</button>`).join("");
-  const inProf=["prof","hp","dms","todo","dx","anam","ins","hist","razb","chk"].includes(tab);
+  const inProf=["prof","hp","dms","todo","dx","anam","ins","hist","razb","chk","stor"].includes(tab);
   const subnav=inCard?`<div class="tabs tabs--scroll subnav">${CARD
     .map(([k,n])=>`<button data-t="${k}" class="tab${k===(tab==="sym"&&symView==="ill"?"ill":tab)?" is-active":""}">${n}</button>`).join("")}</div>`
     :inProf?`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
@@ -10719,6 +10794,7 @@ function render(){
   }
 
   else if(tab==="hp"){ m.innerHTML=profileHealthHtml(d); const pe=document.getElementById("profEdit"); if(pe) pe.onclick=()=>profOpen(cur); }   // «Профиль здоровья»: карточка здоровья → сведения о человеке → полнота и органы (ТЗ-009 блоки 4 и 11)
+  else if(tab==="stor"){ m.innerHTML=storHtml(); }   // хранение данных и подключение Яндекс.Диска
   else if(tab==="razb"){ m.innerHTML=razbHtml(d); }   // ТЗ-031 блок 9: разборы человека
   else if(tab==="dms"){ m.innerHTML=dmsHtml(d); }   // ТЗ-005 блоки 13–16: полисы ДМС, архив, клиники, вопрос ИИ
   else if(tab==="hist"){ m.innerHTML=histHtml(d); histBind(m); }   // ТЗ-022 блок 1: история добавлений   // ТЗ-009 блоки 4 и 11
