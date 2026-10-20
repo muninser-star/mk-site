@@ -3812,7 +3812,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 17:55";   // подставляется при публикации
+const BUILD="20.10 18:09";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5736,15 +5736,6 @@ function storLoad(force){
   mkApi("disk_status").then(j=>{ STOR.st=j; STOR.err=""; }).catch(e=>{ STOR.st=null; STOR.err=STOR_ERR[e.message]||"Не получилось проверить подключение — нет связи."; })
     .finally(()=>{ STOR.busy=false; if(tab==="stor") render(); });
 }
-function storWhereHtml(){
-  const rows=[["Оригиналы анализов и документов (PDF, фото)","Яндекс.Диск, папки «Здоровье / Анализы_Имя»; главный экземпляр — на Маке Дениса","Имя файла в карточке анализа открывает оригинал, если Яндекс.Диск подключён"],
-    ["Файлы, добавленные с телефона","Закрытое хранилище медкнижки, пока их не перенесли на Мак и Яндекс.Диск","Видны всей семье сразу после сохранения"],
-    ["Значения показателей, приёмы, болезни, лекарства","База медкнижки (серверы в Европе) и файлы на Маке","Источник правды — файлы на Маке, база — их копия для телефона и поиска"],
-    ["Замеры давления и веса, разборы семейного ИИ-врача, ответы опросов","Только база медкнижки","Копия базы входит в резервную"],
-    ["Резервные копии","Раз в неделю: файлы и база уходят в облако Mail.ru, хранятся 5 последних","Если что-то пропало — восстанавливается из копии"]];
-  return `<div class="card"><h2>Где хранятся оригиналы и данные</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Что</th><th>Где лежит</th><th>Что это даёт</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td class="muted">${esc(r[2])}</td></tr>`).join("")}</tbody></table></div></div>`;
-}
 function storHelpHtml(open){
   return `<details class="stor-help"${open?" open":""}><summary><b>Где взять ключ доступа</b></summary>
     <ol class="stor-steps">
@@ -5764,12 +5755,13 @@ function storDiskHtml(){
   let body;
   if(!window.__MK_KEY) body=`<div class="muted">Нужен вход по ссылке с кодом.</div>`;
   else if(!st) body=STOR.busy?`<div class="muted"><span class="spin"></span> Проверяю подключение…</div>`:errHtml||`<div class="muted">Нет данных о подключении.</div>`;
-  else if(st.can_manage===false) body=`<div class="muted">${st.connected?"Яндекс.Диск подключён.":"Яндекс.Диск не подключён."} Менять подключение могут только взрослые.</div>`;
-  else if(!st.connected) body=`<p style="margin:0 0 10px">Яндекс.Диск не подключён. Подключите его, чтобы оригиналы лежали в вашем облаке и открывались из карточки анализа.</p>${errHtml}${fld("Подключить Яндекс.Диск")}${safe}${storHelpHtml(true)}`;
+  else if(st.can_manage===false) body=`<div class="muted">${st.connected?"Яндекс.Диск подключён.":"Яндекс.Диск не подключён."} Менять подключение могут только взрослые (коды Дениса и Ани).</div>`;
+  else if(!st.connected) body=`<p style="margin:0 0 10px">Яндекс.Диск не подключён. Подключите его — и оригиналы, которые вы добавляете, будут сами ложиться в вашу папку на Яндекс.Диске.</p>${errHtml}${fld("Подключить Яндекс.Диск")}${safe}${storHelpHtml(true)}`;
   else if(!st.ok) body=`<div class="note" style="background:var(--warnbg);color:var(--warn)">${st.error==="reconnect"?"Яндекс больше не принимает ключ: он устарел или отозван. Вставьте новый.":"Яндекс сейчас не отвечает. Попробуйте позже."}</div>${errHtml}${st.error==="reconnect"?fld("Подключить заново")+storHelpHtml(true):`<div class="row" style="margin-top:8px"><button type="button" class="btn btn-secondary" data-storcheck="1">Проверить ещё раз</button></div>`}`;
   else {
     const low=st.free<1073741824;
     body=`<p style="margin:0 0 6px"><span class="status status-ok">✓ Подключён</span> аккаунт <b>${esc(st.login||"Яндекса")}</b></p>
+      <label class="row" style="gap:10px;align-items:flex-start;margin:6px 0 10px;cursor:pointer"><input type="checkbox" id="storAuto" data-storauto="1"${st.auto_save!==false?" checked":""}${STOR.busy?" disabled":""} style="margin-top:4px;width:18px;height:18px"><span><b>Сохранять оригиналы на Яндекс.Диск</b><br><span class="muted">Фото и PDF, которые вы добавляете в медкнижку, сами попадают в папку «Здоровье / Анализы_Имя». ${st.auto_save!==false?"Сейчас включено.":"Сейчас выключено: файлы остаются только в медкнижке."}</span></span></label>
       <div class="muted" style="margin-bottom:8px">Свободно ${storGb(st.free)} из ${storGb(st.total)}.${low?` <b style="color:var(--warn)">Места почти нет: новые файлы могут не поместиться.</b>`:""}</div>
       <div class="tbl-wrap"><table class="tbl"><tbody>${(st.folders||[]).map(f=>`<tr><td>Здоровье / ${esc(f.name)}</td><td>${f.exists?`<span class="status status-ok">папка есть</span>`:`<span class="status status-none">нет папки</span>`}</td></tr>`).join("")}</tbody></table></div>
       ${errHtml}
@@ -5778,7 +5770,7 @@ function storDiskHtml(){
   }
   return `<div class="card"><h2>Яндекс.Диск</h2>${body}</div>`;
 }
-function storHtml(){ storLoad(); return storWhereHtml()+storDiskHtml(); }
+function storHtml(){ storLoad(); return storDiskHtml(); }
 async function storConnect(){
   const inp=document.getElementById("storKey"), key=(inp&&inp.value||"").trim();
   if(!key){ STOR.err="Вставьте ключ доступа."; render(); return; }
@@ -5789,6 +5781,10 @@ async function storConnect(){
   STOR.busy=false; render();
 }
 document.addEventListener("click",e=>{
+  const au=e.target.closest&&e.target.closest("[data-storauto]");
+  if(au){ const on=au.checked; STOR.busy=true; render();
+    mkApi("disk_set",{auto_save:on}).then(()=>{ if(STOR.st) STOR.st.auto_save=on; toast(on?"Оригиналы будут сохраняться на Яндекс.Диск":"Сохранение на Яндекс.Диск выключено"); })
+      .catch(()=>toast("Не получилось переключить — нет связи")).finally(()=>{ STOR.busy=false; render(); }); return; }
   const t=e.target.closest&&e.target.closest("[data-storconnect],[data-storcheck],[data-storchange],[data-storcancel],[data-stordisc]"); if(!t) return;
   if(t.dataset.storconnect){ storConnect(); return; }
   if(t.dataset.storcheck){ storLoad(true); STOR.loaded=false; storLoad(true); return; }
