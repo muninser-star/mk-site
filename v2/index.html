@@ -274,7 +274,7 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .ins-row[data-rec]:hover{border-color:var(--ink);background:var(--accentbg)}
 .ins-row[data-rec]>div:first-child b::after{content:"›";margin-left:6px;color:var(--muted);font-weight:400}
 .ins-d{font-size:14px;font-weight:700;white-space:nowrap;min-width:56px;text-align:right}
-.ins-d.neu{color:var(--ink);font-size:13px;font-weight:600;white-space:normal;min-width:84px}.ins-flag{color:var(--bad);font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}.ins-sub{font-size:13px;margin:-2px 0 10px}
+.ins-d.neu{color:var(--ink);font-size:13px;font-weight:600;white-space:normal;min-width:84px}.ins-flag--ok{color:var(--ok)!important}.ins-flag{color:var(--bad);font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}.ins-sub{font-size:13px;margin:-2px 0 10px}
 .ins-d.txt{font-size:11px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .ins-d.good,.ins-d.good .ins-good{color:var(--ok)}.ins-good{font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px}
 .plan-new{color:var(--ok);font-weight:600}
@@ -2593,13 +2593,13 @@ function insightsChanged(d){
     return `<div class="ins-row${x.stale?" stale":""}"${x.ri>=0?` data-rec="${x.ri}"${x.sid?` data-ser="${x.sid}"`:""} title="Открыть запись"`:""}>
       <div><b>${esc(x.n)}</b>${indBtn(x.n)}<div class="muted">${x.a!=null?`${ru(x.da)} → ${ru(x.db)}`:ru(x.db)}${x.stale?` · ${ageRu(x.db)}`:""}${c&&c.ctx?` · ${esc(c.ctx)}`:""}${!c?` · норма ${esc(x.nrm)}`:""}</div></div>
       <div class="ins-v">${x.a!=null?`${nz1(x.a)} → <b>${nz1(x.b)}</b> <span class="muted" style="display:inline;margin:0">${esc(x.u||"")}</span>`:`<b>${esc(x.val)}</b>`}</div>
-      <div class="ins-d neu${x.good?" good":""}">${c?`${c.arrow} ${esc(c.dir)}`:""}${x.good?`<div class="ins-good">${esc(x.good)}</div>`:""}${bad?`<div class="ins-flag">вне нормы</div>`:""}</div>
+      <div class="ins-d neu${x.good?" good":""}">${c?`${c.arrow} ${esc(c.dir)}`:""}${x.good?`<div class="ins-good">${esc(x.good)}</div>`:""}${bad?`<div class="ins-flag">вне нормы</div>`:(x.state==="в пределах нормы"&&!x.good?`<div class="ins-flag ins-flag--ok">в норме</div>`:"")}</div>
     </div>`; };
   const dueHtml=dueOld.length?`<div class="ins-due"><b>Пора сдать</b>
       <div class="muted ins-sub" style="margin:2px 0 6px">Эти анализы не сдавали больше двух лет — сравнивать не с чем.</div>
       ${dueOld.slice().sort((p,q)=>String(p.db).localeCompare(String(q.db))).map(x=>`<div class="ins-dueRow"${x.ri>=0?` data-rec="${x.ri}"`:""}><span>${esc(x.n)}</span><span class="muted">последний раз ${ru(x.db)} · ${ageRu(x.db)}</span></div>`).join("")}</div>`:"";
   return `<div class="card"><h2>Что изменилось</h2>
-    <div class="muted ins-sub">Сравнение последних значений за 6 месяцев. Красным отмечено только то, что вне нормы: рост показателя сам по себе не значит ухудшение.</div>
+    <div class="muted ins-sub">Сравнение последних значений за 6 месяцев. Красным отмечено то, что вне нормы, зелёным — то, что в норме или стало лучше; сам по себе рост или падение показателя цвета не получают.</div>
     ${shown.length?`<div class="ins-top">${shown.map(row).join("")}</div>`:`<div class="empty">Заметных изменений нет</div>`}
     ${dueHtml}
     ${all.length>N?`<button class="btn btn-secondary btn-block" style="margin-top:10px" data-ins="all">${insSel==="all"?"Свернуть":`Показать все изменения (${all.length})`}</button>`:""}
@@ -3790,7 +3790,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 16:08";   // подставляется при публикации
+const BUILD="20.10 16:15";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5713,11 +5713,13 @@ function regWhoMatch(who,spec){
   return nm.split("/").some(part=>{ const t=regNorm(part).trim().replace(/(ий|ый|ой|ог|ст)$/,""); return t.length>=4&&w.includes(t.slice(0,Math.max(4,t.length-1))); });
 }
 // → [{key, spec, why, last:{d,who}|null, days, due, status:"late|soon|ok|noterm|nodata", planned:"дата"|""|null, months, muted}]
-function regVisits(D,plans,reg,today,links){
+function regVisits(D,plans,reg,today,links,tasks){
   const texts=[...(D.diagnoses||[]).map(x=>x.n),...((D.sym||{}).ep||[]).filter(e=>!e.d2).map(e=>e.dx)].map(regNorm);
   const visits=(D.rec||[]).filter(r=>r.t==="visit").sort((a,b)=>b.d.localeCompare(a.d)), out=[], seen=new Set();
   for(const L of links){
     if(!L.keys.some(k=>texts.some(t=>t.includes(k)))) continue;
+    // этот врач уже стоит в плане здоровья (например, «Офтальмолог — ОКТ… 12.02.2027»): напоминание одно, там, а не второе здесь (Денис, 20.10.2026)
+    if((tasks||[]).some(t=>regWhoMatch(t.title,L.spec))) continue;
     const key=L.spec+"|"+L.keys[0].split(" ")[0];
     if(seen.has(L.spec)) continue; seen.add(L.spec);
     const st=(reg||{})[key]||{}, last=visits.find(v=>regWhoMatch(v.who||v.title,L.spec))||null;
@@ -5744,9 +5746,11 @@ function regRowHtml(r){
     <div class="muted" style="font-size:13px">${esc(r.why)}</div></div>
     <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${btn}${plan}<button type="button" class="linkbtn" data-regmute="${esc(r.key)}">Не нужно напоминать</button></div></div>`;
 }
+// дела плана здоровья, которые ещё не выполнены: короткое название («Офтальмолог») — по нему врач узнаётся
+function regPlanTasks(d){ try{ return buildTodo(d).filter(x=>!x.self&&!(taskState(cur,x.title)&&taskState(cur,x.title).s==='done')).map(x=>({title:taskShort(x.title).title})); }catch(e){ return []; } }
 function regCard(d,plans,today){
   regLoad();
-  const all=regVisits(d,plans,REGV[cur],today,typeof REG_LINKS!=="undefined"?REG_LINKS:[]), rows=all.filter(r=>!r.muted), hid=all.filter(r=>r.muted);
+  const all=regVisits(d,plans,REGV[cur],today,typeof REG_LINKS!=="undefined"?REG_LINKS:[],regPlanTasks(d)), rows=all.filter(r=>!r.muted), hid=all.filter(r=>r.muted);
   if(!rows.length&&!hid.length) return "";
   return `<div class="card"><h2>${icon("u-regular","ic--24")} Регулярные визиты</h2>${rows.map(regRowHtml).join("")||`<div class="empty-state">${illus("e-done")}<div class="muted">Всё скрыто.</div></div>`}
     ${hid.length?`<details style="margin-top:8px"><summary class="muted">Скрытые — ${hid.length}</summary>${hid.map(r=>`<div class="row" style="justify-content:space-between;margin-top:6px"><span>${esc(specName(r.spec))} <span class="muted">· ${esc(r.why)}</span></span><button type="button" class="btn btn-secondary" data-regunmute="${esc(r.key)}">Вернуть</button></div>`).join("")}</details>`:""}</div>`;
