@@ -3322,7 +3322,7 @@ function labAdvHtml(r,idx){
     ${a.state?`<p style="margin:6px 0"><b>Сейчас.</b> ${esc(a.state.replace(/^Сейчас\s*/,""))}</p>`:""}
     ${a.consequence?`<p style="margin:6px 0"><b>${a.level==="edge"?(a.dir==="high"?"Если выйдет за верхнюю границу нормы:":"Если выйдет за нижнюю границу нормы:"):(a.dir==="high"?"Если выше нормы:":"Если ниже нормы:")}</b> ${esc(a.consequence)}</p>`:""}
     <ol class="labadv__l">${a.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
-    <div class="row" style="gap:8px;margin-top:8px"><button type="button" class="btn btn-primary" data-labplan="${idx}">Запланировать: ${esc(specName(a.spec))}</button><button type="button" class="btn btn-secondary" data-labask="${idx}">Спросить врача</button>${(()=>{ const rp=retestPlan(r,a.level,localDay()), pl=labPlanned(rp.src); return pl?`<span class="muted" style="align-self:center">✓ пересдача запланирована на ${esc(pl.when)}</span>`:`<button type="button" class="btn btn-secondary" data-labretest="${idx}">Запланировать пересдачу</button>`; })()}</div>
+    <div class="row" style="gap:8px;margin-top:8px"><button type="button" class="btn btn-primary" data-labplan="${idx}">Запланировать: ${esc(specName(a.spec))}</button><button type="button" class="btn btn-secondary" data-labask="${idx}">Разобрать с семейным ИИ-врачом</button>${(()=>{ const rp=retestPlan(r,a.level,localDay()), pl=labPlanned(rp.src); return pl?`<span class="muted" style="align-self:center">✓ пересдача запланирована на ${esc(pl.when)}</span>`:`<button type="button" class="btn btn-secondary" data-labretest="${idx}">Запланировать пересдачу</button>`; })()}</div>
     <div class="muted" style="font-size:12px;margin-top:6px">Общие рекомендации, не врачебное заключение.</div></div>`;
 }
 document.addEventListener("click",e=>{
@@ -3416,7 +3416,7 @@ function openRec(i,showSer){
       ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:`<div class="muted" style="margin:2px 0 8px">${M.baseline?"Сдавался один раз — сравнить пока не с чем":""}</div>`}
       ${labAdvHtml(r,idOf(r))}
       ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
-      ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,firstLabel:"Разобрать этот показатель",
+      ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,firstLabel:"Разобрать с семейным ИИ-врачом",
         legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return rzHtml(tp); })()}
       ${fold(`Показатели этой сдачи — ${esc(M.summary)}`,`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Норма</th><th>Статус</th></tr></thead><tbody>${M.table.map(row).join("")}</tbody></table></div>`)}
       ${rel}${concl}${dyn}${detHtml}
@@ -3792,7 +3792,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 16:24";   // подставляется при публикации
+const BUILD="20.10 16:29";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4884,10 +4884,10 @@ function symChatCard(name){
   symChatLoad(topic);
   const base=symAiGet(cur,name);
   return `<div class="card" id="symChat"><h2>Разбор семейного ИИ-врача</h2>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">Семейный врач (нейросеть) разбирает по вашим записям и общей практике. Рецептурные препараты и дозировки детям не назначает. Не заменяет приём. Разговор сохраняется</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Семейный ИИ-врач разбирает по вашим записям и общей практике. Рецептурные препараты и дозировки детям не назначает. Не заменяет приём. Разговор сохраняется</div>
     ${base?`<div class="chatm chatm--a"><div class="muted" style="font-size:11.5px">Разбор из записей</div>${mdLite(base.answer)}</div>`:""}
     ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>${rzTodosHtml(r,topic)}`:""}`).join("")}
-    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Врач разбирает ситуацию… это до минуты</div>`:""}
+    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает ситуацию… это до минуты</div>`:""}
     ${!c.rows.length&&!c.busy?`<button class="btn btn-primary" data-chatsend="${esc(name)}" data-chatfull="1" style="margin:6px 0">Разобрать ситуацию целиком</button>`:""}
     <div class="chatbox"><textarea id="chatIn" rows="3" placeholder="Задайте вопрос врачу. Enter — отправить, Shift+Enter — новая строка" ${c.busy?"disabled":""}></textarea>
       <button class="btn btn-primary" data-chatsend="${esc(name)}" ${c.busy?"disabled":""}>${c.busy?'<span class="spin" style="border-color:rgba(255,255,255,.5);border-top-color:#fff;margin:0"></span>':"Спросить"}</button></div></div>`;
@@ -4934,16 +4934,16 @@ function rzHtml(topic){
   rzLoad(topic);
   const cfg=c.cfg||{};
   // пока диалог не начат — одна кнопка (Денис, 20.10.2026); поле вопроса и подпись появляются после нажатия
-  if(!c.rows.length&&!c.busy) return `<div class="rzb rzb--btn" data-rzb="${esc(topic)}">${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 6px">${esc(cfg.firstLabel||"Разобрать с семейным врачом")}</button></div>`;
+  if(!c.rows.length&&!c.busy) return `<div class="rzb rzb--btn" data-rzb="${esc(topic)}">${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 6px">${esc(cfg.firstLabel||"Разобрать с семейным ИИ-врачом")}</button></div>`;
   const msgs=c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${rzSrc(r)}</div>${rzTodosHtml(r,topic)}`:""}`).join("");
   return `<div class="rzb${cfg.bare?"":" card"}" data-rzb="${esc(topic)}">${cfg.bare?"":`<h3 style="font-size:15px;margin:0 0 6px">Семейный ИИ-врач</h3>`}
     ${msgs}
-    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Врач разбирает… это до минуты</div>`:""}
+    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает… это до минуты</div>`:""}
     ${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}
-    ${!c.rows.length&&!c.busy?`<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 6px">${esc(cfg.firstLabel||"Разобрать с семейным врачом")}</button>`:""}
+    ${!c.rows.length&&!c.busy?`<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 6px">${esc(cfg.firstLabel||"Разобрать с семейным ИИ-врачом")}</button>`:""}
     <div class="chatbox"><textarea data-rzin="${esc(topic)}" rows="2" placeholder="Задайте вопрос врачу. Enter — отправить" ${c.busy?"disabled":""}></textarea>
       <button type="button" class="btn btn-primary" data-rzsend="${esc(topic)}" ${c.busy?"disabled":""}>Спросить</button></div>
-    <div class="muted" style="font-size:12px;margin-top:6px">Нейросеть разбирает по вашим записям и общей практике, не заменяет приём. Разговор сохраняется в «Разборах».</div></div>`;
+    <div class="muted" style="font-size:12px;margin-top:6px">Семейный ИИ-врач разбирает по вашим записям и общей практике, не заменяет приём. Разговор сохраняется в «Разборах».</div></div>`;
 }
 function rzPaint(topic){
   document.querySelectorAll(".rzb").forEach(el=>{ if(el.dataset.rzb!==topic) return;
@@ -9047,7 +9047,7 @@ function indicatorBlock(){
         <td class="muted">${esc(r.norm||"—")}</td><td class="muted">${i>=0?"→":""}</td></tr>`; }).join("")}
       </tbody></table></div>`;
     const back=ci===0&&window.__indBack&&window.__indBack.q===query&&window.__indBack.i>=0?`<button type="button" class="btn btn-secondary" data-indback="1" style="font-size:13px;padding:5px 12px;margin-bottom:8px">← К анализу от ${ru(window.__indBack.d)}</button>`:"";
-    const rzt=rzTopic("ind",cur,c.name); rzGet(rzt,{person:cur,defaultQ:`Как менялся показатель «${c.name}»? Что это значит и что делать?`,sendDefault:1,firstLabel:"Обсудить с врачом",payload:{person:cur,mode:"doctor",indicator:c.name,search:c.name}});
+    const rzt=rzTopic("ind",cur,c.name); rzGet(rzt,{person:cur,defaultQ:`Как менялся показатель «${c.name}»? Что это значит и что делать?`,sendDefault:1,firstLabel:"Разобрать с семейным ИИ-врачом",payload:{person:cur,mode:"doctor",indicator:c.name,search:c.name}});
     const talk=ci===0?rzHtml(rzt):"";
     return ci===0?`<div class="card ind-card">${back}<h2>${esc(c.name)}${indBtn(c.name)}${c.unit?`<span class="muted" style="text-transform:none">, ${esc(c.unit)}</span>`:""} ${favStar(cur,c.name)}</h2>${body}</div>${talk}`
       :`<details class="card ind-more"><summary>Ещё: <b>${esc(c.name)}</b>${indBtn(c.name)} <span class="muted">— ${c.rows.length}</span> ${favStar(cur,c.name)}</summary>${body}</details>`;
@@ -9197,9 +9197,9 @@ function labForm(){
         document.getElementById("labOk").disabled=true;
         try{ await entriesApi("entry_add",{person:cur,kind:"lab",data:{d:dt,lab,title:`Анализ ${ru(dt)}`,items:rows},files:keep});
           await entriesPull(); render();
-          const tp=rzTopic("lab",cur,dt); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",firstLabel:"Разобрать",payload:{person:cur,mode:"lab",lab_date:dt}}).rows=[]; RZB[tp].loaded=true;
+          const tp=rzTopic("lab",cur,dt); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",firstLabel:"Разобрать с семейным ИИ-врачом",payload:{person:cur,mode:"lab",lab_date:dt}}).rows=[]; RZB[tp].loaded=true;
           document.querySelector("#modal .mbox").innerHTML=`<button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-            <h3 style="margin:0 0 6px;font-size:18px">✓ Анализ сохранён</h3><p class="muted" style="margin:0 0 10px">Он в разделе «Анализы». Разобрать его с семейным врачом: что в норме, что нет и что делать?</p>
+            <h3 style="margin:0 0 6px;font-size:18px">✓ Анализ сохранён</h3><p class="muted" style="margin:0 0 10px">Он в разделе «Анализы». Разобрать его с семейным ИИ-врачом: что в норме, что нет и что делать?</p>
             ${rzHtml(tp)}<div class="row"><button class="btn btn-secondary" data-close="1">Позже</button></div>`; }
         catch(e){ stat("Не сохранилось: "+(e.message||"ошибка"),"er"); document.getElementById("labOk").disabled=false; }
       };
