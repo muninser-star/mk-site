@@ -628,7 +628,8 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .filters .chip--r1{background:rgba(176,92,92,.14)}.filters .chip--r2{background:rgba(176,92,92,.26)}.filters .chip--r3{background:rgba(176,92,92,.40)}
 .filters .chip.chip--main{box-shadow:inset 0 0 0 2px var(--accent);color:var(--text-primary,var(--ink));font-weight:600}
 .hpcard{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:12px 14px;margin:2px 0 14px}.hpcard__h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
-.hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:rgba(52,200,110,.20);font-size:13.5px}.hpmini--no{opacity:.65;background:var(--surface-2,#f3f4f6)}.hpmini--no.hpmini--o2{opacity:1;background:rgba(105,118,130,.28)}
+.hpminis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.hpmini{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:rgba(52,200,110,.20);font-size:13.5px}.hpmini--link{cursor:pointer}.hp-plan{align-self:flex-start;margin-top:6px}button.hp-plan{padding:4px 12px;font-size:13px}
+.hpmini--no{opacity:.65;background:var(--surface-2,#f3f4f6)}.hpmini--no.hpmini--o2{opacity:1;background:rgba(105,118,130,.28)}
 .hpmini--o1{background:rgba(105,118,130,.16)}.hpmini--o2{background:rgba(105,118,130,.28)}.hpmini--o3{background:rgba(105,118,130,.40)}
 .hpmini--r1{background:rgba(176,92,92,.14)}.hpmini--r2{background:rgba(176,92,92,.26)}.hpmini--r3{background:rgba(176,92,92,.40)}
 .hptag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:9999px;margin-left:6px;vertical-align:1px}
@@ -2117,7 +2118,18 @@ const LNK={enurez:{ic:"🌙",name:"Ночной энурез — всё, что 
 function isLnk(f){return !!LNK[f]}
 // система может подтягивать записи других систем по метке lnk (organ.inc): у Димы «Мочеполовая система» берёт всё по энурезу и синехиям
 function incOf(f){const o=organOf(f);return (o&&o.inc)||[]}
-function inSys(r,f){ if(String(f).startsWith("grp:")) return groupOfSys(r.sys)===f.slice(4); return isLnk(f) ? r.lnk===f : (r.sys===f || (!!r.lnk && incOf(f).includes(r.lnk)))}
+// Группа анализа для фильтров: по названию — витамины и микроэлементы (D, B12, B9, магний, цинк, кальций, селен…), половые гормоны (тестостерон, эстрадиол…) — к «Гормонам»;
+// остальное — по системе записи. Железо и ферритин остаются в «Крови».
+const VIT_RE=/витамин|25.?(oh|он)\b|фолиев|\bb ?12\b|\bb ?9\b|цинк|селен|магни[йя]|кальци[йя]|\bмедь\b|йод\b/i, HORM_RE=/тестостерон|эстрадиол|пролактин|прогестерон|фолликулостимул|лютеинизир|\bфсг\b|\bлг\b|дгэа|шсг/i;
+function recGroup(r){
+  if(r&&r.title){ const t=String(r.title).toLowerCase().replace(/ё/g,"е");
+    if(r.t==="lab"){ if(VIT_RE.test(t)) return "vit"; if(HORM_RE.test(t)) return "hormones"; }
+    // старая система «vit» («Витамины и гормоны») собирала всё подряд: из неё разбираем по названию, а не по системе
+    if(r.sys==="vit"){ if(/желез|ферритин|трансферрин/.test(t)) return "blood"; if(/фосфатаз|паратгормон/.test(t)) return "bones"; if(/мужчин|женщин|простат/.test(t)) return "repro"; return "other"; } }
+  return groupOfSys(r&&r.sys);
+}
+function recSysName(r){ return recGroup(r)!==groupOfSys(r&&r.sys)?sysName("grp:"+recGroup(r)):sysName(r.sys); }
+function inSys(r,f){ if(String(f).startsWith("grp:")) return recGroup(r)===f.slice(4); return isLnk(f) ? r.lnk===f : (r.sys===f || (!!r.lnk && incOf(f).includes(r.lnk)))}
 const SYSRU={other:"Без системы",lung:"Лёгкие и дыхание",uro:"Мочеполовая система",ent:"ЛОР",eye:"Глаза",skin:"Кожа",
   heart:"Сердце и сосуды",spine:"Позвоночник",liver:"Печень",kidney:"Почки",blood:"Кровь",gi:"ЖКТ",
   endo:"Углеводный обмен",vit:"Витамины и гормоны",thyro:"Щитовидная железа",neuro:"Неврология",
@@ -2673,7 +2685,7 @@ function tableRows(list,opt){
         ${r.v?(()=>{const mk=markVN(r.v,r.n);
           return `<div class="muted">Значение: <b${mk?` style="color:${mk.c}" title="${esc(mk.why)}"`:""}>${hl(r.v)}</b>${r.n?` · норма ${esc(r.n)}`:""}</div>`;})():""}
         ${r.t==="lab"?`<div class="muted" style="font-size:12.5px">Было: ${prevCell(r)}</div>`:""}</td>
-      ${showSys?`<td><span class="tag">${esc(sysName(r.sys))}</span></td>`:""}
+      ${showSys?`<td><span class="tag">${esc(recSysName(r))}</span></td>`:""}
       <td>${r.res?hl(r.res):"<span class='muted'>—</span>"}</td>
       <td><span class="status status-${r.st||"none"}">${ST[r.st]||ST.none}</span></td>
     </tr>`).join("")}</tbody></table></div>`;
@@ -3537,7 +3549,7 @@ let fbOpen=false;   // чипы систем свёрнуты под «＋», п
 function filterBar(){
   const d=DATA[cur], today=localDay(), hm=tab==="lab"?hpModel(d):null;
   const chip=g=>{ const og=ORGANS.find(o=>o.id===g.id), rk=og?organRisk(og.id,d.family,d.diagnoses):null,
-      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false}), v="grp:"+g.id;
+      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false,grp:g.id}), v="grp:"+g.id;
       return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":(t.bad||t.old)?`Показателей: ${t.n}${t.bad?(/^r/.test(t.tone)?`, плохо: ${t.bad}`:`, требует внимания: ${t.bad}`):""}${t.old?`, давно не сдавались: ${t.old}`:""}`:`Показателей: ${t.n}, всё хорошо`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; };
   const shown=fbOpen?SYS_GROUPS:SYS_GROUPS.filter(g=>sysFilter==="grp:"+g.id);
   return `<div class="filters">
@@ -3798,7 +3810,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="20.10 17:24";   // подставляется при публикации
+const BUILD="20.10 17:37";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6552,8 +6564,8 @@ function monthsSince(iso,today){ const [y1,m1,d1]=String(iso).split("-").map(Num
 // насколько показатель просрочен: ratio = месяцев с последнего анализа / период; зона риска усиливает на ступень. "" — не просрочен, r1–r3 — оттенок красного
 function staleTone(ageM,months,risk){ const ratio=ageM/months; if(!(ratio>=1)) return ""; return "o"+Math.min(3,(ratio>=2?2:1)+(risk?1:0)); }   // o — «давно не сдавали», серый; жёлтый (y) — требует внимания, красный (r) — плохо, зелёный (g) — всё хорошо
 function sysTone(rec,sys,opt){
-  const inS=typeof sys==="function"?sys:(x=>[].concat(sys).includes(x));
-  const last=new Map(); (rec||[]).filter(r=>r&&r.t==="lab"&&inS(r.sys)&&r.title).sort((a,b)=>String(b.d).localeCompare(String(a.d))).forEach(r=>{ const k=favKey(r.title); if(!last.has(k)) last.set(k,r); });
+  const inS=typeof sys==="function"?sys:(x=>[].concat(sys).includes(x)), inR=opt&&opt.grp?(r=>recGroup(r)===opt.grp):(r=>inS(r.sys));
+  const last=new Map(); (rec||[]).filter(r=>r&&r.t==="lab"&&inR(r)&&r.title).sort((a,b)=>String(b.d).localeCompare(String(a.d))).forEach(r=>{ const k=favKey(r.title); if(!last.has(k)) last.set(k,r); });
   const L=[...last.values()]; if(!L.length) return {tone:"n",n:0,bad:0};
   const stale=r=>{ if(!opt||!opt.today) return 0; const t=staleTone(monthsSince(r.d,opt.today),opt.months||12,!!opt.risk); return t?Math.min(2,+t[1]):0; };
   const w0=r=>r.st==="bad"?2:r.st==="warn"?1:(!r.st&&["выше","ниже"].includes(flagByNorm(String(r.v||"").match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",r.n))?2:0), w=r=>Math.max(w0(r),stale(r));
@@ -7284,13 +7296,36 @@ function hpRiskLine(r){ return r.risk?`<div class="hprisk hprisk--on hprisk--l${
 const hpFlagText={"в норме":"в норме","выше":"выше нормы","ниже":"ниже нормы","вне нормы":"вне нормы"};
 function hpFlagHtml(f){ return f?`<span style="color:var(--${f==="в норме"?"ok":"warn"})">${hpFlagText[f]||f}</span>`:""; }
 const hpNormText=n=>/^норма$/i.test(String(n||"").trim())?"":String(n||"");
+// «В план» у показателя, который давно не сдавали или не сдавали вовсе в зоне риска (Денис, 20.10.2026)
+function hpNeedPlan(x){ return x.v==null?x.tone==="o2":x.ageM>=x.months; }
+function hpPlanItem(x){
+  return x.v==null?{what:"Сдать: "+x.k,why:"не сдавали, а в зоне риска это нужно"}:{what:"Пересдать: "+x.k,why:`сдан ${x.ageM} мес. назад, повторять раз в ${x.months} мес.`};
+}
+// уже в плане: добавлено отсюда или такое дело уже есть в плане здоровья (по названию показателя)
+function hpInPlan(x,entries,titles,who){
+  const w=hpPlanItem(x).what.toLowerCase(), k=String(x.k||"").toLowerCase().replace(/ё/g,"е");
+  return (entries||[]).some(e=>e&&e.kind==="task"&&e.status!=="deleted"&&e.person===who&&e.data&&String(e.data.what||"").toLowerCase()===w)
+    ||(titles||[]).some(t=>String(t||"").toLowerCase().replace(/ё/g,"е").includes(k));
+}
+async function hpPlanAdd(b){
+  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  b.disabled=true;
+  try{ await entriesApi("entry_add",{person:cur,kind:"task",data:{what:b.dataset.hpwhat,term:"в ближайшие недели",due_why:b.dataset.hpwhy,topic:"organ:"+cur}});
+    await entriesPull(); render(); toast("Добавлено в план: "+b.dataset.hpwhat); }
+  catch(e){ b.disabled=false; toast("Не получилось, попробуйте ещё раз"); }
+}
 function hpAgeText(x){ return x.ageM>=1?`сдан ${x.ageM} мес. назад${x.tone?` · пора пересдать (раз в ${x.months} мес.)`:""}`:"сдан в этом месяце"; }
 function hpOrgCard(d,sys){
   const i=String(sys).startsWith("grp:")?ORGANS.findIndex(o=>o.id===sys.slice(4)):ORGANS.findIndex(o=>o.sys.includes(sys)); if(i<0) return "";
   const o=ORGANS[i], m=hpModel(d), c=m.covs[i], rk=m.risks[i], det=organDetail(o.id,m.rows,m.today,rk.risk);
   const fl=hpFlagHtml;
-  const cells=det.map(x=>x.v==null?`<div class="hpmini hpmini--no${x.tone==="o2"?" hpmini--o2":""}"><b>${esc(x.k)}</b><span class="muted">${x.tone==="o2"?"не сдавали — в зоне риска нужно":"нет данных"}</span></div>`
-    :`<div class="hpmini${hpAnom(x)||(x.tone?" hpmini--"+x.tone:"")}"><b>${esc(x.k)}${indBtn(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span><span class="muted">${esc(hpAgeText(x))}</span></div>`).join("");
+  let titles=[]; try{ titles=buildTodo(d).map(t=>t.title); }catch(e){}
+  const planBtn=x=>{ if(!hpNeedPlan(x)) return ""; const it=hpPlanItem(x);
+    return hpInPlan(x,window.__entries,titles,cur)?`<span class="cal-done hp-plan">${icon("u-task","ic--16")}В плане</span>`
+      :`<button type="button" class="btn btn-secondary hp-plan" data-hpplan="${esc(x.k)}" data-hpwhat="${esc(it.what)}" data-hpwhy="${esc(it.why)}">В план</button>`; };
+  const cells=det.map(x=>{ if(x.v==null) return `<div class="hpmini hpmini--no${x.tone==="o2"?" hpmini--o2":""}"><b>${esc(x.k)}</b><span class="muted">${x.tone==="o2"?"не сдавали — в зоне риска нужно":"нет данных"}</span>${planBtn(x)}</div>`;
+    const ri=recForMeasurement(d.rec,x.d,x.n||x.k);   // карточка открывает сам анализ; нет записи — поиск показателя
+    return `<div class="hpmini hpmini--link${hpAnom(x)||(x.tone?" hpmini--"+x.tone:"")}" ${ri>=0?`data-rec="${ri}"`:`data-favopen="${esc(x.k)}"`} title="Открыть анализ"><b>${esc(x.k)}${indBtn(x.k)}</b><span><b>${esc(x.v)}</b> ${esc(x.u)} ${fl(x.flag)}</span><span class="muted">${ru(x.d)}${x.prev?` · было ${esc(x.prev.v)}`:""}</span><span class="muted">${esc(hpAgeText(x))}</span>${planBtn(x)}</div>`; }).join("");
   return `<div class="hpcard"><div class="hpcard__h"><span>${orgIc(o.id,o.icon)} <b>${esc(o.name)}</b> — что известно</span><span class="row" style="gap:8px;align-items:center">${hpBar(c.divs)}<span class="muted">${organShown(c.score)} из 100 · ${esc(c.label)}</span></span></div>
     ${hpRiskLine(rk)}<div class="hpminis">${cells}</div>
     <div class="muted" style="margin-top:6px">${esc(hpHint(c))} · <a href="#" data-hpopen="${o.id}">подробнее →</a></div></div>`;
@@ -7517,6 +7552,7 @@ function indGraphOpen(gr){
   closeModal(); tlReset(); query=gr.dataset.grind; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0});
 }
 document.addEventListener("click",e=>{
+  const hp=e.target.closest&&e.target.closest("[data-hpplan]"); if(hp){ e.preventDefault(); e.stopPropagation(); hpPlanAdd(hp); return; }
   const go=e.target.closest&&e.target.closest("[data-grind-go]"); if(go){ e.preventDefault(); e.stopPropagation(); indGraphOpen(go); return; }
   const g=e.target.closest&&e.target.closest("[data-grind]"); if(g){ e.preventDefault(); e.stopPropagation(); indGraphToggle(g); return; }
   const b=e.target.closest&&e.target.closest("[data-ind]");
@@ -11140,7 +11176,7 @@ function render(){
 
   else{
     const list=recs(tab==="all"?null:tab), list2=tab==="lab"?recs("instr"):[];
-    const ser=seriesOf(d).filter(s=>!sysFilter||sysIs(s.sys,sysFilter));
+    const ser=seriesOf(d).filter(s=>!sysFilter||(String(sysFilter).startsWith("grp:")?recGroup({t:"lab",title:s.name,sys:s.sys})===sysFilter.slice(4):sysIs(s.sys,sysFilter)));
     const showCharts=(tab==="lab"||sysFilter)&&ser.length;
     const other=sysFilter?DATA[cur].rec.filter(r=>inSys(r,sysFilter)).length:0;
     const S=query?searchIn(cur):null;
