@@ -690,11 +690,20 @@ function calzenLines(pages) {
   for (const items of pages) {
     const rows = [];
     for (const it of [...items].sort((a, b) => b.y - a.y)) {
-      if (!String(it.str).trim()) continue;
+      if (it.str === "") continue;
       const r = rows.find(x => Math.abs(x.y - it.y) <= 3);
       if (r) r.items.push(it); else rows.push({ y: it.y, items: [it] });
     }
-    for (const r of rows) out.push(r.items.sort((a, b) => a.x - b.x).map(i => String(i.str).trim()).join(" "));
+    for (const r of rows) {
+      // pdf.js режет слова на кусочки (у Calzen — по буквам, пробелы — отдельными кусками): склеиваем встык, пробел — только если между кусками зазор
+      let s = "", end = null;
+      for (const i of r.items.sort((a, b) => a.x - b.x)) {
+        const gap = end === null ? 0 : i.w == null ? 99 : i.x - end;
+        if (gap > 2.5 && !/\s$/.test(s) && !/^\s/.test(i.str)) s += " ";
+        s += i.str; end = i.x + (i.w || 0);
+      }
+      out.push(s.normalize("NFC").replace(/\s+/g, " ").trim());
+    }
   }
   return out.join("\n");
 }
@@ -846,7 +855,7 @@ async function readReport(file) {
     const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const tc = await (await pdf.getPage(i)).getTextContent();
-      pages.push(tc.items.filter(x => typeof x.str === "string").map(x => ({ str: x.str, x: x.transform[4], y: x.transform[5] })));
+      pages.push(tc.items.filter(x => typeof x.str === "string").map(x => ({ str: x.str, x: x.transform[4], y: x.transform[5], w: x.width })));
     }
     parsed = parseCalzen(calzenLines(pages));
   } catch (e) { console.error("calzen:", e); parsed = { ok: false, error: "Не получилось прочитать файл. Проверьте, что это PDF-отчёт о питании из Calzen." }; }
