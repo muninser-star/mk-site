@@ -3830,7 +3830,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="21.10 20:50";   // подставляется при публикации
+const BUILD="21.10 20:56";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6853,12 +6853,16 @@ function svLastDone(name,rows,rec){
 }
 // ── состояние и обмен с функцией mk ──
 let SV={}, SVU=null;
-function svGet(p){ return SV[p]||(SV[p]={answers:{},state:{},loaded:false,busy:false}); }
+// последние ответы опросов лежат на устройстве: страница сразу считает процент профиля по ним, свежие приходят следом
+const SVC="mk_c_sv_";
+function svCacheRead(p){ try{ const j=JSON.parse(localStorage.getItem(SVC+p)||"null"); return j&&j.answers&&j.state?j:null; }catch(e){ return null; } }
+function svCacheWrite(p,s){ try{ localStorage.setItem(SVC+p,JSON.stringify({answers:s.answers,state:s.state})); }catch(e){} }
+function svGet(p){ if(!SV[p]){ const c=svCacheRead(p); SV[p]={answers:c?c.answers:{},state:c?c.state:{},loaded:false,busy:false,cached:!!c}; } return SV[p]; }
 function svLoad(p,force){
   const s=svGet(p); if(!window.__MK_KEY||s.busy||(s.loaded&&!force)) return; s.busy=true;
   mkApi("survey_get",{person:p}).then(j=>{
     s.answers={}; (j.answers||[]).forEach(a=>{ s.answers[a.question_id]={value:a.value,skipped:!!a.skipped,survey:a.survey_id,version:a.survey_version,at:a.answered_at}; });
-    s.state={}; (j.state||[]).forEach(t=>{ s.state[t.survey_id]=t; }); s.loaded=true; s.busy=false; if(!SVU) render();
+    s.state={}; (j.state||[]).forEach(t=>{ s.state[t.survey_id]=t; }); s.loaded=true; s.busy=false; svCacheWrite(p,s); if(!SVU) render();
   }).catch(()=>{ s.busy=false; s.loaded=true; });
 }
 function svSex(p){ const pp=(typeof PPL!=="undefined"&&PPL&&PPL.people||[]).find(x=>x.id===p)||null; return personSexBirth(DATA[p],pp).sex; }
@@ -6867,6 +6871,7 @@ function svSave(p,sid,answers,last,done){
   const sv=svSurvey(sid); const s=svGet(p);
   answers.forEach(a=>{ s.answers[a.q]={value:a.skipped?null:a.value,skipped:!!a.skipped,survey:sid,version:sv.version||1,at:new Date().toISOString()}; });
   const old=s.state[sid]; s.state[sid]={survey_id:sid,status:done?"completed":"in_progress",last_question_id:last||null,survey_version:sv.version||1,started_at:old&&old.started_at,completed_at:done?new Date().toISOString():null};
+  svCacheWrite(p,s);
   return mkApi("survey_save",{person:p,survey:sid,version:sv.version||1,answers:answers.map(a=>a.skipped?{q:a.q,skipped:true}:{q:a.q,value:a.value}),last:last||undefined,done}).catch(()=>{ svToast("Не удалось сохранить ответ. Проверьте связь и повторите."); });
 }
 function svToast(t){ const o=document.getElementById("svov"); if(!o) return; let e=o.querySelector(".sv__err"); if(!e){ e=document.createElement("div"); e.className="sv__err"; o.appendChild(e); } e.textContent=t; setTimeout(()=>e&&e.remove(),4000); }
@@ -7251,7 +7256,7 @@ function hpModel(d){
   const pct=profileCompleteness(person,svBasicCount(sv.answers),scores,done.size);
   const weak=covs.map((c,i)=>({c,o:ORGANS[i]})).filter(x=>x.c.a<35);
   const gain=weak.length?Math.max(1,profileCompleteness(person,svBasicCount(sv.answers),covs.map(c=>c.a<35?Math.min(100,c.score-c.a+70):c.score),done.size)-pct):0;
-  return {today,rows,rec,covs,risks,pct,known:organsKnown(scores),weak,gain,person,wait:!!window.__MK_KEY&&!sv.loaded};   // wait — ответы опросов ещё грузятся: процент пока неполный, не показываем
+  return {today,rows,rec,covs,risks,pct,known:organsKnown(scores),weak,gain,person,wait:!!window.__MK_KEY&&!sv.loaded&&!sv.cached};   // wait — ответы опросов ещё грузятся: процент пока неполный, не показываем
 }
 function hpRing(p,wait){ const r=40, c=2*Math.PI*r, off=c*(1-Math.min(100,p)/100);
   return `<svg class="hpring" viewBox="0 0 100 100" width="96" height="96" role="img" aria-label="${wait?"Профиль считается":"Профиль заполнен на "+p+"%"}"><circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--seg)" stroke-width="9"/>
