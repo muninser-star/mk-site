@@ -773,6 +773,60 @@ function parseCalzen(text) {
   for (const m of meals) if (m.noMacro) { проблемы.push(`приём ${m.date} ${m.time}: нет Б/Ж/У`); delete m.noMacro; }
   return { ok: true, from: period && period.from, to: period && period.to, header: hdr, meals, days, проблемы };
 }
+// ── отчёт читает модель (parse_meals); код делит текст на части, считает год и тип приёма, сверяет с шапкой ──
+// части по ≤ maxDays дней; шапка (до первого заголовка дня) едет в первой части — по ней модель берёт период
+function splitCalzenDays(text, maxDays) {
+  const lines = String(text || "").split("\n");
+  const heads = [];
+  lines.forEach((l, i) => { if (/^(?:Пн|Вт|Ср|Чт|Пт|Сб|Вс) \d{1,2} [а-яё]+\.?(?: |$)/i.test(l.trim())) heads.push(i); });
+  if (!heads.length) return [String(text || "").slice(0, 40000)];
+  const parts = [];
+  for (let k = 0; k < heads.length; k += maxDays) {
+    const from = k === 0 ? 0 : heads[k], to = k + maxDays < heads.length ? heads[k + maxDays] : lines.length;
+    parts.push(lines.slice(from, to).join("\n"));
+  }
+  return parts;
+}
+// строки от модели → приёмы: год из периода (месяц дня больше месяца конца периода — год на 1 меньше), eaten_at по Москве, тип по времени, ключ
+function mealsFromModel(rows, period) {
+  if (!Array.isArray(rows) || !period || !period.to) return [];
+  const endY = +period.to.slice(0, 4), endM = +period.to.slice(5, 7);
+  const p2 = v => String(v).padStart(2, "0"), num = v => v == null || v === "" ? NaN : parseFloat(String(v).replace(",", "."));
+  const out = [], seen = {};
+  for (const r of rows) {
+    const mo = +(r && r.month), d = +(r && r.day), t = /^(\d{1,2}):(\d{2})$/.exec(String((r && r.time) || "").trim());
+    const name = String((r && r.name) || "").replace(/\s+/g, " ").trim().slice(0, 120);
+    const k = num(r && r.calories), p = num(r && r.protein_g), f = num(r && r.fat_g), c = num(r && r.carbs_g);
+    const fg = r ? r.fiber_g : null, fib = fg == null || fg === "" ? null : num(fg);
+    if (!name || !t || +t[1] > 23 || +t[2] > 59 || !(mo >= 1 && mo <= 12) || !(d >= 1 && d <= 31)) continue;
+    if (!(k >= 0 && k < 100000) || !(p >= 0) || !(f >= 0) || !(c >= 0) || (fib !== null && !(fib >= 0))) continue;
+    const y = mo > endM ? endY - 1 : endY, dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCMonth() !== mo - 1) continue;                      // 31 февраля и т. п.
+    const date = y + "-" + p2(mo) + "-" + p2(d), time = p2(t[1]) + ":" + t[2], base = date + " " + time + "|" + name;
+    seen[base] = (seen[base] || 0) + 1;
+    out.push({ date, time, eaten_at: date + "T" + time + ":00+03:00", name, calories: k, protein_g: p, fat_g: f, carbs_g: c, fiber_g: fib,
+      meal_type: mealTypeByTime(time), key: base + (seen[base] > 1 ? "|" + seen[base] : "") });
+  }
+  return out.sort((a, b) => a.eaten_at < b.eaten_at ? -1 : a.eaten_at > b.eaten_at ? 1 : 0);
+}
+// сверка с шапкой и итогами дней (ref — parseCalzen(текст)): не блокирует, а помечает; нет эталона — сверять нечем
+function reconcileCalzen(meals, ref) {
+  const good = ref && ref.ok, проблемы = [], days = [];
+  const byDay = {};
+  meals.forEach(m => (byDay[m.date] = byDay[m.date] || []).push(m));
+  const refDays = good ? ref.days : [];
+  for (const d of refDays) {
+    const ms = byDay[d.date] || [], sum = ms.reduce((a, m) => a + m.calories, 0);
+    const ok = d.total == null || Math.abs(sum - d.total) <= ms.length;
+    days.push({ date: d.date, total: d.total, sum, ok });
+    if (!ok) проблемы.push("день " + d.date + ": ккал " + sum + " из " + d.total);
+  }
+  for (const k of Object.keys(byDay).sort()) if (!days.some(d => d.date === k)) days.push({ date: k, total: null, sum: byDay[k].reduce((a, m) => a + m.calories, 0), ok: true });
+  days.sort((a, b) => a.date < b.date ? -1 : 1);
+  if (good && ref.header && meals.length !== ref.header.meals) проблемы.unshift("приёмов " + meals.length + " из " + ref.header.meals);
+  const dates = meals.map(m => m.date);
+  return { ok: true, from: good ? ref.from : dates[0] || null, to: good ? ref.to : dates[dates.length - 1] || null, header: good ? ref.header : null, meals, days, проблемы };
+}
 // пачка для сервера из экрана проверки: снятые галочки не уходят, правки — уходят; import_key считается по значениям отчёта до правки
 function buildImportBatch(rows, person, period) {
   const who = person || "denis", fl = v => parseFloat(String(v).replace(",", "."));
@@ -822,6 +876,7 @@ function openImport() {
     <div style="margin:12px 0 4px">Для: <b>${esc(personName())}</b></div>
     <label class="btn bigbtn" style="margin-top:6px">Выберите файл отчёта (PDF)<input id="ifile" type="file" accept=".pdf,application/pdf" hidden></label>
     <div id="ifn" class="muted" style="font-size:13px"></div>
+    <div class="muted" style="font-size:12.5px;margin-top:6px">Отчёт будет передан сервису распознавания.</div>
     <div id="ier" class="err"></div>
     <div class="acts"><button id="icx">Отмена</button><button class="primary" id="inext" disabled>Дальше</button></div>`);
   let file = null;
@@ -844,8 +899,40 @@ async function loadPdfJs() {
   window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   return pdfLib = window.pdfjsLib;
 }
+// функция entries — та же дверь по коду доступа, что и mk (распознавание документов)
+async function entriesApi(action, payload = {}) {
+  let r;
+  try { r = await fetch(`${SB_URL}/functions/v1/entries`, { method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SB_KEY, "x-mk-key": KEY }, body: JSON.stringify({ action, ...payload }) }); }
+  catch (e) { throw new ApiError("net"); }
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 || r.status === 403) throw new ApiError("auth");
+  if (!r.ok || j.status !== "ok") throw new ApiError(j.code || "other");
+  return j;
+}
+const NOT_REPORT = "Это не похоже на отчёт Calzen. Нужен PDF-отчёт о питании из приложения";
+const importMsg = e => e && e.message === "not_report" ? NOT_REPORT : e && e.message === "no_period" ? "Не удалось найти в отчёте период. Нужен PDF-отчёт о питании из приложения Calzen." :
+  e && e.code === "limit" ? "На сегодня распознавания закончились. Попробуйте завтра." : e && e.code === "unreadable" ? "Не получилось разобрать отчёт. Попробуйте ещё раз или другой файл." :
+  e && e.code === "net" ? apiMsg(e) : "Не получилось прочитать файл. Проверьте, что это PDF-отчёт о питании из Calzen.";
+// скан без текстового слоя: страницы картинками в приватное хранилище (до 10), сервер удаляет их после разбора
+async function uploadScanPages(pdf, person) {
+  const paths = [];
+  for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+    const page = await pdf.getPage(i), vp = page.getViewport({ scale: 1.6 }), cv = document.createElement("canvas");
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+    const blob = await new Promise(ok => cv.toBlob(ok, "image/jpeg", 0.8));
+    const u = await entriesApi("file_upload", { name: "page" + i + ".jpg", person });
+    const put = await fetch(u.url, { method: "PUT", headers: { "Content-Type": "image/jpeg" }, body: blob });
+    if (!put.ok) throw new ApiError("net");
+    paths.push(u.path);
+  }
+  return paths;
+}
 async function readReport(file) {
-  const d = sheet(`<div style="font-weight:700;font-size:17px">Читаю отчёт…</div><div class="spin"></div><div class="muted" style="text-align:center">Файл остаётся на вашем устройстве</div>`);
+  const d = sheet(`<div style="font-weight:700;font-size:17px">Читаю отчёт…</div><div class="spin"></div><div id="ipr" class="muted" style="text-align:center">Отчёт будет передан сервису распознавания</div>`);
+  const setP = t => { const e = document.getElementById("ipr"); if (e) e.textContent = t; };
+  const person = PERSON || "denis";
   let parsed;
   try {
     if (file.size > 30 * 1048576) throw new Error("big");
@@ -857,8 +944,33 @@ async function readReport(file) {
       const tc = await (await pdf.getPage(i)).getTextContent();
       pages.push(tc.items.filter(x => typeof x.str === "string").map(x => ({ str: x.str, x: x.transform[4], y: x.transform[5], w: x.width })));
     }
-    parsed = parseCalzen(calzenLines(pages));
-  } catch (e) { console.error("calzen:", e); parsed = { ok: false, error: "Не получилось прочитать файл. Проверьте, что это PDF-отчёт о питании из Calzen." }; }
+    const text = calzenLines(pages);
+    let ref = null, period = null, rows = [];
+    if (text.replace(/\s/g, "").length >= 500) {
+      ref = parseCalzen(text);                                   // только для сверки с шапкой и итогами дней; период — оттуда, если нашёлся
+      if (ref.ok && ref.from) period = { from: ref.from, to: ref.to };
+      const parts = splitCalzenDays(text, 10);
+      for (let i = 0; i < parts.length; i++) {
+        setP(parts.length > 1 ? `Разбираю отчёт… ${i + 1} из ${parts.length}` : "Разбираю отчёт…");
+        const r = await entriesApi("parse_meals", { person, text: parts[i], part: i + 1 });
+        if (r.not_meals && !rows.length && i === 0) throw new Error("not_report");
+        if (!period && r.period && r.period.from && r.period.to) period = r.period;
+        rows = rows.concat(r.meals || []);
+      }
+    } else {                                                      // текста нет — скан: страницы картинками
+      setP("Разбираю отчёт…");
+      const files = await uploadScanPages(pdf, person);
+      const r = await entriesApi("parse_meals", { person, files, part: 1 });
+      if (r.not_meals) throw new Error("not_report");
+      period = r.period && r.period.from && r.period.to ? r.period : null;
+      rows = r.meals || [];
+    }
+    if (!period) throw new Error(rows.length ? "no_period" : "not_report");
+    const meals = mealsFromModel(rows, period);
+    if (!meals.length) throw new Error("not_report");
+    parsed = reconcileCalzen(meals, ref);
+    if (!parsed.from) { parsed.from = period.from; parsed.to = period.to; }
+  } catch (e) { console.error("calzen:", e); parsed = { ok: false, error: importMsg(e) }; }
   if (!parsed.ok || !parsed.meals.length) {
     d.querySelector(".in").innerHTML = `<div style="font-weight:700;font-size:17px">Не получилось</div><div class="err" style="font-size:14px;margin:10px 0">${esc(parsed.error || "В отчёте не нашлось ни одного приёма пищи.")}</div>
       <div class="acts"><button id="icx">Закрыть</button><button class="primary" id="iback">Другой файл</button></div>`;
