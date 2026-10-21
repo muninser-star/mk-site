@@ -120,6 +120,19 @@ th{font-size:12px;color:var(--muted);font-weight:600}
 .topf li{padding:3px 0}
 .topf li span{display:inline-block;min-width:150px}
 .topf li small{color:var(--muted)}
+.impb{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.impl{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding:8px 0;font-size:13.5px}
+.impl:first-of-type{border-top:0}
+.ir{border-top:1px solid var(--line);padding:8px 0}
+.ir .r1{display:flex;gap:6px;align-items:center}
+.ir .r1 input[type=text]{flex:1;min-width:0;padding:5px 8px}
+.ir .r1 .tm{color:var(--muted);font-size:13px;white-space:nowrap}
+.ir .r2{display:grid;grid-template-columns:repeat(4,1fr) 1.5fr;gap:5px;margin-top:5px}
+.ir .r2 input,.ir .r2 select{width:100%;min-width:0;padding:4px 5px;font-size:13px}
+.ir.off{opacity:.45}
+.idh{display:flex;justify-content:space-between;gap:8px;font-weight:600;margin-top:10px}
+.idh span.bad{color:var(--warn);font-weight:400;font-size:12.5px}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}}
 </style>
 </head>
 <body>
@@ -506,7 +519,7 @@ function review(D) {
           ${D.editing ? `<input class="nm" data-f="name" value="${esc(it.name)}" placeholder="продукт">` : `<span class="nm">${esc(it.name) || "—"}</span>`}
           <span class="kc" data-kc>${kcal(it.k)} ккал</span>${D.items.length > 1 || D.editing ? `<button class="del" data-del title="Убрать">×</button>` : ""}</div>
         ${it.conf != null && it.conf < 0.6 ? `<div class="lowc">⚠ Не уверен в распознавании. Проверьте этот продукт</div>` : ""}
-        <div class="stepper"><button data-st="-10">−</button><input inputmode="numeric" data-f="amount" value="${it.amount}"><button data-st="10">+</button></div> <span class="muted" style="font-size:13px">г</span>
+        <div class="stepper"><button data-st="-10">−</button><input inputmode="numeric" data-f="amount" value="${it.amount ?? ""}"><button data-st="10">+</button></div> <span class="muted" style="font-size:13px">г</span>
         ${D.editing ? `<div class="edit">${[["k", "ккал"], ["p", "белки, г"], ["f", "жиры, г"], ["c", "углев., г"]].map(([k, l]) => `<label>${l}<input inputmode="decimal" data-m="${k}" value="${n1(it[k])}"></label>`).join("")}</div>`
           : `<div class="macro" data-mc>Б ${n1(it.p)} · Ж ${n1(it.f)} · У ${n1(it.c)}</div>`}
       </div>`).join("")}</div>
@@ -554,7 +567,7 @@ async function save(D, d) {
   if (!D.id && items.some(i => !(i.amount > 0))) { se.textContent = "Укажите количество в граммах."; return; }
   b.disabled = true; b.textContent = "Сохраняю…"; se.textContent = "";
   const rows = items.map(i => ({ food_name: i.name.trim(), amount_g: i.amount, calories: r0(i.k), protein_g: r1(i.p), fat_g: r1(i.f), carbs_g: r1(i.c),
-    confidence: i.conf, source: i.source, edited: i.edited, ai_amount_g: i.ai_amount }));
+    confidence: i.conf, source: i.source, edited: i.edited, ai_amount_g: i.ai_amount, fiber_g: i.fiber ?? null }));
   const meal = { meal_type: D.meal_type, eaten_at: new Date(D.eaten_at).toISOString(), ai_model: D.model || null, person: PERSON };
   let error = null;
   try { await (D.id ? api("update_meal", { id: D.id, meal, items: rows }) : api("save_meal", { meal, items: rows })); } catch (e) { error = e; }
@@ -660,14 +673,242 @@ function editMeal(m) {
       const a = i.amount_g == null ? null : +i.amount_g;
       return { name: i.food_name, amount: a, k: +i.calories, p: +i.protein_g, f: +i.fat_g, c: +i.carbs_g,
         per: a ? { k: +i.calories / a, p: +i.protein_g / a, f: +i.fat_g / a, c: +i.carbs_g / a } : { k: 0, p: 0, f: 0, c: 0 },
-        conf: i.confidence == null ? null : +i.confidence, ai_amount: null, source: i.source || "ai", edited: false };
+        conf: i.confidence == null ? null : +i.confidence, ai_amount: null, source: i.source || "ai", edited: false,
+        fiber: i.fiber_g == null ? null : +i.fiber_g };
     }) });
+}
+
+// ── загрузка питания из другого приложения (ТЗ-040): сейчас — отчёт Calzen в PDF ──
+// Разбор целиком в браузере, без нейросети: pdf.js даёт текст, parseCalzen собирает приёмы пищи. Файл никуда не уходит.
+function checkCalzenFile(f) {
+  if (f && (f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""))) return { ok: true };
+  return { ok: false, msg: "Для Calzen нужен PDF-отчёт о питании" };
+}
+// pdf.js отдаёт куски текста с координатами: pages = [[{ str, x, y }, …], …] (y растёт вверх). Куски одной строки — по y с допуском 3 пт, внутри строки по x
+function calzenLines(pages) {
+  const out = [];
+  for (const items of pages) {
+    const rows = [];
+    for (const it of [...items].sort((a, b) => b.y - a.y)) {
+      if (!String(it.str).trim()) continue;
+      const r = rows.find(x => Math.abs(x.y - it.y) <= 3);
+      if (r) r.items.push(it); else rows.push({ y: it.y, items: [it] });
+    }
+    for (const r of rows) out.push(r.items.sort((a, b) => a.x - b.x).map(i => String(i.str).trim()).join(" "));
+  }
+  return out.join("\n");
+}
+// 05:00–10:59 завтрак, 11:00–15:59 обед, 16:00–20:59 ужин, остальное перекус
+function mealTypeByTime(t) {
+  const h = +String(t).split(":")[0];
+  return h >= 5 && h < 11 ? "breakfast" : h >= 11 && h < 16 ? "lunch" : h >= 16 && h < 21 ? "dinner" : "snack";
+}
+function parseCalzen(text) {
+  const bad = error => ({ ok: false, error, meals: [], days: [], проблемы: [] });
+  const lines = String(text || "").split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const all = lines.join("\n");
+  if (!/отч[её]т о питании/i.test(all) || !/calzen/i.test(all)) return bad("Это не похоже на отчёт Calzen. Нужен PDF-отчёт о питании из приложения");
+  const MONTHS = { янв: 1, фев: 2, мар: 3, апр: 4, мая: 5, май: 5, июн: 6, июл: 7, авг: 8, сен: 9, окт: 10, ноя: 11, дек: 12 };
+  const mon = s => MONTHS[String(s).toLowerCase().slice(0, 3)] || 0;
+  const num = s => parseFloat(String(s).replace(/\s/g, "").replace(",", "."));
+  const p2 = v => String(v).padStart(2, "0");
+  const RE_PERIOD = /(\d{1,2}) ([а-яё]+)(?: (\d{4}))? ?[–—-] ?(\d{1,2}) ([а-яё]+) (\d{4})/i;
+  const RE_COUNT = /(\d+) ?дн\.? ?[·•]? ?(\d+) ?приём/i;
+  const RE_DAY = /^(?:Пн|Вт|Ср|Чт|Пт|Сб|Вс) (\d{1,2}) ([а-яё]+)\.?(?: (.*))?$/i;
+  const RE_TOTAL = /(\d[\d ]*(?:[.,]\d+)?) ?\/ ?\d[\d ]* ?ккал/;
+  const RE_TIME = /^(\d{1,2}):(\d{2}) (?:(.*?) )??(\d[\d ]*(?:[.,]\d+)?) ?ккал$/;
+  const RE_MACRO = /^Б ?([\d.,]+) ?[·•]? ?Ж ?([\d.,]+) ?[·•]? ?У ?([\d.,]+)(?: ?[·•]? ?Кл ?([\d.,]+) ?г?)?$/;
+  const RE_FOOT = /^calzen$|пользователей|calzen\.ai$|^iOS( Android)?$|^Android$/i;
+  let period = null, hdr = null, endY = 0, endM = 0;
+  const days = [], meals = [], seen = {};
+  let day = null, pending = "", last = null;
+  for (const line of lines) {
+    if (!day) {                                                   // шапка отчёта: период и число приёмов
+      const p = RE_PERIOD.exec(line);
+      if (p && !period && mon(p[2]) && mon(p[5])) {
+        endY = +p[6]; endM = mon(p[5]);
+        const y0 = p[3] ? +p[3] : (mon(p[2]) > endM ? endY - 1 : endY);
+        period = { from: `${y0}-${p2(mon(p[2]))}-${p2(p[1])}`, to: `${endY}-${p2(endM)}-${p2(p[4])}` };
+      }
+      const c = RE_COUNT.exec(line); if (c && !hdr) hdr = { days: +c[1], meals: +c[2] };
+    }
+    if (RE_FOOT.test(line)) continue;
+    const d = RE_DAY.exec(line);
+    if (d && mon(d[2])) {
+      const mm = mon(d[2]), t = d[3] ? RE_TOTAL.exec(d[3]) : null;
+      day = { date: `${endM && mm > endM ? endY - 1 : endY}-${p2(mm)}-${p2(d[1])}`, total: t ? num(t[1]) : null, meals: [] };
+      days.push(day); pending = ""; last = null; continue;
+    }
+    if (!day || /^нет записей$/i.test(line)) continue;
+    const t = RE_TIME.exec(line);
+    if (t) {
+      const time = `${p2(t[1])}:${t[2]}`, name = (t[3] || pending || "").trim();
+      const base = `${day.date} ${time}|${name}`;
+      seen[base] = (seen[base] || 0) + 1;
+      last = { date: day.date, time, eaten_at: `${day.date}T${time}:00+03:00`, name: name || "Без названия", calories: num(t[4]),
+        protein_g: 0, fat_g: 0, carbs_g: 0, fiber_g: null, meal_type: mealTypeByTime(time), key: base + (seen[base] > 1 ? `|${seen[base]}` : ""), noMacro: true };
+      meals.push(last); day.meals.push(last); pending = ""; continue;
+    }
+    const m = RE_MACRO.exec(line);
+    if (m && last && last.noMacro) { Object.assign(last, { protein_g: num(m[1]), fat_g: num(m[2]), carbs_g: num(m[3]), fiber_g: m[4] == null ? null : num(m[4]) }); delete last.noMacro; continue; }
+    pending = pending ? pending + " " + line : line;
+  }
+  const проблемы = [];
+  if (hdr && meals.length !== hdr.meals) проблемы.push(`приёмов ${meals.length} из ${hdr.meals}`);
+  if (period) { const n = Math.round((Date.parse(period.to) - Date.parse(period.from)) / 864e5) + 1; if (days.length !== n) проблемы.push(`дней ${days.length} из ${n}`); }
+  for (const x of days) {                                          // сумма дня против итога из отчёта: допуск — 1 ккал на приём
+    const sum = x.meals.reduce((a, m) => a + m.calories, 0);
+    x.sum = sum; x.ok = x.total == null || Math.abs(sum - x.total) <= x.meals.length;
+    if (!x.ok) проблемы.push(`день ${x.date}: ккал ${sum} из ${x.total}`);
+  }
+  for (const m of meals) if (m.noMacro) { проблемы.push(`приём ${m.date} ${m.time}: нет Б/Ж/У`); delete m.noMacro; }
+  return { ok: true, from: period && period.from, to: period && period.to, header: hdr, meals, days, проблемы };
+}
+// пачка для сервера из экрана проверки: снятые галочки не уходят, правки — уходят; import_key считается по значениям отчёта до правки
+function buildImportBatch(rows, person, period) {
+  const who = person || "denis", fl = v => parseFloat(String(v).replace(",", "."));
+  return { person: who, source: "calzen", period: { from: period && period.from || null, to: period && period.to || null },
+    items: rows.filter(r => r.include !== false).map(r => ({ eaten_at: r.eaten_at, meal_type: r.meal_type, name: String(r.name).trim(), calories: fl(r.calories),
+      protein_g: fl(r.protein_g), fat_g: fl(r.fat_g), carbs_g: fl(r.carbs_g), fiber_g: r.fiber_g == null || r.fiber_g === "" ? null : fl(r.fiber_g),
+      import_key: who + "|calzen|" + r.key })) };
+}
+// строка позиции в истории: граммы — только если есть, клетчатка — только если есть
+function itemRow(it) {
+  const g = it.amount_g != null ? " · " + r0(it.amount_g) + " г" : "";
+  const fb = it.fiber_g != null ? " · клетчатка " + fmt(r1(it.fiber_g)) + " г" : "";
+  return '<div class="one"><span>' + emo(it.food_name) + " " + esc(it.food_name) + g + (fb ? '<small class="muted">' + fb + "</small>" : "") + '</span><span class="muted">' + kcal(it.calories) + "</span></div>";
+}
+
+// ── окна загрузки и карточка загрузок (ТЗ-040, блоки 1, 3, 4) ──
+const IMP_MAX = 400, IMP_OLD_DAYS = MEALS_DAYS;
+const personName = () => PERSON === "test" ? "Тест" : (NAME[PERSON || "denis"] || "");
+const personAcc = () => PERSON === "test" ? "Тест" : ({ denis: "Дениса", anya: "Аню", dima: "Диму", danya: "Даню" }[PERSON || "denis"] || personName());
+const plural = (n, a, b, c) => n % 10 === 1 && n % 100 !== 11 ? a : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? b : c;
+const dRu = k => { const [, m, d] = String(k).slice(0, 10).split("-"); return `${+d} ${MONTH[+m - 1]}`; };
+const dRuY = k => `${dRu(k)} ${String(k).slice(0, 4)}`;
+// верх вкладки «История»: кнопка загрузки и карточка прошлых загрузок
+async function paintImports() {
+  const el = document.getElementById("imp"); if (!el) return;
+  el.innerHTML = `<div class="impb"><button class="primary" id="impgo">Загрузить из другого приложения</button></div><div id="impl"></div>`;
+  el.querySelector("#impgo").onclick = openImport;
+  let rows = [];
+  try { rows = (await api("import_list", { person: PERSON })).rows || []; } catch (e) { return; }      // нет связи — просто без карточки
+  const box = document.getElementById("impl"); if (!box || !rows.length) return;
+  box.innerHTML = `<div style="font-weight:700;margin:14px 0 4px">Загружено из других приложений</div>` + rows.map(r =>
+    `<div class="impl"><span>Calzen · ${dRu(r.from)} – ${dRu(r.to)} · ${r.count} ${plural(r.count, "приём", "приёма", "приёмов")} · добавлено ${dRu(dayKey(r.created_at))}</span>
+      <button data-b="${esc(r.batch)}" data-n="${r.count}" style="font-size:12.5px;padding:4px 10px">Отменить загрузку</button></div>`).join("");
+  box.onclick = async e => {
+    const b = e.target.closest("[data-b]"); if (!b) return;
+    const n = +b.dataset.n;
+    if (!confirm(`Удалить ${n} ${plural(n, "приём пищи", "приёма пищи", "приёмов пищи")}, загруженный из Calzen?`)) return;
+    try { await api("import_delete", { batch: b.dataset.b }); cache.drop("meals"); toast("Загрузка отменена"); historyView(); }
+    catch (x) { toast("Не удалось отменить загрузку"); }
+  };
+}
+// шаг 1: приложение, человек, файл
+function openImport() {
+  const d = sheet(`<div style="font-weight:700;font-size:17px">Загрузить из другого приложения</div>
+    <div class="muted" style="font-size:13px;margin:10px 0 4px">Из какого приложения?</div>
+    <div class="chips"><button class="on">Calzen</button><button disabled>Другие приложения — скоро</button></div>
+    <div style="margin:12px 0 4px">Для: <b>${esc(personName())}</b></div>
+    <label class="btn bigbtn" style="margin-top:6px">Выберите файл отчёта (PDF)<input id="ifile" type="file" accept=".pdf,application/pdf" hidden></label>
+    <div id="ifn" class="muted" style="font-size:13px"></div>
+    <div id="ier" class="err"></div>
+    <div class="acts"><button id="icx">Отмена</button><button class="primary" id="inext" disabled>Дальше</button></div>`);
+  let file = null;
+  d.querySelector("#ifile").onchange = e => {
+    const f = e.target.files && e.target.files[0], c = f ? checkCalzenFile(f) : { ok: false, msg: "" };
+    file = c.ok ? f : null;
+    d.querySelector("#ifn").textContent = f ? f.name : "";
+    d.querySelector("#ier").textContent = c.ok ? "" : c.msg;
+    d.querySelector("#inext").disabled = !c.ok;
+  };
+  d.querySelector("#icx").onclick = closeSheet;
+  d.onclick = e => { if (e.target === d) closeSheet(); };
+  d.querySelector("#inext").onclick = () => { if (file) readReport(file); };
+}
+// pdf.js — тот же, что в Медкнижке (cdnjs 3.11.174); загружается только при первом выборе отчёта
+let pdfLib = null;
+async function loadPdfJs() {
+  if (pdfLib) return pdfLib;
+  await new Promise((ok, err) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"; sc.onload = ok; sc.onerror = err; document.head.appendChild(sc); });
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  return pdfLib = window.pdfjsLib;
+}
+async function readReport(file) {
+  const d = sheet(`<div style="font-weight:700;font-size:17px">Читаю отчёт…</div><div class="spin"></div><div class="muted" style="text-align:center">Файл остаётся на вашем устройстве</div>`);
+  let parsed;
+  try {
+    if (file.size > 30 * 1048576) throw new Error("big");
+    const lib = await loadPdfJs();
+    const pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+    if (pdf.numPages > 80) throw new Error("big");
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const tc = await (await pdf.getPage(i)).getTextContent();
+      pages.push(tc.items.filter(x => typeof x.str === "string").map(x => ({ str: x.str, x: x.transform[4], y: x.transform[5] })));
+    }
+    parsed = parseCalzen(calzenLines(pages));
+  } catch (e) { console.error("calzen:", e); parsed = { ok: false, error: "Не получилось прочитать файл. Проверьте, что это PDF-отчёт о питании из Calzen." }; }
+  if (!parsed.ok || !parsed.meals.length) {
+    d.querySelector(".in").innerHTML = `<div style="font-weight:700;font-size:17px">Не получилось</div><div class="err" style="font-size:14px;margin:10px 0">${esc(parsed.error || "В отчёте не нашлось ни одного приёма пищи.")}</div>
+      <div class="acts"><button id="icx">Закрыть</button><button class="primary" id="iback">Другой файл</button></div>`;
+    d.querySelector("#icx").onclick = closeSheet; d.querySelector("#iback").onclick = openImport; return;
+  }
+  importReview(parsed);
+}
+// шаг 3: «Проверьте, всё ли верно» — человек видит всё; сохраняется только подтверждённое
+function importReview(P) {
+  const rows = P.meals.map(m => ({ ...m, include: true }));
+  const bad = new Set(P.days.filter(x => !x.ok).map(x => x.date));
+  const oldFrom = dayKey(Date.now() - IMP_OLD_DAYS * 864e5);
+  const byDay = {}; rows.forEach(r => (byDay[r.date] = byDay[r.date] || []).push(r));
+  const dayHtml = Object.keys(byDay).sort().map(k => `<div class="idh"><span>${dRu(k)}${bad.has(k) ? ` <span class="bad">· не сходится с отчётом</span>` : ""}</span><span class="muted" data-dk="${k}"></span></div>` +
+    byDay[k].map(r => { const i = rows.indexOf(r); return `<div class="ir" data-i="${i}">
+      <div class="r1"><input type="checkbox" data-f="include" checked title="Загрузить"><span class="tm">${r.time}</span><input type="text" data-f="name" value="${esc(r.name)}" maxlength="120"></div>
+      <div class="r2"><input inputmode="decimal" data-f="calories" value="${r.calories}" title="ккал"><input inputmode="decimal" data-f="protein_g" value="${r.protein_g}" title="белки, г">
+        <input inputmode="decimal" data-f="fat_g" value="${r.fat_g}" title="жиры, г"><input inputmode="decimal" data-f="carbs_g" value="${r.carbs_g}" title="углеводы, г">
+        <select data-f="meal_type">${MT.map(([t, n]) => `<option value="${t}" ${t === r.meal_type ? "selected" : ""}>${n}</option>`).join("")}</select></div></div>`; }).join("")).join("");
+  const hdr = P.header ? P.header.meals : rows.length;
+  const d = sheet(`<div style="font-weight:700;font-size:17px">Проверьте, всё ли верно</div>
+    <div class="muted" style="font-size:13px;margin:4px 0 8px">Calzen · ${P.from ? dRuY(P.from) : ""} – ${P.to ? dRuY(P.to) : ""} · ${P.days.length} ${plural(P.days.length, "день", "дня", "дней")} · ${rows.length} ${plural(rows.length, "приём пищи", "приёма пищи", "приёмов пищи")} · на ${esc(personAcc())}</div>
+    ${P.проблемы.length ? `<div class="warnbox">${rows.length !== hdr ? `В отчёте ${hdr} ${plural(hdr, "приём", "приёма", "приёмов")}, найдено ${rows.length} — посмотрите дни с пометкой.` : "Часть дней не сходится с итогами отчёта — посмотрите дни с пометкой."}</div>` : ""}
+    ${P.from && P.from < oldFrom ? `<div class="warnbox">Приёмы старше ${IMP_OLD_DAYS} дней сохранятся, но в истории пока не видны.</div>` : ""}
+    <div class="muted" style="font-size:12.5px">Колонки: ккал · белки · жиры · углеводы · тип. Клетчатка берётся из отчёта.</div>
+    <div id="irows">${dayHtml}</div>
+    <div id="ise" class="err"></div>
+    <div class="acts"><button id="icx">Отмена</button><button class="primary" id="isv">Сохранить</button></div>`);
+  const upd = () => { document.querySelectorAll("[data-dk]").forEach(x => { const k = x.dataset.dk;
+    x.textContent = kcal(byDay[k].filter(r => r.include).reduce((a, r) => a + (parseFloat(String(r.calories).replace(",", ".")) || 0), 0)) + " ккал"; }); };
+  const onEdit = e => { const row = e.target.closest(".ir"); if (!row) return; const r = rows[+row.dataset.i], f = e.target.dataset.f; if (!f) return;
+    if (f === "include") { r.include = e.target.checked; row.classList.toggle("off", !r.include); } else r[f] = e.target.value;
+    upd(); };
+  d.querySelector("#irows").oninput = onEdit; d.querySelector("#irows").onchange = onEdit;
+  upd();
+  d.querySelector("#icx").onclick = closeSheet;                       // Отмена и закрытие окна ничего не записывают
+  d.onclick = e => { if (e.target === d) closeSheet(); };
+  d.querySelector("#isv").onclick = async () => {
+    const se = d.querySelector("#ise"), b = d.querySelector("#isv");
+    const batch = buildImportBatch(rows, PERSON, P);
+    if (!batch.items.length) { se.textContent = "Отметьте хотя бы один приём."; return; }
+    if (batch.items.length > IMP_MAX) { se.textContent = "Разбейте отчёт на периоды: за один раз можно загрузить не больше " + IMP_MAX + " приёмов."; return; }
+    if (batch.items.some(i => !i.name || ![i.calories, i.protein_g, i.fat_g, i.carbs_g].every(v => v >= 0) || (i.fiber_g != null && !(i.fiber_g >= 0)))) { se.textContent = "Проверьте названия и цифры: они должны быть заполнены и не меньше нуля."; return; }
+    b.disabled = true; b.textContent = "Сохраняю…"; se.textContent = "";
+    let r;
+    try { r = await api("meals_import", batch); }
+    catch (e) { b.disabled = false; b.textContent = "Сохранить"; se.textContent = navigator.onLine ? "Не удалось сохранить. Попробуйте ещё раз." : "Нет интернета — ничего не сохранено."; return; }
+    cache.drop("meals");
+    d.querySelector(".in").innerHTML = `<div style="font-weight:700;font-size:17px">Готово</div>
+      <div style="font-size:15px;margin:10px 0">Добавлено ${r.added}${r.skipped ? `, уже были ${r.skipped}` : ""}.</div><div class="acts"><button class="primary" id="idone">Хорошо</button></div>`;
+    d.querySelector("#idone").onclick = () => { closeSheet(); if (S.tab === "history") historyView(); };
+  };
 }
 
 // ── история по дням ──
 async function historyView() {
   const el = document.getElementById("body");
-  el.innerHTML = `<div class="card"><div style="font-weight:700;margin-bottom:6px">История</div><div id="hl" class="muted">Загружаю…</div></div>`;
+  el.innerHTML = `<div class="card" id="imp"></div><div class="card"><div style="font-weight:700;margin-bottom:6px">История</div><div id="hl" class="muted">Загружаю…</div></div>`;
+  paintImports();
   withMeals(paintHistory, e => { const hl = document.getElementById("hl"); if (hl) hl.innerHTML = `<span class="err">${esc(e.message)}</span>`; });
 }
 function paintHistory(meals) {
@@ -683,7 +924,7 @@ function paintHistory(meals) {
     return `<div class="hday" data-k="${k}"><div class="hh"><span>${dayLabel(k)}</span><span>${kcal(s.k)} ккал</span></div>
       <div class="hm">${per} · Б ${r0(s.p)} · Ж ${r0(s.f)} · У ${r0(s.c)}</div>
       <div class="det" ${i === 0 ? "" : "hidden"}>${ms.map(m => `<div class="meal"><div class="mh">${MTN[m.meal_type]}<span>${hm(m.eaten_at)} · ${kcal(m.total_calories)} ккал</span></div>
-        ${m.meal_items.map(it => `<div class="one"><span>${emo(it.food_name)} ${esc(it.food_name)}${it.amount_g != null ? ` · ${r0(it.amount_g)} г` : ""}</span><span class="muted">${kcal(it.calories)}</span></div>`).join("")}
+        ${m.meal_items.map(it => `${itemRow(it)}`).join("")}
         <div style="margin-top:6px;display:flex;gap:6px"><button data-edit="${m.id}" style="font-size:12.5px;padding:4px 10px">Изменить</button>
           <button data-del="${m.id}" style="font-size:12.5px;padding:4px 10px">Удалить</button></div></div>`).join("")}</div></div>`; }).join("");
   hl.onclick = async e => {
