@@ -1587,6 +1587,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .dz-chips{display:flex;flex-wrap:wrap;gap:8px}
 .dz-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1.5px solid var(--accent);border-radius:var(--r-pill);background:transparent;color:var(--text-accent);font:400 14px/20px var(--font);cursor:pointer}
 .dz-chip.is-on{background:var(--accent);color:#fff} .dz-chip .ic{width:20px;height:20px;flex:none}
+.qd-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px} .qd-row button.qd-chip{min-height:44px;height:auto;padding:0 14px;width:auto}
 .dz-how{display:inline-flex;align-items:center;min-height:44px;margin:-6px 0 6px;padding:0;border:0;background:none;color:var(--text-accent);font:600 14px/20px var(--font);cursor:pointer}
 .dz-ins{background:var(--surface-1);border-radius:var(--r-2xl);padding:16px;margin:0 0 12px}
 .dz-ins__h{display:flex;justify-content:space-between;align-items:center;font:400 12px/16px var(--font);letter-spacing:.4px;color:var(--text-secondary)} .dz-ins__x{width:44px;height:44px;margin:-14px -14px -14px 0;border:0;background:none;color:var(--text-secondary);display:grid;place-items:center;cursor:pointer}
@@ -1595,6 +1596,54 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .dz-slide{text-align:center;padding:24px 0 0} .dz-slide__i{width:200px;height:200px;margin:0 auto 20px;border-radius:50%;background:var(--surface-1);display:grid;place-items:center} .dz-slide h3{margin:0 0 8px;font:600 28px/34px var(--font)} .dz-slide p{margin:0 0 20px;color:var(--text-secondary);font:400 16px/24px var(--font)}
 .dz-dots{display:flex;gap:8px;justify-content:center;margin:0 0 20px} .dz-dots i{width:8px;height:8px;border-radius:50%;background:var(--surface-3)} .dz-dots i.is-on{background:var(--accent)}
 .dz-sec{margin:0 0 24px} .dz-sec__t{margin:0 0 12px;font:600 20px/26px var(--font)}
+/* ── Приступ головной боли (ТЗ-041 блок 4) ── */
+.dz-set-note{margin:8px 0 20px;font:400 14px/20px var(--font)}
+.hd-scale{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.hd-scale.is-0{grid-template-columns:repeat(11,1fr)}
+.hd-cell{min-height:44px;min-width:0;padding:0;border:2px solid var(--hd);border-radius:10px;background:transparent;color:var(--text-primary);font:600 15px/20px var(--font);cursor:pointer}
+.hd-cell.is-on{background:var(--hd);color:#fff}
+.hd-cell:focus-visible,.hd-seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hd-lab{margin:6px 0 0;min-height:20px;font:600 14px/20px var(--font);color:var(--text-secondary)}
+.hd-how{background:var(--surface-1);border-radius:var(--r-l);padding:8px 12px;margin:0 0 8px}
+.hd-how div{display:flex;gap:10px;align-items:center;padding:6px 0;font:400 14px/20px var(--font)} .hd-how .ic{width:28px;height:28px;flex:none;color:var(--text-accent)} .hd-how b{display:block;font-weight:600}
+.hd-note{margin:6px 0 0;font:400 13px/18px var(--font);color:var(--text-secondary)}
+.hd-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hd-seg button{min-height:44px;border:1.5px solid var(--accent);border-radius:var(--r-pill);background:transparent;color:var(--text-accent);font:400 14px/20px var(--font);cursor:pointer}
+.hd-seg button.is-on{background:var(--accent);color:#fff}
+.hd-ask{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 0}
+.hd-ask .dz-pill{min-height:44px}
+.hd-sub{display:block;margin-top:2px;color:var(--text-secondary);font:400 13px/18px var(--font)}
+@media (prefers-reduced-motion:reduce){.hd-cell,.hd-seg button{transition:none}}
+/* ── Зоны головы (ТЗ-041 блок 5) ── */
+.hd-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (min-width:900px){.hd-zones{grid-template-columns:repeat(6,1fr)}.dz-form:has(.hd-zones){max-width:760px}}
+.hd-ztile{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px;padding:0 0 4px;border:0;background:none;color:var(--text-primary);font:inherit;cursor:pointer}
+.hd-ztile__r{position:relative;display:grid;place-items:center;width:100%;max-width:104px;aspect-ratio:1;border:2px solid transparent;border-radius:16px;background:var(--surface-1);color:var(--text-primary)}
+.hd-zimg{width:88%;height:88%;color:inherit;fill:var(--negative)}   /* место боли — светло-красным (правка Дениса к блоку 5), контур — цвет текста */
+.hd-ztile.is-on .hd-ztile__r{border-color:var(--accent);background:var(--accent-soft);color:var(--text-accent)}
+.hd-ztile__ok{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:none;place-items:center} .hd-ztile__ok .ic{width:14px;height:14px}
+.hd-ztile.is-on .hd-ztile__ok{display:grid}
+.hd-ztile__t{font:400 12px/16px var(--font);text-align:center;min-height:32px}
+.hd-ztile:focus-visible .hd-ztile__r{outline:2px solid var(--accent);outline-offset:2px}
+.hd-view{position:fixed;inset:0;z-index:10050;background:var(--bg,var(--card));color:var(--text-primary);overflow:auto;padding:16px max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.hd-view__top{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px} .hd-view__top h3{margin:0;font:600 20px/26px var(--font)}
+.hd-view__x{position:static}
+.hd-view__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:960px;margin:0 auto}
+@media (min-width:700px){.hd-view__grid{grid-template-columns:repeat(4,1fr)}}
+.hd-view figure{margin:0;padding:8px;border-radius:16px;background:var(--surface-1);text-align:center} .hd-view .hd-zimg{width:100%;max-width:200px;height:auto;aspect-ratio:1}
+.hd-view figcaption{font:400 14px/20px var(--font)}
+/* ── Благодарности и мысли (ТЗ-041 блоки 6, 8), фото (блок 7) ── */
+.gr-ph__btns{display:flex;flex-wrap:wrap;gap:8px} .gr-ph__btns .btn{min-height:44px;display:inline-flex;align-items:center;cursor:pointer}
+.gr-ph__img{display:block;padding:0;border:0;background:none;margin:0 0 8px;cursor:zoom-in;border-radius:12px;overflow:hidden;max-width:100%}
+.gr-ph__img img{display:block;max-width:100%;max-height:220px;border-radius:12px}
+.gr-full{position:fixed;inset:0;z-index:10060;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:16px}
+.gr-full img{max-width:100%;max-height:100%;object-fit:contain} .gr-full .mclose{position:absolute;top:12px;right:12px;color:#fff}
+.gr-area{min-height:96px;padding:10px 12px;resize:vertical;font:400 16px/22px var(--font)}
+.gr-open{display:block;border:0;background:none;padding:0;margin:0;text-align:left;color:var(--text-primary);cursor:pointer;min-height:44px}
+.gr-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.th-note{margin:-4px 0 12px}
+.th-sl{display:grid;grid-template-columns:minmax(90px,auto) 1fr 3ch;gap:10px;align-items:center;min-height:44px;font:400 14px/20px var(--font)}
+.th-sl input{width:100%;min-height:44px;accent-color:var(--accent)} .th-sl output{text-align:right;font-weight:600}
 </style>
 </head>
 <body>
@@ -1866,6 +1915,24 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 <symbol id="i-stool-loose-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 5h14v4a7 7 0 0 1-14 0Z"/><path d="M8 15v4h8v-4M4 21h16"/><path d="M7 12c1 1 2 1 3 0M14 12c1 1 2 1 3 0"/></symbol>
 <symbol id="i-constipation-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M5 5h14v4a7 7 0 0 1-14 0Z"/><path d="M8 15v4h8v-4M4 21h16"/><path d="M10 9h4"/></symbol>
 <symbol id="i-aura-alt" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="8"/><path d="M7 12a5 5 0 0 1 10 0"/><path d="m12 5 1.2 2.4L16 8l-2 1.8.4 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.8 2.7-.6Z"/></symbol>
+<symbol id="i-d-gratitude" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/><path d="M9 11.5c.8 1 1.8 1.5 3 1.5s2.2-.5 3-1.5"/></symbol>
+<symbol id="i-d-thoughts" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M6.5 15.5A5 5 0 0 1 8 6a5 5 0 0 1 8.5 0 4.5 4.5 0 0 1 .5 9H8"/><circle cx="7" cy="19" r="1.3"/><circle cx="4" cy="21.5" r=".8"/></symbol>
+<!-- зоны головы (ТЗ-041 блок 5): z-<id>, контур — цвет текста, место боли — заливка от .hd-zimg (var(--negative), прозрачность 0,4) -->
+<symbol id="z-all" viewBox="0 0 120 120"><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L83 88C70 82 56 80 40 86Z" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-band" viewBox="0 0 120 120"><path d="M26.5 37C44 31 72 29 95.5 36L96.5 47C72 40 44 42 25 49Z" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-crown" viewBox="0 0 120 120"><ellipse cx="58" cy="19" rx="17" ry="7" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-neck" viewBox="0 0 120 120"><path d="M40 86C46 87 52 88 56 88L56 106L40 106Z" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-occiput" viewBox="0 0 120 120"><path d="M26 50C23 63 28 77 40 85C44 78 43 62 37 51C33 47 29 46 26 50Z" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-ear" viewBox="0 0 120 120"><circle cx="56" cy="58" r="12" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-jaw" viewBox="0 0 120 120"><path d="M57 70C60 82 70 90 83 90C89 90 94 86 96 80L93 76C91 82 88 84 83 84C72 84 65 78 62 68Z" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-cheeks" viewBox="0 0 120 120"><ellipse cx="81" cy="60" rx="10" ry="6" transform="rotate(-25 81 60)" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-temples" viewBox="0 0 120 120"><circle cx="72" cy="39" r="8" fill-opacity="0.4" stroke="none"/><path d="M40 86C27 79 21 62 25 45C29 26 46 13 64 13C84 14 97 29 96 48L102 63L96 67L98 73L95 77C94 84 90 88 83 88L74 88C69 91 67 96 67 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M40 86L40 106" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M51 57C51 51 55 48 59 50C62 52 62 57 59 60C57 62 57 65 54 66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M84 45h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-forehead" viewBox="0 0 120 120"><path d="M35 41C36 28 47 19 60 19C73 19 84 28 85 41Z" fill-opacity="0.4" stroke="none"/><ellipse cx="60" cy="55" rx="29" ry="37" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M48 90L47 108M72 90L73 108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M31 50C27 51 27 61 31 63M89 50C93 51 93 61 89 63" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M43 45h10M67 45h10M45 53h6M69 53h6M60 55v11h4M53 77h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-sinus" viewBox="0 0 120 120"><ellipse cx="48" cy="40" rx="7" ry="3.5" fill-opacity="0.4" stroke="none"/><ellipse cx="72" cy="40" rx="7" ry="3.5" fill-opacity="0.4" stroke="none"/><ellipse cx="53" cy="63" rx="4" ry="5" fill-opacity="0.4" stroke="none"/><ellipse cx="67" cy="63" rx="4" ry="5" fill-opacity="0.4" stroke="none"/><ellipse cx="60" cy="55" rx="29" ry="37" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M48 90L47 108M72 90L73 108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M31 50C27 51 27 61 31 63M89 50C93 51 93 61 89 63" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M43 45h10M67 45h10M45 53h6M69 53h6M60 55v11h4M53 77h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-eye" viewBox="0 0 120 120"><circle cx="72" cy="52" r="9" fill-opacity="0.4" stroke="none"/><ellipse cx="60" cy="55" rx="29" ry="37" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M48 90L47 108M72 90L73 108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M31 50C27 51 27 61 31 63M89 50C93 51 93 61 89 63" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M43 45h10M67 45h10M45 53h6M69 53h6M60 55v11h4M53 77h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-left" viewBox="0 0 120 120"><path d="M60 18A29 37 0 0 1 60 92Z" fill-opacity="0.4" stroke="none"/><path d="M60 18V92" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="1.5"/><ellipse cx="60" cy="55" rx="29" ry="37" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M48 90L47 108M72 90L73 108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M31 50C27 51 27 61 31 63M89 50C93 51 93 61 89 63" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M43 45h10M67 45h10M45 53h6M69 53h6M60 55v11h4M53 77h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+<symbol id="z-right" viewBox="0 0 120 120"><path d="M60 18A29 37 0 0 0 60 92Z" fill-opacity="0.4" stroke="none"/><path d="M60 18V92" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="1.5"/><ellipse cx="60" cy="55" rx="29" ry="37" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M48 90L47 108M72 90L73 108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M31 50C27 51 27 61 31 63M89 50C93 51 93 61 89 63" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M43 45h10M67 45h10M45 53h6M69 53h6M60 55v11h4M53 77h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
+
 </svg>
 <!--sprite-diary:end-->
 <!--sprite-organs:start-->
@@ -3076,6 +3143,19 @@ function addMonthsIso(iso,n){
   const [y,m,d]=iso.split("-").map(Number), t=m-1+n, yy=y+Math.floor(t/12), mm=((t%12)+12)%12, last=new Date(Date.UTC(yy,mm+1,0)).getUTCDate();
   return `${yy}-${String(mm+1).padStart(2,"0")}-${String(Math.min(d,last)).padStart(2,"0")}`;
 }
+// быстрые даты под полем даты (ТЗ-041 блок 1): от даты отсчёта; чип подсвечен, пока в поле ровно его дата
+function quickDates(base,val){
+  return [["Через полгода",6],["Через год",12]].map(([label,n])=>{ const iso=addMonthsIso(base,n); return {label,iso,on:val===iso}; });
+}
+function qdChipsHtml(inputId,base,val){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(base||""))) return "";
+  return `<div class="qd-row" data-qd-for="${inputId}" data-qd-base="${base}">`+quickDates(base,val||"").map(c=>`<button type="button" class="dz-chip qd-chip${c.on?" is-on":""}" data-qd="${c.iso}" aria-pressed="${c.on}">${c.label}</button>`).join("")+`</div>`;
+}
+function qdSync(row){ const inp=document.getElementById(row.dataset.qdFor); if(!inp) return; row.querySelectorAll("[data-qd]").forEach(b=>{ const on=b.dataset.qd===inp.value; b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); }); }
+document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-qd]"); if(!b) return; const row=b.closest("[data-qd-for]"), inp=row&&document.getElementById(row.dataset.qdFor); if(!inp) return;
+  inp.value=b.dataset.qd; inp.dispatchEvent(new Event("change",{bubbles:true})); qdSync(row); });
+document.addEventListener("input",e=>{ const t=e.target; if(!t||!t.id) return; const row=document.querySelector(`[data-qd-for="${t.id}"]`); if(row) qdSync(row); });
+document.addEventListener("change",e=>{ const t=e.target; if(!t||!t.id) return; const row=document.querySelector(`[data-qd-for="${t.id}"]`); if(row) qdSync(row); });
 // когда пересдать показатель: вне нормы — через 2 недели; у границы — через 3 месяца; HbA1c и витамин D меняются медленно
 function retestPlan(r,level,today){
   const t=String(r.title||"").toLowerCase().replace(/ё/g,"е"); let days=0, months=0, extra="";
@@ -3830,7 +3910,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="21.10 22:10";   // подставляется при публикации
+const BUILD="23.10 11:14";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5898,7 +5978,7 @@ function nvFormHtml(r,o){
   const sel=m.spec?"":`<div class="fld"><label for="nvSpec">К какому врачу</label><select id="nvSpec"><option value="">— выберите —</option>${DOC_SPECS.filter(x=>x[0]!=="other").map(x=>`<option value="${x[0]}">${esc(x[1])}</option>`).join("")}</select></div>`;
   const sum=m.planned?`<div class="muted" style="margin-bottom:6px">Запланировано: ${m.date?ru(m.date):"пока без даты"}${m.spec?" · "+esc(specName(m.spec)):""}</div>`:"";
   return `<div class="nvform">${sum}<details class="nvd"${o&&o.after?" open":""}><summary class="btn btn-secondary">${m.planned?"Изменить посещение":"Запланировать посещение"}</summary>
-    <div class="addform" style="margin-top:8px">${sel}<div class="fld"><label for="nvDate">Дата (можно оставить пустой)</label><input type="date" id="nvDate" value="${esc(m.date)}"></div>
+    <div class="addform" style="margin-top:8px">${sel}<div class="fld"><label for="nvDate">Дата (можно оставить пустой)</label><input type="date" id="nvDate" value="${esc(m.date)}">${qdChipsHtml("nvDate",r.d,m.date)}</div>
       <div class="row"><button type="button" class="btn btn-primary" data-nvsave="1">Сохранить</button>${m.planned?`<button type="button" class="btn btn-secondary" data-nvdel="1">Убрать</button>`:""}${o&&o.after?`<button type="button" class="btn btn-secondary" data-close="1">Не нужно</button>`:""}</div></div></details></div>`;
 }
 async function nvSave(R0,del){
@@ -8506,7 +8586,7 @@ function planDraw(){
     <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Предстоящий визит</h2>
     <div class="addform">
       <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
-      <div class="fld"><label for="plDate">Дата (можно не указывать)</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div>
+      <div class="fld"><label for="plDate">Дата (можно не указывать)</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}">${qdChipsHtml("plDate",localDay(),p.planned_date||"")}</div>
       <div class="fld"><label for="plPurpose">Для чего пришли</label><input id="plPurpose" value="${esc(p.purpose||"")}"></div>
       ${list("questions","Вопросы к врачу","новый вопрос")}${list("tests","Какие анализы и исследования нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
       ${p.source_name?`<div class="muted" style="margin-top:8px">из файла ${esc(p.source_name)}</div>`:""}
@@ -10117,7 +10197,7 @@ function diaryCatalog(){
     {id:"gi",title:"Дневник ЖКТ",group:"Расстройства ЖКТ",hint:"Симптомы и триггеры",
       symptoms:[S("Боль в животе","stomach-pain"),S("Вздутие","bloating"),S("Тошнота","nausea"),S("Изжога","heartburn"),S("Жидкий стул","stool-loose"),S("Запор","constipation")],
       triggers:["food","stress","meds"].map(T)},
-    {id:"migraine",title:"Дневник мигрени и головной боли",group:"Неврология",hint:"Симптомы и триггеры",
+    {id:"migraine",title:"Дневник мигрени и головной боли",group:"Неврология",hint:"Симптомы и триггеры",headache:true,
       symptoms:[S("Головная боль","headache"),S("Тошнота","nausea"),S("Светобоязнь","photophobia"),S("Звуки раздражают","sound"),S("Аура","aura")],
       triggers:["sleep","stress","hunger","food","weather"].map(T)},
     {id:"dermatitis",title:"Дневник дерматита",group:"Кожные заболевания",hint:"Симптомы и триггеры",
@@ -10127,7 +10207,28 @@ function diaryCatalog(){
       measure:{m:"glucose",title:"Глюкоза",unit:"ммоль/л",min:0.5,max:40,dec:1,icon:"m-glucose"}},
     act("act_bath","Принятие ванны и гигиена","act-bath"),act("act_dress","Надевание одежды","act-dress"),act("act_cook","Приготовление пищи","act-cook"),
     act("act_walk","Ходьба по дому","act-walk"),act("act_stairs","Подъём по лестнице","act-stairs"),act("act_home","Домашние дела","act-home"),
+    // ТЗ-041 блоки 6 и 8: записи этих дневников никуда не уходят — ни во «Спросить», ни во внешние сервисы; мысли видит только их владелец
+    {id:"gratitude",title:"Дневник благодарностей",group:"Эмоции и мысли",hint:"Что хорошего случилось",kind:"gratitude",icon:"d-gratitude"},
+    {id:"thoughts",title:"Дневник мыслей",group:"Эмоции и мысли",hint:"Мысли, эмоции, реакции",kind:"thought",icon:"d-thoughts",minAge:12},
   ];
+}
+// выборы новых дневников (ТЗ-041): id — латиницей, такие же знает сервер (mk → diaryIdLists), подписи — для экрана и текста реестра
+function diaryIdLists(){
+  const L=a=>a.map(([id,n,t])=>({id,n,t:t||n.toLowerCase()}));
+  return {
+    zones:L([["all","Вся голова"],["band","Вокруг головы, как обруч","обруч"],["crown","Темя"],["neck","Шея"],["occiput","Затылок"],["ear","В области уха","ухо"],["jaw","Челюсть"],
+      ["cheeks","Скулы"],["temples","Виски"],["forehead","Лоб"],["sinus","Скулы и над глазами"],["eye","Внутри и вокруг глаза","глаз"],["left","Левая половина головы","левая половина"],["right","Правая половина головы","правая половина"]]),
+    chars:L([["pulsing","Пульсирующая"],["pressing","Давящая"],["sharp","Острая"],["cutting","Режущая"],["sudden","Резкая"],["burning","Жгучая"],["aching","Ноющая"],["pulling","Тянущая"],
+      ["shooting","Стреляющая"],["bursting","Распирающая"],["humming","Гудящая"],["electric","Как будто бьёт током"]]),
+    feel:L([["excitement","Волнение"],["delight","Восторг"],["lightness","Лёгкость"],["relief","Облегчение"],["joy","Радость"],["calm","Спокойствие"],["happiness","Счастье"],["satisfaction","Удовлетворение"]]),
+    emo:L([["apathy","Апатия"],["guilt","Вина"],["wrath","Гнев"],["grief","Горе"],["sadness","Грусть"],["annoyance","Досада"],["envy","Зависть"],["anger","Злость"],["interest","Интерес"],["tension","Напряжение"],
+      ["awkwardness","Неловкость"],["hatred","Ненависть"],["resentment","Обида"],["relief","Облегчение"],["upset","Огорчение"],["loneliness","Одиночество"],["disgust","Отвращение"],["despair","Отчаяние"],
+      ["panic","Паника"],["emptiness","Пустота"],["joy","Радость"],["irritation","Раздражение"],["disappointment","Разочарование"],["confusion","Растерянность"],["longing","Тоска"],["anxiety","Тревога"],
+      ["satisfaction","Удовлетворение"],["fatigue","Усталость"],["shock","Шок"]]),
+    body:L([["heartbeat","Учащённое сердцебиение"],["chest-heavy","Тяжесть в груди"],["hands-shake","Дрожь в руках"],["voice-shake","Дрожь в голосе"],["throat-lump","Ком в горле"],["hard-breath","Трудно дышать"],
+      ["uneven-breath","Сбивчивое дыхание"],["body-tension","Напряжение в теле"],["jaw-clench","Сжатые челюсти"],["sweating","Потливость"],["cold-limbs","Холодные руки или ноги"],["headache","Головная боль"],
+      ["dizziness","Головокружение"],["weakness","Слабость"],["nausea","Тошнота"],["stomach","Неприятные ощущения в животе"],["heat","Ощущение жара"],["chill","Ощущение холода"]]),
+  };
 }
 // каталог → группы для экрана настройки; группы идут в порядке первого появления в каталоге
 function diaryGroups(cat,enabledIds){
@@ -10151,8 +10252,10 @@ function dayModel(def,entries,symptoms,day){
       if(r.diary!==def.id) continue;
       const at=r.occurred_at||(r.occurred_on+"T12:00:00"); if((r.occurred_at?dzDayOf(r.occurred_at):r.occurred_on)!==day) continue;
       const key=r.batch||("row"+items.length);
-      if(!by[key]){ by[key]={kind:"batch",batch:r.batch||null,at,names:[],triggers:r.triggers||[],note:r.feeling||""}; items.push(by[key]); }
+      if(!by[key]){ by[key]={kind:"batch",batch:r.batch||null,at,names:[],triggers:r.triggers||[],note:r.feeling||"",id:r.id==null?null:r.id}; items.push(by[key]); }
       by[key].names.push(r.symptom);
+      // приступ головной боли (ТЗ-041 блок 4): отправка несёт строку приступа — id, сила, лекарство, «помогло», подробности
+      if(def.headache&&r.symptom==="Головная боль") Object.assign(by[key],{head:true,id:r.id==null?null:r.id,intensity:r.intensity==null?null:r.intensity,med:r.med||null,helped:r.helped||null,attrs:r.attrs||{},note:r.feeling||""});
     }
     const ord=n=>{ const i=def.symptoms.findIndex(x=>x.n===n); return i<0?99:i; };
     items.forEach(it=>it.names.sort((a,b)=>ord(a)-ord(b)));   // порядок как в форме, а не как отдала база
@@ -10161,6 +10264,7 @@ function dayModel(def,entries,symptoms,day){
     out.push({card:"symptoms",empty:!items.length,items});
   }
   if(def.scale){ const L=E.filter(e=>e.kind==="scale"); out.push({card:"scale",empty:!L.length,entries:L,last:L[L.length-1]||null}); }
+  if(def.kind){ const L=E.filter(e=>e.kind===def.kind); out.push({card:def.kind,empty:!L.length,entries:L}); }   // благодарности и мысли (ТЗ-041)
   return out;
 }
 // сравнение с предыдущей записью: изменение на 10 % и больше — «ниже/выше», иначе «как раньше»
@@ -10199,6 +10303,53 @@ function dzSymptomPayloads(o){
   return o.names.map(n=>String(n).replace(/^Другое:\s*/,"")).filter(Boolean).map(n=>({action:"symptom_add",person:o.person,d:o.day,n,diary:o.diary,
     triggers:o.triggers||[],at:o.at,batch:o.batch,...(o.note?{f:o.note}:{}),...(o.sys?{sys:o.sys}:{})}));
 }
+// ── приступ головной боли (ТЗ-041 блок 4): чистые функции, «сегодня» параметром ──
+function painLabel(i){ return i>=1&&i<=3?"слабая":i>=4&&i<=6?"умеренная":i>=7&&i<=9?"сильная":i===10?"нестерпимая":""; }
+// текст для реестра («Ощущение»): «Пульсирующая, давящая · Виски, левая половина · заметка»
+function headacheFeeling(chars,zones,note){
+  const L=diaryIdLists(), nm=(list,ids,key)=>(ids||[]).map(id=>{ const x=list.find(y=>y.id===id); return x?x[key]:id; });
+  const cap=t=>t?t[0].toUpperCase()+t.slice(1):t;
+  const parts=[cap(nm(L.chars,chars,"n").map(x=>x.toLowerCase()).join(", ")),cap(nm(L.zones,zones,"t").join(", ")),String(note||"").trim()].filter(Boolean);
+  return parts.join(" · ").slice(0,2000);
+}
+// замер через 2 часа: было лекарство, прошло 2 часа с начала, замера ещё нет
+function followupDue(row,now){
+  if(!row||!String(row.med||"").trim()||(row.attrs&&row.attrs.i_after!=null)) return false;
+  const t=new Date(row.occurred_at||((row.occurred_on||"")+"T12:00:00")); return !isNaN(+t)&&(+new Date(now)-+t)>=2*36e5;
+}
+// полных лет на дату: день рождения — уже исполнилось
+function dzAgeOn(birth,today){ if(!/^\d{4}-\d{2}-\d{2}/.test(String(birth||""))) return null; const [y,m,d]=birth.split("-").map(Number), [ty,tm,td]=today.split("-").map(Number); return ty-y-(tm<m||(tm===m&&td<d)?1:0); }
+// быстрые лекарства: детям (младше 18) — парацетамол и ибупрофен, взрослым и без даты рождения — 7 основных (ответ Дениса на В4, В12)
+function medQuickList(birth,today){
+  const a=dzAgeOn(birth,today), kid=["Парацетамол","Ибупрофен"];
+  return a!=null&&a<18?kid:[...kid,"Напроксен","Аспирин","Анальгин","Суматриптан","Но-шпа"];
+}
+// порядок чипов: сначала то, что этому человеку уже записывали в приступах (по частоте, не больше 4), потом основные без повторов
+function medOrder(history,birth,today){
+  const cnt={}, first={};
+  (history||[]).forEach((m,i)=>{ const n=String(m||"").split(",")[0].trim(); if(!n) return; const k=n.toLowerCase(); cnt[k]=(cnt[k]||0)+1; if(!(k in first)) first[k]={n:n[0].toUpperCase()+n.slice(1),i}; });
+  const past=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||first[a].i-first[b].i).slice(0,4).map(k=>first[k].n);
+  const seen=new Set(past.map(x=>x.toLowerCase()));
+  return [...past,...medQuickList(birth,today).filter(x=>!seen.has(x.toLowerCase()))];
+}
+// плитки общей формы симптомов: в дневнике мигрени «Головная боль» пишется только через «Записать приступ» (В14)
+function dzGeneralSymptoms(def){ return (def.symptoms||[]).filter(s=>!(def.headache&&s.n==="Головная боль")); }
+// отправка приступа: строка «Головная боль» с силой, лекарством и подробностями + по строке на каждый сопутствующий симптом
+function headachePayloads(o){
+  const med=String(o.med||"").trim(), dose=String(o.dose||"").trim().slice(0,120);
+  const attrs={...(o.end?{ended_at:new Date(o.end).toISOString()}:{}),zones:o.zones||[],chars:o.chars||[],...(med&&dose?{dose}:{})};
+  const base={action:"symptom_add",person:o.person,d:o.day,diary:"migraine",triggers:o.triggers||[],at:o.at,batch:o.batch};
+  const f=headacheFeeling(o.chars,o.zones,o.note);
+  return [{...base,n:"Головная боль",i:o.i,...(med?{m:dose?med+", "+dose:med}:{}),...(f?{f}:{}),attrs},
+    ...(o.also||[]).map(n=>({...base,n,...(o.note?{f:String(o.note).trim()}:{})}))];
+}
+// ── дневники благодарностей и мыслей (ТЗ-041 блоки 6, 8) ──
+function gratitudeDay(entries,day){ return (entries||[]).filter(e=>e.kind==="gratitude"&&dzDayOf(e.occurred_at)===day).sort((a,b)=>String(a.occurred_at).localeCompare(String(b.occurred_at))); }
+function gratitudeCanSave(f){ return !!String(f&&f.text||"").trim(); }
+function thoughtCanSave(f){ return !!String(f&&f.thoughts||"").trim(); }
+function thoughtTitle(d){ const t=String((d&&d.event)||"").trim()||String((d&&d.thoughts)||"").trim(); return t.length>60?t.slice(0,60)+"…":t; }
+// дневник с ограничением по возрасту (дневник мыслей — с 12 лет, В10); без даты рождения — виден
+function diaryVisible(def,birth,today){ if(!def||!def.minAge) return true; const a=dzAgeOn(birth,today); return a==null||a>=def.minAge; }
 function dzSmiles(){ return ["Совсем не справляюсь","Справляюсь с трудом","Нормально справляюсь","Легко справляюсь"]; }
 // оценки активности за 7 дней (сегодня и 6 предыдущих): среднее и ближайшая подпись; меньше двух оценок — подписи нет
 function scaleWeek(entries,today){
@@ -10219,8 +10370,8 @@ function dzLoad(force){
     .catch(()=>{ DZ.busy=null; DZ.err=true; if(tab==="dz") render(); });
 }
 function dzSettingsHtml(){
-  const cat=diaryCatalog(), groups=diaryGroups(cat,[...DZ.draft]);
-  return `<div class="dz-settings"><h2 class="dz-h1">Настройка дневников</h2>`+groups.map(g=>`<section class="dz-group"><h3 class="dz-group__t">${esc(g.group)}</h3><div class="dz-grid">`+
+  const today=localDay(), cat=diaryCatalog().filter(d=>diaryVisible(d,hdBirth(),today)), groups=diaryGroups(cat,[...DZ.draft]);
+  return `<div class="dz-settings"><h2 class="dz-h1">Настройка дневников</h2><p class="muted dz-set-note">Включите дневники, которые хотите вести. Выключенный дневник скрывается, записи остаются — включите его снова, и они на месте. Новые дневники можно добавить позже</p>`+groups.map(g=>`<section class="dz-group"><h3 class="dz-group__t">${esc(g.group)}</h3><div class="dz-grid">`+
     g.diaries.map(d=>`<button type="button" class="dz-card ${d.on?"is-on":"is-off"}" data-dz-pick="${d.id}" aria-pressed="${d.on}">
       <span class="dz-card__t">${esc(d.title)}</span><span class="dz-card__h">${d.on?"Включён":esc(d.hint)}</span>
       <span class="dz-card__pv">${d.icons.map(i=>`<i>${dzIcon(i)}</i>`).join("")}</span>
@@ -10272,7 +10423,7 @@ function dzLoadData(force){
   if(!window.__MK_KEY) return; const p=cur;
   if(DZ.dataBusy===p||(DZ.data[p]&&!force)) return; DZ.dataBusy=p; DZ.dataErr=false;
   Promise.all([mkApi("diary_entry_list",{person:p}),mkApi("symptoms_list",{person:p})]).then(([a,b])=>{
-    DZ.data[p]={entries:a.rows||[],sym:(b.rows||[]).filter(r=>r.diary)}; DZ.dataBusy=null; if(tab==="dz"&&cur===p) render();
+    DZ.data[p]={entries:a.rows||[],sym:(b.rows||[]).filter(r=>r.diary),heads:(b.rows||[]).filter(r=>r.symptom==="Головная боль"&&r.med).map(r=>r.med)}; DZ.dataBusy=null; if(tab==="dz"&&cur===p) render();
   }).catch(()=>{ DZ.dataBusy=null; DZ.dataErr=true; if(tab==="dz") render(); });
 }
 const dzHM=iso=>{ const x=new Date(iso); return String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0"); };
@@ -10355,11 +10506,20 @@ function dzCardHtml(def,c,E,day,today){
   if(c.card==="symptoms"){
     const lines=c.items.map(it=>{
       const del=it.kind==="ok"?`data-dz-delok="${it.id}"`:`data-dz-delb="${esc(it.batch||"")}"`;
+      if(it.head) return hdItemHtml(def,it,del);
       const txt=it.kind==="ok"?"Всё в порядке":esc(it.names.join(", "))+(it.triggers.length?` · Триггеры: ${esc(it.triggers.map(t=>dzTrigName(def,t)).join(", "))}`:"")+(it.note?` · ${esc(it.note)}`:"");
       return `<div class="dz-item"><span class="dz-time">${dzHM(it.at)}</span><span class="dz-item__t">${txt}</span>${it.kind==="ok"||it.batch?`<button type="button" class="dz-del" ${del} aria-label="Удалить запись">${dzIcon("trash","ic--20")}</button>`:""}</div>`;
     }).join("");
     return `<div class="dz-c"><div class="dz-c__h"><h4>Симптомы</h4></div>${lines||`<p class="dz-none">За этот день записей нет</p>`}
-      <button type="button" class="dz-add" data-dz-sym="${def.id}">＋ Добавить симптомы</button></div>`;
+      ${def.headache?`<button type="button" class="dz-add" data-hd-new="${def.id}" style="margin-bottom:8px">＋ Записать приступ</button>`:""}<button type="button" class="dz-add" data-dz-sym="${def.id}">＋ Добавить симптомы</button></div>`;
+  }
+  if(c.card==="gratitude"||c.card==="thought"){
+    const G=c.card==="gratitude", L=G?gratitudeDay(c.entries,day):c.entries, FL=diaryIdLists();
+    const lines=L.map(e=>{ const t=G?esc(String(e.data.text||"").slice(0,200))+(e.data.text&&e.data.text.length>200?"…":"")+((e.data.feel||[]).length?`<span class="hd-sub">${esc(e.data.feel.map(id=>(FL.feel.find(x=>x.id===id)||{n:id}).n).join(", "))}</span>`:"")
+        :esc(thoughtTitle(e.data))+((e.data.emo||[]).length?`<span class="hd-sub">${esc(e.data.emo.map(x=>(FL.emo.find(y=>y.id===x.id)||{n:x.id}).n+" "+x.v).join(", "))}</span>`:"");
+      return `<div class="dz-item"><span class="dz-time">${dzHM(e.occurred_at)}</span><button type="button" class="dz-item__t gr-open" data-gr-open="${e.id}">${t}${G&&e.data.photo?`<span class="hd-sub">Фото</span>`:""}</button><button type="button" class="dz-del" data-gr-del="${e.id}" aria-label="Удалить запись">${dzIcon("trash","ic--20")}</button></div>`; }).join("");
+    return `<div class="dz-c"><div class="dz-c__h"><h4>${G?"Благодарности":"Записи"}</h4></div>${lines||`<p class="dz-none">Записей нет</p>`}
+      <button type="button" class="dz-add" data-gr-new="${def.id}">＋ Добавить</button></div>`;
   }
   if(c.card==="scale"){
     const sel=c.last?c.last.data.v:-1, wk=scaleWeek((E||[]).filter(e=>e.diary===def.id),today), L=dzSmiles();
@@ -10373,12 +10533,12 @@ function dzDayHtml(on){
   const p=cur, D=DZ.data[p], today=localDay(), day=DZ.day&&DZ.day<=today?DZ.day:today;
   if(DZ.dataErr&&!D) return `<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить записи.</p><button class="btn btn-primary" id="dzRetry2" type="button">Повторить</button></div>`;
   if(!D) return `<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем записи…</p></div>`;
-  const cat=diaryCatalog(), defs=on.map(id=>cat.find(d=>d.id===id)).filter(Boolean);
+  const cat=diaryCatalog(), defs=on.map(id=>cat.find(d=>d.id===id)).filter(d=>d&&diaryVisible(d,hdBirth(),today));
   if(DZ.hist){ const def=cat.find(d=>d.id===DZ.hist); if(def) return dzHistHtml(def,D,today); DZ.hist=null; }
   const nav=`<div class="dz-date"><button type="button" class="dz-nav" id="dzPrev" aria-label="Предыдущий день">${dzIcon("left")}</button><b>${dzDateText(day,today)}</b>
     <button type="button" class="dz-nav" id="dzNext" aria-label="Следующий день"${day>=today?" disabled":""}>${dzIcon("right")}</button></div>`;
   return `<div class="dz-top"><h2 class="dz-h1">Дневники</h2><button class="btn btn-secondary" id="dzSet" type="button">Настроить</button></div>${nav}`+
-    defs.map(def=>`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="${def.id}"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${dzInsightHtml(def,D.entries,D.sym,today)}`+
+    defs.map(def=>`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="${def.id}"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${def.kind?(def.kind==="thought"?`<p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>`:""):dzInsightHtml(def,D.entries,D.sym,today)}`+
       dayModel(def,D.entries,D.sym,day).map(c=>dzCardHtml(def,c,D.entries,day,today)).join("")+`</section>`).join("");
 }
 // история дневника: 30 дней списком, новые сверху
@@ -10388,8 +10548,10 @@ function dzHistHtml(def,D,today){
     const day=dzShift(today,-i), L=[];
     for(const c of dayModel(def,D.entries,D.sym,day)){
       if(c.card==="measure") c.entries.forEach(e=>L.push([e.occurred_at,`${dzNum(e.data.v,def.measure.dec)} ${esc(def.measure.unit)}`]));
-      else if(c.card==="symptoms") c.items.forEach(it=>L.push([it.at,it.kind==="ok"?"Всё в порядке":esc(it.names.join(", "))+(it.triggers.length?` · ${esc(it.triggers.map(t=>dzTrigName(def,t)).join(", "))}`:"")]));
+      else if(c.card==="symptoms") c.items.forEach(it=>L.push([it.at,it.kind==="ok"?"Всё в порядке":esc(it.names.join(", "))+(it.head&&it.intensity!=null?` · сила ${it.intensity}`:"")+(it.triggers.length?` · ${esc(it.triggers.map(t=>dzTrigName(def,t)).join(", "))}`:"")]));
       else if(c.card==="scale") c.entries.forEach(e=>L.push([e.occurred_at,dzSmiles()[e.data.v]]));
+      else if(c.card==="gratitude") c.entries.forEach(e=>L.push([e.occurred_at,esc(String(e.data.text||"").slice(0,120))]));
+      else if(c.card==="thought") c.entries.forEach(e=>L.push([e.occurred_at,esc(thoughtTitle(e.data))]));
     }
     if(L.length) rows+=`<div class="dz-hday"><h4>${dzDateText(day,today)}</h4>`+L.sort((a,b)=>String(a[0]).localeCompare(String(b[0]))).map(([at,t])=>`<div class="dz-item"><span class="dz-time">${dzHM(at)}</span><span class="dz-item__t">${t}</span></div>`).join("")+`</div>`;
   }
@@ -10414,7 +10576,7 @@ function dzMeasureForm(def,day,today){
 }
 function dzSymptomForm(def,day,today){
   let sel=[], trig=[];
-  const tiles=[{n:"ok",t:"Всё в порядке",icon:"smile"},...def.symptoms.map(s=>({n:s.n,t:s.n,icon:s.icon})),{n:"Другое",t:"Другое",icon:"other"}];
+  const tiles=[{n:"ok",t:"Всё в порядке",icon:"smile"},...dzGeneralSymptoms(def).map(s=>({n:s.n,t:s.n,icon:s.icon})),{n:"Другое",t:"Другое",icon:"other"}];
   const box=dzModalOpen(`<h3 class="dz-form__t">Симптомы</h3><h4 class="dz-sub">Что беспокоит</h4>
     <div class="dz-tiles">`+tiles.map((t,i)=>`<button type="button" class="dz-tile${t.n==="ok"?" is-okay":""}" data-dzi="${i}" aria-pressed="false"><span class="dz-tile__r">${dzIcon(t.icon,"ic--32")}</span><span class="dz-tile__t">${esc(t.t)}</span></button>`).join("")+`</div>
     <input id="dzOther" class="dz-field" maxlength="40" placeholder="Что именно" aria-label="Другое" hidden>
@@ -10444,6 +10606,216 @@ function dzSymptomForm(def,day,today){
     }catch(e){ ok.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
   };
 }
+// ── приступ головной боли (ТЗ-041 блок 4): карточка, форма, замер через 2 часа ──
+const hdColor=i=>`hsl(${Math.round(130-(Math.max(0,i)-1)*13)} 62% 40%)`;   // 1 — зелёный … 10 — красный; 0 — серо-зелёный
+function hdBirth(){ const pp=(typeof PPL!=="undefined"&&PPL&&PPL.people||[]).find(x=>x.id===cur); return (pp&&pp.birth_date)||(typeof chkPerson==="function"?chkPerson().birth:"")||""; }
+function hdItemHtml(def,it,del){
+  const a=it.attrs||{}, lc=t=>t?t[0].toLowerCase()+t.slice(1):t, others=it.names.filter(n=>n!=="Головная боль");
+  const parts=[it.intensity!=null?`сила ${it.intensity}`:"",String(it.note||"").split(" · ").map(lc).join(" · "),it.med?lc(String(it.med).replace(/,\s*/," ")):""].filter(Boolean);
+  if(a.i_after!=null) parts.push(`через 2 часа: ${a.i_after}${it.helped?", "+(it.helped==="да"?"помогло":it.helped==="нет"?"не помогло":"помогло "+it.helped):""}`);
+  const sub=[others.length?esc(others.join(", ")):"",it.triggers.length?"Триггеры: "+esc(it.triggers.map(t=>dzTrigName(def,t)).join(", ")):"",a.ended_at?"закончилась в "+dzHM(a.ended_at):"боль ещё идёт"].filter(Boolean).join(" · ");
+  const row={med:it.med,occurred_at:it.at,attrs:a};
+  const ask=(followupDue(row,new Date())&&it.id!=null?`<button type="button" class="dz-pill" data-hd-fu="${it.id}">Как боль через 2 часа после приёма?</button>`:"")+
+    (!a.ended_at&&it.id!=null?`<button type="button" class="btn btn-secondary" data-hd-end="${it.id}" style="min-height:44px">Боль прошла</button>`:"");
+  return `<div class="dz-item"><span class="dz-time">${dzHM(it.at)}</span><span class="dz-item__t"><b>Головная боль</b> · ${esc(parts.join(" · "))}<span class="hd-sub">${sub}</span>${ask?`<span class="hd-ask">${ask}</span>`:""}</span><button type="button" class="dz-del" ${del} aria-label="Удалить запись">${dzIcon("trash","ic--20")}</button></div>`;
+}
+function hdScaleHtml(id,from,sel){ let h=`<div class="hd-scale${from===0?" is-0":""}" id="${id}" role="group" aria-label="Сила боли от ${from} до 10">`; for(let i=from;i<=10;i++) h+=`<button type="button" class="hd-cell${i===sel?" is-on":""}" data-v="${i}" aria-pressed="${i===sel}" style="--hd:${hdColor(i)}">${i}</button>`; return h+"</div>"; }
+function hdHowHtml(){
+  return `<div class="hd-how" id="hdHowBox" hidden>`+[["face-4","1–3 · слабая","Замечаете, но можно заниматься делами"],["face-3","4–6 · умеренная","Мешает, дела даются с трудом"],["face-2","7–9 · сильная","Трудно что-то делать, хочется лечь"],["face-1","10 · нестерпимая","Ни о чём другом думать невозможно"]]
+    .map(([ic,t,x])=>`<div>${dzIcon(ic)}<span><b>${t}</b>${x}</span></div>`).join("")+`</div>`;
+}
+function hdZonesHtml(sel){ return `<div class="hd-zones" id="hdZones">`+diaryIdLists().zones.map(z=>`<button type="button" class="hd-ztile" data-hdz="${z.id}" aria-pressed="${sel.includes(z.id)}"><span class="hd-ztile__r"><svg class="hd-zimg" viewBox="0 0 120 120" aria-hidden="true"><use href="#z-${z.id}"/></svg><span class="hd-ztile__ok" aria-hidden="true">${dzIcon("check")}</span></span><span class="hd-ztile__t">${esc(z.n)}</span></button>`).join("")+`</div>`; }
+function hdForm(def,day,today){
+  const L=diaryIdLists(), also=dzGeneralSymptoms(def).map(s=>s.n), meds=medOrder((DZ.data[cur]||{}).heads||[],hdBirth(),today);
+  const st={i:null,chars:[],zones:[],also:[],trig:[],med:""};
+  const chip=(attr,id,n)=>`<button type="button" class="dz-chip" ${attr}="${esc(id)}" aria-pressed="false">${esc(n)}</button>`;
+  const box=dzModalOpen(`<h3 class="dz-form__t">Приступ головной боли</h3>
+    <label class="dz-lab" for="hdStart">Начало</label><input id="hdStart" type="datetime-local" class="dz-when" value="${dzWhenDefault(day,today)}">
+    <label class="dz-lab" for="hdEnd">Конец — если боль уже прошла</label><input id="hdEnd" type="datetime-local" class="dz-when">
+    <h4 class="dz-sub">Сила боли</h4>${hdScaleHtml("hdI",1,null)}<p class="hd-lab" id="hdLab">Выберите от 1 до 10</p>
+    <button type="button" class="dz-how" id="hdHow" aria-expanded="false">Как оценивать</button>${hdHowHtml()}
+    <h4 class="dz-sub">Характер боли</h4><div class="dz-chips">${L.chars.map(c=>chip("data-hdc",c.id,c.n)).join("")}</div>
+    <h4 class="dz-sub">Где болит</h4><button type="button" class="dz-how" id="hdMap">На схеме головы</button>${hdZonesHtml([])}
+    <h4 class="dz-sub">Что ещё было</h4><div class="dz-chips">${also.map(n=>chip("data-hda",n,n)).join("")}</div>
+    ${(def.triggers||[]).length?`<h4 class="dz-sub">Триггеры</h4><div class="dz-chips">`+def.triggers.map(t=>`<button type="button" class="dz-chip" data-dzt="${t.id}" aria-pressed="false">${dzIcon(t.icon,"ic--20")}${esc(t.n)}</button>`).join("")+`</div>`:""}
+    <h4 class="dz-sub">Принятое лекарство</h4><div class="dz-chips">${meds.map(n=>chip("data-hdm",n,n)).join("")}${chip("data-hdm","__other","Другое")}</div>
+    <input id="hdMedOther" class="dz-field" maxlength="60" placeholder="Название лекарства" aria-label="Другое лекарство" hidden>
+    <input id="hdDose" class="dz-field" maxlength="120" placeholder="Дозировка и количество, например 400 мг" aria-label="Дозировка и количество" hidden>
+    <p class="hd-note">Записываем то, что приняли. Назначает врач</p>
+    <h4 class="dz-sub">Заметка</h4><input id="hdNote" class="dz-field" maxlength="200" placeholder="Например, после долгой работы за экраном">
+    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="hdOk" disabled>Записать</button>`);
+  const ok=box.querySelector("#hdOk"), other=box.querySelector("#hdMedOther"), dose=box.querySelector("#hdDose"), err=box.querySelector("#dzErr");
+  const press=(b,on)=>{ b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); };
+  const tog=(arr,id)=>arr.includes(id)?arr.filter(x=>x!==id):[...arr,id];
+  box.querySelectorAll("#hdI .hd-cell").forEach(b=>b.onclick=()=>{ st.i=+b.dataset.v; box.querySelectorAll("#hdI .hd-cell").forEach(x=>press(x,+x.dataset.v===st.i));
+    box.querySelector("#hdLab").textContent=`${st.i} — ${painLabel(st.i)}`; ok.disabled=false; });
+  box.querySelector("#hdMap").onclick=hdViewOpen;
+  box.querySelector("#hdHow").onclick=e=>{ const h=box.querySelector("#hdHowBox"); h.hidden=!h.hidden; e.currentTarget.setAttribute("aria-expanded",!h.hidden); };
+  box.querySelectorAll("[data-hdc]").forEach(b=>b.onclick=()=>{ st.chars=tog(st.chars,b.dataset.hdc); press(b,st.chars.includes(b.dataset.hdc)); });
+  const zoneBind=()=>box.querySelectorAll("[data-hdz]").forEach(b=>{ press(b,st.zones.includes(b.dataset.hdz)); b.onclick=()=>{ st.zones=hdZoneToggle(st.zones,b.dataset.hdz); zoneBind(); }; });
+  zoneBind();
+  box.querySelectorAll("[data-hda]").forEach(b=>b.onclick=()=>{ st.also=tog(st.also,b.dataset.hda); press(b,st.also.includes(b.dataset.hda)); });
+  box.querySelectorAll("[data-dzt]").forEach(b=>b.onclick=()=>{ st.trig=tog(st.trig,b.dataset.dzt); press(b,st.trig.includes(b.dataset.dzt)); });
+  box.querySelectorAll("[data-hdm]").forEach(b=>b.onclick=()=>{ const id=b.dataset.hdm; st.med=st.med===id?"":id;
+    box.querySelectorAll("[data-hdm]").forEach(x=>press(x,x.dataset.hdm===st.med)); other.hidden=st.med!=="__other"; dose.hidden=!st.med; if(st.med==="__other") other.focus(); });
+  ok.onclick=async()=>{
+    if(st.i==null) return;
+    const at=new Date(box.querySelector("#hdStart").value), endV=box.querySelector("#hdEnd").value, end=endV?new Date(endV):null;
+    if(isNaN(+at)||+at>Date.now()+60000){ err.textContent="Время не может быть в будущем"; return; }
+    if(end&&(isNaN(+end)||+end<+at)){ err.textContent="Конец — позже начала"; return; }
+    const med=st.med==="__other"?other.value.trim():st.med;
+    if(st.med==="__other"&&!med){ err.textContent="Напишите название лекарства"; other.focus(); return; }
+    ok.disabled=true;
+    try{
+      const batch="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      const P=headachePayloads({person:cur,day:dzDayOf(at.toISOString()),at:at.toISOString(),batch,i:st.i,med,dose:med?dose.value:"",zones:st.zones,chars:st.chars,also:st.also,triggers:st.trig,note:box.querySelector("#hdNote").value,end:end?end.toISOString():""});
+      for(const {action,...rest} of P) await mkApi(action,rest);   // по очереди: «Головная боль» первой
+      closeModal(); dzLoadData(true); toast("Записано");
+    }catch(e){ ok.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
+  };
+}
+function hdFollowForm(id){
+  const st={v:null,h:""};
+  const box=dzModalOpen(`<h3 class="dz-form__t">Как боль через 2 часа после приёма?</h3>
+    <h4 class="dz-sub">Сила боли сейчас</h4>${hdScaleHtml("hdA",0,null)}<p class="hd-lab" id="hdLab2">0 — боль прошла</p>
+    <h4 class="dz-sub">Лекарство помогло?</h4><div class="hd-seg" role="group" aria-label="Помогло">${[["да","Да"],["частично","Частично"],["нет","Нет"]].map(([v,t])=>`<button type="button" data-h="${v}" aria-pressed="false">${t}</button>`).join("")}</div>
+    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="hdOk2" disabled>Сохранить</button>`);
+  const ok=box.querySelector("#hdOk2"), press=(b,on)=>{ b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); };
+  box.querySelectorAll("#hdA .hd-cell").forEach(b=>b.onclick=()=>{ st.v=+b.dataset.v; box.querySelectorAll("#hdA .hd-cell").forEach(x=>press(x,+x.dataset.v===st.v));
+    box.querySelector("#hdLab2").textContent=st.v===0?"0 — боль прошла":`${st.v} — ${painLabel(st.v)}`; ok.disabled=false; });
+  box.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{ st.h=st.h===b.dataset.h?"":b.dataset.h; box.querySelectorAll("[data-h]").forEach(x=>press(x,x.dataset.h===st.h)); });
+  ok.onclick=async()=>{ if(st.v==null) return; ok.disabled=true;
+    try{ await mkApi("symptom_update",{id,attrs:{i_after:st.v},...(st.h?{h:st.h}:{})}); closeModal(); dzLoadData(true); toast("Записано"); }
+    catch(e){ ok.disabled=false; box.querySelector("#dzErr").textContent="Не получилось сохранить. Попробуйте ещё раз"; } };
+}
+// форма благодарности (блок 6); фото — блок 7 (grPhotoHtml / grPhotoBind, если есть)
+function dzWhenOf(e,day,today){ if(!e) return dzWhenDefault(day,today); const x=new Date(e.occurred_at); return dzDayOf(e.occurred_at)+"T"+dzHM(x.toISOString()); }
+function grForm(def,day,today,e){
+  const d=(e&&e.data)||{}, FL=diaryIdLists(); let feel=[...(d.feel||[])];
+  const box=dzModalOpen(`<h3 class="dz-form__t">Благодарность</h3>
+    <label class="dz-lab" for="dzWhen">Дата и время</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
+    <label class="dz-lab" for="grText">За что вы благодарны и почему</label><textarea id="grText" class="dz-field gr-area" maxlength="1000" rows="5" placeholder="3–5 событий, за которые вы благодарны, и почему">${esc(d.text||"")}</textarea>
+    <h4 class="dz-sub">Что вы чувствуете</h4><div class="dz-chips">${FL.feel.map(f=>`<button type="button" class="dz-chip${feel.includes(f.id)?" is-on":""}" data-grf="${f.id}" aria-pressed="${feel.includes(f.id)}">${esc(f.n)}</button>`).join("")}</div>
+    <label class="dz-lab" for="grNote">Заметка</label><input id="grNote" class="dz-field" maxlength="500" value="${esc(d.note||"")}">
+    ${typeof grPhotoHtml==="function"?grPhotoHtml(d.photo||""):""}
+    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="grOk"${gratitudeCanSave(d)?"":" disabled"}>Сохранить</button>`);
+  const ok=box.querySelector("#grOk"), txt=box.querySelector("#grText"), err=box.querySelector("#dzErr");
+  const ph=typeof grPhotoBind==="function"?grPhotoBind(box,d.photo||"",err):null;
+  txt.oninput=()=>{ ok.disabled=!gratitudeCanSave({text:txt.value}); };
+  box.querySelectorAll("[data-grf]").forEach(b=>b.onclick=()=>{ const id=b.dataset.grf; feel=feel.includes(id)?feel.filter(x=>x!==id):[...feel,id]; b.classList.toggle("is-on",feel.includes(id)); b.setAttribute("aria-pressed",feel.includes(id)); });
+  ok.onclick=async()=>{
+    if(!gratitudeCanSave({text:txt.value})) return;
+    const at=new Date(box.querySelector("#dzWhen").value);
+    if(isNaN(+at)||+at>Date.now()+60000){ err.textContent="Время не может быть в будущем"; return; }
+    ok.disabled=true;
+    try{
+      const photo=ph?await ph.commit():(d.photo||"");
+      const data={text:txt.value.trim(),feel:FL.feel.map(f=>f.id).filter(id=>feel.includes(id)),note:box.querySelector("#grNote").value.trim(),...(photo?{photo}:{})};
+      await mkApi("diary_entry_save",{person:cur,diary:def.id,kind:"gratitude",occurred_at:at.toISOString(),data,...(e?{id:e.id}:{})});
+      if(ph) await ph.after();
+      closeModal(); dzLoadData(true); toast("Сохранено");
+    }catch(x){ ok.disabled=false; err.textContent=x&&x.userText||"Не получилось сохранить. Попробуйте ещё раз"; }
+  };
+}
+// ── фото в записи благодарности (блок 7): одно фото, ужимается до 1600 px в JPG на странице (метаданные и геометки пропадают), грузится при «Сохранить» ──
+function shrinkTo(w,h,max){ const k=Math.min(1,max/Math.max(w,h)); return {w:Math.round(w*k),h:Math.round(h*k)}; }
+function grPhotoCheck(f){
+  if(!f) return "Выберите фото";
+  if(!/\.(jpe?g|png|heic|heif|webp)$/i.test(String(f.name||""))&&!/^image\/(jpeg|png|heic|heif|webp)$/i.test(String(f.type||""))) return "Подойдёт фото в JPG, PNG, HEIC или WEBP";
+  if(f.size>10*1024*1024) return "Фото больше 10 МБ — выберите другое";
+  return "";
+}
+async function grShrink(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=new Image();   // onload, а не decode(): decode() не завершается на скрытой вкладке
+    const loaded=await new Promise(ok=>{ img.onload=()=>ok(true); img.onerror=()=>ok(false); img.src=url; });
+    if(!loaded||!img.naturalWidth){ const x=new Error("decode"); x.userText="Снимите фото в JPG или PNG"; throw x; }
+    const d=shrinkTo(img.naturalWidth,img.naturalHeight,1600), c=document.createElement("canvas"); c.width=d.w; c.height=d.h;
+    c.getContext("2d").drawImage(img,0,0,d.w,d.h);
+    return await new Promise(ok=>c.toBlob(b=>ok(b),"image/jpeg",0.85));
+  }finally{ URL.revokeObjectURL(url); }
+}
+function grPhotoHtml(path){
+  return `<h4 class="dz-sub">Фото</h4><div class="gr-ph" id="grPh"><button type="button" class="gr-ph__img" id="grPhOpen" aria-label="Открыть фото на весь экран" hidden><img alt="Фото к записи"></button>
+    <div class="gr-ph__btns"><label class="btn btn-secondary gr-ph__add"><span id="grPhAddT">${path?"Заменить фото":"Добавить фото"}</span><input type="file" id="grPhFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" hidden></label>
+    <button type="button" class="btn btn-secondary" id="grPhDel"${path?"":" hidden"}>Убрать фото</button></div></div>`;
+}
+function grPhotoBind(box,path,err){
+  const st={old:path||"",file:null,blob:null,removed:false,url:""};
+  const wrap=box.querySelector("#grPhOpen"), img=wrap.querySelector("img"), del=box.querySelector("#grPhDel"), inp=box.querySelector("#grPhFile"), addT=box.querySelector("#grPhAddT");
+  const show=src=>{ if(st.url&&st.url.startsWith("blob:")) URL.revokeObjectURL(st.url); st.url=src||""; img.src=st.url; wrap.hidden=!st.url; del.hidden=!st.url; addT.textContent=st.url?"Заменить фото":"Добавить фото"; };
+  if(st.old) entriesApi("file_url",{path:st.old}).then(j=>{ if(!st.blob&&!st.removed) show(j.url); }).catch(()=>{});
+  inp.onchange=async()=>{
+    const f=inp.files&&inp.files[0]; inp.value=""; if(!f) return;
+    const bad=grPhotoCheck(f); if(bad){ err.textContent=bad; return; }
+    try{ st.blob=await grShrink(f); st.removed=false; err.textContent=""; show(URL.createObjectURL(st.blob)); }
+    catch(x){ err.textContent=x.userText||"Не получилось открыть фото. Снимите фото в JPG или PNG"; }
+  };
+  del.onclick=()=>{ st.blob=null; st.removed=true; show(""); };
+  wrap.onclick=()=>{ if(!st.url) return; const v=document.createElement("div"); v.className="gr-full"; v.setAttribute("role","dialog"); v.setAttribute("aria-label","Фото");
+    v.innerHTML=`<button type="button" class="mclose" aria-label="Закрыть">${dzIcon("close")}</button><img src="${esc(st.url)}" alt="Фото к записи">`; v.onclick=()=>v.remove(); document.body.appendChild(v); };
+  return {
+    async commit(){
+      if(st.blob){ const p=await uploadBlob(st.blob,"фото.jpg"); if(st.old) await entriesApi("file_delete",{path:st.old}).catch(()=>{}); return p; }
+      if(st.removed&&st.old){ await entriesApi("file_delete",{path:st.old}); return ""; }
+      return st.removed?"":st.old;
+    },
+    async after(){ if(st.url&&st.url.startsWith("blob:")) URL.revokeObjectURL(st.url); }
+  };
+}
+// форма дневника мыслей (блок 8): шаги на одной странице, у выбранной эмоции — ползунок силы 0–100
+function thForm(def,day,today,e){
+  const d=(e&&e.data)||{}, FL=diaryIdLists(); const emo={}; (d.emo||[]).forEach(x=>emo[x.id]=x.v); let body=[...(d.body||[])];
+  const ta=(id,lab,max,val,ph)=>`<label class="dz-lab" for="${id}">${lab}</label><textarea id="${id}" class="dz-field gr-area" maxlength="${max}" rows="3"${ph?` placeholder="${ph}"`:""}>${esc(val||"")}</textarea>`;
+  const box=dzModalOpen(`<h3 class="dz-form__t">Запись в дневник мыслей</h3><p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>
+    <label class="dz-lab" for="dzWhen">1. Дата и время события</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
+    ${ta("thEvent","2. Что произошло",500,d.event)}${ta("thThoughts","3. Какие возникли мысли",500,d.thoughts,"Что пронеслось в голове")}
+    <h4 class="dz-sub">4. Какие возникли эмоции</h4><div class="dz-chips" id="thEmo">${FL.emo.map(x=>`<button type="button" class="dz-chip" data-the="${x.id}" aria-pressed="false">${esc(x.n)}</button>`).join("")}</div><div id="thSliders"></div>
+    <h4 class="dz-sub">5. Реакции в теле</h4><div class="dz-chips">${FL.body.map(x=>`<button type="button" class="dz-chip${body.includes(x.id)?" is-on":""}" data-thb="${x.id}" aria-pressed="${body.includes(x.id)}">${esc(x.n)}</button>`).join("")}</div>
+    ${ta("thAct","6. Ваше поведение",500,d.act)}${ta("thAfter","7. Эмоции после",300,d.after)}${ta("thNote","8. Заметки",500,d.note)}
+    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="thOk"${thoughtCanSave(d)?"":" disabled"}>Сохранить</button>`);
+  const ok=box.querySelector("#thOk"), th=box.querySelector("#thThoughts"), err=box.querySelector("#dzErr"), sl=box.querySelector("#thSliders");
+  const drawEmo=()=>{ box.querySelectorAll("[data-the]").forEach(b=>{ const on=b.dataset.the in emo; b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); });
+    sl.innerHTML=FL.emo.filter(x=>x.id in emo).map(x=>`<div class="th-sl"><label for="ths-${x.id}">${esc(x.n)}</label><input type="range" id="ths-${x.id}" data-ths="${x.id}" min="0" max="100" step="10" value="${emo[x.id]}"><output>${emo[x.id]}</output></div>`).join("");
+    sl.querySelectorAll("[data-ths]").forEach(r=>r.oninput=()=>{ emo[r.dataset.ths]=+r.value; r.nextElementSibling.textContent=r.value; }); };
+  box.querySelectorAll("[data-the]").forEach(b=>b.onclick=()=>{ const id=b.dataset.the; if(id in emo) delete emo[id]; else emo[id]=50; drawEmo(); });
+  drawEmo();
+  box.querySelectorAll("[data-thb]").forEach(b=>b.onclick=()=>{ const id=b.dataset.thb; body=body.includes(id)?body.filter(x=>x!==id):[...body,id]; b.classList.toggle("is-on",body.includes(id)); b.setAttribute("aria-pressed",body.includes(id)); });
+  th.oninput=()=>{ ok.disabled=!thoughtCanSave({thoughts:th.value}); };
+  ok.onclick=async()=>{
+    if(!thoughtCanSave({thoughts:th.value})) return;
+    const at=new Date(box.querySelector("#dzWhen").value);
+    if(isNaN(+at)||+at>Date.now()+60000){ err.textContent="Время не может быть в будущем"; return; }
+    const v=id=>box.querySelector("#"+id).value.trim();
+    const data={event:v("thEvent"),thoughts:v("thThoughts"),emo:FL.emo.filter(x=>x.id in emo).map(x=>({id:x.id,v:emo[x.id]})),body:FL.body.map(x=>x.id).filter(id=>body.includes(id)),act:v("thAct"),after:v("thAfter"),note:v("thNote")};
+    ok.disabled=true;
+    try{ await mkApi("diary_entry_save",{person:cur,diary:def.id,kind:"thought",occurred_at:at.toISOString(),data,...(e?{id:e.id}:{})}); closeModal(); dzLoadData(true); toast("Сохранено"); }
+    catch(x){ ok.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
+  };
+}
+// ── зоны головы (ТЗ-041 блок 5): «Вся голова» снимает остальные, любая зона снимает «Вся голова»; левую и правую можно вместе ──
+function toggleZone(sel,id){
+  const s=sel||[];
+  if(id==="all") return s.includes("all")?[]:["all"];
+  const base=s.filter(x=>x!=="all");
+  return base.includes(id)?base.filter(x=>x!==id):[...base,id];
+}
+function hdZoneToggle(sel,id){ return toggleZone(sel,id); }
+// просмотр 14 зон крупно поверх формы: закрывается кнопкой и жестом «назад», форма остаётся как была
+let HDV=null;
+function hdViewOpen(){
+  if(HDV) return;
+  const el=document.createElement("div"); el.className="hd-view"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","Зоны головы на схеме");
+  el.innerHTML=`<div class="hd-view__top"><h3>Зоны головы</h3><button type="button" class="mclose hd-view__x" aria-label="Закрыть">${dzIcon("close")}</button></div><div class="hd-view__grid">`+
+    diaryIdLists().zones.map(z=>`<figure><svg class="hd-zimg" viewBox="0 0 120 120" aria-hidden="true"><use href="#z-${z.id}"/></svg><figcaption>${esc(z.n)}</figcaption></figure>`).join("")+`</div>`;
+  document.body.appendChild(el); HDV=el;
+  try{ history.pushState({mk:navSnap(),modal:1,hdv:1},""); }catch(e){}
+  el.querySelector(".hd-view__x").onclick=()=>{ try{ if(history.state&&history.state.hdv){ history.back(); return; } }catch(e){} hdViewClose(); };
+  el.querySelector(".hd-view__x").focus();
+}
+function hdViewClose(){ if(HDV){ HDV.remove(); HDV=null; } }
+if(typeof window!=="undefined") window.addEventListener("popstate",e=>{ if(HDV){ hdViewClose(); e.stopImmediatePropagation(); } },true);   // раньше общего «назад», который закрыл бы форму
 function dzDayBind(m){
   const today=localDay(), cat=diaryCatalog(), day=()=>DZ.day&&DZ.day<=today?DZ.day:today, def=id=>cat.find(d=>d.id===id);
   const go=n=>{ DZ.day=dzShift(day(),n); if(DZ.day>today) DZ.day=today; render(); };
@@ -10455,6 +10827,14 @@ function dzDayBind(m){
   m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ DZ.hist=b.dataset.dzHist; render(); window.scrollTo(0,0); });
   m.querySelectorAll("[data-dz-meas]").forEach(b=>b.onclick=()=>dzMeasureForm(def(b.dataset.dzMeas),day(),today));
   m.querySelectorAll("[data-dz-sym]").forEach(b=>b.onclick=()=>dzSymptomForm(def(b.dataset.dzSym),day(),today));
+  const entryOf=id=>((DZ.data[cur]||{}).entries||[]).find(e=>e.id===id);
+  m.querySelectorAll("[data-gr-new]").forEach(b=>b.onclick=()=>{ const d=def(b.dataset.grNew); (d.kind==="thought"?thForm:grForm)(d,day(),today,null); });
+  m.querySelectorAll("[data-gr-open]").forEach(b=>b.onclick=()=>{ const e=entryOf(+b.dataset.grOpen); if(e) (e.kind==="thought"?thForm:grForm)(def(e.diary),day(),today,e); });
+  m.querySelectorAll("[data-gr-del]").forEach(b=>b.onclick=()=>{ const e=entryOf(+b.dataset.grDel); del(async()=>{ if(e&&e.data&&e.data.photo) await entriesApi("file_delete",{path:e.data.photo}); await mkApi("diary_entry_delete",{id:+b.dataset.grDel}); }); });   // фото — пока запись ещё ссылается на путь
+  m.querySelectorAll("[data-hd-new]").forEach(b=>b.onclick=()=>hdForm(def(b.dataset.hdNew),day(),today));
+  m.querySelectorAll("[data-hd-fu]").forEach(b=>b.onclick=()=>hdFollowForm(+b.dataset.hdFu));
+  m.querySelectorAll("[data-hd-end]").forEach(b=>b.onclick=async()=>{ b.disabled=true;
+    try{ await mkApi("symptom_update",{id:+b.dataset.hdEnd,attrs:{ended_at:new Date().toISOString()}}); dzLoadData(true); toast("Записано"); }catch(e){ b.disabled=false; toast("Не получилось сохранить. Попробуйте ещё раз"); } });
   const del=async(fn)=>{ if(!confirm("Удалить эту запись?")) return; try{ await fn(); dzLoadData(true); toast("Удалено"); }catch(e){ toast("Не получилось удалить. Попробуйте ещё раз"); } };
   m.querySelectorAll("[data-dz-delb]").forEach(b=>b.onclick=()=>del(()=>mkApi("symptom_batch_delete",{person:cur,batch:b.dataset.dzDelb})));
   m.querySelectorAll("[data-dz-delok]").forEach(b=>b.onclick=()=>del(()=>mkApi("diary_entry_delete",{id:+b.dataset.dzDelok})));
