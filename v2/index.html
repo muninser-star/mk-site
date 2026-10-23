@@ -1632,6 +1632,18 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 @media (min-width:700px){.hd-view__grid{grid-template-columns:repeat(4,1fr)}}
 .hd-view figure{margin:0;padding:8px;border-radius:16px;background:var(--surface-1);text-align:center} .hd-view .hd-zimg{width:100%;max-width:200px;height:auto;aspect-ratio:1}
 .hd-view figcaption{font:400 14px/20px var(--font)}
+/* ── Страница записи дневника (решение Дениса 23.10.2026): на телефоне весь экран, на ноутбуке колонка 760 px, «Сохранить» закреплена ── */
+#modal.on:has(.dz-page){padding:16px}
+.mbox.dz-page{max-width:760px;max-height:92vh;padding:24px 24px 0}
+.dz-page .dz-form__t{padding-right:44px;font:600 22px/28px var(--font)}
+.dz-foot{position:sticky;bottom:0;z-index:3;margin:20px -24px 0;padding:8px 24px max(12px,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--surface-2)}
+.dz-foot .dz-err{min-height:0;margin:0 0 6px} .dz-foot .dz-err:empty{display:none} .dz-foot .dz-save{margin-top:0}
+@media (max-width:700px){#modal.on:has(.dz-page){padding:0;place-items:stretch}.mbox.dz-page{max-width:none;height:100dvh;max-height:100dvh;border-radius:0;padding:16px 16px 0}.dz-foot{margin:20px -16px 0;padding:8px 16px max(12px,env(safe-area-inset-bottom))}}
+.dz-two{display:grid;grid-template-columns:1fr 1fr;gap:12px} .dz-two .dz-when{min-width:0}
+@media (max-width:420px){.dz-two{grid-template-columns:1fr;gap:0}}
+.dz-morebtn{margin:4px 0 0} .dz-morebox{margin-top:4px} .dz-morebox[hidden]{display:none}
+.dz-more{margin-top:12px} .dz-more>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:var(--text-accent);font:600 14px/20px var(--font)}
+.dz-more>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* ── Благодарности и мысли (ТЗ-041 блоки 6, 8), фото (блок 7) ── */
 .gr-ph__btns{display:flex;flex-wrap:wrap;gap:8px} .gr-ph__btns .btn{min-height:44px;display:inline-flex;align-items:center;cursor:pointer}
 .gr-ph__img{display:block;padding:0;border:0;background:none;margin:0 0 8px;cursor:zoom-in;border-radius:12px;overflow:hidden;max-width:100%}
@@ -3910,7 +3922,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="23.10 11:38";   // подставляется при публикации
+const BUILD="23.10 11:47";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -10554,7 +10566,8 @@ function dzHistHtml(def,D,today){
   }
   return `<div class="dz-top"><button type="button" class="btn btn-secondary" id="dzBack">‹ Назад</button></div><h2 class="dz-h1" style="margin-bottom:12px">${esc(def.title)}</h2>${rows||`<p class="muted">Записей за последние 30 дней нет</p>`}`;
 }
-function dzModalOpen(html){ const mo=document.getElementById("modal"); mo.innerHTML=`<div class="mbox dz-form" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть">${dzIcon("close")}</button>${html}</div>`; mo.classList.add("on"); return mo.querySelector(".dz-form"); }
+// окно дневника; o.page — страница записи (решение Дениса 23.10.2026): на телефоне на весь экран, на ноутбуке колонка 760 px, «Сохранить» внизу закреплена
+function dzModalOpen(html,o){ const mo=document.getElementById("modal"); mo.innerHTML=`<div class="mbox dz-form${o&&o.page?" dz-page":""}" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть">${dzIcon("close")}</button>${html}</div>`; mo.classList.add("on"); return mo.querySelector(".dz-form"); }
 async function dzSaveEntry(def,kind,data,atIso){ await mkApi("diary_entry_save",{person:cur,diary:def.id,kind,occurred_at:atIso,data}); }
 function dzMeasureForm(def,day,today){
   const M=def.measure, box=dzModalOpen(`<h3 class="dz-form__t">${esc(M.title)}</h3>
@@ -10627,20 +10640,21 @@ function hdForm(def,day,today){
   const st={i:null,chars:[],zones:[],also:[],trig:[],med:""};
   const chip=(attr,id,n)=>`<button type="button" class="dz-chip" ${attr}="${esc(id)}" aria-pressed="false">${esc(n)}</button>`;
   const box=dzModalOpen(`<h3 class="dz-form__t">Приступ головной боли</h3>
-    <label class="dz-lab" for="hdStart">Начало</label><input id="hdStart" type="datetime-local" class="dz-when" value="${dzWhenDefault(day,today)}">
-    <label class="dz-lab" for="hdEnd">Конец — если боль уже прошла</label><input id="hdEnd" type="datetime-local" class="dz-when">
+    <div class="dz-two"><div><label class="dz-lab" for="hdStart">Началась</label><input id="hdStart" type="datetime-local" class="dz-when" value="${dzWhenDefault(day,today)}"></div>
+    <div><label class="dz-lab" for="hdEnd">Закончилась</label><input id="hdEnd" type="datetime-local" class="dz-when" aria-describedby="hdEndH"></div></div><p class="hd-note" id="hdEndH">Пусто — боль ещё идёт</p>
     <h4 class="dz-sub">Сила боли</h4>${hdScaleHtml("hdI",1,null)}<p class="hd-lab" id="hdLab">Выберите от 1 до 10</p>
     <button type="button" class="dz-how" id="hdHow" aria-expanded="false">Как оценивать</button>${hdHowHtml()}
-    <h4 class="dz-sub">Характер боли</h4><div class="dz-chips">${L.chars.map(c=>chip("data-hdc",c.id,c.n)).join("")}</div>
+    <h4 class="dz-sub">Характер боли</h4>${dzChipsMore("data-hdc",L.chars,dzTopChoices().chars,[],"Ещё")}
     <h4 class="dz-sub">Где болит</h4><button type="button" class="dz-how" id="hdMap">На схеме головы</button>${hdZonesHtml([])}
     <h4 class="dz-sub">Что ещё было</h4><div class="dz-chips">${also.map(n=>chip("data-hda",n,n)).join("")}</div>
     ${(def.triggers||[]).length?`<h4 class="dz-sub">Триггеры</h4><div class="dz-chips">`+def.triggers.map(t=>`<button type="button" class="dz-chip" data-dzt="${t.id}" aria-pressed="false">${dzIcon(t.icon,"ic--20")}${esc(t.n)}</button>`).join("")+`</div>`:""}
     <h4 class="dz-sub">Принятое лекарство</h4><div class="dz-chips">${meds.map(n=>chip("data-hdm",n,n)).join("")}${chip("data-hdm","__other","Другое")}</div>
     <input id="hdMedOther" class="dz-field" maxlength="60" placeholder="Название лекарства" aria-label="Другое лекарство" hidden>
-    <input id="hdDose" class="dz-field" maxlength="120" placeholder="Дозировка и количество, например 400 мг" aria-label="Дозировка и количество" hidden>
+    <input id="hdDose" class="dz-field" maxlength="120" placeholder="Доза, например 400 мг" aria-label="Дозировка и количество" hidden>
     <p class="hd-note">Записываем то, что приняли. Назначает врач</p>
-    <h4 class="dz-sub">Заметка</h4><input id="hdNote" class="dz-field" maxlength="200" placeholder="Например, после долгой работы за экраном">
-    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="hdOk" disabled>Записать</button>`);
+    <h4 class="dz-sub">Заметка</h4><input id="hdNote" class="dz-field" maxlength="200" placeholder="Например, после работы">
+    ${dzFoot("hdOk","Записать",true)}`,{page:true});
+  dzMoreBind(box);
   const ok=box.querySelector("#hdOk"), other=box.querySelector("#hdMedOther"), dose=box.querySelector("#hdDose"), err=box.querySelector("#dzErr");
   const press=(b,on)=>{ b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); };
   const tog=(arr,id)=>arr.includes(id)?arr.filter(x=>x!==id):[...arr,id];
@@ -10686,16 +10700,35 @@ function hdFollowForm(id){
     catch(e){ ok.disabled=false; box.querySelector("#dzErr").textContent="Не получилось сохранить. Попробуйте ещё раз"; } };
 }
 // форма благодарности (блок 6); фото — блок 7 (grPhotoHtml / grPhotoBind, если есть)
+// короткие списки: основные выборы сверху, остальное — под «Ещё»; выбранное из «Ещё» (старая запись) показывается среди основных
+function dzTopChoices(){ return {
+  emo:["anxiety","sadness","anger","guilt","resentment","irritation","fatigue","emptiness","joy","relief"],
+  body:["heartbeat","throat-lump","hard-breath","body-tension","weakness","headache"],
+  chars:["pulsing","pressing","aching","sharp","shooting","pulling"] }; }
+function splitChoices(list,top,selected){
+  const sel=new Set(selected||[]), byId=Object.fromEntries((list||[]).map(x=>[x.id,x]));
+  const main=[...top.filter(id=>byId[id]),...(list||[]).map(x=>x.id).filter(id=>!top.includes(id)&&sel.has(id))].map(id=>byId[id]);
+  const inMain=new Set(main.map(x=>x.id));
+  return {main,more:(list||[]).filter(x=>!inMain.has(x.id))};
+}
+// чипы с «Ещё»: attr — data-атрибут выбора, label(x) — подпись
+function dzChipsMore(attr,list,top,selected,moreLabel,label){
+  const sp=splitChoices(list,top,selected), on=id=>(selected||[]).includes(id), lab=label||(x=>x.n);
+  const chip=x=>`<button type="button" class="dz-chip${on(x.id)?" is-on":""}" ${attr}="${esc(x.id)}" aria-pressed="${on(x.id)}">${esc(lab(x))}</button>`;
+  return `<div class="dz-chips">${sp.main.map(chip).join("")}</div>`+(sp.more.length?`<button type="button" class="dz-how dz-morebtn" aria-expanded="false">${esc(moreLabel)} · ${sp.more.length}</button><div class="dz-chips dz-morebox" hidden>${sp.more.map(chip).join("")}</div>`:"");
+}
+function dzMoreBind(box){ box.querySelectorAll(".dz-morebtn").forEach(b=>b.onclick=()=>{ const m=b.nextElementSibling; m.hidden=!m.hidden; b.setAttribute("aria-expanded",!m.hidden); b.classList.toggle("is-open",!m.hidden); }); }
+function dzFoot(id,label,disabled){ return `<div class="dz-foot"><p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="${id}"${disabled?" disabled":""}>${label}</button></div>`; }
 function dzWhenOf(e,day,today){ if(!e) return dzWhenDefault(day,today); const x=new Date(e.occurred_at); return dzDayOf(e.occurred_at)+"T"+dzHM(x.toISOString()); }
 function grForm(def,day,today,e){
   const d=(e&&e.data)||{}, FL=diaryIdLists(); let feel=[...(d.feel||[])];
-  const box=dzModalOpen(`<h3 class="dz-form__t">Благодарность</h3>
-    <label class="dz-lab" for="dzWhen">Дата и время</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
-    <label class="dz-lab" for="grText">За что вы благодарны и почему</label><textarea id="grText" class="dz-field gr-area" maxlength="1000" rows="5" placeholder="3–5 событий, за которые вы благодарны, и почему">${esc(d.text||"")}</textarea>
-    <h4 class="dz-sub">Что вы чувствуете</h4><div class="dz-chips">${FL.feel.map(f=>`<button type="button" class="dz-chip${feel.includes(f.id)?" is-on":""}" data-grf="${f.id}" aria-pressed="${feel.includes(f.id)}">${esc(f.n)}</button>`).join("")}</div>
+  const box=dzModalOpen(`<h3 class="dz-form__t">${e?"Благодарность":"Новая запись"}</h3>
+    <label class="dz-lab" for="grText">За что благодарны</label><textarea id="grText" class="dz-field gr-area" maxlength="1000" rows="5" placeholder="3–5 событий и почему">${esc(d.text||"")}</textarea>
+    <h4 class="dz-sub">Что чувствуете</h4><div class="dz-chips">${FL.feel.map(f=>`<button type="button" class="dz-chip${feel.includes(f.id)?" is-on":""}" data-grf="${f.id}" aria-pressed="${feel.includes(f.id)}">${esc(f.n)}</button>`).join("")}</div>
     <label class="dz-lab" for="grNote">Заметка</label><input id="grNote" class="dz-field" maxlength="500" value="${esc(d.note||"")}">
     ${typeof grPhotoHtml==="function"?grPhotoHtml(d.photo||""):""}
-    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="grOk"${gratitudeCanSave(d)?"":" disabled"}>Сохранить</button>`);
+    <label class="dz-lab" for="dzWhen">Когда</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
+    ${dzFoot("grOk","Сохранить",!gratitudeCanSave(d))}`,{page:true});
   const ok=box.querySelector("#grOk"), txt=box.querySelector("#grText"), err=box.querySelector("#dzErr");
   const ph=typeof grPhotoBind==="function"?grPhotoBind(box,d.photo||"",err):null;
   txt.oninput=()=>{ ok.disabled=!gratitudeCanSave({text:txt.value}); };
@@ -10764,14 +10797,16 @@ function grPhotoBind(box,path,err){
 // форма дневника мыслей (блок 8): шаги на одной странице, у выбранной эмоции — ползунок силы 0–100
 function thForm(def,day,today,e){
   const d=(e&&e.data)||{}, FL=diaryIdLists(); const emo={}; (d.emo||[]).forEach(x=>emo[x.id]=x.v); let body=[...(d.body||[])];
-  const ta=(id,lab,max,val,ph)=>`<label class="dz-lab" for="${id}">${lab}</label><textarea id="${id}" class="dz-field gr-area" maxlength="${max}" rows="3"${ph?` placeholder="${ph}"`:""}>${esc(val||"")}</textarea>`;
-  const box=dzModalOpen(`<h3 class="dz-form__t">Запись в дневник мыслей</h3><p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>
-    <label class="dz-lab" for="dzWhen">1. Дата и время события</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
-    ${ta("thEvent","2. Что произошло",500,d.event)}${ta("thThoughts","3. Какие возникли мысли",500,d.thoughts,"Что пронеслось в голове")}
-    <h4 class="dz-sub">4. Какие возникли эмоции</h4><div class="dz-chips" id="thEmo">${FL.emo.map(x=>`<button type="button" class="dz-chip" data-the="${x.id}" aria-pressed="false">${esc(x.n)}</button>`).join("")}</div><div id="thSliders"></div>
-    <h4 class="dz-sub">5. Реакции в теле</h4><div class="dz-chips">${FL.body.map(x=>`<button type="button" class="dz-chip${body.includes(x.id)?" is-on":""}" data-thb="${x.id}" aria-pressed="${body.includes(x.id)}">${esc(x.n)}</button>`).join("")}</div>
-    ${ta("thAct","6. Ваше поведение",500,d.act)}${ta("thAfter","7. Эмоции после",300,d.after)}${ta("thNote","8. Заметки",500,d.note)}
-    <p class="dz-err" id="dzErr" role="alert"></p><button type="button" class="btn btn-primary btn-lg dz-save" id="thOk"${thoughtCanSave(d)?"":" disabled"}>Сохранить</button>`);
+  const ta=(id,lab,max,val,rows)=>`<label class="dz-lab" for="${id}">${lab}</label><textarea id="${id}" class="dz-field gr-area" maxlength="${max}" rows="${rows||3}">${esc(val||"")}</textarea>`;
+  const T=dzTopChoices(), short={heartbeat:"Сердцебиение"};
+  const box=dzModalOpen(`<h3 class="dz-form__t">${e?"Запись":"Новая запись"}</h3><p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>
+    ${ta("thEvent","Что случилось",500,d.event,2)}${ta("thThoughts","О чём подумали",500,d.thoughts,3)}
+    <h4 class="dz-sub">Что почувствовали</h4>${dzChipsMore("data-the",FL.emo,T.emo,Object.keys(emo),"Ещё эмоции")}<div id="thSliders"></div>
+    <h4 class="dz-sub">Что с телом</h4>${dzChipsMore("data-thb",FL.body,T.body,body,"Ещё",x=>short[x.id]||x.n)}
+    <details class="dz-more"${d.act||d.after||d.note?" open":""}><summary>Дополнить</summary>${ta("thAct","Что сделали",500,d.act,2)}${ta("thAfter","Что стало потом",300,d.after,2)}${ta("thNote","Заметка",500,d.note,2)}</details>
+    <label class="dz-lab" for="dzWhen">Когда</label><input id="dzWhen" type="datetime-local" class="dz-when" value="${dzWhenOf(e,day,today)}">
+    ${dzFoot("thOk","Сохранить",!thoughtCanSave(d))}`,{page:true});
+  dzMoreBind(box);
   const ok=box.querySelector("#thOk"), th=box.querySelector("#thThoughts"), err=box.querySelector("#dzErr"), sl=box.querySelector("#thSliders");
   const drawEmo=()=>{ box.querySelectorAll("[data-the]").forEach(b=>{ const on=b.dataset.the in emo; b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); });
     sl.innerHTML=FL.emo.filter(x=>x.id in emo).map(x=>`<div class="th-sl"><label for="ths-${x.id}">${esc(x.n)}</label><input type="range" id="ths-${x.id}" data-ths="${x.id}" min="0" max="100" step="10" value="${emo[x.id]}"><output>${emo[x.id]}</output></div>`).join("");
