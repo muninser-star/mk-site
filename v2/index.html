@@ -742,7 +742,7 @@ body.sv-lock{overflow:hidden}
 .plmenu__list{position:absolute;right:0;top:48px;z-index:6;min-width:210px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-popup,0 8px 24px rgba(0,0,0,.18));padding:6px;display:flex;flex-direction:column}
 .plmenu__list button{background:none;border:0;text-align:left;font:inherit;min-height:44px;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink)}.plmenu__list button:hover{background:var(--seg)}
 .plmenu{border:0!important;background:none!important;padding:0!important;margin:0!important;box-shadow:none!important}.prep .prep2 .fld{min-width:0}.prep .prep2 select,.prep .prep2 input{width:100%;min-width:0;box-sizing:border-box}.prep .prep2{align-items:end}.prep .ctx{background:none;padding:0;margin:0 0 10px;border:0}
-.ocbtn{flex:none;min-height:44px;padding:8px 14px}.linkbtn{display:inline-flex;align-items:center;background:none;border:0;padding:10px 0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;min-height:44px}
+.ocbtn{flex:none;min-height:44px;padding:8px 14px}.oclink{display:inline-flex;align-items:center;background:none;border:0;padding:10px 0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;min-height:44px}
 .ocmore{margin:8px 0}.ocmore>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--accent)}.ocsym{margin:12px 0}.ocsym .chip{min-height:44px;background:transparent;border:1px dashed var(--muted);color:var(--muted)}.ocsym .chip.on{background:var(--accent-soft,#e6f0fb);border:1px solid var(--accent);color:var(--accent);font-weight:600}
 .plancard{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.plancard:first-of-type{border-top:0}
 /* ДМС в профиле (ТЗ-005 блоки 13–16) */
@@ -3992,7 +3992,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 19:57";   // подставляется при публикации
+const BUILD="25.10 20:15";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6478,6 +6478,23 @@ function medSideText(i){
   const L=i&&!i.unknown&&Array.isArray(i.side_effects)?i.side_effects:[];
   return L.length?"Побочные эффекты":"Побочные эффекты: справки нет";
 }
+// схема назначения → вариант линейки, когда человек его не выбрал: только однозначные признаки, иначе null («Уточните вариант»)
+function medVariantGuess(line,text){
+  const t=String(text||"").toLowerCase().replace(/ё/g,"е");
+  if(line&&line.key==="флуимуцил"){
+    if(/тиамфеникол|антибиотик|500\s*мг.{0,100}физ|125\s*мг\s*на\s*5\s*мл/.test(t)) return line.variants.find(v=>v.key==="antibiotic-it")||null;
+    if(/ацетилцистеин|шипуч|саше|600\s*мг/.test(t)) return line.variants.find(v=>v.key==="acetylcysteine")||null;
+  }
+  return null;
+}
+// вариант линейки из самого документа, когда человек не выбирал: полное название в цитате («Флуимуцил-Антибиотик ИТ 500 мг») или схема назначения
+function medAutoVariant(p){
+  const f=(p&&p.fields)||{}, title=f.title||""; if(!title) return null;
+  const line=medLineOf(title+" "+(p.quote||"")); if(!line) return null;
+  if(line.picked) return {variant:line.picked.key};
+  const g=medVariantGuess(line,[f.dose,f.how,p.quote].filter(Boolean).join(" "));
+  return g?{variant:g.key}:null;
+}
 function medCardModel(d,name,today,fullName,refx){
   const key=medKeyOf(name), full=iso=>iso.split("-").reverse().join(".");
   let m=(d.meds||[]).find(x=>medKeyOf(x.n)===key)||null;
@@ -6509,7 +6526,9 @@ function medCardModel(d,name,today,fullName,refx){
   // линейка (ТЗ-046): выбор человека главнее; иначе вариант, названный в самом названии; иначе «Уточните вариант»
   const shownName=m?m.n:name, line=medLineOf(fullName||shownName);
   const pv=line&&plan&&plan.variant?line.variants.find(v=>v.key===plan.variant)||null:null, vtext=(plan&&plan.variant_text)||"";
-  const variant=pv||(line&&line.picked)||null, needVariant=!!line&&!variant&&!vtext;
+  // вариант не выбран и в названии не назван — по схеме назначения («500 мг … на 5 мл физ. раствора» — ингаляционный Флуимуцил-антибиотик ИТ)
+  const guess=line&&!pv&&!vtext&&!line.picked?medVariantGuess(line,[m0&&m0.how,m0&&m0.why,m0&&m0.n].filter(Boolean).join(" ")):null;
+  const variant=pv||(line&&line.picked)||guess||null, needVariant=!!line&&!variant&&!vtext;
   const label=line&&(pv||vtext)?`${line.name} · ${pv?pv.name:vtext}`:shownName;
   const mark=needVariant?"Уточните вариант":variant?(variant.is_antibiotic?"антибиотик":variant.class==="муколитик"?"муколитик":""):(medIsAntibiotic(shownName)?"антибиотик":medRefMark(refx));
   return {name:shownName,state,stateText,since,day,courses,hits,conflict,plan,till:(m0&&m0.till)||"",hasMed:!!m0,
@@ -6549,7 +6568,7 @@ async function medOpen(name){
       :`<div class="muted" style="margin-top:6px;font-size:13px">${esc(M.journalText)}</div>`}
     <div id="mInfo" class="muted" style="margin-top:12px">Ищу справку…</div></div>`;
   const box=document.getElementById("mInfo");
-  if(medRefFor(MN)){ const html=await medInfoHtml(MN); if(box) box.outerHTML=html||medNoInfoHtml(MN); return; }       // справочник семьи главнее
+  if(!(M.line&&M.variant)&&medRefFor(MN)){ const html=await medInfoHtml(MN); if(box) box.outerHTML=html||medNoInfoHtml(MN); return; }       // справочник семьи главнее
   if(!window.__MK_KEY){ if(box) box.outerHTML=medNoInfoHtml(MN); return; }
   if(box) box.textContent="Составляем справку…";
   const ref=await medRefGet(medRefReq(MN,M));
@@ -8948,7 +8967,7 @@ function planDraw(){
       ${canCal?`<button type="button" data-plan="cal">В календарь</button>`:""}<button type="button" data-plan="makedoc">Документ для врача</button>
       ${p.id?`<button type="button" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button><button type="button" data-plan="cancel">Отменить визит</button><button type="button" data-plan="delete">Удалить</button>`:""}</div></details>`;
   const sg=PREP.busy?`<p class="hint">Думаем над вопросами…</p>`:PREP.sugs.length?`<div class="prepsug">${PREP.sugs.map((s,i)=>`<div class="prepsug__row"><div><div>${esc(s.q)}</div><div class="muted">${esc(s.basis)}</div></div><button type="button" class="btn btn-secondary" data-prep="take:${i}" aria-label="Добавить вопрос">＋</button></div>`).join("")}
-      <p class="hint">Вопросы по вашим записям. Решает врач</p><button type="button" class="linkbtn" data-prep="more">Ещё 3</button></div>`:PREP.msg?`<p class="hint">${esc(PREP.msg)}</p>`:"";
+      <p class="hint">Вопросы по вашим записям. Решает врач</p><button type="button" class="oclink" data-prep="more">Ещё 3</button></div>`:PREP.msg?`<p class="hint">${esc(PREP.msg)}</p>`:"";
   const more=(p.tests||[]).length||(p.other||[]).length||p.source_name;
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox prep"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
@@ -8960,7 +8979,7 @@ function planDraw(){
       <h3 class="prep-h">Вопросы</h3>
       ${(p.questions||[]).length?(p.questions||[]).map((x,i)=>row("questions",x,i)).join(""):`<p class="hint">Вопросов пока нет. Впишите первый или нажмите «Подсказать вопросы»</p>`}
       ${addRow("questions","новый вопрос")}
-      <button type="button" class="linkbtn" data-prep="suggest">Подсказать вопросы (ИИ-врач) ▸</button>${sg}
+      <button type="button" class="oclink" data-prep="suggest">Подсказать вопросы (ИИ-врач) ▸</button>${sg}
       <details class="ocmore"${more?" open":""}><summary>Дополнить: анализы · что ещё · файл</summary>
         ${list("tests","Какие анализы нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
         ${p.source_name?`<div class="muted" style="margin-top:8px">из файла ${esc(p.source_name)}</div>`:""}
@@ -9939,7 +9958,7 @@ function docForm(opts){
         <p class="hint">Можно надиктовать с клавиатуры</p></div>
       <details class="ocmore"><summary>Дополнить: фото заключения</summary>${pickHtml("docFiles","Фото заключения — до 3")}</details>
       <p class="hint" id="ocEmpty">${outcomeCheck("",0).msg}</p>
-      ${plan?`<p style="margin:6px 0"><button type="button" class="linkbtn" id="ocDone">Только отметить, что состоялся</button></p>`:""}
+      ${plan?`<p style="margin:6px 0"><button type="button" class="oclink" id="ocDone">Только отметить, что состоялся</button></p>`:""}
       <div class="row"><button class="btn btn-primary" id="docGo" disabled>Разобрать</button><button class="btn btn-secondary" data-close>Отмена</button></div>
       <div id="docLog" class="formlog" style="margin-top:28px"></div>
       <div id="docRev"></div></div></div>`
@@ -9972,7 +9991,7 @@ function docForm(opts){
       await entriesPull(); render();
       if(plan) { PLANS=null; plansLoad(true); }
       let vmsg=""; // варианты линейки (ТЗ-046): вторым вызовом, сбой не отменяет запись
-      for(const p of list.filter(p=>p.on&&p.type==="med"&&p.variant)){ const r=await medVariantSave((p.fields||{}).title||"",p.variant); if(!r.ok) vmsg=r.msg; else if(r.saved) medplanLoad(true); }
+      for(const p of list.filter(p=>p.on&&p.type==="med")){ const sel=p.variant||medAutoVariant(p); if(!sel) continue; const r=await medVariantSave((p.fields||{}).title||"",sel); if(!r.ok) vmsg=r.msg; else if(r.saved) medplanLoad(true); }
       // повод приёма (ТЗ-047 блок 2): вторым вызовом, сбой не отменяет приём
       let lmsg="";
       if(O&&res&&plan2.entries[0]&&plan2.entries[0].kind==="visit"){

@@ -23,9 +23,11 @@ header h1{font-size:19px;margin:0;flex:1}
 .muted{color:var(--muted)}
 button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.primary,:root:not([data-theme="light"]) .chips button.on{color:#0b1220}}
+.chips button{min-height:44px;padding:8px 12px}.hints button{min-height:36px}.fixbar button{min-height:44px}.linkq{min-height:44px;padding:10px 4px}
 button:disabled{opacity:.55;cursor:default}
 textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.chips button{font-size:14px;padding:8px 10px}
 .chips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .ask{display:flex;gap:8px;margin-top:8px}
 .ask button{flex:none;padding:10px 18px}
@@ -60,7 +62,7 @@ textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px sol
 .fixhint{background:#fff6e5;border:1px solid #f0d49a;border-radius:10px;padding:8px 10px;font-size:13.5px;margin-top:12px;color:#7a5200}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fixhint{background:#2e2615;border-color:#5b4a22;color:#f0d49a}}
 .linkq{background:none;border:0;padding:0;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;height:auto}
-.fixed{color:var(--ok);font-size:13.5px;font-weight:600}
+.fixed{color:#1f7a4f;font-size:13.5px;font-weight:600}
 .fixform{display:flex;gap:8px;margin-top:8px;width:100%}
 .fixform input{flex:1}
 .q{font-weight:700;margin-bottom:6px}
@@ -80,12 +82,18 @@ let KEY = (() => { try { return localStorage.getItem(KEY_LS) || ""; } catch (e) 
 
 const PEOPLE = [["", "Вся семья"], ["denis", "Денис"], ["anya", "Аня"], ["dima", "Дима"], ["danya", "Даня"]];
 const NAME = Object.fromEntries(PEOPLE);
+const ACC = { denis: "Дениса", anya: "Аню", dima: "Диму", danya: "Даню" };   // «Про Диму вопросов пока нет»
 const KIND = { passport: "паспорт", razbor: "разбор", record: "запись приёма", lab_series: "ряд анализа", series: "ряд",
   symptom: "симптом", episode: "эпизод болезни", task: "дело", med: "препарат", diagnoses: "диагноз", family: "семейный анамнез",
   vac: "прививка", diary: "дневник питания", diet_week: "питание за неделю", body: "замеры тела", history: "история болезней",
   note: "заметка", ref: "справочник", organs: "органы", nutrition: "питание", nutrition_plan: "план питания", recipe: "рецепт" };
-const HINTS = ["Что у Димы с железом?", "Какие анализы пора сдать?", "Что говорили про головные боли Димы?",
-  "Чем лечили Даню от обструкции?", "Что с моей печенью?", "Какие прививки Дане не сделаны?"];
+const HINTS_BY = { "": ["Какие анализы пора сдать?", "Какие прививки не сделаны?", "Какие приёмы были за месяц?"],
+  denis: ["Что с моей печенью?", "Какие анализы мне пора сдать?", "Что назначали на последнем приёме?"],
+  anya: ["Какие анализы мне пора сдать?", "Что назначали на последнем приёме?", "Что у меня с железом?"],
+  dima: ["Что у Димы с железом?", "Что говорили про головные боли Димы?", "Чем лечили Диму на последнем приёме?"],
+  danya: ["Чем лечили Даню от обструкции?", "Какие прививки Дане не сделаны?", "Что назначали Дане на последнем приёме?"] };
+const hintsFor = p => HINTS_BY[p] || HINTS_BY[""];
+const placeholderFor = p => ({ "": "Спросить про семью…", denis: "Спросить про Дениса…", anya: "Спросить про Аню…", dima: "Спросить про Диму…", danya: "Спросить про Даню…" })[p] || "Спросить…";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const ru = d => d ? d.split("-").reverse().join(".") : "";
 const app = document.getElementById("app");
@@ -96,8 +104,23 @@ let busy = false, fixOpen = null;
 let hist = [];
 let uidN = 0;
 const newUid = () => "u" + (++uidN) + Math.random().toString(36).slice(2, 6);
-const fromRow = r => ({ uid: "h" + r.id, parent: null, id: r.id, q: r.question, person: r.person || "", answer: r.answer || null, no_data: !r.answer,
-  sources: r.sources || [], at: r.created_at, flag: r.flag, flag_note: r.flag_note, open: false });
+function fromRow(r) { return ({ uid: "h" + r.id, parent: r.parent_id ? "h" + r.parent_id : null, id: r.id, q: r.question, person: r.person || "", answer: r.answer || null, no_data: !r.answer,
+  sources: r.sources || [], at: r.created_at, flag: r.flag, flag_note: r.flag_note, open: false }); }
+// ТЗ-068: история приходит новыми сверху; сначала по возрастанию id (родитель раньше уточнения), потом — вопросы новые сверху, под каждым его уточнения по порядку
+function askBuildHist(rows) {
+  const asc = (rows || []).filter(askRowOk).slice().sort((a, b) => a.id - b.id).map(fromRow), have = new Set(asc.map(h => h.uid));
+  for (const h of asc) if (h.parent && !have.has(h.parent)) h.parent = null;   // родитель не загружен (старше 50) — карточка самостоятельная
+  const out = [], kids = h => asc.filter(x => x.parent === h.uid);
+  for (const h of asc.filter(x => !x.parent).reverse()) { out.push(h); const walk = n => kids(n).forEach(k => { out.push(k); walk(k); }); walk(h); }
+  return out;
+}
+// запрос истории для выбранного чипа: «Вся семья» — вопросы без человека
+function askHistReq(person) { return { person: person ? person : "_family" }; }
+function askListTitle(person) { return "Прошлые вопросы — " + (NAME[person] || "Вся семья"); }
+// подпись человека в карточке: не из списка — «Другой человек», а не пустая
+function askPersonLabel(p) { return !p ? "Вся семья" : NAME[p] || "Другой человек"; }
+// подсказка «Похоже, в медкнижке этого нет» — один раз на цепочку, под последней карточкой
+function askShowHint(hist, hi) { return askIsLast(hist, hi) && askNeedsFix(hist[hi].answer, hist[hi].sources); }
 // уточнения (Денис, 18.10.2026): цепочка идёт сверху вниз — первый вопрос, под ним уточнения; врач получает последние три пары «вопрос — ответ»
 function askChain(hist, hi) {
   const out = []; let h = hist[hi];
@@ -106,8 +129,13 @@ function askChain(hist, hi) {
 }
 // поле «Уточнить» — только под последним ответом цепочки
 function askIsLast(hist, hi) { const next = hist[hi + 1]; return !(next && next.parent === hist[hi].uid); }
+let histState = "ok", showAll = false;   // ok | loading | error
 async function loadHistory() {
-  try { const r = await api("ask_history"); hist = (r.rows || []).filter(askRowOk).map(fromRow); paint(); } catch (e) { /* без истории страница работает как раньше */ }
+  histState = "loading"; showAll = false; paint();
+  const mine = person;
+  try { const r = await api("ask_history", askHistReq(mine)); if (mine !== person) return; hist = askBuildHist(r.rows || []); histState = "ok"; }
+  catch (e) { if (mine !== person) return; histState = "error"; }
+  paint();
 }
 
 async function api(action, payload = {}, retry = true) {
@@ -161,9 +189,9 @@ function view() {
   <header><h1>Спросить медкнижку</h1></header>
   ${KEY ? `<div class="card">
     <div class="chips" id="ppl">${PEOPLE.map(([k, n]) => `<button data-p="${k}" class="${k === person ? "on" : ""}">${n}</button>`).join("")}</div>
-    <textarea id="q" rows="2" placeholder="Например: что у Димы с ферритином и что уже пробовали?"></textarea>
+    <textarea id="q" rows="2" placeholder="${esc(placeholderFor(person))}"></textarea>
     <div class="ask"><button class="primary" id="go" style="flex:1">Спросить</button></div>
-    ${hist.some(h => h.open) ? "" : `<div class="hints">${HINTS.map(h => `<button data-h="${esc(h)}">${esc(h)}</button>`).join("")}</div>`}
+    ${hist.some(h => h.open) ? "" : `<div class="hints">${hintsFor(person).map(h => `<button data-h="${esc(h)}">${esc(h)}</button>`).join("")}</div>`}
     <div class="note">Отвечает по вашим записям: паспорта здоровья, разборы, приёмы, анализы, симптомы, питание.
       Общих медицинских советов не даёт и диагнозов не ставит — под ответом всегда видно, из каких записей он собран.</div>
   </div>
@@ -174,8 +202,10 @@ function view() {
   if (!KEY) { document.getElementById("kgo").onclick = () => {
       const v = document.getElementById("kc").value.trim().replace(/^.*[?&]k=/, "").replace(/[&#].*$/, "");
       if (!v) return; try { localStorage.setItem(KEY_LS, v); } catch (e) {} KEY = v; view(); }; return; }
-  document.getElementById("ppl").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return;
-    person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); tellPerson(); };
+  document.getElementById("ppl").onclick = e => { const b = e.target.closest("[data-p]"); if (!b || busy) return;
+    person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); tellPerson(); loadHistory();
+    document.getElementById("q").placeholder = placeholderFor(person);
+    const hs = document.querySelector(".hints"); if (hs) { hs.innerHTML = hintsFor(person).map(h => `<button data-h="${esc(h)}">${esc(h)}</button>`).join(""); } };
   const q = document.getElementById("q");
   if (qs.get("q") && !q.value) q.value = qs.get("q").slice(0, 300);
   document.getElementById("go").onclick = () => ask(q.value.trim());
@@ -203,7 +233,7 @@ function card(h, hi) {
   const fixUi = !h.id || h.error ? "" : flagged
     ? `<div class="fixbar"><span class="fixed">📌 отмечено — поправим</span>${h.flag_note ? `<span class="muted" style="font-size:13px">«${esc(h.flag_note)}»</span>` : ""}
         <button data-unfix="${hi}">Снять отметку</button></div>`
-    : `${askNeedsFix(h.answer, h.sources) ? `<div class="fixhint">Похоже, в медкнижке этого нет. Отметить, чтобы поправили?</div>` : ""}
+    : `${askShowHint(hist, hi) ? `<div class="fixhint">Похоже, в медкнижке этого нет</div>` : ""}
        <div class="fixbar">${fixOpen === hi
          ? `<div class="fixform"><input id="fixnote" placeholder="Что не так или чего не хватает (необязательно)"><button class="primary" data-fixgo="${hi}">Отметить</button></div>`
          : askCanFix(h) ? `<button data-fix="${hi}">📌 Поправить медкнижку</button>` : `<button class="linkq" data-fix="${hi}">Ответ неверный или неполный?</button>`}</div>`;
@@ -211,7 +241,7 @@ function card(h, hi) {
     ? `<div class="fu-box"><textarea data-fuq="${hi}" rows="2" placeholder="Уточнить: задайте вопрос по этому ответу"></textarea>
         <button class="primary" data-fugo="${hi}"${busy ? " disabled" : ""}>Спросить</button></div>` : "";
   return `<div class="card${h.open ? "" : " closed"}${h.parent ? " fu" : ""}" data-card="${hi}">
-    <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person && NAME[h.person] ? ` <span class="muted" style="font-weight:400">· ${esc(NAME[h.person])}</span>` : ""}
+    <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person ? ` <span class="muted" style="font-weight:400">· ${esc(askPersonLabel(h.person))}</span>` : ""}
       ${h.at ? `<span class="qdate">· ${esc(ru(String(h.at).slice(0, 10)))}</span>` : ""}${flagged && !h.open ? ' <span class="fixed" style="font-size:12px">📌</span>' : ""}</div>
     <div class="body-a">
     ${h.error ? `<div class="err">${esc(h.error)}</div>`
@@ -228,10 +258,15 @@ function paint() {
   const out = document.getElementById("out"); if (!out) return;
   out.innerHTML = (busy ? `<div class="card"><div class="q">${esc(busy)}</div><div class="spin"></div>
       <div class="muted" style="text-align:center">Ищу в медкнижке и собираю ответ…</div></div>` : "")
-    + (!busy && !hist.length ? `<div class="past">Прошлые вопросы</div><div class="muted" style="padding:0 2px">Здесь появятся ваши вопросы.</div>` : "")
-    + hist.map((h, hi) => (hi === hist.findIndex(x => !x.open) && hist.some(x => !x.open) ? `<div class="past">Прошлые вопросы</div>` : "") + card(h, hi)).join("");
+    + (histState === "loading" ? `<div class="past">${esc(askListTitle(person))}</div><div class="muted" style="padding:0 2px">Открываем вопросы…</div>` : "")
+    + (histState === "error" ? `<div class="past">${esc(askListTitle(person))}</div><div class="muted" style="padding:0 2px">Не получилось открыть вопросы. <button class="linkq" id="histretry">Повторить</button></div>` : "")
+    + (histState === "ok" && !busy && !hist.length ? `<div class="past">${esc(askListTitle(person))}</div><div class="muted" style="padding:0 2px">${esc(person ? "Про " + (ACC[person] || "этого человека") + " вопросов пока нет" : "Про всю семью вопросов пока нет")}</div>` : "")
+    + (histState === "ok" ? hist.map((h, hi) => ({ h, hi })).filter(x => showAll || x.hi < 10 || x.h.open).map(({ h, hi }) => (hi === hist.findIndex(x => !x.open) && hist.some(x => !x.open) ? `<div class="past">${esc(askListTitle(person))}</div>` : "") + card(h, hi)).join("")
+        + (!showAll && hist.length > 10 && hist.slice(10).some(x => !x.open) ? `<button class="linkq" id="histmore" style="margin:8px 2px">Ещё ${hist.length - 10}</button>` : "") : "");
   out.onkeydown = e => { const t = e.target; if (t && t.dataset && t.dataset.fuq !== undefined && e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); followUp(+t.dataset.fuq); } };
   out.onclick = async e => {
+    if (e.target.id === "histretry") { loadHistory(); return; }
+    if (e.target.id === "histmore") { showAll = true; paint(); return; }
     const fg = e.target.closest("[data-fugo]"); if (fg) { followUp(+fg.dataset.fugo); return; }
     const tg = e.target.closest("[data-toggle]");
     if (tg && tg.closest(".card.closed")) { hist[+tg.dataset.toggle].open = true; paint(); return; }
@@ -265,11 +300,11 @@ async function ask(q, parent) {
   const item = { uid: newUid(), parent: parent ? parent.uid : null, q, person: who, open: true, at: new Date().toISOString() };
   // уточнение: врач видит предыдущие вопросы и ответы, а поиск по медкнижке идёт по вопросу вместе с прежним
   const history = parent ? askChain(hist, hist.indexOf(parent)) : [];
-  try { const r = await api("ask", { question: q, person: who || null, mode: "doctor", general: true, search: parent ? parent.q + " " + q : q, prefer_kind: ["razbor", "passport"], ...(history.length ? { history } : {}) });
+  try { const r = await api("ask", { question: q, person: who || null, mode: "doctor", general: true, search: parent ? parent.q + " " + q : q, prefer_kind: ["razbor", "passport"], ...(history.length ? { history } : {}), ...(parent && parent.id ? { parent_id: parent.id } : {}) });
     Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data }); }
   catch (e) { item.error = e.message; }
   busy = false; fixOpen = null;
-  if (parent) hist.splice(hist.indexOf(parent) + 1, 0, item); else hist.unshift(item);   // уточнение — сразу под вопросом, к которому относится
+  if (who === person || parent) { if (parent) hist.splice(hist.indexOf(parent) + 1, 0, item); else hist.unshift(item); }   // уточнение — сразу под вопросом, к которому относится
   paint();
   if (!KEY) view();
 }
