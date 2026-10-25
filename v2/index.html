@@ -107,6 +107,7 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .meddone{margin-top:12px}.meddone summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
 .hill{border-top:1px solid var(--line,#e5e7eb);padding:0}.hill>summary{min-height:44px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer;padding:6px 0}.hill>summary{list-style:none}.hill>summary::-webkit-details-marker{display:none}.hill>summary::after{content:"▸";margin-left:auto;color:var(--muted)}.hill[open]>summary::after{content:"▾"}.hill__t{display:flex;flex-direction:column;gap:2px;min-width:0}.hill__b .eplink,.hill__b .editep{min-height:44px;display:inline-flex;align-items:center}.hill__b .editep{min-width:44px;justify-content:center}.hill__b .ep-off{min-height:44px}
 .hill__b{padding:0 0 10px;display:grid;gap:6px}.hill__v{cursor:pointer;min-height:32px;color:var(--muted)}.hfree{min-height:44px;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--line,#e5e7eb);cursor:pointer}.hfree__h{margin:14px 0 4px;font-size:14px}.hfilt .tab--sm{font-size:14px;padding:6px 12px}
+.lrow{display:flex;align-items:center;gap:8px;min-height:52px;border-top:1px solid var(--line)}.lrow:first-of-type{border-top:0}.lrow__n{flex:1;min-width:0}.lmv{min-width:44px;min-height:44px;border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer}.lsw{position:relative;display:inline-flex;min-width:56px;min-height:44px;align-items:center;justify-content:center;cursor:pointer}.lsw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}.lsw__t{width:46px;height:26px;border-radius:13px;background:var(--line);position:relative;transition:background .15s}.lsw__t::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .15s}.lsw input:checked+.lsw__t{background:var(--accent)}.lsw input:checked+.lsw__t::after{left:23px}.lsw input:disabled+.lsw__t{opacity:.5}.lsw input:focus-visible+.lsw__t{outline:2px solid var(--accent);outline-offset:2px}.lsetrow{display:flex;justify-content:flex-end}.lset{min-height:44px;padding:0 4px}.lhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}.lhead h2{margin:0;font-size:20px;text-transform:none;color:var(--ink)}@media (prefers-reduced-motion:reduce){.lsw__t,.lsw__t::after{transition:none}}
 .medref .mrsec{margin:8px 0}.medref .mrl{margin:4px 0 0;padding-left:20px}.medref [hidden]{display:none!important}.mrprice{margin-top:12px}.mrprice summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.mrprice input{min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 10px;font:inherit}.mrprice .btn{min-height:44px}.medref [data-mrmore]{min-height:44px}.mrprice .mrp{display:block;margin-top:2px}
 #mMark[hidden]{display:none}
 .mvbox{margin:8px 0 4px}.mvbox [hidden]{display:none!important}
@@ -2073,6 +2074,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
       <div class="menu-head"><span class="avatar avatar--lg" id="pmAv" style="cursor:default">?</span><div><b id="pmName">Профиль</b><span id="pmSub"></span></div></div>
       <div class="menu-sep"></div>
       <button class="menu-item" data-pm="profile" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-profile"/></svg></span>Мой профиль</button>
+      <button class="menu-item" data-pm="layout" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></span>Настроить главную</button>
       <button class="menu-item" data-pm="family" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-family"/></svg></span>Семья<span class="menu-item__cnt" id="pmCnt"></span></button>
       <button class="menu-item" data-pm="dx" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-illness"/></svg></span>Здоровье: диагнозы и анамнез</button>
       <button class="menu-item" data-pm="dms" type="button"><span class="menu-item__ic"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span>ДМС и клиники</button>
@@ -2531,7 +2533,7 @@ function legacyTab(t){
   if(t==="ins") return {page:"profile",sub:"insights"};
   if(t==="cal") return {page:"home",sub:"cal"};
   if(t==="nutr"||t==="diary") return {page:"nutr",sub:"today"};
-  if(["home","ask","sys","task"].includes(t)) return {page:t};
+  if(["home","ask","sys","task","layout"].includes(t)) return {page:t};
   return {page:"home"};
 }
 function profTabs(){ return [["hp","Профиль здоровья"],["chk","Чекапы"],["razb","Разборы"],["dms","ДМС"],["stor","Хранение данных"],["todo","Все дела"],["dx","Диагнозы"],["anam","Анамнез"],["ins","Выводы"],["hist","История добавлений"]]; }
@@ -3293,6 +3295,7 @@ function qdChipsHtml(inputId,base,val){
   return `<div class="qd-row" data-qd-for="${inputId}" data-qd-base="${base}">`+quickDates(base,val||"").map(c=>`<button type="button" class="dz-chip qd-chip${c.on?" is-on":""}" data-qd="${c.iso}" aria-pressed="${c.on}">${c.label}</button>`).join("")+`</div>`;
 }
 function qdSync(row){ const inp=document.getElementById(row.dataset.qdFor); if(!inp) return; row.querySelectorAll("[data-qd]").forEach(b=>{ const on=b.dataset.qd===inp.value; b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); }); }
+document.addEventListener("change",e=>{ const sw=e.target&&e.target.closest&&e.target.closest("[data-lsw]"); if(sw) layoutToggle(sw.dataset.lsw,sw.checked); });
 document.addEventListener("toggle",e=>{ const dt=e.target; if(dt&&dt.dataset&&dt.dataset.hopen){ if(dt.open) histOpen=dt.dataset.hopen; else if(histOpen===dt.dataset.hopen) histOpen=null;
   try{ if(typeof NAV!=="undefined"&&!NAV.modal&&!(history.state&&history.state.modal)){ history.replaceState({mk:navSnap()},""); NAV.last=JSON.stringify(navSnap()); } }catch(er){} } },true);
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-qd]"); if(!b) return; const row=b.closest("[data-qd-for]"), inp=row&&document.getElementById(row.dataset.qdFor); if(!inp) return;
@@ -4053,7 +4056,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 23:44";   // подставляется при публикации
+const BUILD="26.10 00:12";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4949,10 +4952,15 @@ async function qFlush(){
 function ovLoad(){ try{ const o=JSON.parse(localStorage.getItem(OVKEY)||'{}'); o.ren=o.ren||{}; o.add=o.add||[]; o.eps=o.eps||[]; return o; }catch(e){ return {ren:{},add:[],eps:[]}; } }
 function ovSave(o){ try{ localStorage.setItem(OVKEY,JSON.stringify(o)); }catch(e){} }
 function ovRename(epId,name){ const o=ovLoad(); o.ren[epId]=name; ovSave(o); ovApply(); }
-function ovAdd(rec){ const o=ovLoad(); o.add.push(rec); ovSave(o); ovApply(); }
+// добавленная запись помнит, сколько записей с тем же днём, названием и поводом уже было в журнале (nb): вторая запись того же симптома за день — не дубль первой (ошибка 25.10.2026)
+function ovAdd(rec){ const o=ovLoad(); const S=(DATA[rec.who]||{}).sym||{}; rec.t=rec.t||Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  if(rec.nb==null) rec.nb=(S.log||[]).filter(x=>!x.pending&&x.d===rec.d&&x.n===rec.n&&(x.p||"")===(rec.p||"")).length;
+  o.add.push(rec); ovSave(o); ovApply(); }
 function ovNewEp(rec){ const o=ovLoad(); o.eps.push(rec); ovSave(o); ovApply(); }
 
-function addKey(a){ return [a.who,a.d,a.n,a.p||""].join("|"); }
+function addKey(a){ return [a.who,a.d,a.n,a.p||"",a.t||""].join("|"); }
+// запись с телефона уже «доехала» в медкарту: в журнале записей с таким днём, названием и поводом не меньше, чем было до неё (nb) плюс она сама (k-я среди добавленных с тем же ключом)
+function addDelivered(log,a,k){ const have=(log||[]).filter(x=>!x.pending&&x.d===a.d&&x.n===a.n&&(x.p||"")===(a.p||"")).length; return have>=(a.nb||0)+k; }
 function addFind(key){ const o=ovLoad(); const i=(o.add||[]).findIndex(a=>addKey(a)===key); return {o,i}; }
 
 function ovApply(){
@@ -4983,11 +4991,13 @@ function ovApply(){
     S.ep.sort((x,y)=>y.d1.localeCompare(x.d1));
     return true;
   });
+  const addSeen={};
   o.add=(o.add||[]).filter(a=>{
     const S=(DATA[a.who]||{}).sym; if(!S) return false;
+    const sk=[a.who,a.d,a.n,a.p||""].join("|"), kk=(addSeen[sk]=(addSeen[sk]||0)+1);
     // запись с таким названием могла быть переименована правкой («Насморк» → «Кашель, сопли» в одной форме): тогда она не дубль
     const renamed=(o.recEdits||[]).some(x=>x.who===a.who&&x.rec&&x.key&&x.key.d===a.d&&x.key.n===a.n&&(x.key.p||"")===(a.p||"")&&x.rec.n!==a.n);
-    if(!renamed&&(S.log||[]).some(x=>x.d===a.d&&x.n===a.n&&(x.p||"")===(a.p||""))){ dirty=true; return false; }
+    if(!renamed&&addDelivered(S.log,a,kk)){ dirty=true; return false; }
     S.log.push({d:a.d,n:a.n,sys:a.sys||"other",i:a.i??null,v:null,u:"",
       f:a.f||"",m:a.m||"",h:"",p:a.p||"",pending:1,aid:addKey(a)});
     S.log.sort((x,y)=>y.d.localeCompare(x.d));
@@ -8011,10 +8021,81 @@ function homeOrder(ids,saved,defaults){
   return [...out,...rest.filter(x=>!out.includes(x))];
 }
 // html главной с метками <!--B:id--> → блоки в нужном порядке, у каждого ручка «⠿» для перетаскивания; пустые блоки пропускаются
-function homeAssemble(html,saved,key,defaults){
+function homeAssemble(html,saved,key,defaults,hidden){
   const parts=String(html).split(/<!--B:(\w+)-->/), head=parts[0], by={};
   for(let i=1;i<parts.length;i+=2) by[parts[i]]=parts[i+1];
-  return head+homeOrder(Object.keys(by),saved,defaults).filter(id=>by[id].trim()).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>${by[id]}</div>`).join("");
+  const full=homeOrder(Object.keys(by),saved,defaults).filter(id=>by[id].trim());
+  if(key===undefined&&typeof window!=="undefined"){ window.__homeAll=full.slice(); window.__homeAllFor=typeof cur!=="undefined"?cur:""; }   // что на главной есть вообще: из этого строится экран «Настроить главную»
+  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>${by[id]}</div>`).join("");
+}
+// ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
+// Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
+const LAYOUT_OLD={diary:"track",body:"meas",bp:"meas"}, LAYOUT_PAGE={track:["diary","track"],meas:["body","bp","meas"]};
+const LAYOUT_NAMES={todo:"План здоровья",track:"Слежу",meas:"Замеры",watch:"Ключевые показатели",changes:"Что изменилось",now:"Сейчас",hp:"Профиль здоровья",kpi:"Карточка здоровья",reg:"Регулярные визиты",rzrec:"Советы по разборам",system:"Система",plan:"План на ближайшее",signal:"Пора к врачу"};
+const layoutCat=id=>LAYOUT_OLD[id]||id;
+let LAYOUT={}, LAYOUTLOADED={};
+try{ LAYOUT=JSON.parse(localStorage.getItem("mk_layout")||"{}")||{}; }catch(e){ LAYOUT={}; }
+const layoutCache=()=>{ try{ localStorage.setItem("mk_layout",JSON.stringify(LAYOUT)); }catch(e){} };
+// порядок блоков с учётом скрытых: сохранённый, затем новые; hidden выбрасывается (нет раскладки — всё по умолчанию)
+function layoutApply(ids,layout,defaults){
+  const L=layout||{}, hid=L.hidden||[];
+  return homeOrder(ids,L.order||[],defaults).filter(x=>!hid.includes(x));
+}
+// раскладка → id блоков страницы (track = diary до ТЗ-050 блока 2, meas = body и bp до ТЗ-056)
+function layoutForPage(layout){
+  const ex=a=>(a||[]).flatMap(x=>LAYOUT_PAGE[layoutCat(x)]||[x]);
+  return {order:layout&&(layout.order||[]).length?ex(layout.order):null, hidden:ex(layout&&layout.hidden)};
+}
+function layoutFromPage(ids){ return [...new Set((ids||[]).map(layoutCat))]; }
+async function layoutSave(p,patch){
+  const prev=LAYOUT[p]||null, next=Object.assign({order:[],hidden:[]},prev||{},patch||{});
+  Object.keys(next).forEach(k=>{ if(next[k]===undefined) delete next[k]; });
+  LAYOUT[p]=next; layoutCache();
+  if(!window.__MK_KEY) return {ok:true,local:true};
+  try{ const j=await mkApi("layout_set",{person:p,layout:next}); if(j.layout){ LAYOUT[p]=j.layout; layoutCache(); } return {ok:true}; }
+  catch(e){ if(prev) LAYOUT[p]=prev; else delete LAYOUT[p]; layoutCache(); return {ok:false}; }
+}
+// при открытии главной: раскладка с сервера; если её нет, а на этом устройстве был порядок блоков — переносим его на сервер и убираем старый ключ
+function layoutLoad(p){
+  if(!window.__MK_KEY||LAYOUTLOADED[p]) return; LAYOUTLOADED[p]=1;
+  mkApi("layout_get",{person:p}).then(async j=>{
+    if(j.layout){ LAYOUT[p]=j.layout; layoutCache(); if(tab==="home"||tab==="layout") render(); return; }
+    let old=[]; try{ old=JSON.parse(localStorage.getItem("mk_homeorder")||"[]")||[]; }catch(e){}
+    if(Array.isArray(old)&&old.length){ const r=await layoutSave(p,{order:layoutFromPage(old)}); if(r.ok){ try{ localStorage.removeItem("mk_homeorder"); }catch(e){} if(tab==="home") render(); } }
+  }).catch(()=>{ LAYOUTLOADED[p]=0; });
+}
+// порядок блоков главной после перетаскивания или «выше / ниже»: на сервер; без входа по коду — как раньше, на устройстве
+function homeOrderSave(ids,key){
+  if(key||!window.__MK_KEY){ try{ localStorage.setItem(key||ORDK,JSON.stringify(ids)); }catch(x){} return; }
+  const vis=layoutFromPage(ids), hid=(LAYOUT[cur]&&LAYOUT[cur].hidden)||[];
+  layoutSave(cur,{order:[...vis,...hid.filter(x=>!vis.includes(x))]}).then(r=>{ if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); });
+}
+// список для экрана «Настроить главную»: блоки, у которых на главной есть что показать, и скрытые; todo всегда
+function layoutRows(d,layout,pageIds){
+  const L=layout||{}, hid=(L.hidden||[]).map(layoutCat), have=[...new Set((pageIds||[]).map(layoutCat))];
+  const ids=[...new Set(["todo",...have,...hid])];
+  const order=layoutApply(ids,{order:(L.order||[]).map(layoutCat),hidden:hid.filter(x=>x!=="todo")});
+  return [...order.map(id=>({id,on:true,fixed:id==="todo"})),...hid.filter(x=>ids.includes(x)&&x!=="todo").map(id=>({id,on:false,fixed:false}))];
+}
+function layoutScreenHtml(d){
+  const L=LAYOUT[cur]||null, pageIds=window.__homeAllFor===cur?window.__homeAll:["todo","watch","hp"], rows=layoutRows(d,L,pageIds);
+  const onN=rows.filter(r=>r.on).length;
+  return `<div class="lhead"><h2>Главная · ${esc(d.short||d.name)}</h2><button type="button" class="btn btn-primary" data-lready="1" style="min-height:44px">Готово</button></div>
+    <div class="card"><h2>Что показывать</h2>
+      ${onN<=1?`<p class="muted" style="margin:0 0 8px">На главной только план здоровья.</p>`:""}
+      ${rows.map(r=>`<div class="lrow" data-lrow="${esc(r.id)}"><span class="lrow__n">${esc(LAYOUT_NAMES[r.id]||r.id)}${r.fixed?' <span class="muted">· всегда</span>':""}</span>
+        ${r.on&&!r.fixed?`<button type="button" class="lmv" data-lmove="up" data-lid="${esc(r.id)}" aria-label="Выше">▲</button><button type="button" class="lmv" data-lmove="down" data-lid="${esc(r.id)}" aria-label="Ниже">▼</button>`:""}
+        <label class="lsw"><input type="checkbox" role="switch" data-lsw="${esc(r.id)}"${r.on?" checked":""}${r.fixed?" disabled":""} aria-label="${esc(LAYOUT_NAMES[r.id]||r.id)}"><span class="lsw__t"></span></label></div>`).join("")}
+      <div style="margin-top:12px"><button type="button" class="btn btn-secondary" data-lreset="1" style="min-height:44px">Вернуть как было</button></div></div>`;
+}
+async function layoutToggle(id,on){
+  const L=LAYOUT[cur]||{order:[],hidden:[]}, hid=(L.hidden||[]).map(layoutCat).filter(x=>x!==id);
+  const r=await layoutSave(cur,{hidden:on?hid:[...hid,id]}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render();
+}
+async function layoutMove(id,dir){
+  const rows=layoutRows(DATA[cur],LAYOUT[cur],window.__homeAllFor===cur?window.__homeAll:null).filter(r=>r.on).map(r=>r.id), next=moveInOrder(rows,id,dir);
+  const hid=((LAYOUT[cur]&&LAYOUT[cur].hidden)||[]).map(layoutCat);
+  const r=await layoutSave(cur,{order:[...next,...hid.filter(x=>!next.includes(x))]}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render();
 }
 // ── Главная (ТЗ-011 блоки 4, 8): что делать · за чем следим · что изменилось · что сейчас
 // Аллергия: что показали анализы. Аллерген — из названия «IgE специфический к …»: IgE выше нормы — реагирует, в норме — не реагирует.
@@ -8246,7 +8327,7 @@ document.addEventListener("pointerdown",e=>{
   // у края экрана страница сама прокручивается — иначе на телефоне блок не дотащить до дальнего места
   scroller=setInterval(()=>{ const bb=document.getElementById("bottombar"), bh=bb&&getComputedStyle(bb).position==="fixed"?bb.offsetHeight:0; if(y<90) window.scrollBy(0,-14); else if(y>innerHeight-90-bh) window.scrollBy(0,14); },16);
   const stop=save=>{ clearInterval(scroller); document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); document.removeEventListener("pointercancel",cancel); window.removeEventListener("blur",cancel); blk.classList.remove("hdragging");
-    if(save){ try{ localStorage.setItem(blk.dataset.ord||ORDK,JSON.stringify([...box.querySelectorAll(":scope > .hblk")].map(x=>x.dataset.blk))); }catch(x){} } };
+    if(save) homeOrderSave([...box.querySelectorAll(":scope > .hblk")].map(x=>x.dataset.blk),blk.dataset.ord); };
   const up=()=>stop(true), cancel=()=>stop(true);
   document.addEventListener("pointermove",move); document.addEventListener("pointerup",up); document.addEventListener("pointercancel",cancel); window.addEventListener("blur",cancel);
 });
@@ -8257,7 +8338,7 @@ document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest("[data-hmove]"); if(!b) return;
   const blk=b.closest(".hblk"), box=blk.parentElement, ids=[...box.querySelectorAll(":scope > .hblk")].map(x=>x.dataset.blk), next=moveInOrder(ids,blk.dataset.blk,b.dataset.hmove);
   next.forEach(id=>box.appendChild(box.querySelector(`:scope > .hblk[data-blk="${id}"]`)));
-  try{ localStorage.setItem(blk.dataset.ord||ORDK,JSON.stringify(next)); }catch(x){}
+  homeOrderSave(next,blk.dataset.ord);
   blk.scrollIntoView({block:"nearest",behavior:"smooth"});
 });
 const TSK="mk_taskst";
@@ -9625,7 +9706,7 @@ document.addEventListener("click",async e=>{
   if(u){ confirmDel("Отвязать? Войти этим способом больше не получится, ссылка с кодом останется.",async()=>{ try{ await window.__MK_AUTH("unlink",{provider:u.dataset.lmun}); }catch(err){ toast("Не получилось, попробуйте ещё раз"); } loginMethods(); }); }
 });
 // куда ведёт пункт меню профиля: вкладка или null (выход и смена темы — не вкладки)
-function pmTab(k){ return (k==="logout"||k==="theme"||k==="signin")?null:(k==="dx"||k==="doc"||k==="dms")?k:"prof"; }
+function pmTab(k){ return (k==="logout"||k==="theme"||k==="signin")?null:(k==="dx"||k==="doc"||k==="dms"||k==="layout")?k:"prof"; }
 function pmToggle(on){ const m=document.getElementById("profile-menu"), a=document.getElementById("avatar"); if(!m) return; m.hidden=!on; a.setAttribute("aria-expanded",on?"true":"false"); }
 function themeApply(t){ const r=document.documentElement; if(t==="dark"||t==="light") r.dataset.theme=t; else delete r.dataset.theme; }
 function themeToggle(){
@@ -11569,8 +11650,10 @@ function render(){
     const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
+    layoutLoad(cur); const LP=layoutForPage(LAYOUT[cur]);
     m.innerHTML=homeAssemble(`
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2></div>
+    <div class="lsetrow"><button type="button" class="linkbtn lset" data-layout="1">Настроить главную</button></div>
     <!--B:body-->${d.nutrition?weightBlock(d):""}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
@@ -11604,8 +11687,10 @@ function render(){
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
       :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}
-    <!--B:reg-->${regCard(d,plans,today)}`,homeOrderLoad(),undefined,{diary:"todo"});
+    <!--B:reg-->${regCard(d,plans,today)}`,LP.order||homeOrderLoad(),undefined,{diary:"todo"},LP.hidden);
   }
+
+  else if(tab==="layout"){ layoutLoad(cur); m.innerHTML=layoutScreenHtml(d); }   // «Настроить главную» (ТЗ-053 блок 1)
 
   else if(tab==="meds"){ m.innerHTML=medsScreenHtml(d,localDay()); }   // «Лекарства» (ТЗ-044 блок 1)
 
@@ -12504,6 +12589,10 @@ document.addEventListener("click",e=>{
   const mrr=e.target.closest("[data-medrefretry]"); if(mrr){ medOpen(mrr.dataset.medrefretry); return; }
   const mdc=e.target.closest("[data-mdecline],[data-mundecline]"); if(mdc){ e.stopPropagation(); medDeclineClick(mdc.dataset.mdecline||mdc.dataset.mundecline,mdc.dataset.mdecline!=null); return; }
   const mst0=e.target.closest("[data-mstart]"); if(mst0){ e.stopPropagation(); medStartNow(mst0.dataset.mstart); return; }
+  const lset=e.target.closest("[data-layout]"); if(lset){ goTab("layout"); render(); window.scrollTo({top:0}); return; }
+  const lrd=e.target.closest("[data-lready]"); if(lrd){ goTab("home"); render(); window.scrollTo({top:0}); return; }
+  const lmv=e.target.closest("[data-lmove]"); if(lmv){ layoutMove(lmv.dataset.lid,lmv.dataset.lmove); return; }
+  const lrs=e.target.closest("[data-lreset]"); if(lrs){ layoutSave(cur,{order:[],hidden:[],health_fields:undefined}).then(r=>{ if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); }); return; }
   const msc=e.target.closest("[data-mpscheme]"); if(msc){ medSchemeSave(window.__medOpenName); return; }
   const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
     const st=(document.getElementById("mpStart")||{}).value||"", sp=now?localDay():((document.getElementById("mpStop")||{}).value||"");
