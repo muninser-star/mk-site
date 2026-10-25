@@ -101,6 +101,10 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .striprow .nm:hover{color:var(--accent)}
 .axis{display:flex;gap:2px;font-size:10px;color:var(--muted)}
 .axis span{width:11px;flex:0 0 auto;text-align:center}
+.mvbox{margin:8px 0 4px}
+.mvq{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.mvbox .vsw button{min-height:44px}
+.mvtext{width:100%;box-sizing:border-box;margin:0 0 8px}
 .vsw{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 12px}
 .vsw button{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;
   padding:6px 13px;font:inherit;font-size:13px;cursor:pointer}
@@ -3972,7 +3976,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 14:16";   // подставляется при публикации
+const BUILD="25.10 14:43";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6258,6 +6262,71 @@ async function medInfoHtml(name){
 }
 // ── Карточка лекарства (ТЗ-010 блок 15): одна на ленту, «Принимает сейчас», болезнь и журнал
 function medKeyOf(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").trim().split(/[^a-zа-я0-9-]+/)[0]; }
+// ── Уточнение варианта линейки (ТЗ-046): «Гербион» — сироп подорожника, первоцвета или плюща. Справочник тот же, что в базе (med_lines)
+function medLines(){ return [
+  {key:"гербион",name:"Гербион",variants:[
+    {key:"podorozhnik",name:"сироп подорожника",class:"от сухого кашля",is_antibiotic:false},
+    {key:"pervocvet",name:"сироп первоцвета",class:"отхаркивающее",is_antibiotic:false},
+    {key:"plyushch",name:"сироп плюща",class:"отхаркивающее",is_antibiotic:false}]},
+  {key:"флуимуцил",name:"Флуимуцил",variants:[
+    {key:"acetylcysteine",name:"ацетилцистеин (муколитик)",class:"муколитик",is_antibiotic:false},
+    {key:"antibiotic-it",name:"антибиотик ИТ",class:"антибиотик",is_antibiotic:true}]}
+]; }
+// название совпало с линейкой → {key,name,variants,picked}; picked — вариант, уже названный в самом названии (самый длинный из подошедших)
+function medLineOf(name){
+  const key=medKeyOf(name), n=String(name||"").toLowerCase().replace(/ё/g,"е");
+  const line=medLines().find(l=>key===l.key||key.startsWith(l.key+"-")); if(!line) return null;
+  const hit=line.variants.filter(v=>n.includes(v.name.toLowerCase().replace(/ё/g,"е"))).sort((a,b)=>b.name.length-a.name.length)[0]||null;
+  return {key:line.key,name:line.name,variants:line.variants,picked:hit};
+}
+// один вопрос с кнопками-вариантами; sel — выбор {variant}|{other,text}|{unknown}; ctx: form (форма лекарства) / doc (экран проверки) / card (карточка)
+function medVariantHtml(name,sel,ctx){
+  const L=medLineOf(name); if(!L||L.picked) return "";
+  sel=sel||{}; ctx=ctx||"form";
+  const other=!!(sel.other||sel.text!=null);
+  const btn=(k,t,on)=>`<button type="button" data-mvar="${esc(k)}" class="${on?"on":""}">${esc(t)}</button>`;
+  return `<div class="mvbox" data-mvbox="${ctx}" data-mvname="${esc(name)}"><div class="mvq">${ctx==="card"?"Уточните вариант: какой":"Какой"} ${esc(L.name)}?</div>
+    <div class="vsw mvsw">${L.variants.map(v=>btn(v.key,v.name.charAt(0).toUpperCase()+v.name.slice(1),sel.variant===v.key)).join("")}${btn("other","Другое…",other)}${ctx==="card"?"":btn("","Не знаю",!!sel.unknown)}</div>
+    <input class="mvtext" maxlength="80" placeholder="Например, с мёдом (необязательно)" aria-label="Какой именно, необязательно" value="${esc(sel.text||"")}"${other?"":" hidden"}>${ctx==="card"?`<button type="button" class="btn btn-secondary mvok" data-mvsave${other?"":" hidden"}>Готово</button>`:""}</div>`;
+}
+// сохранить выбор: второй вызов после записи лекарства. «Не знаю» и пустое «Другое» ничего не пишут; сбой не теряет лекарство
+async function medVariantSave(name,choice,api){
+  const c=choice||{}, key=medKeyOf(name), a=api||mkApi;
+  const payload=c.variant?{person:cur,key,variant:c.variant}:(c.text&&String(c.text).trim()?{person:cur,key,variant_text:String(c.text).trim().slice(0,80)}:null);
+  if(!payload) return {ok:true,saved:false};
+  try{ await a("med_plan_set",payload); return {ok:true,saved:true}; }
+  catch(e){ return {ok:false,msg:"Вариант не сохранился. Лекарство добавлено, уточните позже"}; }
+}
+// клик по кнопке варианта: подсветка, поле «Другое», запоминание выбора (форма — в window.__mvChoice, экран проверки — событием mvchoice, карточка — сразу в базу)
+function medVarClick(btn){
+  const box=btn.closest("[data-mvbox]"); if(!box) return;
+  const ctx=box.dataset.mvbox, t=box.querySelector(".mvtext"), ok=box.querySelector("[data-mvsave]");
+  if(btn.dataset.mvsave!==undefined){ const text=((t&&t.value)||"").trim(); if(text) medCardVariant(box.dataset.mvname,{text}); return; }
+  const k=btn.dataset.mvar;
+  box.querySelectorAll("[data-mvar]").forEach(x=>x.classList.toggle("on",x===btn));
+  if(t) t.hidden=k!=="other"; if(ok) ok.hidden=k!=="other";
+  if(k==="other"&&t) t.focus();
+  const choice=k==="other"?{other:true,text:t?t.value:""}:k===""?{unknown:true}:{variant:k};
+  if(ctx==="card"){ if(k!=="other") medCardVariant(box.dataset.mvname,choice); return; }
+  if(ctx==="doc") box.dispatchEvent(new CustomEvent("mvchoice",{bubbles:true,detail:choice}));
+  else window.__mvChoice=choice;
+}
+document.addEventListener("input",e=>{ const t=e.target; if(!t.classList||!t.classList.contains("mvtext")) return; const box=t.closest("[data-mvbox]");
+  if(!box||box.dataset.mvbox==="card") return; const choice={other:true,text:t.value};
+  if(box.dataset.mvbox==="doc") box.dispatchEvent(new CustomEvent("mvchoice",{bubbles:true,detail:choice})); else window.__mvChoice=choice; });
+// выбор в карточке лекарства: сохраняем сразу и перерисовываем карточку
+async function medCardVariant(name,choice){
+  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  const r=await medVariantSave(name,choice);
+  if(!r.ok){ toast("Не получилось сохранить, попробуйте ещё раз"); return; }
+  try{ const j=await mkApi("med_plan_list"); MEDPLAN=j.rows||[]; medplanSave(); }catch(e){}
+  render(); medOpen(name); toast("Сохранено");
+}
+// строка лекарства на экране проверки документа: «Уже принимаем» и вопрос о варианте
+function docMedExtra(p){
+  const f=p.fields||{};
+  return `${medVariantHtml(f.title||"",p.variant,"doc")}<label class="docchk"><input type="checkbox" data-k="started"${f.started?" checked":""}> Уже принимаем</label>`;
+}
 function genitive(n){ return ({"Денис":"Дениса","Аня":"Ани","Дима":"Димы","Даня":"Дани"})[n]||n; }
 // клик по событию ленты «Начат приём» / «Курс окончен» открывает карточку лекарства
 function tlMedAttr(e){ return (e.k==="med"||e.k==="medend")&&e.r&&e.r.n?` data-medname="${esc(e.r.n)}"`:""; }
@@ -6269,7 +6338,7 @@ function medSideText(i){
   const L=i&&!i.unknown&&Array.isArray(i.side_effects)?i.side_effects:[];
   return L.length?"Побочные эффекты":"Побочные эффекты: справки нет";
 }
-function medCardModel(d,name,today){
+function medCardModel(d,name,today,fullName){
   const key=medKeyOf(name), full=iso=>iso.split("-").reverse().join(".");
   let m=(d.meds||[]).find(x=>medKeyOf(x.n)===key)||null;
   const log=((d.sym||{}).log||[]), eps=((d.sym||{}).ep||[]);
@@ -6295,21 +6364,30 @@ function medCardModel(d,name,today){
   hits.forEach(x=>courses.push({kind:"log",text:full(x.d),how:`${x.n}${x.h?" · "+x.h:""}`}));
   const conflict=(m&&since&&epRx.length&&!(plan&&plan.started_on))?(()=>{ const r=epRx.find(z=>z.r.from&&z.r.from!==since); return r?{ep:r.r.from,meds:since}:null; })():null;
   const ref=typeof MEDREF!=="undefined"&&Object.keys(MEDREF).some(k=>medKeyOf(k)===key);
-  return {name:m?m.n:name,state,stateText,since,day,courses,hits,conflict,plan,till:(m0&&m0.till)||"",hasMed:!!m0,
+  // линейка (ТЗ-046): выбор человека главнее; иначе вариант, названный в самом названии; иначе «Уточните вариант»
+  const shownName=m?m.n:name, line=medLineOf(fullName||shownName);
+  const pv=line&&plan&&plan.variant?line.variants.find(v=>v.key===plan.variant)||null:null, vtext=(plan&&plan.variant_text)||"";
+  const variant=pv||(line&&line.picked)||null, needVariant=!!line&&!variant&&!vtext;
+  const label=line&&(pv||vtext)?`${line.name} · ${pv?pv.name:vtext}`:shownName;
+  const mark=needVariant?"Уточните вариант":variant?(variant.is_antibiotic?"антибиотик":variant.class==="муколитик"?"муколитик":""):(medIsAntibiotic(shownName)?"антибиотик":"");
+  return {name:shownName,state,stateText,since,day,courses,hits,conflict,plan,till:(m0&&m0.till)||"",hasMed:!!m0,
+    line,variant,needVariant,label,mark,byPlan:!!(pv||vtext),
     needInfo:state==="on"&&!ref,
     journalText:hits.length?"":`У ${genitive(d.short)} в журнале симптомов не встречается`};
 }
 
 // карточка лекарства (ТЗ-004 блоки 10, 11; ТЗ-010 блок 15): одна на ленту, «Принимает сейчас», болезнь и журнал
 async function medOpen(name){
-  const d=DATA[cur], today=localDay(), M=medCardModel(d,name,today), m=(d.meds||[]).find(x=>medKeyOf(x.n)===medKeyOf(name));
-  const vr=m&&m.visit&&m.visit.entry?(window.__entries||[]).find(e=>e.id===m.visit.entry):null, MN=medFullName(M.name,vr&&vr.data&&vr.data.rx);
+  const d=DATA[cur], today=localDay(), M0=medCardModel(d,name,today), m=(d.meds||[]).find(x=>medKeyOf(x.n)===medKeyOf(name));
+  const vr=m&&m.visit&&m.visit.entry?(window.__entries||[]).find(e=>e.id===m.visit.entry):null, MN=medFullName(M0.name,vr&&vr.data&&vr.data.rx);
+  const M=MN!==M0.name?medCardModel(d,name,today,MN):M0, MT=M.byPlan?M.label:MN;
   const ep=m&&m.ep?((d.sym||{}).ep||[]).find(e=>e.id===m.ep):null;
   modal.className="modal on";
   const full=iso=>iso.split("-").reverse().join(".");
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="status status-${M.state==="on"?"ok":M.state==="plan"?"warn":"none"}" style="margin-bottom:8px">${esc(M.stateText)}</div>
-    <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(MN)}${medIsAntibiotic(MN)?' <span class="tag2" style="background:var(--warnbg);color:var(--warn);font-size:12px;vertical-align:middle">антибиотик</span>':""}</h2>
+    <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(MT)}${M.mark?` <span class="tag2" style="background:var(--warnbg);color:var(--warn);font-size:12px;vertical-align:middle">${esc(M.mark)}</span>`:""}</h2>
+    ${M.needVariant?medVariantHtml(MN,null,"card"):""}
     ${m&&m.how?`<div>${esc(m.how)}</div>`:""}${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
     ${ep?`<div style="margin-top:8px"><span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span></div>`:""}
     ${(M.hasMed||M.courses.some(c=>c.kind==="ep"))?`<div class="card" style="margin:12px 0 0;padding:12px 14px;background:var(--surface-2,#f3f4f6);box-shadow:none"><b>Когда начали и когда прекратить</b>
@@ -9669,7 +9747,9 @@ function docForm(){
         await mkApi("symptom_add",{person:cur,d:x.d,n:x.n,f:x.f||null});
       }
       await entriesPull(); render();
-      slog("✓ Записано: "+docCount(list.filter(p=>p.on))+".","ok"); setTimeout(closeModal,1400);
+      let vmsg=""; // варианты линейки (ТЗ-046): вторым вызовом, сбой не отменяет запись
+      for(const p of list.filter(p=>p.on&&p.type==="med"&&p.variant)){ const r=await medVariantSave((p.fields||{}).title||"",p.variant); if(!r.ok) vmsg=r.msg; else if(r.saved) medplanLoad(true); }
+      slog("✓ Записано: "+docCount(list.filter(p=>p.on))+"."+(vmsg?" "+esc(vmsg)+".":""),vmsg?"wa":"ok"); setTimeout(closeModal,vmsg?3500:1400);
     }catch(e){ slog("Не сохранилось: "+(e.message||"ошибка")+". Попробуйте ещё раз.","er"); btn.disabled=false; }
   };
   const review=found=>{
@@ -9693,7 +9773,7 @@ function docForm(){
             .map(t=>`<option value="${t}"${t===p.type?" selected":""}>${DOC_T[t][0]} ${DOC_T[t][1]}</option>`).join("")}</select></div>
           ${(DOC_F[p.type]||[]).map(([k,l,kind])=>kind==="area"?`<div class="fld"><label>${l}</label><textarea data-k="${k}" rows="2">${esc(f[k]||"")}</textarea></div>`
             :`<div class="fld"><label>${l}</label><input data-k="${k}"${kind==="date"?' type="date"':""} value="${esc(f[k]||"")}"></div>`).join("")}
-          ${p.type==="med"?`<label class="docchk"><input type="checkbox" data-k="started"${f.started?" checked":""}> Уже принимаем</label>`:""}
+          ${p.type==="med"?docMedExtra(p):""}
           ${p.type==="lab"?`<div class="muted" style="font-size:12.5px">${esc((p.items||[]).map(x=>`${x.name} ${x.value}`).join(" · "))}</div>`:""}
           ${p.quote?`<div class="muted docq">из документа: «${esc(p.quote)}»</div>`:""}
         </div></details>`; };
@@ -9712,6 +9792,7 @@ function docForm(){
       if(e.target.id==="docAdd"){ parts.push({type:document.getElementById("docAddT").value,on:true,quote:"",fields:{}}); open=parts.length-1; draw(); return; }
       if(e.target.id==="docSave") save(parts,e.target);
     };
+    box.addEventListener("mvchoice",e=>{ const el=e.target.closest(".docpart"); if(el) parts[+el.dataset.i].variant=e.detail; });
     box.onchange=e=>{
       const el=e.target.closest(".docpart"); if(!el) return; const p=parts[+el.dataset.i];
       if(e.target.classList.contains("docon")){ p.on=e.target.checked; el.classList.toggle("off",!p.on); return; }
@@ -9719,8 +9800,10 @@ function docForm(){
         if(p.type==="note"&&!p.fields.text) p.fields.text=p.quote||was;          // «это не симптом, а заметка» — текст не теряется
         open=+el.dataset.i; draw(); return; }
       const k=e.target.dataset.k; if(!k) return;
+      const was=p.type==="med"&&k==="title"?medVariantHtml(p.fields.title||"",null,"doc")!=="":false;
       p.fields[k]=e.target.type==="checkbox"?e.target.checked:e.target.value;
       el.querySelector(".dt").textContent=docTitle(p);
+      if(p.type==="med"&&k==="title"&&was!==(medVariantHtml(p.fields.title||"",null,"doc")!=="")){ if(!medLineOf(p.fields.title||"")) p.variant=null; open=+el.dataset.i; draw(); }
     };
   };
   pickInit("docFiles");
@@ -9869,10 +9952,14 @@ function medForm(entryId,ctx){
       <div class="row"><button class="btn btn-primary" id="mOk">Сохранить</button><button class="btn btn-secondary" data-close>Отмена</button></div>
       <div id="mLog" class="formlog"></div></div></div>`;
   attachSuggest("mN",[],{groups:medSugGroups(d)});
-  const mN=document.getElementById("mN"), mInfo=document.createElement("div"), mChk=document.createElement("div"); mN.closest(".fld").append(mChk,mInfo);
+  const mN=document.getElementById("mN"), mInfo=document.createElement("div"), mChk=document.createElement("div"), mVar=document.createElement("div"); mN.closest(".fld").append(mChk,mVar,mInfo);
+  window.__mvChoice=null;   // вопрос о варианте линейки (ТЗ-046): только при добавлении, у записанных — в карточке
   let infoFor="";
   mChk.onclick=e=>{ const b=e.target.closest("[data-undo],[data-fixto]"); if(!b) return; mN.value=b.dataset.undo||b.dataset.fixto; mChk.innerHTML=""; mst.mainBad=false; mN.dispatchEvent(new Event("change")); };
+  const mvShow=()=>{ if(entryId) return; const nm=mN.value.trim(), html=medVariantHtml(nm,null,"form"), had=mVar.innerHTML!==""; if(html&&had&&mVar.dataset.nm===nm) return; if(html||had){ window.__mvChoice=null; mVar.innerHTML=html; mVar.dataset.nm=nm; } };
+  let mvT=0; mN.addEventListener("input",()=>{ clearTimeout(mvT); mvT=setTimeout(mvShow,300); });
   mN.addEventListener("change",async ()=>{ const nm=mN.value.trim(); if(!nm||nm===infoFor) return; infoFor=nm;
+    mvShow();
     medCheck(nm,d).then(c=>{ if(mN.value.trim()!==nm) return; mst.mainBad=c.st==="unknown"; mst.warned=false;   // введённое руками не меняем — предлагаем
       mChk.innerHTML=c.st==="fixed"?`<p class="hint" style="margin:4px 0 0">Похоже на «${esc(c.name)}» <button type="button" class="linkbtn" data-fixto="${esc(c.name)}">исправить</button></p>`:medChkHtml(c); });
     mInfo.innerHTML=`<div class="muted" style="font-size:12.5px;margin-top:6px">Ищу справку…</div>`; mInfo.innerHTML=await medInfoHtml(nm); });
@@ -9919,8 +10006,10 @@ function medForm(entryId,ctx){
     try{ for(const m of more) await entriesApi("entry_add",{person:cur,kind:"med",data:{title:m.title,dose:m.dose,how:m.how,...common},...(mst.files.length?{files:mst.files}:{})});
       if(more.length) mst.more.forEach(m=>{ if(more.includes(m)) m.on=false; }); }   // повторное «Сохранить» после сбоя не задвоит
     catch(e){ log("Не сохранилось: "+(e.message||"ошибка")+". Попробуйте ещё раз.","er"); document.getElementById("mOk").disabled=false; return; }
-    const ok=await entrySave("med",{title:v("mN"),dose:v("mDose"),how:v("mHow"),...common},entryId||null,log,mst.files);
+    const nm=v("mN"), pick=window.__mvChoice;
+    const ok=await entrySave("med",{title:nm,dose:v("mDose"),how:v("mHow"),...common},entryId||null,log,mst.files);
     if(!ok) document.getElementById("mOk").disabled=false;
+    else if(!entryId&&pick){ const r=await medVariantSave(nm,pick); if(!r.ok) toast(r.msg); else if(r.saved) medplanLoad(true); }
   });
 }
 async function entriesApi(action,payload){
@@ -12068,6 +12157,7 @@ document.addEventListener("click",e=>{
   const toFeed=e.target.closest("#symToFeed"); if(toFeed){ tlReset(); tlKind="sym"; tab="all"; sysFilter=null; symSel=null; render(); window.scrollTo({top:0}); return; }
   const sv=e.target.closest("[data-symview]"); if(sv){symView=sv.dataset.symview;symSel=null;medSel=null;render();window.scrollTo({top:0});return}
   const nvs=e.target.closest("[data-nvsave],[data-nvdel]"); if(nvs){ nvSave(window.__nvRec,nvs.dataset.nvdel!==undefined); return; }
+  const mvb=e.target.closest("[data-mvar],[data-mvsave]"); if(mvb){ medVarClick(mvb); return; }
   const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
     const st=(document.getElementById("mpStart")||{}).value||"", sp=now?localDay():((document.getElementById("mpStop")||{}).value||"");
     if(st&&sp&&sp<st){ toast("Прекратить нельзя раньше, чем начали"); return; }
