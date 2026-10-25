@@ -108,6 +108,8 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hill{border-top:1px solid var(--line,#e5e7eb);padding:0}.hill>summary{min-height:44px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer;padding:6px 0}.hill>summary{list-style:none}.hill>summary::-webkit-details-marker{display:none}.hill>summary::after{content:"▸";margin-left:auto;color:var(--muted)}.hill[open]>summary::after{content:"▾"}.hill__t{display:flex;flex-direction:column;gap:2px;min-width:0}.hill__b .eplink,.hill__b .editep{min-height:44px;display:inline-flex;align-items:center}.hill__b .editep{min-width:44px;justify-content:center}.hill__b .ep-off{min-height:44px}
 .hill__b{padding:0 0 10px;display:grid;gap:6px}.hill__v{cursor:pointer;min-height:32px;color:var(--muted)}.hfree{min-height:44px;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--line,#e5e7eb);cursor:pointer}.hfree__h{margin:14px 0 4px;font-size:14px}.hfilt .tab--sm{font-size:14px;padding:6px 12px}
 .lrow{display:flex;align-items:center;gap:8px;min-height:52px;border-top:1px solid var(--line)}.lrow:first-of-type{border-top:0}.lrow__n{flex:1;min-width:0}.lmv{min-width:44px;min-height:44px;border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer}.lsw{position:relative;display:inline-flex;min-width:56px;min-height:44px;align-items:center;justify-content:center;cursor:pointer}.lsw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}.lsw__t{width:46px;height:26px;border-radius:13px;background:var(--line);position:relative;transition:background .15s}.lsw__t::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .15s}.lsw input:checked+.lsw__t{background:var(--accent)}.lsw input:checked+.lsw__t::after{left:23px}.lsw input:disabled+.lsw__t{opacity:.5}.lsw input:focus-visible+.lsw__t{outline:2px solid var(--accent);outline-offset:2px}.lsetrow{display:flex;justify-content:flex-end}.lset{min-height:44px;padding:0 4px}.lhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}.lhead h2{margin:0;font-size:20px;text-transform:none;color:var(--ink)}@media (prefers-reduced-motion:reduce){.lsw__t,.lsw__t::after{transition:none}}
+.qsrow{display:flex;gap:8px;flex-wrap:wrap}.qsb{flex:1;min-width:88px;min-height:56px;font-size:17px}.qsb.on,.qsnum .on{background:var(--accent);color:#fff;border-color:var(--accent)}.qsmore>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.qsnum{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}.qsnum .btn{min-height:44px;padding:0}
+.symform .flab{display:block;font-size:13px;color:var(--muted);margin:2px 0 6px}.symform .fin{width:100%;min-height:44px;box-sizing:border-box}.symform .chips,.chips{display:flex;flex-wrap:wrap;gap:6px}.symform .chip,.chips .chip{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);font-size:15px;cursor:pointer}.symform .chip.on,.chips .chip.on{background:var(--accentbg);border-color:var(--accent);color:var(--accent);font-weight:600}.symform .chip--more{border-style:dashed;color:var(--muted)}.secth{margin:14px 0 6px;font-size:14px}.ep-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:6px 0}.ep-row:first-of-type{border-top:0}
 .medref .mrsec{margin:8px 0}.medref .mrl{margin:4px 0 0;padding-left:20px}.medref [hidden]{display:none!important}.mrprice{margin-top:12px}.mrprice summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.mrprice input{min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 10px;font:inherit}.mrprice .btn{min-height:44px}.medref [data-mrmore]{min-height:44px}.mrprice .mrp{display:block;margin-top:2px}
 #mMark[hidden]{display:none}
 .mvbox{margin:8px 0 4px}.mvbox [hidden]{display:none!important}
@@ -2462,7 +2464,7 @@ const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"]
 // Внутри «Истории» — переключатель (histFilters); сам `tab` остаётся прежним (all / visit / sym / meds / dz), чтобы старые ссылки и карточки работали.
 function cardTabs(){ return [["hist","История"],["lab","Документы"],["dyn","Динамика"],["doc","К врачу"],["health","Профиль"]]; }
 const CARD=cardTabs(), CARDK=["sym","dz","visit","lab","meds","dyn","all","doc"];   // значения tab внутри Медкарты
-function histFilters(){ return [["all","Всё"],["visit","Приёмы"],["bs","Болезни и симптомы"],["meds","Лекарства"],["dz","Дневники"]]; }   // «Дневники» уйдёт, когда ТЗ-050 перенесёт слежение (критерий 2.7)
+function histFilters(){ return [["all","Всё"],["visit","Приёмы"],["bs","Болезни и симптомы"],["meds","Лекарства"]]; }   // слежение ушло на главную и в карточку симптома (ТЗ-050); экран дневника открывается из «Слежу»
 const histFilterOf=t=>t==="sym"?"bs":t, histTabOf=f=>f==="bs"?"sym":f;
 function cardSecOf(t){ return ["sym","dz","visit","meds","all"].includes(t)?"hist":["lab","dyn","doc"].includes(t)?t:null; }
 let histOpen=null, HISTLAST="all", CARDFROM=null;   // раскрытая болезнь; последний вид «Истории»; откуда ушли в «Профиль»
@@ -4056,7 +4058,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 00:12";   // подставляется при публикации
+const BUILD="26.10 00:23";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -11133,7 +11135,7 @@ function dzLoadData(force){
   if(!window.__MK_KEY) return; const p=cur;
   if(DZ.dataBusy===p||(DZ.data[p]&&!force)) return; DZ.dataBusy=p; DZ.dataErr=false;
   Promise.all([mkApi("diary_entry_list",{person:p}),mkApi("symptoms_list",{person:p})]).then(([a,b])=>{
-    DZ.data[p]={entries:a.rows||[],sym:(b.rows||[]).filter(r=>r.diary),heads:(b.rows||[]).filter(r=>r.symptom==="Головная боль"&&r.med).map(r=>r.med)}; DZ.dataBusy=null; if((tab==="dz"||tab==="home")&&cur===p) render();
+    DZ.data[p]={entries:a.rows||[],all:b.rows||[],sym:(b.rows||[]).filter(r=>r.diary),heads:(b.rows||[]).filter(r=>r.symptom==="Головная боль"&&r.med).map(r=>r.med)}; DZ.dataBusy=null; if((tab==="dz"||tab==="home")&&cur===p) render();
   }).catch(()=>{ DZ.dataBusy=null; DZ.dataErr=true; if(tab==="dz") render(); });
 }
 const dzHM=iso=>{ const x=new Date(iso); return String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0"); };
@@ -11552,7 +11554,290 @@ function hdViewOpen(){
 }
 function hdViewClose(){ if(HDV){ HDV.remove(); HDV=null; } }
 if(typeof window!=="undefined") window.addEventListener("popstate",e=>{ if(HDV){ hdViewClose(); e.stopImmediatePropagation(); } },true);   // раньше общего «назад», который закрыл бы форму
-// блок «Дневники» на главной: пока diary_list не ответил или дневников «на главной» нет — блока нет
+// ── Слежение (ТЗ-050): блок «Слежу» на главной, настройка у симптома, детали и эпизоды симптома ──
+// Подписи триггеров и вариантов — как в каталоге дневников; id латиницей (такие же знает сервер)
+const TRK_TRIG={sleep:"Недосып",stress:"Стресс",hunger:"Голод",food:"Еда",weather:"Погода",meds:"Лекарства","sick-contact":"Контакт с больным"};
+const TRK_SEC={how:"Как это было",where:"Где",help:"Что помогло"};
+// справочник «симптом → поля»: names — названия (через sameSym), поля по порядку; sec — секция экрана; kid — подпись для ребёнка до 12 лет
+function symptomFieldDefs(){
+  const cs=(k,n,o)=>Object.assign({key:k,type:"chip1",label:n,opts:null},o||{});
+  return [
+    {id:"head",title:"Головная боль",names:["головная боль","светобоязнь","звуки раздражают","аура","мигрень"],fields:[
+      {key:"intensity",type:"scale",label:"Сила"},
+      {key:"zones",type:"zones",label:"Где болит",kid:"Где болит",sec:"where"},
+      {key:"chars",type:"chars",label:"Как болит",kid:"Как болит",sec:"how"},
+      {key:"ended_at",type:"duration",label:"Сколько длилась",sec:"how"},
+      {key:"triggers",type:"triggers",label:"Что было перед этим",ids:["sleep","stress","hunger","food","weather"],sec:"help"},
+      {key:"dose",type:"med",label:"Что принял",sec:"help"}]},
+    {id:"gi",title:"Живот",names:["боль в животе","вздутие","тошнота","изжога","жидкий стул","запор","рвота"],fields:[
+      {key:"intensity",type:"scale",label:"Сила"},
+      cs("place","Где в животе",{type:"chipN",max:3,sec:"where",opts:[["top","Верх"],["bottom","Низ"],["left","Слева"],["right","Справа"],["navel","Вокруг пупка"],["all","Везде"]]}),
+      cs("stool","Стул",{sec:"how",opts:[["normal","Обычный"],["liquid","Жидкий"],["hard","Твёрдый"],["none","Не было"]]}),
+      cs("nausea","Тошнота",{sec:"how",opts:[["none","Нет"],["weak","Слабая"],["strong","Сильная"]]}),
+      {key:"food",type:"text",label:"Что ели перед этим",sec:"help",max:120},
+      {key:"triggers",type:"triggers",label:"Что было перед этим",ids:["food","stress","meds"],sec:"help"}]},
+    {id:"orvi",title:"ОРВИ",match:n=>/^температура/.test(n),names:["кашель","боль в горле","насморк","заложенность носа","потеря вкуса и обоняния","затруднение дыхания","боль в груди"],fields:[
+      {key:"intensity",type:"scale",label:"Сила"},
+      {key:"temp",type:"temp",label:"Температура, °C",sec:"how"},
+      cs("cough","Кашель",{sec:"how",opts:[["none","Нет"],["dry","Сухой"],["wet","Влажный"]]}),
+      cs("nose","Нос",{sec:"how",opts:[["none","Нет"],["stuffy","Заложен"],["runny","Течёт"]]}),
+      cs("throat","Горло",{sec:"how",opts:[["none","Нет"],["slight","Слегка"],["strong","Сильно"]]})]},
+    {id:"skin",title:"Аллергия, кожа",names:["чихание","слезотечение","покраснение глаз","зуд в носу и глазах","зуд","высыпания","сухость кожи","покраснение"],fields:[
+      {key:"intensity",type:"scale",label:"Сила"},{key:"note",type:"text",label:"Как проявлялось",sec:"how",max:500}]}
+  ];
+}
+function symNorm(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
+// набор полей симптома: {group, fields:[{key,…,sec}], more:[…]}; на виду ≤ 3 поля в секции, остальные в more; cfg.fields скрывает поля (силу — нельзя)
+function symptomFields(name,age,cfg){
+  const n=symNorm(name), G=symptomFieldDefs().find(g=>g.names.includes(n)||(g.match&&g.match(n)))||null;
+  const base=G?G.fields:[{key:"intensity",type:"scale",label:"Сила"},{key:"note",type:"text",label:"Заметка",sec:"how",max:500}];
+  const kid=age!=null&&age<12, IDS=diaryIdLists();
+  const show=cfg&&Array.isArray(cfg.fields)?new Set([...cfg.fields,"intensity"]):null;
+  const used={}, fields=[], more=[];
+  for(const f0 of base){
+    if(show&&!show.has(f0.key)) continue;
+    const f=Object.assign({},f0,{label:kid&&f0.kid?f0.kid:f0.label});
+    if(f.key==="chars") f.opts=(kid?IDS.chars.filter(x=>["pressing","sharp","aching","burning","shooting","humming"].includes(x.id)):IDS.chars).slice(0,kid?6:11).map(x=>[x.id,x.n]);
+    if(f.key==="zones") f.opts=IDS.zones.map(x=>[x.id,x.n]);
+    if(f.type==="triggers") f.opts=(f.ids||[]).map(id=>[id,TRK_TRIG[id]||id]);
+    if(f.key==="intensity"){ fields.push(f); continue; }
+    used[f.sec]=(used[f.sec]||0)+1; (used[f.sec]>3?more:fields).push(f);
+  }
+  return {group:G?G.id:"other",quick:"intensity",fields,more};
+}
+// поля слежения (блок 3): ключи полей, видимых при записи; остальные — «Ещё»
+function trackFields(name,cfg,age){ const r=symptomFields(name,age,cfg); return {fields:r.fields.map(f=>f.key),more:r.more.map(f=>f.key)}; }
+// значения полей строки журнала для показа: [{key,label,value}] только заполненные; старая строка показывается теми же значениями, что в attrs
+function symptomDetailsView(row,def){
+  const A=(row&&row.attrs)||{}, IDS=diaryIdLists(), lab=(arr,id)=>{ const x=arr.find(y=>y.id===id); return x?x.n:id; }, out=[];
+  for(const f of def.fields.concat(def.more||[])){
+    let v=null;
+    if(f.key==="intensity") v=row.intensity==null?null:String(row.intensity);
+    else if(f.key==="zones") v=(A.zones||[]).map(id=>lab(IDS.zones,id)).join(", ");
+    else if(f.key==="chars") v=(A.chars||[]).map(id=>lab(IDS.chars,id)).join(", ");
+    else if(f.key==="ended_at") v=A.ended_at?"до "+dzHM(A.ended_at):"";
+    else if(f.key==="triggers") v=(row.triggers||[]).map(id=>TRK_TRIG[id]||id).join(", ");
+    else if(f.key==="dose") v=row.med||A.dose||"";
+    else if(f.key==="temp") v=row.value_num!=null?String(row.value_num).replace(".",",")+" °C":"";
+    else if(f.key==="note") v=row.feeling||"";
+    else if(f.type==="chipN") v=(A[f.key]||[]).map(id=>(f.opts.find(o=>o[0]===id)||[0,id])[1]).join(", ");
+    else if(f.type==="chip1") v=A[f.key]?(f.opts.find(o=>o[0]===A[f.key])||[0,A[f.key]])[1]:"";
+    else v=A[f.key]||"";
+    if(v) out.push({key:f.key,label:f.label,value:v});
+  }
+  return out;
+}
+// эпизоды симптома за день: строки журнала, по времени
+function symEpisodes(rows,name,day){
+  return (rows||[]).filter(r=>sameSym(r.symptom,name)&&(r.occurred_at?dzDayOf(r.occurred_at):r.occurred_on)===day)
+    .sort((a,b)=>String(a.occurred_at||a.occurred_on).localeCompare(String(b.occurred_at||b.occurred_on)));
+}
+// строки блока «Слежу»: legacy — строки старых дневников (homeDiaryRows), trackers — новые слежения; на виду ≤ 3 (В2), остальные в more
+function trackRows(trackers,legacy,symptoms,eps,today){
+  const rows=[];
+  for(const r of (legacy||[])){
+    const personal=r.form==="grForm"||r.form==="thForm";
+    rows.push({id:r.id,title:r.title,count:r.count,btn:r.btn,form:r.form,kind:personal?"personal":"legacy",label:personal?`записей: ${r.count}`:r.label});   // только число и подпись: текст записей наружу не идёт
+  }
+  for(const t of (trackers||[])){
+    if(t.legacy_diary||t.ended_on||t.on_home===false) continue;
+    if(t.kind==="symptom"){
+      const L=(symptoms||[]).filter(r=>sameSym(r.symptom,t.title||t.ref)||sameSym(r.symptom,t.ref)), day=r=>r.occurred_at?dzDayOf(r.occurred_at):r.occurred_on;
+      const k=L.filter(r=>day(r)===today).length, last=L.map(day).sort().pop();
+      rows.push({id:"tr:"+t.ref,title:t.title||t.ref,kind:"symptom",symptom:t.title||t.ref,count:k,label:k?`сегодня ${k}`:(last?`сегодня нет · последний ${last.split("-").reverse().slice(0,2).join(".")}`:"записей пока нет"),btn:"Записать"});
+    } else if(t.kind==="illness"){
+      const ep=(eps||[]).find(e=>e.id===t.ref); if(!ep||ep.d2) continue;
+      rows.push({id:"tr:"+t.ref,title:ep.dx||t.title||"Болезнь",kind:"illness",ep:ep.id,count:0,label:`день ${rxDays(ep.d1,today)}`,btn:"Записать"});
+    }
+  }
+  return {rows,shown:rows.slice(0,3),more:rows.slice(3)};
+}
+// ── загрузка слежений человека
+const TRK={rows:{},ok:{},busy:null};
+function trkLoad(force){
+  if(!window.__MK_KEY||TRK.busy===cur||(TRK.ok[cur]&&!force)) return; const p=cur; TRK.busy=p;
+  mkApi("track_list",{person:p}).then(j=>{ TRK.rows[p]=j.rows||[]; TRK.ok[p]=true; TRK.busy=null; if((tab==="home"||(tab==="sym"&&symSel))&&cur===p) render(); }).catch(()=>{ TRK.busy=null; });
+}
+// слежение, под которое подпадает симптом: своё по названию или слежение из старого дневника, где этот симптом в шаблоне
+function trackerOfSymptom(trs,name){
+  const n=symNorm(name);
+  const own=(trs||[]).find(t=>t.kind==="symptom"&&!t.legacy_diary&&symNorm(t.ref)===n); if(own) return own;
+  return (trs||[]).find(t=>t.kind==="symptom"&&t.legacy_diary&&((diaryCatalog().find(d=>d.id===t.legacy_diary)||{}).symptoms||[]).some(s=>symNorm(s.n)===n))||null;
+}
+function homeTrackHtml(today){
+  if(!window.__MK_KEY) return "";
+  if(!DZ.ok[cur]&&!DZ.err) dzLoad();
+  trkLoad(); if(!DZ.ok[cur]&&!TRK.ok[cur]) return "";
+  const defs=DZ.ok[cur]?homeDiaryDefs(DZ.rows[cur],diaryCatalog(),hdBirth(),today):[];
+  if(!DZ.data[cur]&&!DZ.dataErr) dzLoadData();
+  const D=DZ.data[cur], legacy=defs.length?homeDiaryRows(defs,D?D.entries:[],D?D.sym:[],today):[];
+  const R=trackRows(TRK.rows[cur]||[],legacy,D?D.all:[],((DATA[cur].sym||{}).ep||[]),today);
+  if(!R.rows.length) return "";
+  const row=r=>`<div class="hdz-row"><button type="button" class="hdz-go" data-trk-go="${esc(r.id)}"><b>${esc(r.title)}</b><span class="muted">${esc(r.label)}</span></button>
+    <button type="button" class="btn btn-secondary hdz-btn" data-trk-act="${esc(r.id)}"${!D?" disabled":""}>Записать</button></div>`;
+  return `<div class="card hdz"><h2>Слежу <button type="button" class="linkbtn" data-trk-all="1" style="float:right;min-height:44px">Все</button></h2>${R.shown.map(row).join("")}
+    ${R.more.length?`<details class="trk-more"><summary class="muted" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Ещё ${R.more.length}</summary>${R.more.map(row).join("")}</details>`:""}</div>`;
+}
+// «Записать» в строке слежения: старый дневник — его форма; симптом — быстрая запись; болезнь — карточка болезни
+function trkAct(id){
+  const today=localDay(), defs=DZ.ok[cur]?homeDiaryDefs(DZ.rows[cur],diaryCatalog(),hdBirth(),today):[];
+  if(defs.some(d=>d.id===id)){ dzOpenForm(id,today,today); return; }
+  const t=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id); if(!t) return;
+  if(t.kind==="symptom") symQuickSheet(t.title||t.ref); else if(t.kind==="illness") epCard(t.ref);
+}
+// ── быстрая запись одним касанием: Слабо 3 · Средне 5 · Сильно 8 (В4); «Точнее» — шкала 0–10; «Дополнить» — подробности
+const SYM_QUICK=[["Слабо",3],["Средне",5],["Сильно",8]];
+function symQuickSheet(name){
+  modal._se=null; modal.dataset.qs=name; modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h2 style="text-transform:none">${esc(name)} · ${esc(DATA[cur].short)}</h2><p class="muted" style="margin:0 0 10px">Как сильно сейчас?</p>
+    <div class="qsrow">${SYM_QUICK.map(([t,v])=>`<button type="button" class="btn btn-secondary qsb" data-qsv="${v}">${t}</button>`).join("")}</div>
+    <details class="qsmore"><summary>Точнее</summary><div class="qsnum">${[0,1,2,3,4,5,6,7,8,9,10].map(v=>`<button type="button" class="btn btn-secondary" data-qsv="${v}">${v}</button>`).join("")}</div></details>
+    <button type="button" class="btn btn-secondary" data-qsmore="1" style="min-height:44px;margin-top:10px">Дополнить ▸</button></div>`;
+}
+async function symQuickSave(name,i){
+  const d=DATA[cur], day=localDay(), c=((d.sym||{}).cat||[]).find(x=>symNorm(x.n)===symNorm(name)), sys=c?c.sys:"other";
+  delete modal.dataset.qs; closeModal();
+  try{ const r=await mkApi("symptom_add",{person:cur,d:day,n:name,sys:c?c.sys:null,i,at:new Date().toISOString()});
+    ovAdd({who:cur,d:day,n:name,p:"",sys,i}); dzLoadData(true); render();
+    toast("Записано","Дополнить",()=>symEntryForm(name,{id:r.id}),12000);
+  }catch(e){ toast("Не сохранилось, нажмите ещё раз","Повторить",()=>symQuickSave(name,i)); }
+}
+// ── «Дополнить»: новый эпизод за день (время, сила, что приняли, заметка, поля симптома) или подробности записанного эпизода
+function symEntryForm(name,o){
+  o=o||{}; delete modal.dataset.qs;
+  const d=DATA[cur], day=o.day||localDay(), D=DZ.data[cur]||{}, row=o.id!=null?(D.all||[]).find(r=>r.id===o.id):null;
+  const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), tr=trackerOfSymptom(TRK.rows[cur],name), def=symptomFields(name,age,tr&&tr.config);
+  const A=(row&&row.attrs)||{}, hm=row&&row.occurred_at?dzHM(row.occurred_at):dzHM(new Date().toISOString());
+  const chips=(f,sel,multi)=>`<div class="chips" data-f="${f.key}" data-multi="${multi?1:0}" data-max="${f.max||14}">${f.opts.map(([id,n],i)=>`<button type="button" class="chip${(sel||[]).includes(id)?" on":""}${i>=6?" more":""}" data-v="${id}"${i>=6&&!(sel||[]).includes(id)?" hidden":""}>${esc(n)}</button>`).join("")}${f.opts.length>6?`<button type="button" class="chip chip--more" data-chmore="1">Ещё</button>`:""}</div>`;
+  const field=f=>{
+    const lab=`<label class="flab">${esc(f.label)}</label>`;
+    if(f.type==="zones"||f.type==="chars"||f.type==="chipN") return lab+chips(f,A[f.key],true);
+    if(f.type==="chip1") return lab+chips(f,A[f.key]?[A[f.key]]:[],false);
+    if(f.type==="triggers") return lab+chips(f,(row&&row.triggers)||[],true);
+    if(f.type==="duration"){ const mins=A.ended_at&&row?Math.round((new Date(A.ended_at)-new Date(row.occurred_at||row.occurred_on))/6e4):null, c2=mins==null?"":mins<=60?"s":mins<=240?"m":"l";
+      return lab+`<div class="chips" data-f="ended_at" data-multi="0">${[["s","до часа"],["m","1–4 часа"],["l","дольше"]].map(([id,n])=>`<button type="button" class="chip${c2===id?" on":""}" data-v="${id}">${n}</button>`).join("")}</div>`; }
+    if(f.type==="temp") return lab+`<input class="fin" id="seTemp" inputmode="decimal" placeholder="например, 37,8" value="${row&&row.value_num!=null?esc(String(row.value_num).replace(".",",")):""}">`;
+    if(f.type==="text") return lab+`<input class="fin" data-f="${f.key}" maxlength="${f.max||120}" value="${esc(f.key==="note"?(row&&row.feeling)||"":A[f.key]||"")}">`;
+    return "";
+  };
+  const secs=Object.keys(TRK_SEC).map(k=>({k,list:def.fields.filter(f=>f.sec===k&&f.type!=="med"),rest:def.more.filter(f=>f.sec===k&&f.type!=="med")})).filter(s=>s.list.length||s.rest.length);
+  const iv=row&&row.intensity!=null?row.intensity:null;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox symform"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h2 style="text-transform:none">${esc(name)} · ${esc(d.short)}</h2>
+    <div class="fld"><label for="seTime">Время</label><input id="seTime" type="time" class="fin" value="${hm}"></div>
+    <div class="fld"><label class="flab">Сила</label><div class="qsrow" id="seInt">${SYM_QUICK.map(([t,v])=>`<button type="button" class="btn btn-secondary qsb${iv===v?" on":""}" data-sev="${v}">${t}</button>`).join("")}</div>
+      <details class="qsmore"${iv!=null&&![3,5,8].includes(iv)?" open":""}><summary>Точнее</summary><div class="qsnum">${[0,1,2,3,4,5,6,7,8,9,10].map(v=>`<button type="button" class="btn btn-secondary${iv===v?" on":""}" data-sev="${v}">${v}</button>`).join("")}</div></details></div>
+    ${secs.map(s=>`<h3 class="secth">${TRK_SEC[s.k]}</h3>${s.list.map(f=>`<div class="fld">${field(f)}</div>`).join("")}${s.rest.length?`<details class="qsmore"><summary>Ещё</summary>${s.rest.map(f=>`<div class="fld">${field(f)}</div>`).join("")}</details>`:""}`).join("")}
+    <div class="fld"><label for="seMed">Что приняли</label><input id="seMed" class="fin" maxlength="200" placeholder="например, Нурофен" value="${esc((row&&(row.med||A.dose))||"")}"></div>
+    ${def.fields.concat(def.more).some(f=>f.key==="note")?"":`<div class="fld"><label for="seNote">Заметка</label><input id="seNote" class="fin" maxlength="500" value="${esc((row&&row.feeling)||"")}"></div>`}
+    <div class="form-actions" style="position:sticky;bottom:0;background:var(--card);padding:10px 0"><button type="button" class="btn btn-primary" id="seSave" style="min-height:44px">Сохранить</button><button type="button" class="btn btn-secondary" data-close style="min-height:44px">Отмена</button></div>
+    <div id="seLog" class="formlog"></div></div>`;
+  modal._se={name,id:o.id!=null?o.id:null,day,row,def,intensity:iv};
+}
+async function symEntrySave(){
+  const S=modal._se; if(!S) return; const btn=document.getElementById("seSave"), logEl=document.getElementById("seLog");
+  const get=k=>{ const c=modal.querySelector(`.chips[data-f="${k}"]`); return c?[...c.querySelectorAll(".chip.on")].map(x=>x.dataset.v):null; };
+  const time=document.getElementById("seTime").value||"12:00", at=new Date(`${S.day}T${time}:00`);
+  const attrs={}; let triggers=null, temp=null;
+  for(const f of S.def.fields.concat(S.def.more)){
+    if(f.type==="zones"||f.type==="chars"||f.type==="chipN"){ const v=get(f.key); if(v&&v.length) attrs[f.key]=v; }
+    else if(f.type==="chip1"){ const v=get(f.key); if(v&&v.length) attrs[f.key]=v[0]; }
+    else if(f.type==="triggers"){ const v=get(f.key); if(v) triggers=v; }
+    else if(f.type==="duration"){ const v=get("ended_at"); if(v&&v.length) attrs.ended_at=new Date(at.getTime()+({s:30,m:150,l:300}[v[0]])*6e4).toISOString(); }
+    else if(f.type==="text"&&f.key!=="note"){ const el=modal.querySelector(`input[data-f="${f.key}"]`); if(el&&el.value.trim()) attrs[f.key]=el.value.trim(); }
+    else if(f.type==="temp"){ const t=parseFloat(String((document.getElementById("seTemp")||{}).value||"").replace(",",".")); if(isFinite(t)){ if(t<35||t>42){ logEl.textContent="Температура — от 35 до 42 °C"; return; } temp=t; } }
+  }
+  const noteEl=document.getElementById("seNote")||modal.querySelector('input[data-f="note"]'), note=noteEl?noteEl.value.trim():"", med=document.getElementById("seMed").value.trim();
+  if(!window.__MK_KEY){ logEl.textContent="Нужен вход по ссылке с кодом"; return; }
+  btn.disabled=true;
+  try{
+    if(S.id!=null){
+      await mkApi("symptom_update",{id:S.id,...(S.intensity!=null?{i:S.intensity}:{}),m:med,f:note,at:at.toISOString(),attrs,...(triggers?{tr:triggers}:{}),...(temp!=null?{v:temp}:{})});
+    } else {
+      const c=((DATA[cur].sym||{}).cat||[]).find(x=>symNorm(x.n)===symNorm(S.name));
+      await mkApi("symptom_add",{person:cur,d:S.day,n:S.name,sys:c?c.sys:null,i:S.intensity==null?undefined:S.intensity,at:at.toISOString(),...(med?{m:med}:{}),...(note?{f:note}:{}),...(Object.keys(attrs).length?{attrs}:{}),...(triggers&&triggers.length?{triggers}:{}),...(temp!=null?{v:temp,u:"°C"}:{})});
+      ovAdd({who:cur,d:S.day,n:S.name,p:"",sys:c?c.sys:"other",i:S.intensity,f:note,m:med});
+    }
+    closeModal(); await dzLoadDataAsync(); render(); toast("Записано");
+  }catch(e){ btn.disabled=false; logEl.textContent="Запись сохранена, а детали не сохранились — нажмите «Сохранить» ещё раз"; }
+}
+function dzLoadDataAsync(){ return new Promise(r=>{ DZ.data[cur]=null; dzLoadData(true); const t=setInterval(()=>{ if(DZ.data[cur]||DZ.dataErr){ clearInterval(t); r(); } },80); setTimeout(()=>{ clearInterval(t); r(); },6000); }); }
+document.addEventListener("click",e=>{
+  const t=e.target; if(!t.closest) return;
+  const qs=t.closest("[data-qsv]"); if(qs&&modal.dataset.qs){ symQuickSave(modal.dataset.qs,+qs.dataset.qsv); return; }
+  const sev=t.closest("[data-sev]"); if(sev&&modal._se){ modal._se.intensity=+sev.dataset.sev; modal.querySelectorAll("[data-sev]").forEach(b=>b.classList.toggle("on",+b.dataset.sev===modal._se.intensity)); return; }
+  if(t.closest("[data-qsmore]")&&modal.dataset.qs){ symEntryForm(modal.dataset.qs,{}); return; }
+  const ch=t.closest(".symform .chip[data-v]"); if(ch){ const box=ch.parentElement; if(box.dataset.multi==="1"){ const on=box.querySelectorAll(".chip.on").length; if(!ch.classList.contains("on")&&on>=+box.dataset.max) return; ch.classList.toggle("on"); } else { const was=ch.classList.contains("on"); box.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); if(!was) ch.classList.add("on"); } return; }
+  const cm=t.closest("[data-chmore]"); if(cm){ cm.parentElement.querySelectorAll(".chip.more").forEach(x=>x.hidden=false); cm.remove(); return; }
+  if(t.closest("#seSave")){ symEntrySave(); return; }
+  const ta=t.closest("[data-trk-act]"); if(ta){ trkAct(ta.dataset.trkAct); return; }
+  const tg=t.closest("[data-trk-go]"); if(tg){ const id=tg.dataset.trkGo, t2=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id);
+    if(t2&&t2.kind==="symptom"){ symSel=t2.title||t2.ref; symFocus=localDay(); tab="sym"; render(); window.scrollTo(0,0); } else if(t2&&t2.kind==="illness") epCard(t2.ref);
+    else { DZ.view="day"; DZ.hist=null; DZ.day=null; tab="dz"; render(); window.scrollTo(0,0); setTimeout(()=>{ const h=document.querySelector(`[data-dz-hist="${id}"]`); if(h) h.scrollIntoView({block:"start"}); },60); } return; }
+  if(t.closest("[data-trk-all]")){ trkAllOpen(); return; }
+  const sp=t.closest("[data-symep]"); if(sp){ symEntryForm(sp.dataset.symep,{day:sp.dataset.symday||localDay()}); return; }
+  const se=t.closest("[data-symedit]"); if(se){ symEntryForm(se.dataset.symname,{id:+se.dataset.symedit,day:se.dataset.symday}); return; }
+  const tfd=t.closest("[data-trk-fld]"); if(tfd){ trkFieldToggle(tfd.dataset.trkSym,tfd.dataset.trkFld); return; }
+  const h=t.closest("[data-trk-hist]"); if(h){ closeModal(); DZ.view="day"; DZ.hist=h.dataset.trkHist; tab="dz"; render(); window.scrollTo(0,0); return; }
+});
+// карточка «Следить на главной» у симптома (блок 3): переключатель и «Что записывать»
+function symTrackCard(name){
+  if(!window.__MK_KEY) return "";
+  trkLoad(); const tr=trackerOfSymptom(TRK.rows[cur],name), on=!!tr&&tr.on_home&&!tr.ended_on;
+  const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), all=symptomFields(name,age,null), cfgF=tr&&tr.config&&Array.isArray(tr.config.fields)?tr.config.fields:null;
+  const keys=all.fields.concat(all.more).filter(f=>f.key!=="intensity"&&f.type!=="med");
+  return `<div class="card"><h2>Следить на главной</h2>
+    <div class="lrow" style="border:0"><span class="lrow__n">${on?"Вы видите это на главной":"Показывать на главной"}</span>
+      <label class="lsw"><input type="checkbox" role="switch" data-trk-sw="${esc(name)}"${on?" checked":""} aria-label="Следить на главной"><span class="lsw__t"></span></label></div>
+    ${keys.length?`<details class="qsmore"><summary>Что записывать</summary><div class="chips" style="margin-top:6px">${keys.map(f=>`<button type="button" class="chip${!cfgF||cfgF.includes(f.key)?" on":""}" data-trk-fld="${f.key}" data-trk-sym="${esc(name)}">${esc(f.label)}</button>`).join("")}</div>
+      <p class="muted" style="font-size:13px">Сила записывается всегда. Выключенное поле можно снова включить.</p></details>`:""}</div>`;
+}
+async function trkSymToggle(name,on){
+  const tr=trackerOfSymptom(TRK.rows[cur],name);
+  try{
+    if(tr&&tr.legacy_diary){ await mkApi("track_set",{person:cur,kind:"symptom",ref:tr.ref,on_home:on}); await mkApi("diary_set",{person:cur,diary:tr.legacy_diary,on:true,params:{home:on}}); DZ.ok[cur]=false; dzLoad(true); }
+    else await mkApi("track_set",{person:cur,kind:"symptom",ref:name,title:name,on_home:on,...(tr&&tr.ended_on&&on?{reopen:true}:{})});
+    TRK.ok[cur]=false; trkLoad(true); toast(on?"Теперь вы видите это на главной":"Убрано с главной");
+  }catch(e){ toast("Не получилось включить, нажмите ещё раз"); render(); }
+}
+async function trkFieldToggle(name,key){
+  const tr=trackerOfSymptom(TRK.rows[cur],name), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), all=symptomFields(name,age,null), keys=all.fields.concat(all.more).filter(f=>f.key!=="intensity"&&f.type!=="med").map(f=>f.key);
+  const cur0=tr&&tr.config&&Array.isArray(tr.config.fields)?tr.config.fields:keys, next=cur0.includes(key)?cur0.filter(x=>x!==key):[...cur0,key];
+  try{ await mkApi("track_set",{person:cur,kind:"symptom",ref:tr?tr.ref:name,title:tr?tr.title:name,on_home:tr?tr.on_home:false,config:{...((tr&&tr.config)||{}),fields:next}}); TRK.ok[cur]=false; trkLoad(true); }
+  catch(e){ toast("Не сохранилось, нажмите ещё раз"); }
+}
+// эпизоды за выбранный день на карточке симптома: время, сила, что приняли, детали; «Дополнить» — новый эпизод
+function symEpisodesHtml(name,day){
+  const D=DZ.data[cur]; if(!window.__MK_KEY) return "";
+  if(!D){ if(!DZ.dataErr) dzLoadData(); return ""; }
+  const eps=symEpisodes(D.all,name,day), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), tr=trackerOfSymptom(TRK.rows[cur],name), def=symptomFields(name,age,tr&&tr.config);
+  const row=r=>{ const det=symptomDetailsView(r,def).filter(x=>x.key!=="intensity"&&x.key!=="dose"&&x.key!=="note");
+    return `<div class="ep-row"><div><b>${r.occurred_at?dzHM(r.occurred_at):"—"}</b>${r.intensity!=null?` · сила ${r.intensity}`:""}${r.med?` · принял: ${esc(r.med)}`:""}${r.feeling?`<div class="muted">${esc(r.feeling)}</div>`:""}${det.length?`<div class="muted">${det.map(x=>esc(x.label)+": "+esc(x.value)).join(" · ")}</div>`:""}</div>
+      <button type="button" class="linkbtn" data-symedit="${r.id}" data-symname="${esc(name)}" data-symday="${day}" style="min-height:44px">Изменить</button></div>`; };
+  return `<div class="card"><h2>Время и детали</h2>${eps.length?eps.map(row).join(""):`<p class="muted" style="margin:0 0 8px">Записей со временем за этот день нет.</p>`}
+    <button type="button" class="btn btn-secondary" data-symep="${esc(name)}" data-symday="${day}" style="min-height:44px;margin-top:6px">Дополнить</button></div>`;
+}
+// все слежения человека с выключателем «На главной» и входами в историю и график
+function trkAllOpen(){
+  const cat=diaryCatalog(), rows=[];
+  (DZ.rows[cur]||[]).forEach(r=>{ const def=cat.find(d=>d.id===r.diary); if(def) rows.push({id:r.diary,title:def.title,on:!(r.params&&r.params.home===false),legacy:r.diary}); });
+  (TRK.rows[cur]||[]).filter(t=>!t.legacy_diary&&(t.kind==="symptom"||t.kind==="illness")).forEach(t=>rows.push({id:"tr:"+t.ref,title:t.title||t.ref,on:t.on_home&&!t.ended_on,tr:t}));
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none">Что я слежу · ${esc(DATA[cur].short)}</h2>
+    ${rows.length?rows.map(r=>`<div class="lrow"><span class="lrow__n">${esc(r.title)}</span>${r.legacy?`<button type="button" class="linkbtn" data-trk-hist="${esc(r.legacy)}" style="min-height:44px">История и график</button>`:""}
+      <label class="lsw"><input type="checkbox" role="switch" data-trk-home="${esc(r.id)}"${r.on?" checked":""} aria-label="На главной: ${esc(r.title)}"><span class="lsw__t"></span></label></div>`).join(""):`<p class="muted">Пока ничего не отслеживается. Откройте симптом и включите «Следить на главной».</p>`}
+    <p class="muted" style="font-size:13px">Переключатель «На главной» только прячет строку: записи остаются.</p></div>`;
+}
+document.addEventListener("change",async e=>{
+  const s1=e.target&&e.target.closest&&e.target.closest("[data-trk-sw]"); if(s1){ trkSymToggle(s1.dataset.trkSw,s1.checked); return; }
+  const sw=e.target&&e.target.closest&&e.target.closest("[data-trk-home]"); if(!sw) return; const id=sw.dataset.trkHome, on=sw.checked;
+  try{ if(id.startsWith("tr:")){ const t=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id); await mkApi("track_set",{person:cur,kind:t.kind,ref:t.ref,on_home:on}); TRK.ok[cur]=false; trkLoad(true); }
+    else { await mkApi("diary_set",{person:cur,diary:id,on:true,params:{home:on}}); const df=diaryCatalog().find(d=>d.id===id)||{}; try{ await mkApi("track_set",{person:cur,kind:df.measure?"measure":df.kind?"personal":"symptom",ref:id==="diabetes"?"glucose":id,on_home:on}); }catch(x){} DZ.ok[cur]=false; dzLoad(true); } }
+  catch(x){ sw.checked=!on; toast("Не сохранилось, нажмите ещё раз"); }
+});
+// блок «Дневники» на главной (до ТЗ-050): пока diary_list не ответил или дневников «на главной» нет — блока нет
 function homeDiaryHtml(today){
   if(!window.__MK_KEY) return "";
   if(!DZ.ok[cur]){ if(!DZ.err) dzLoad(); return ""; }
@@ -11660,7 +11945,7 @@ function render(){
       ${todoV.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div>${planListHtml(planGroups(todoV,today,5),today)}`:`<div class="muted">Ближайших дел нет.</div>`}
       <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Все дела →</button></div>
 
-    <!--B:diary-->${homeDiaryHtml(today)}
+    <!--B:track-->${homeTrackHtml(today)}
 
     <!--B:rzrec-->${razbRecsCard()}
 
@@ -11687,7 +11972,7 @@ function render(){
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
       :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}
-    <!--B:reg-->${regCard(d,plans,today)}`,LP.order||homeOrderLoad(),undefined,{diary:"todo"},LP.hidden);
+    <!--B:reg-->${regCard(d,plans,today)}`,LP.order||homeOrderLoad().map(x=>x==="diary"?"track":x),undefined,{track:"todo"},LP.hidden);
   }
 
   else if(tab==="layout"){ layoutLoad(cur); m.innerHTML=layoutScreenHtml(d); }   // «Настроить главную» (ТЗ-053 блок 1)
@@ -11843,6 +12128,8 @@ function render(){
         const wd=WEEKDAYS[new Date(sp.day+"T12:00:00Z").getUTCDay()], also=symAlso(tlEvents(d),sp.day,symSel);
         return `<div class="card sym-cur"><h2>${sp.cur.length>1?"Записи за день":"Запись"} · ${ru(sp.day)}, ${wd}</h2>${symMergeBanner(cur,sp.day)}${symDayBody(S,symSel,sp.day,today)}</div>`
           +(also.length?`<div class="card"><h2>Что ещё было в этот день <span class="muted" style="text-transform:none">— ${also.length}</span></h2>${also.map(tlItem).join("")}</div>`:""); })()}
+      ${symEpisodesHtml(symSel,symFocus||today)}
+      <!--B:track-->${symTrackCard(symSel)}
       <!--B:doc-->${symDoctorsCard(d,symSel,c)}
       <!--B:ai-->${symAiCard(symSel)}${symChatCard(symSel)}${symRazbCard(symSel)}
       <!--B:events-->${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
