@@ -734,6 +734,14 @@ body.sv-lock{overflow:hidden}
   #docout tr,#docout li,.docreq{break-inside:avoid}
   .dh{break-after:avoid}
 }
+.prep .prephead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-right:48px}.prep .prephead h2{margin:0}
+.prep .prep2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prep .prep-h{font-size:14px;margin:14px 0 4px}
+.prep .planrow{display:flex;gap:8px;align-items:center;margin:6px 0}.prep .planrow .ptext{flex:1;min-width:0;min-height:44px}.prep .planrow input[type=checkbox]{width:24px;height:24px;flex:none;margin:10px}.prep .planrow textarea.ptext{resize:none;field-sizing:content;min-height:44px;padding:10px 12px;font:inherit}.prep .row .btn-primary{width:100%}
+.prep .addsym,.prep .btn{min-height:44px;min-width:44px}.prep .prepsug__row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.plmenu{position:relative}.plmenu>summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:12px;background:var(--seg)}.plmenu>summary::-webkit-details-marker{display:none}
+.plmenu__list{position:absolute;right:0;top:48px;z-index:6;min-width:210px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-popup,0 8px 24px rgba(0,0,0,.18));padding:6px;display:flex;flex-direction:column}
+.plmenu__list button{background:none;border:0;text-align:left;font:inherit;min-height:44px;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink)}.plmenu__list button:hover{background:var(--seg)}
+.plmenu{border:0!important;background:none!important;padding:0!important;margin:0!important;box-shadow:none!important}.prep .prep2 .fld{min-width:0}.prep .prep2 select,.prep .prep2 input{width:100%;min-width:0;box-sizing:border-box}.prep .prep2{align-items:end}.prep .ctx{background:none;padding:0;margin:0 0 10px;border:0}
 .ocbtn{flex:none;min-height:44px;padding:8px 14px}.linkbtn{display:inline-flex;align-items:center;background:none;border:0;padding:10px 0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;min-height:44px}
 .ocmore{margin:8px 0}.ocmore>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--accent)}.ocsym{margin:12px 0}.ocsym .chip{min-height:44px;background:transparent;border:1px dashed var(--muted);color:var(--muted)}.ocsym .chip.on{background:var(--accent-soft,#e6f0fb);border:1px solid var(--accent);color:var(--accent);font-weight:600}
 .plancard{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.plancard:first-of-type{border-top:0}
@@ -3984,7 +3992,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 19:35";   // подставляется при публикации
+const BUILD="25.10 19:57";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8822,32 +8830,6 @@ function briefBlock(){
       ${(res.sections||[]).map(x=>`<h3 style="font-size:14px">${esc(x.title)}</h3><ul>${x.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`).join("")}</div>`; }
   return w?`<div class="muted" style="margin:8px 0">Ждёт разбора — отправлено ${ru(w.created_at.slice(0,10))}</div>`:"";
 }
-function docTab(m){
-  const d=DATA[cur], R=docReq(), have=docSysHave(d);
-  const spec=DOC_SPECS.find(x=>x[0]===docSt.spec)||DOC_SPECS[0], base=docSpecSys(spec[0]);
-  const sysAll=docSt.sys||base.filter(s=>have.has(s));
-  const hints=requestHints(d,labelOf), people=Object.keys(DATA).filter(k=>!lockNeeded(k));
-  const chips=(list,field)=>list.length?`<div class="chips">${list.slice(0,8).map(t=>`<button type="button" class="chip" data-docchip="${field}" data-t="${esc(t)}">+ ${esc(t.length>60?t.slice(0,60)+"…":t)}</button>`).join("")}</div>`:"";
-  const ta=(id,lab,val,ph)=>`<div class="fld"><label for="${id}">${lab}</label><textarea id="${id}" rows="3" placeholder="${ph}">${esc(val.map(x=>x.t).join("\n"))}</textarea></div>`;
-  const rq=docEmpty(); Object.assign(rq,R); rq.questions=planClean(R.questions); rq.tests=planClean(R.tests); rq.other=planClean(R.other);
-  let out="";
-  if(docSt.shown){
-    const P=doctorPack(d,spec[0],localDay(),{systems:sysAll,req:rq});
-    out=`<div class="card" id="docout"><div class="docbar"><button class="btn btn-primary btn-block" data-dock="print" style="margin:0">Скачать PDF</button></div>${docHtml(P,d)}</div>`;
-  }
-  m.innerHTML=plansBlock()+`<div class="card nodoc" style="border-color:var(--warn)"><b>Нужна консультация врача.</b> Черновик собран из записанного и не заменяет приём.</div>${briefBlock()}<div class="card nodoc"><h2>Для врача <span class="hint" tabindex="0" title="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется." aria-label="Один документ перед приёмом: что беспокоит, что принимает, анализы с динамикой, прошлые визиты. Собирается из медкнижки каждый раз заново и нигде не сохраняется.">?</span></h2>
-    <div class="addform" id="docForm">
-      <div class="fld"><label for="docWho">Кто</label><select id="docWho">${people.map(k=>`<option value="${k}"${k===cur?" selected":""}>${esc(DATA[k].short)}</option>`).join("")}</select></div>
-      <div class="fld"><label for="docSpec">Специальность</label><select id="docSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===spec[0]?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
-      <div class="fld"><label>Какие системы включить</label><div class="chips" id="docSys">${DOC_SYS_ALL.filter(s=>have.has(s)).map(s=>`<button type="button" class="chip${sysAll.includes(s)?" on":""}" data-docsys="${s}">${esc(sysName(s))}</button>`).join("")}</div></div>
-      <h3 style="font-size:14px;margin:14px 0 6px">Запрос</h3>
-      <div class="fld"><label for="docPurpose">Для чего пришли</label><input id="docPurpose" value="${esc(rq.purpose)}" placeholder="например, плановый осмотр"></div>
-      ${ta("docQ","Вопросы к врачу",rq.questions,"по строке на вопрос")}${chips(hints.questions,"docQ")}
-      ${ta("docT","Какие анализы и исследования нужны",rq.tests,"по строке: ферритин, ЭКГ контроль…")}${chips(hints.tests,"docT")}
-      ${ta("docO","Что ещё нужно от визита",rq.other,"рецепт, справка, направление…")}
-      <div class="row"><button class="btn btn-primary" data-dock="auto">Собрать черновик за меня</button><button class="btn btn-secondary" data-dock="prep">Показать документ</button><button class="btn btn-secondary" data-dock="askdoc">Попросить семейного врача</button><button class="btn btn-secondary" data-dock="clear">Очистить запрос</button></div>
-    </div></div>${out}`;
-}
 function docRead(){   // поля формы → черновик в браузере (в базу не уходит)
   const v=id=>(document.getElementById(id)||{}).value||"";
   const r={purpose:v("docPurpose").trim(),questions:docLines(v("docQ")),tests:docLines(v("docT")),other:docLines(v("docO"))}; docReqSave(r); return r;
@@ -8869,11 +8851,6 @@ function docClick(e){
     docRead(); docSt.sys=cur0.includes(s)?cur0.filter(x=>x!==s):[...cur0,s]; render(); return true; }
   return false;
 }
-document.addEventListener("change",e=>{
-  if(e.target.id==="docWho"){ docRead(); cur=e.target.value; docSt.sys=null; docSt.shown=false; render(); }
-  else if(e.target.id==="docSpec"){ docRead(); docSt.spec=e.target.value; docSt.sys=null; docSt.shown=false; render(); }
-});
-document.addEventListener("input",e=>{ if(e.target.closest&&e.target.closest("#docForm")&&/^doc[PQTO]/.test(e.target.id)) docRead(); });
 
 // ── Предстоящие визиты (ТЗ-010 блок 17): запрос врачу заранее; хранятся в базе, видны с любого устройства ──
 // разбор текста с вопросами — по правилам, без модели (тот же текст, что в функции mk)
@@ -8924,7 +8901,7 @@ function plansBlock(){
   plansLoad(); if(!PLANS) return "";
   const L=upcomingPlans(PLANS.filter(p=>p.person===cur),localDay());
   return `<div class="card nodoc"><h2>Предстоящие визиты</h2>${L.length?L.map(p=>planCard(p,localDay())).join(""):`<div class="muted">Пока нет — вопросы можно собрать заранее.</div>`}
-    <div class="row" style="margin-top:10px"><button class="btn btn-secondary" data-plan="new">＋ Предстоящий визит</button><button class="btn btn-secondary" data-plan="save">Сохранить запрос как визит</button></div></div>`;
+    <div class="row" style="margin-top:10px"><button class="btn btn-secondary" data-plan="new">＋ Подготовка к приёму</button></div></div>`;
 }
 function planOverviewCard(){
   plansLoad(); if(!PLANS) return "";
@@ -8933,28 +8910,64 @@ function planOverviewCard(){
 }
 // редактор визита: части запроса со строками, ☑ «спросил/сделано», дата, состояние, загрузка файла
 function planOpen(p){
+  PREP={sugs:[],busy:false,msg:"",seen:[]};
   planEdit=p?JSON.parse(JSON.stringify(p)):{id:null,person:cur,specialty:docSt.spec,planned_date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null};
   planDraw();
 }
+// ── ТЗ-048: подготовка к приёму — одна форма вместо двух. Главная кнопка «Готово», остальное в меню «⋯» и под «Дополнить» ──
+let PREP={sugs:[],busy:false,msg:"",seen:[]};   // подсказки ИИ-врача: нигде не хранятся, пока вопрос не добавлен в форму
+function planAddItem(p,k,text){
+  const tt=String(text||"").trim(); if(!tt) return {added:false};
+  p[k]=p[k]||[]; if(p[k].some(x=>String(x.t||"").trim().toLowerCase()===tt.toLowerCase())) return {added:false};
+  p[k].push({t:tt,done:false}); return {added:true};
+}
+function planCheck(p){ return String(p.purpose||"").trim()||planClean(p.questions).length?{ok:true}:{ok:false,msg:"Впишите хотя бы один вопрос или цель"}; }
+// «Готово»: проверка → plan_save. Ошибка не очищает поля. api(action, body) → ответ или исключение
+async function planSubmit(p,api,skipCheck){
+  if(!skipCheck){ const c=planCheck(p); if(!c.ok) return c; }
+  try{
+    const j=await api("plan_save",{id:p.id||undefined,person:p.person,specialty:p.specialty,planned_date:p.planned_date||null,purpose:String(p.purpose||"").trim(),
+      questions:planClean(p.questions),tests:planClean(p.tests),other:planClean(p.other),status:p.status||"planned",source_name:p.source_name||null});
+    if(!j||j.status==="error"||!j.id) throw new Error("save");
+    p.id=j.id; return {ok:true,id:j.id};
+  }catch(e){ return {ok:false,msg:"Не сохранилось. Введённое осталось на экране"}; }
+}
+// нажатие «+» у предложенного вопроса: он попадает в список формы, из предложений уходит; остальные остаются
+function prepTake(sugs,p,i){
+  const s=sugs[i]; if(!s) return sugs;
+  planAddItem(p,"questions",s.q); return sugs.filter((_,k)=>k!==i);
+}
 function planDraw(){
   const p=planEdit; if(!p) return;
-  const list=(k,title,ph)=>`<h3 style="font-size:14px;margin:14px 0 4px">${title}</h3>
-    ${(p[k]||[]).map((x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="отмечено"><input class="ptext" data-ptext="${k}:${i}" value="${esc(x.t)}"><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать">✕</button></div>`).join("")}
-    <div class="planrow"><input class="ptext" id="pnew_${k}" placeholder="${ph}"><button type="button" class="btn btn-secondary" data-padd="${k}" style="padding:6px 12px">＋</button></div>`;
+  const dn=(DATA[p.person]||{}).short||"";
+  const row=(k,x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="Задано"><textarea class="ptext" rows="2" data-ptext="${k}:${i}" aria-label="Текст">${esc(x.t)}</textarea><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`;
+  const addRow=(k,ph)=>`<div class="planrow"><input class="ptext" id="pnew_${k}" placeholder="${ph}" enterkeyhint="done"><button type="button" class="btn btn-secondary" data-padd="${k}">Добавить</button></div>`;
+  const list=(k,title,ph)=>`<h3 class="prep-h">${title}</h3>${(p[k]||[]).map((x,i)=>row(k,x,i)).join("")}${addRow(k,ph)}`;
+  const today=localDay(), canCal=p.planned_date&&p.planned_date>=today&&!calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person);
+  const menu=`<details class="plmenu"><summary aria-label="Ещё действия">⋯</summary><div class="plmenu__list">
+      ${canCal?`<button type="button" data-plan="cal">В календарь</button>`:""}<button type="button" data-plan="makedoc">Документ для врача</button>
+      ${p.id?`<button type="button" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button><button type="button" data-plan="cancel">Отменить визит</button><button type="button" data-plan="delete">Удалить</button>`:""}</div></details>`;
+  const sg=PREP.busy?`<p class="hint">Думаем над вопросами…</p>`:PREP.sugs.length?`<div class="prepsug">${PREP.sugs.map((s,i)=>`<div class="prepsug__row"><div><div>${esc(s.q)}</div><div class="muted">${esc(s.basis)}</div></div><button type="button" class="btn btn-secondary" data-prep="take:${i}" aria-label="Добавить вопрос">＋</button></div>`).join("")}
+      <p class="hint">Вопросы по вашим записям. Решает врач</p><button type="button" class="linkbtn" data-prep="more">Ещё 3</button></div>`:PREP.msg?`<p class="hint">${esc(PREP.msg)}</p>`:"";
+  const more=(p.tests||[]).length||(p.other||[]).length||p.source_name;
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h2 style="text-transform:none;font-size:20px;color:var(--ink)">Предстоящий визит</h2>
+  modal.innerHTML=`<div class="mbox prep"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <div class="prephead"><h2>Подготовка</h2>${menu}</div><div class="ctx">${esc(dn)}</div>
     <div class="addform">
-      <div class="fld"><label for="plSpec">Специальность</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
-      <div class="fld"><label for="plDate">Дата (можно не указывать)</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}">${qdChipsHtml("plDate",localDay(),p.planned_date||"")}</div>
-      <div class="fld"><label for="plPurpose">Для чего пришли</label><input id="plPurpose" value="${esc(p.purpose||"")}"></div>
-      ${list("questions","Вопросы к врачу","новый вопрос")}${list("tests","Какие анализы и исследования нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
-      ${p.source_name?`<div class="muted" style="margin-top:8px">из файла ${esc(p.source_name)}</div>`:""}
-      <div class="row" style="margin-top:12px"><label class="btn btn-secondary" style="cursor:pointer">📎 Загрузить файл с вопросами<input type="file" id="plFile" accept=".txt,.md,.docx" hidden></label>
-        <button class="btn btn-secondary" data-plan="paste">Вставить текст</button></div>
-      <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-plan="persist">Сохранить</button><button class="btn btn-secondary" data-plan="makedoc">Подготовить документ</button>
-        ${p.planned_date&&p.planned_date>=localDay()?(calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person)?calDoneHtml():`<button class="btn btn-secondary" data-plan="cal">📅 В календарь</button>`):""}${p.id?`<button class="btn btn-secondary" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button><button class="btn btn-secondary" data-plan="cancel">Отменён</button>`:""}</div>
-      <div id="plLog" class="formlog"></div></div></div>`;
+      <div class="prep2"><div class="fld"><label for="plSpec">Врач</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+        <div class="fld"><label for="plDate">Дата</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div></div>
+      <div class="fld"><label for="plPurpose">Для чего идёте</label><input id="plPurpose" value="${esc(p.purpose||"")}" placeholder="например, насморк уже 3 недели"></div>
+      <h3 class="prep-h">Вопросы</h3>
+      ${(p.questions||[]).length?(p.questions||[]).map((x,i)=>row("questions",x,i)).join(""):`<p class="hint">Вопросов пока нет. Впишите первый или нажмите «Подсказать вопросы»</p>`}
+      ${addRow("questions","новый вопрос")}
+      <button type="button" class="linkbtn" data-prep="suggest">Подсказать вопросы (ИИ-врач) ▸</button>${sg}
+      <details class="ocmore"${more?" open":""}><summary>Дополнить: анализы · что ещё · файл</summary>
+        ${list("tests","Какие анализы нужны","например, ферритин")}${list("other","Что ещё нужно от визита","рецепт, справка…")}
+        ${p.source_name?`<div class="muted" style="margin-top:8px">из файла ${esc(p.source_name)}</div>`:""}
+        <div class="row" style="margin-top:12px"><label class="btn btn-secondary" style="cursor:pointer">📎 Загрузить файл с вопросами<input type="file" id="plFile" accept=".txt,.md,.docx" hidden></label>
+          <button type="button" class="btn btn-secondary" data-plan="paste">Вставить текст</button></div></details>
+      <div id="plLog" class="formlog"></div>
+      <div class="row"><button class="btn btn-primary" data-plan="persist" id="plGo">Готово</button></div></div></div>`;
   const f=document.getElementById("plFile"); if(f) f.onchange=()=>planFile(f.files&&f.files[0]);
 }
 function planSync(){   // поля формы → planEdit
@@ -8966,10 +8979,11 @@ function planSync(){   // поля формы → planEdit
 const planLog=(t,c)=>{ const e=document.getElementById("plLog"); if(e) e.innerHTML=`<div class="${c||""}">${t}</div>`; };
 async function planPersist(status){
   planSync(); const p=planEdit; if(status) p.status=status;
-  const body={id:p.id||undefined,person:p.person,specialty:p.specialty,planned_date:p.planned_date||null,purpose:p.purpose,
-    questions:planClean(p.questions),tests:planClean(p.tests),other:planClean(p.other),status:p.status,source_name:p.source_name};
-  try{ const j=await mkApi("plan_save",body); p.id=j.id; PLANS=null; plansLoad(true); planLog("✓ Сохранено","ok"); if(status){ closeModal(); } }
-  catch(e){ planLog("Не сохранилось: "+esc(e.message||"ошибка"),"er"); }
+  planLog("Сохраняем…"); const go=document.getElementById("plGo"); if(go) go.disabled=true;
+  const r=await planSubmit(p,(a,b)=>mkApi(a,b),!!status);   // отмена — без проверки «хотя бы один вопрос»
+  if(!r.ok){ planLog(esc(r.msg),"er"); if(go) go.disabled=false; if(status) p.status="planned"; return; }
+  PLANS=null; plansLoad(true);
+  closeModal(); if(!status){ toast("Сохранено. Откроется в день визита"); tab="home"; render(); }
 }
 async function planFile(f){
   if(!f) return;
@@ -8994,22 +9008,40 @@ function planPaste(){
     <div class="muted" style="margin-bottom:8px">Каждая строка — один пункт. Заголовки «Вопросы», «Анализы», «Что ещё», «Цель» раскладывают пункты по частям.</div>
     <textarea id="plPaste" rows="8" style="width:100%"></textarea><div class="row" style="margin-top:10px"><button class="btn btn-primary" data-plan="pasteok">Разобрать</button><button class="btn btn-secondary" data-plan="rvback">Назад</button></div></div>`;
 }
+async function prepSuggest(more){
+  planSync(); const p=planEdit; if(!p||PREP.busy) return;
+  if(!window.__MK_KEY){ PREP.msg="Подсказка недоступна. Впишите вопросы сами"; planDraw(); return; }
+  PREP.busy=true; PREP.msg=""; planDraw();
+  try{
+    const j=await mkApi("visit_questions",{person:p.person,specialty:p.specialty,purpose:p.purpose,exclude:[...planClean(p.questions).map(x=>x.t),...PREP.seen].slice(0,30)});
+    PREP.sugs=j.questions||[]; PREP.seen=[...PREP.seen,...PREP.sugs.map(x=>x.q)];
+    PREP.msg=PREP.sugs.length?"":"Пока нечего предложить. Добавьте записи о симптомах или анализах";
+  }catch(e){ PREP.sugs=[]; PREP.msg=/limit/.test(String(e.message))?"Лимит на сегодня исчерпан":"Подсказка недоступна. Впишите вопросы сами"; }
+  PREP.busy=false; planDraw();
+}
+document.addEventListener("keydown",e=>{
+  const t=e.target; if(!t||!t.id||!/^pnew_/.test(t.id)||e.key!=="Enter"||e.isComposing) return;
+  e.preventDefault(); planSync(); const k=t.id.slice(5); planAddItem(planEdit,k,t.value); planDraw(); const n=document.getElementById("pnew_"+k); if(n) n.focus();
+});
 function planClick(e){
+  const pr=e.target.closest("[data-prep]");
+  if(pr){ const w=pr.dataset.prep; if(w==="suggest"){ PREP.seen=[]; PREP.sugs=[]; prepSuggest(); } else if(w==="more") prepSuggest(true); else if(/^take:/.test(w)){ planSync(); PREP.sugs=prepTake(PREP.sugs,planEdit,+w.slice(5)); planDraw(); } return true; }
   const oc=e.target.closest('[data-plan="outcome"]');
   if(oc){ if(planEdit&&document.getElementById("plSpec")) planSync(); const p=(PLANS||[]).find(x=>x.id===oc.dataset.pid)||(planEdit&&planEdit.id===oc.dataset.pid?planEdit:null); if(p) outcomeForm(p); return true; }
   const o=e.target.closest("[data-planopen]"); if(o){ const p=(PLANS||[]).find(x=>x.id===o.dataset.planopen); if(p) planOpen(p); return true; }
   const a=e.target.closest("[data-plan],[data-padd],[data-pdel]"); if(!a) return false;
-  if(a.dataset.padd){ planSync(); const k=a.dataset.padd, el=document.getElementById("pnew_"+k), t=(el.value||"").trim(); if(t){ planEdit[k].push({t,done:false}); } planDraw(); return true; }
+  if(a.dataset.padd){ planSync(); const k=a.dataset.padd, el=document.getElementById("pnew_"+k); planAddItem(planEdit,k,el.value); planDraw(); const n=document.getElementById("pnew_"+k); if(n) n.focus(); return true; }
   if(a.dataset.pdel){ planSync(); const [k,i]=a.dataset.pdel.split(":"); planEdit[k].splice(+i,1); planDraw(); return true; }
   const w=a.dataset.plan;
   if(w==="new"){ planOpen(null); return true; }
-  if(w==="save"){ planOpen(null); const r=docReq(); planEdit.purpose=r.purpose; planEdit.questions=planClean(r.questions); planEdit.tests=planClean(r.tests); planEdit.other=planClean(r.other); planDraw(); return true; }
-  if(w==="persist"){ planPersist(); return true; }
   if(w==="cal"){ planSync(); const p=planEdit; calOpen({k:"plan",who:p.person,t:"Приём: "+specName(p.specialty),date:p.planned_date,note:"Медкнижка · "+(DATA[p.person]||{}).short+(p.questions.length?" · вопросов: "+p.questions.length:"")}); return true; }
   if(w==="done"){ planPersist("done"); return true; }
   if(w==="cancel"){ planPersist("cancelled"); return true; }
-  if(w==="makedoc"){ planSync(); docSt.spec=planEdit.specialty; docReqSave({purpose:planEdit.purpose,questions:planClean(planEdit.questions),tests:planClean(planEdit.tests),other:planClean(planEdit.other)});
-    cur=planEdit.person; docSt.shown=true; docSt.sys=null; tab="doc"; closeModal(); render(); return true; }
+  if(w==="delete"){ if(!planEdit.id||!confirm("Удалить этот визит?")) return true; mkApi("plan_delete",{id:planEdit.id}).then(()=>{ PLANS=null; plansLoad(true); closeModal(); toast("Визит удалён"); }).catch(()=>planLog("Не удалилось. Попробуйте ещё раз","er")); return true; }
+  if(w==="makedoc"){ planSync(); const p=planEdit; cur=p.person; const z=wzGet(), mk2=l=>planClean(l).map(x=>({t:x.t,src:"",on:true}));   // документ строится на последнем шаге мастера «К врачу»
+    Object.assign(z,{mode:"visit",step:8,spec:p.specialty,date:p.planned_date||"",showDoc:true,reasons:p.purpose?[{t:p.purpose,src:"",on:true}]:[],dyn:[],treat:[],questions:mk2(p.questions),tests:mk2(p.tests),extra:[],bring:mk2(p.other),ho:null}); wzPut();
+    docSt.spec=p.specialty; tab="doc"; closeModal(); render(); return true; }
+  if(w==="persist"){ planPersist(); return true; }
   if(w==="paste"){ planPaste(); return true; }
   if(w==="pasteok"){ planReview(Object.assign(parsePlanText(document.getElementById("plPaste").value),{source_name:"вставленный текст"})); return true; }
   if(w==="rvback"){ planDraw(); return true; }
@@ -11460,7 +11492,7 @@ function render(){
       ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
         <div><b>${esc(L.title)}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span><div class="ill-banner__row"><button type="button" class="btn btn-secondary ill-banner__off" data-epdismiss="${esc(e.id)}" title="Болезнь больше не актуальна — убрать из «Сейчас»">Не актуальна</button></div></div>`; }).join("")}
       ${medsNowHtml(d,today)}
-      ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}`).join("; ")}</div>`:""}
+      ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
       :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}
     <!--B:reg-->${regCard(d,plans,today)}`,homeOrderLoad(),undefined,{diary:"todo"});
@@ -11527,7 +11559,7 @@ function render(){
     </div>`;
   }
 
-  else if(tab==="doc"){ if(docSt.manual) docTab(m); else wizTab(m); }
+  else if(tab==="doc"){ wizTab(m); }
   else if(tab==="dz"){ dzTab(m); }   // ТЗ-032: дневники здоровья
   else if(tab==="chk"){ chkTab(m); }   // ТЗ-026: чекапы и анализы к событию
   else if(tab==="cal"){ calTab(m); }
