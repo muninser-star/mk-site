@@ -105,6 +105,8 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .medrow__t{min-width:0;flex:1 1 100%}.medrow__act{display:flex;gap:6px;flex:0 0 auto}
 .medrow__act .btn,.medhead .btn{min-height:44px;min-width:44px}
 .meddone{margin-top:12px}.meddone summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.hill{border-top:1px solid var(--line,#e5e7eb);padding:0}.hill>summary{min-height:44px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer;padding:6px 0}.hill>summary{list-style:none}.hill>summary::-webkit-details-marker{display:none}.hill>summary::after{content:"▸";margin-left:auto;color:var(--muted)}.hill[open]>summary::after{content:"▾"}.hill__t{display:flex;flex-direction:column;gap:2px;min-width:0}.hill__b .eplink,.hill__b .editep{min-height:44px;display:inline-flex;align-items:center}.hill__b .editep{min-width:44px;justify-content:center}.hill__b .ep-off{min-height:44px}
+.hill__b{padding:0 0 10px;display:grid;gap:6px}.hill__v{cursor:pointer;min-height:32px;color:var(--muted)}.hfree{min-height:44px;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--line,#e5e7eb);cursor:pointer}.hfree__h{margin:14px 0 4px;font-size:14px}.hfilt .tab--sm{font-size:14px;padding:6px 12px}
 .medref .mrsec{margin:8px 0}.medref .mrl{margin:4px 0 0;padding-left:20px}.medref [hidden]{display:none!important}.mrprice{margin-top:12px}.mrprice summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.mrprice input{min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 10px;font:inherit}.mrprice .btn{min-height:44px}.medref [data-mrmore]{min-height:44px}.mrprice .mrp{display:block;margin-top:2px}
 #mMark[hidden]{display:none}
 .mvbox{margin:8px 0 4px}.mvbox [hidden]{display:none!important}
@@ -2454,15 +2456,71 @@ const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"]
 // Медкарта — один пункт верхнего меню, внутри разделы. Симптомы первыми
 // ── Навигация (ТЗ-011 блоки 2–3): одно меню Медкарты и нижняя панель
 // «Чекапы» — раздел профиля, «Динамика» из меню убрана (Денис, 20.10.2026): график открывается из строки анализа и из поиска показателя
-function cardTabs(){ return [["sym","Симптомы"],["ill","Болезни"],["dz","Дневники"],["visit","Посещения"],["lab","Анализы и исследования"],["meds","Лекарства"],["all","Лента"],["doc","Для врача"]]; }
-const CARD=cardTabs(), CARDK=["sym","dz","visit","lab","meds","dyn","all","doc"];   // «Болезни» — вид страницы «Симптомы» (symView==="ill")
+// ТЗ-052: пять разделов Медкарты по задаче человека. «Профиль» — не вид Медкарты, а переход на страницу профиля (в полосе не подсвечивается).
+// Внутри «Истории» — переключатель (histFilters); сам `tab` остаётся прежним (all / visit / sym / meds / dz), чтобы старые ссылки и карточки работали.
+function cardTabs(){ return [["hist","История"],["lab","Документы"],["dyn","Динамика"],["doc","К врачу"],["health","Профиль"]]; }
+const CARD=cardTabs(), CARDK=["sym","dz","visit","lab","meds","dyn","all","doc"];   // значения tab внутри Медкарты
+function histFilters(){ return [["all","Всё"],["visit","Приёмы"],["bs","Болезни и симптомы"],["meds","Лекарства"],["dz","Дневники"]]; }   // «Дневники» уйдёт, когда ТЗ-050 перенесёт слежение (критерий 2.7)
+const histFilterOf=t=>t==="sym"?"bs":t, histTabOf=f=>f==="bs"?"sym":f;
+function cardSecOf(t){ return ["sym","dz","visit","meds","all"].includes(t)?"hist":["lab","dyn","doc"].includes(t)?t:null; }
+let histOpen=null, HISTLAST="all", CARDFROM=null;   // раскрытая болезнь; последний вид «Истории»; откуда ушли в «Профиль»
+// куда вернёт «← Медкарта» со страницы профиля: туда, откуда ушли; без состояния — «История → Всё»
+function cardBackTarget(from){ return from&&CARDK.includes(from.tab)?{tab:from.tab,symView:from.symView||"main",histOpen:from.histOpen||null}:{tab:"all",symView:"main",histOpen:null}; }
+// болезни и симптомы одним списком: у каждой болезни — её симптомы, лекарства, приёмы; симптомы без болезни — отдельной группой (ТЗ-052 блок 1)
+function histGroups(P,today,resolver){
+  const S=(P&&P.sym)||{}, log=S.log||[], res=resolver||(typeof epLinksFinal==="function"?epLinksFinal:epLinks), seen=new Set();
+  const eps=(S.ep||[]).slice().sort((a,b)=>(!a.d2===!b.d2?0:!a.d2?-1:1)||String(b.d1).localeCompare(String(a.d1)));
+  const illnesses=eps.map(ep=>{
+    const L=res(P,ep,today)||{}, syms=[];
+    (L.sym||[]).forEach(x=>{ if(x&&x.n&&!syms.includes(x.n)) syms.push(x.n); });
+    syms.forEach(n=>seen.add(n));
+    return {ep,syms,meds:L.meds||[],visits:L.visits||[]};
+  });
+  const free=[]; log.forEach(x=>{ if(x&&x.n&&!seen.has(x.n)&&!free.includes(x.n)) free.push(x.n); });
+  return {illnesses,free};
+}
+function histBsHtml(P,today){
+  const G=histGroups(P,today), log=((P.sym||{}).log)||[], d30=dayShift(today,-29);
+  const symLink=n=>`<span class="medlink" data-sym="${esc(n)}">${esc(n)}</span>`;
+  const ills=G.illnesses.map(({ep,syms,meds,visits})=>{
+    const per=ep.d2?`${ru(ep.d1)} — ${ru(ep.d2)}`:`идёт с ${ru(ep.d1)}`, nm=/[a-zа-яё]{3}/i.test(ep.dx||"")&&!/^не установлен/i.test(ep.dx||"")?ep.dx:"Болезнь без названия";
+    return `<details class="hill" data-hopen="${esc(ep.id)}"${histOpen===ep.id?" open":""}><summary><span class="hill__t"><b>${esc(nm)}</b><span class="muted">${per}</span></span></summary>
+      <div class="hill__b">
+        <div>${syms.length?syms.map(symLink).join(" · "):'<span class="muted">Симптомов не записано</span>'}</div>
+        ${meds.length?`<div class="muted">Лекарства: ${esc(meds.map(m=>m.n).join(", "))}</div>`:""}
+        ${(ep.rx&&ep.rx.length)?`<div class="muted">Лечение: ${esc(rxText(ep.rx,today))}</div>`:""}
+        ${visits.map(r=>`<div class="hill__v" data-rec="${idOf(r)}">Приём ${dd2(r.d)} · ${esc(r.title||"")}</div>`).join("")}
+        <div class="row" style="gap:10px;margin-top:6px"><span class="eplink" data-epcard="${esc(ep.id)}">Карточка болезни →</span><button class="addsym editep" data-ep="${esc(ep.id)}" title="Изменить болезнь">✎</button>${ep.d2?"":`<button type="button" class="btn btn-secondary ep-off" data-epdismiss="${esc(ep.id)}" title="Болезнь больше не актуальна — закрыть">Не актуальна</button>`}</div>
+      </div></details>`; });
+  const FREE=5, SHOW=8, illHtml=ills.slice(0,SHOW).join("")+(ills.length>SHOW?`<div class="hmore" hidden>${ills.slice(SHOW).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё болезней: ${ills.length-SHOW} ▸</button>`:"");
+  const freeRows=G.free.map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
+    return `<div class="hfree" data-sym="${esc(n)}"><b>${esc(n)}</b><span class="muted">${k?`${k} ${plural(k,"раз","раза","раз")} за 30 дней`:"давно"} · ${L[0]?dd2(L[0].d):""}</span></div>`; });
+  const free=freeRows.slice(0,FREE).join("")+(freeRows.length>FREE?`<div class="hmore" hidden>${freeRows.slice(FREE).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё без болезни: ${freeRows.length-FREE} ▸</button>`:"");
+  if(!illHtml&&!free) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
+  return `<div class="card"><h2>Болезни и симптомы <button class="btn btn-secondary" id="newEp" style="float:right;height:32px;font-size:13px">+ Болезнь</button></h2>
+    ${illHtml||'<p class="muted" style="margin:0">Болезней пока нет.</p>'}
+    ${G.free.length?`<h3 class="hfree__h">Без болезни <span class="muted">— ${G.free.length}</span></h3>${free}`:""}</div>`;
+}
+// полоса Медкарты и переключатель «Истории»
+function cardStripHtml(){
+  const on=cardSecOf(tab);
+  return `<div class="tabs tabs--scroll subnav">${CARD.map(([k,n])=>`<button data-cs="${k}" class="tab${k===on?" is-active":""}">${n}</button>`).join("")}</div>`
+    +(on==="hist"?`<div class="tabs tabs--scroll subnav hfilt">${histFilters().map(([k,n])=>`<button data-hf="${k}" class="tab tab--sm${histFilterOf(tab)===k?" is-active":""}">${n}</button>`).join("")}</div>`:"");
+}
+function cardSecGo(k){
+  if(k==="health"){ CARDFROM={tab,symView,histOpen}; goTab("hp"); return; }
+  if(k==="hist") goTab(HISTLAST==="sym"?"sym":HISTLAST); else goTab(k);
+}
 // старые значения tab → {page, sub}; нужны ссылкам и карточкам, которые ставили прежние вкладки
 function legacyTab(t){
-  if(t==="ill") return {page:"card",sub:"ill"};
+  if(t==="ill"||t==="sym") return {page:"card",sub:"hist",filter:"bs"};   // болезни и симптомы — один раздел внутри «Истории» (ТЗ-052)
+  if(t==="visit") return {page:"card",sub:"hist",filter:"visit"};
+  if(t==="all"||t==="card") return {page:"card",sub:"hist",filter:"all"};
+  if(t==="dz") return {page:"card",sub:"hist",filter:"dz"};   // слежение пока здесь; уйдёт по ТЗ-050
+  if(t==="meds") return {page:"card",sub:"hist",filter:"meds"};
   if(t==="instr") return {page:"card",sub:"lab"};   // исследования объединены с анализами
   if(t==="chk") return {page:"profile",sub:"chk"};   // чекапы — в профиле
-  if(["sym","dz","visit","lab","meds","dyn","all","doc"].includes(t)) return {page:"card",sub:t};
-  if(t==="card") return {page:"card",sub:"sym"};
+  if(["lab","dyn","doc"].includes(t)) return {page:"card",sub:t};
   if(t==="dx"||t==="anam"||t==="todo") return {page:"profile",sub:"health"};
   if(t==="hp") return {page:"profile",sub:"hp"};
   if(t==="dms") return {page:"profile",sub:"dms"};   // ТЗ-005 блоки 13–16
@@ -2496,7 +2554,8 @@ function bottomBar(d){ return (d&&d.nutrition)?["home","card","add","nutr","ask"
 function goTab(t){
   const m=legacyTab(t); if(m.page==="home"&&query){ query=""; const qi=document.getElementById("q"); if(qi) qi.value=""; }   // активный поиск не пускал на главную
   sysFilter=null; symSel=null; medSel=null; insSel=null;
-  if(m.page==="card"){ if(m.sub==="ill"){ tab="sym"; symView="ill"; } else { tab=m.sub; if(m.sub==="sym") symView="main"; } }
+  if(m.page!=="profile") CARDFROM=null;
+  if(m.page==="card"){ if(m.sub==="hist"){ tab=histTabOf(m.filter||"all"); HISTLAST=tab; if(tab==="sym") symView="ill"; } else tab=m.sub; }
   else if(m.page==="profile") tab=(t==="anam")?"anam":t==="prof"?"hp":(t==="ins"||t==="todo"||t==="hp"||t==="hist"||t==="dms"||t==="razb"||t==="chk"||t==="stor")?t:"dx";
   else if(m.page==="home"){ if(m.sub==="cal"){ tab="all"; tlKind="cal"; } else tab="home"; }
   else if(m.page==="ask") tab=(m.sub==="brief")?"doc":"ask";
@@ -3234,6 +3293,8 @@ function qdChipsHtml(inputId,base,val){
   return `<div class="qd-row" data-qd-for="${inputId}" data-qd-base="${base}">`+quickDates(base,val||"").map(c=>`<button type="button" class="dz-chip qd-chip${c.on?" is-on":""}" data-qd="${c.iso}" aria-pressed="${c.on}">${c.label}</button>`).join("")+`</div>`;
 }
 function qdSync(row){ const inp=document.getElementById(row.dataset.qdFor); if(!inp) return; row.querySelectorAll("[data-qd]").forEach(b=>{ const on=b.dataset.qd===inp.value; b.classList.toggle("is-on",on); b.setAttribute("aria-pressed",on); }); }
+document.addEventListener("toggle",e=>{ const dt=e.target; if(dt&&dt.dataset&&dt.dataset.hopen){ if(dt.open) histOpen=dt.dataset.hopen; else if(histOpen===dt.dataset.hopen) histOpen=null;
+  try{ if(typeof NAV!=="undefined"&&!NAV.modal&&!(history.state&&history.state.modal)){ history.replaceState({mk:navSnap()},""); NAV.last=JSON.stringify(navSnap()); } }catch(er){} } },true);
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-qd]"); if(!b) return; const row=b.closest("[data-qd-for]"), inp=row&&document.getElementById(row.dataset.qdFor); if(!inp) return;
   inp.value=b.dataset.qd; inp.dispatchEvent(new Event("change",{bubbles:true})); qdSync(row); });
 document.addEventListener("input",e=>{ const t=e.target; if(!t||!t.id) return; const row=document.querySelector(`[data-qd-for="${t.id}"]`); if(row) qdSync(row); });
@@ -3992,7 +4053,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 20:26";   // подставляется при публикации
+const BUILD="25.10 23:37";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6392,12 +6453,13 @@ async function medRefGet(req,api){
   return null;
 }
 function medRefHtml(r){
+  r=Object.assign({},r,{what:medNoDose(r.what),side:(r.side||[]).filter(x=>!MED_DOSE_RE.test(x)),contra:(r.contra||[]).filter(x=>!MED_DOSE_RE.test(x))});
   const list=a=>{ const L=(a||[]).map(x=>String(x)); return `<ul class="mrl">${L.map((x,i)=>`<li${i>3?' class="more" hidden':""}>${esc(x)}</li>`).join("")}</ul>${L.length>4?`<button type="button" class="linkbtn" data-mrmore="1">Ещё ▸</button>`:""}`; };
   return `<div class="medinfo medref"><div class="mrsec"><b>Что это</b><div>${esc(r.what||"")}</div>${r.class?`<div class="muted">${esc(r.class)}</div>`:""}</div>
     <div class="mrsec"><b>Побочные эффекты</b>${list(r.side)}</div>
     <div class="mrsec"><b>Нельзя, если</b>${list(r.contra)}</div>
     ${medAnalogsHtml(r)}
-    <div class="muted" style="font-size:13px">Справка общая, не заменяет совет врача.${r.source==="ai"?" Составлена нейросетью — сверьте с вкладышем.":""}</div></div>`;
+    <div class="muted" style="font-size:13px">Дозировку определяет врач — смотрите блок «Назначено». Справка общая, не заменяет совет врача.${r.source==="ai"?" Составлена нейросетью — сверьте с вкладышем.":""}</div></div>`;
 }
 // «Аналоги» (ТЗ-045 блок 3): название, действующее вещество, ориентир цены «≈ 200–400 ₽»; на виду 4, остальное под «Ещё»; «похожие по действию» отдельной подписью
 function medAnalogsHtml(r){
@@ -6412,6 +6474,31 @@ async function medAnalogsFill(MN,M){
   if(!window.__MK_KEY) return;
   const ref=await medRefGet(medRefReq(MN,M)); const box=document.getElementById("mAn");
   if(box&&ref) box.outerHTML=medAnalogsHtml(ref);
+}
+// дозировка в справке запрещена (ТЗ-045 блок 4): число с единицей, «2 раза в день», срок. Те же правила на сервере; здесь — для справок, сохранённых раньше
+const MED_DOSE_RE=/\d+(?:[.,]\d+)?\s*(?:мг|мкг|мл|ме|ед|г|%|таб|капс|капл|доз|ингаляц|впрыск|пакет|саше|ампул|дн|нед|мес|раз)(?![а-яё])|раз(?:а)?\s+в\s+(?:день|сутки|неделю)|(?:курс|принимать)\s+\d/i;
+function medNoDose(t){ return String(t||"").split(/(?<=[.!?])\s+/).filter(x=>!MED_DOSE_RE.test(x)).join(" ").trim(); }
+// блок «Назначено» (ТЗ-045 блок 4): схема из записи назначения; врач может её менять — новая схема с датой, прежняя остаётся в «Когда применяли»
+function medSchemes(plan){ return (plan&&Array.isArray(plan.schemes)?plan.schemes:[]).filter(x=>x&&x.on&&x.text).slice().sort((a,b)=>String(a.on).localeCompare(String(b.on))); }
+function medPlannedHtml(m,plan,today){
+  const S=medSchemes(plan), cur=S.length?S[S.length-1]:null, was=m&&m.how||"";
+  if(!m&&!cur) return "";
+  const ru2=iso=>iso.split("-").reverse().join(".");
+  return `<div class="card mplan" style="margin:12px 0 0;padding:12px 14px;box-shadow:none;background:var(--surface-2,#f3f4f6)"><b>Назначено</b>
+    <div class="mplan__s" style="margin-top:4px">${esc(cur?cur.text:(was||"Схема не записана"))}</div>
+    ${cur?`<div class="muted" style="font-size:13px">Схему изменили ${ru2(cur.on)}${was||S.length>1?`; прежняя: ${esc(S.length>1?S[S.length-2].text:was)}`:""}</div>`:""}
+    ${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
+    <details class="mplan__f" style="margin-top:6px"><summary style="min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)">Врач изменил схему</summary>
+      <div style="display:grid;gap:8px"><label>Новая схема<textarea id="mpSchemeText" rows="2" maxlength="200" placeholder="например: 500 мг, 2 раза в день, 6 дней" style="width:100%;min-height:44px;box-sizing:border-box"></textarea></label>
+      <label>С какого дня <input type="date" id="mpSchemeOn" value="${esc(today||"")}" max="${esc(today||"")}" style="min-height:44px"></label>
+      <button type="button" class="btn btn-primary" data-mpscheme="1" style="min-height:44px">Сохранить схему</button></div></details></div>`;
+}
+async function medSchemeSave(name){
+  const t=(document.getElementById("mpSchemeText")||{}).value||"", on=(document.getElementById("mpSchemeOn")||{}).value||localDay();
+  if(!t.trim()){ toast("Впишите новую схему"); return; }
+  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  try{ await mkApi("med_plan_set",{person:cur,key:medKeyOf(name),scheme:{on,text:t.trim()}}); const j=await mkApi("med_plan_list"); MEDPLAN=j.rows||[]; medplanSave(); render(); await medOpen(name); toast("Схема сохранена, прежняя осталась в истории"); }
+  catch(e){ toast("Схема не сохранилась, текст остался в поле"); }
 }
 // строка «Цена» в карточке: только ориентир из справки; свою цену человек не вводит (решение Дениса 25.10.2026)
 function medPriceHtml(ref,plan){
@@ -6518,6 +6605,7 @@ function medCardModel(d,name,today,fullName,refx){
   const courses=[];
   if(m){ const st=since?full(since):(m.after?`после ${full(m.after)} (точная дата не известна)`:"дата начала не известна");
     courses.push({kind:"meds",text:`${st}${m.to?" — "+full(m.to):(state==="on"?" — идёт":"")}`,how:m.how||""}); }
+  medSchemes(plan).forEach(x=>courses.push({kind:"scheme",text:full(x.on),how:"схема: "+x.text}));
   epRx.forEach(({ep,r})=>courses.push({kind:"ep",text:`${r.from?full(r.from):"без даты"}${r.to?" — "+full(r.to):" — идёт"}`,how:r.how||"",ep:ep.id,dx:ep.dx}));
   hits.forEach(x=>courses.push({kind:"log",text:full(x.d),how:`${x.n}${x.h?" · "+x.h:""}`}));
   const conflict=(m&&since&&epRx.length&&!(plan&&plan.started_on))?(()=>{ const r=epRx.find(z=>z.r.from&&z.r.from!==since); return r?{ep:r.r.from,meds:since}:null; })():null;
@@ -6551,7 +6639,7 @@ async function medOpen(name){
     <h2 style="margin:0 0 6px;text-transform:none;font-size:20px;color:var(--ink)">${esc(MT)}<span class="tag2" id="mMark"${M.mark?"":" hidden"} style="background:var(--warnbg);color:var(--warn);font-size:12px;vertical-align:middle">${esc(M.mark)}</span></h2>
     ${M.needVariant?medVariantHtml(MN,null,"card"):""}
     ${M.state==="plan"?`<div style="margin:8px 0"><button type="button" class="btn btn-secondary" data-mdecline="${esc(M.name)}">Не будем принимать</button></div>`:M.state==="declined"?`<div style="margin:8px 0"><button type="button" class="btn btn-secondary" data-mundecline="${esc(M.name)}">Вернуть в назначенные</button></div>`:""}
-    ${m&&m.how?`<div>${esc(m.how)}</div>`:""}${m&&m.why?`<div class="muted" style="margin-top:4px">${esc(m.why)}</div>`:""}
+    ${medPlannedHtml(m,M.plan,localDay())}
     ${ep?`<div style="margin-top:8px"><span class="tag eplink" data-epcard="${esc(ep.id)}" style="font-size:13px;padding:4px 10px">🩹 ${esc(ep.dx)} →</span></div>`:""}
     ${(M.hasMed||M.courses.some(c=>c.kind==="ep"))?`<div class="card" style="margin:12px 0 0;padding:12px 14px;background:var(--surface-2,#f3f4f6);box-shadow:none"><b>Когда начали и когда прекратить</b>
       ${M.till?`<div class="muted" style="margin:4px 0 8px">По плану: ${esc(M.till)}</div>`:""}
@@ -6562,7 +6650,7 @@ async function medOpen(name){
       <div class="muted" style="font-size:12px;margin-top:6px">Эти даты сохраняются отдельно и главнее записей. Пустая дата прекращения — «по состоянию»</div></div>`:""}
     ${M.conflict?`<div class="note" style="margin-top:10px;background:var(--warnbg);color:var(--warn)">В болезни — с ${full(M.conflict.ep)}, в списке «Принимает» — с ${full(M.conflict.meds)}. Уточните, какая дата верная.</div>`:""}
     <h3 style="font-size:14px;margin:16px 0 6px">Когда применяли</h3>
-    ${M.courses.length?`<div class="tbl-wrap"><table class="tbl"><tbody>${M.courses.map(c=>`<tr><td style="white-space:nowrap">${c.kind==="log"?"💬 ":c.kind==="ep"?"🩹 ":"💊 "}${esc(c.text)}</td><td class="muted">${esc(c.how||"")}${c.kind==="ep"&&c.dx?" · "+esc(c.dx):""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="muted">Курсов не записано</div>`}
+    ${M.courses.length?`<div class="tbl-wrap"><table class="tbl"><tbody>${M.courses.map(c=>`<tr><td style="white-space:nowrap">${c.kind==="log"?"💬 ":c.kind==="ep"?"🩹 ":c.kind==="scheme"?"📝 ":"💊 "}${esc(c.text)}</td><td class="muted">${esc(c.how||"")}${c.kind==="ep"&&c.dx?" · "+esc(c.dx):""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="muted">Курсов не записано</div>`}
     ${M.hits.length?`<div class="muted" style="margin-top:6px;font-size:13px">В журнале симптомов: ${M.hits.length} ${plural(M.hits.length,"раз","раза","раз")}, последний — ${full(M.hits[0].d)}</div>`
       :`<div class="muted" style="margin-top:6px;font-size:13px">${esc(M.journalText)}</div>`}
     <div id="mInfo" class="muted" style="margin-top:12px">Ищу справку…</div></div>`;
@@ -7729,7 +7817,7 @@ function profAboutHtml(d){
       <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
       ${d.note?`<div class="muted" style="margin-top:2px">${esc(d.note)}</div>`:""}
       ${polTileHtml(cur)}
-      <div class="row" style="margin-top:10px"><button class="btn btn-secondary" id="profEdit" style="height:34px">Изменить данные и семья</button></div></div>`; }
+      <div class="row" style="margin-top:10px"><button class="btn btn-secondary" id="profEdit" style="height:34px">Данные и семья</button></div></div>`; }
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   polLoad();   // плитка ДМС в шапке
@@ -9563,7 +9651,7 @@ function shellClick(e){
   const bt=t.closest("[data-bt]");
   if(bt){ const k=bt.dataset.bt;
     if(k==="add"){ addMenuOpen(); return true; }
-    goTab(k==="card"?"sym":k); render(); window.scrollTo({top:0}); return true; }
+    goTab(k==="card"?"all":k); render(); window.scrollTo({top:0}); return true; }
   if(t.closest("#whoBtn")){ whoToggle(!document.getElementById("whoWrap").classList.contains("open")); return true; }
   if(!t.closest("#whoWrap")) whoToggle(false);
   if(t.closest("#searchBtn")){ const h=document.querySelector(".app-header"); h.classList.toggle("search-on"); if(h.classList.contains("search-on")) document.getElementById("q").focus(); return true; }
@@ -11461,9 +11549,9 @@ function render(){
   document.getElementById("nav").innerHTML=navItems(d)
     .map(({k,label})=>`<button data-t="${k}" class="tab${(k===tab||(k==="card"&&inCard)||(k==="nutr"&&tab==="diary"))?" is-active":""}">${label}</button>`).join("");
   const inProf=["prof","hp","dms","todo","dx","anam","ins","hist","razb","chk","stor"].includes(tab);
-  const subnav=inCard?`<div class="tabs tabs--scroll subnav">${CARD
-    .map(([k,n])=>`<button data-t="${k}" class="tab${k===(tab==="sym"&&symView==="ill"?"ill":tab)?" is-active":""}">${n}</button>`).join("")}</div>`
-    :inProf?`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
+  if(cardSecOf(tab)==="hist") HISTLAST=tab;
+  const subnav=inCard?cardStripHtml()
+    :inProf?(CARDFROM?'<button type="button" class="back" data-cardback>← Медкарта</button>':"")+`<div class="tabs tabs--scroll subnav">${profTabs().map(([k,n])=>`<button data-t="${k}" class="tab${k===tab?" is-active":""}">${n}</button>`).join("")}</div>`:"";
 
   if(query&&tab==="home")tab="visit";
 
@@ -11708,35 +11796,7 @@ function render(){
 
       let body="";
       if(!S.log.length){
-        body=`<div class="card"><p style="margin:0">Журнал пока пуст. Ниже — за чем стоит следить: список собран из активных диагнозов.</p></div>`;
-      }
-      else if(symView==="ill"){
-        const E=S.ep||[];
-        const open=E.filter(x=>epOpen(x,today));
-        body=`<div class="card"><h2>Болезни <span class="muted" style="text-transform:none">— ${E.length}</span>
-          <button class="btn btn-primary" id="newEp" style="float:right;height:32px;font-size:13px">+ Добавить</button></h2>`+(E.length?`
-          <p class="muted" style="margin:-4px 0 10px">Эпизод — болезнь целиком, от первого признака до выздоровления.
-          «Не закрыто» значит, что дата окончания не проставлена, а с начала прошло больше 30 дней: либо забыли закрыть, либо тянется до сих пор.</p>
-          ${pendingCount()?`<div class="muted" style="font-size:12px;margin:-4px 0 8px;cursor:pointer" id="pendBar">
-            ● ${pendingCount()} правки ждут отправки — нет связи. Посмотреть</div>`:""}
-          ${open.length?`<div class="verdict up">Не закрыто: ${open.length} — ${esc(open.map(x=>x.dx).join("; "))}<div class="muted" style="font-size:12.5px;margin-top:4px">Болезнь прошла или больше не важна — нажмите «Не актуальна» в её строке.</div></div>`:""}
-          <div class="tw" style="margin-top:10px"><table class="tbl"><thead><tr><th>Болезнь</th><th>Начало</th><th>Конец</th><th>Длилось</th><th>Симптомы</th><th>Чем лечили</th><th>Как протекало</th></tr></thead><tbody>
-          ${E.map(x=>{const o=epOpen(x,today), dd=epDays(x,today), sy=epSyms(x,S.log);
-            return `<tr class="eprow"${o?' style="background:var(--badbg)"':""}>
-              <td><b class="eplink" data-epcard="${esc(x.id)}">${esc(x.dx||"без диагноза")}</b>${x.pending?' <span class="pend" title="Изменено в книжке, ещё не в медкарте">●</span>':""}
-                <button class="addsym editep" data-ep="${esc(x.id)}" title="Изменить болезнь">✎</button>${x.d2?"":`<button type="button" class="btn btn-secondary ep-off" data-epdismiss="${esc(x.id)}" title="Болезнь больше не актуальна — закрыть">Не актуальна</button>`}
-                ${x.ab?' <span class="tag2" style="background:var(--warnbg);color:var(--warn)">антибиотик</span>':""}
-                ${x.as?`<div class="muted" style="font-size:12px">записано как «${esc(x.as)}»</div>`:""}</td>
-              <td class="muted">${ru(x.d1)}</td>
-              <td class="muted">${x.d2?ru(x.d2):(o?'<b style="color:var(--bad)">не закрыто</b>':'<span class="muted">—</span>')}</td>
-              <td>${x.d2?human(dd):(o?`<span class="muted">идёт ${human(dd)}</span>`:'<span class="muted">—</span>')}</td>
-              <td style="font-size:13px">${sy.length?sy.map(n=>{const p=(S.log||[]).some(z=>z.n===n&&z.d===x.d&&z.pending);
-                  return `<span class="medlink" data-sym="${esc(n)}">${esc(n)}</span>${p?'<span class="pend" title="Добавлено в книжке, ещё не в медкарте">●</span>':""}`;}).join(", "):'<span class="muted">—</span>'}
-                <button class="addsym" data-ep="${esc(x.id)}" title="Добавить симптом к этой болезни">+</button></td>
-              <td style="font-size:13px;max-width:260px">${(x.rx&&x.rx.length)?esc(rxText(x.rx,localDay())):'<span class="muted">—</span>'}</td>
-              <td class="muted" style="font-size:13px;max-width:340px">${esc(x.t||"—")}</td></tr>`;}).join("")}
-          </tbody></table></div></div>`
-        :`<p style="margin:0">Эпизодов болезней пока нет — добавьте первую кнопкой выше.</p></div>`);
+        body=`<div class="card"><p style="margin:0">Журнал симптомов пока пуст. Ниже — за чем стоит следить: список собран из активных диагнозов.</p></div>`;
       }
       else { let monthHtml="",listHtml="";
       {
@@ -11772,6 +11832,7 @@ function render(){
       }
       body="<!--B:month-->"+monthHtml+listHtml;
       }
+      body="<!--B:ills-->"+histBsHtml(d,today)+body;
 
       const watch=never.length?`<div class="card"><h2>Пока не отмечалось <span class="muted" style="text-transform:none">— ${never.length}</span> <span class="hint" tabindex="0" title="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу." aria-label="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th>Откуда</th><th>Зачем следить</th></tr></thead><tbody>
@@ -12340,7 +12401,7 @@ const NAV={last:null,restoring:false,modal:false,ownBack:0,ownBackAt:0};
 // Окно с формой по нажатию на затемнение не закрывается вовсе: закрыть можно крестиком, «Отмена» или «Назад».
 function navBackdropCloses(o){ return !!(o&&o.down&&!o.form); }
 function navPopClosesModal(nav,now){ if(nav.ownBack>0&&now-nav.ownBackAt<1500){ nav.ownBack--; return false; } nav.ownBack=0; return true; }
-function navSnap(){ return {cur,tab,sysFilter,query,taskIdx,insSel,symSel,medSel,symView}; }
+function navSnap(){ return {cur,tab,sysFilter,query,taskIdx,insSel,symSel,medSel,symView,histOpen}; }
 function navSync(){
   const s=navSnap(), k=JSON.stringify(s);
   if(NAV.last===null){ NAV.last=k; try{ history.replaceState({mk:s},""); }catch(e){} return; }
@@ -12354,7 +12415,7 @@ function navSync(){
 function navApply(s){   // применяет снимок; true — страницу надо перерисовать
   NAV.last=JSON.stringify(s);
   if(NAV.last===JSON.stringify(navSnap())) return false;
-  symDay=null; cur=s.cur; tab=s.tab; sysFilter=s.sysFilter; query=s.query; taskIdx=s.taskIdx; insSel=s.insSel; symSel=s.symSel; medSel=s.medSel; symView=s.symView;
+  symDay=null; cur=s.cur; tab=s.tab; sysFilter=s.sysFilter; query=s.query; taskIdx=s.taskIdx; insSel=s.insSel; symSel=s.symSel; medSel=s.medSel; symView=s.symView; histOpen=s.histOpen||null;
   return true;
 }
 if(typeof window!=="undefined"&&!window.__navBound){
@@ -12440,6 +12501,7 @@ document.addEventListener("click",e=>{
   const mrr=e.target.closest("[data-medrefretry]"); if(mrr){ medOpen(mrr.dataset.medrefretry); return; }
   const mdc=e.target.closest("[data-mdecline],[data-mundecline]"); if(mdc){ e.stopPropagation(); medDeclineClick(mdc.dataset.mdecline||mdc.dataset.mundecline,mdc.dataset.mdecline!=null); return; }
   const mst0=e.target.closest("[data-mstart]"); if(mst0){ e.stopPropagation(); medStartNow(mst0.dataset.mstart); return; }
+  const msc=e.target.closest("[data-mpscheme]"); if(msc){ medSchemeSave(window.__medOpenName); return; }
   const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
     const st=(document.getElementById("mpStart")||{}).value||"", sp=now?localDay():((document.getElementById("mpStop")||{}).value||"");
     if(st&&sp&&sp<st){ toast("Прекратить нельзя раньше, чем начали"); return; }
@@ -12512,6 +12574,10 @@ document.addEventListener("click",e=>{
   const md=e.target.closest("[data-med]"); if(md){ if(md.dataset.med) medOpen(md.dataset.med); return; }
   const mnm=e.target.closest("[data-medname]"); if(mnm){ medOpen(mnm.dataset.medname); return; }
   const sm=e.target.closest("[data-sym]"); if(sm){if(sm.closest(".modal"))closeModal();symSel=sm.dataset.sym||null;symFocus=null;medSel=null;tab="sym";sysFilter=null;render();window.scrollTo({top:0});return}
+  const hm=e.target.closest("[data-hmore]"); if(hm){ const b=hm.previousElementSibling; if(b) b.hidden=false; hm.remove(); return; }
+  const cs=e.target.closest("[data-cs]"); if(cs){ cardSecGo(cs.dataset.cs); render(); window.scrollTo({top:0}); return; }
+  const hf=e.target.closest("[data-hf]"); if(hf){ goTab(histTabOf(hf.dataset.hf)); render(); window.scrollTo({top:0}); return; }
+  const cb=e.target.closest("[data-cardback]"); if(cb){ const f=cardBackTarget(CARDFROM); CARDFROM=null; sysFilter=null; symSel=null; medSel=null; insSel=null; tab=f.tab; symView=f.symView; histOpen=f.histOpen; render(); window.scrollTo({top:0}); return; }
   const t=e.target.closest("[data-t]"); if(t){goTab(t.dataset.t);render();window.scrollTo({top:0});return}
   const cp=e.target.closest("[data-copy]");
   if(cp){ e.stopPropagation();
