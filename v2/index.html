@@ -734,6 +734,8 @@ body.sv-lock{overflow:hidden}
   #docout tr,#docout li,.docreq{break-inside:avoid}
   .dh{break-after:avoid}
 }
+.ocbtn{flex:none;min-height:44px;padding:8px 14px}.linkbtn{display:inline-flex;align-items:center;background:none;border:0;padding:10px 0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;min-height:44px}
+.ocmore{margin:8px 0}.ocmore>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--accent)}.ocsym{margin:12px 0}.ocsym .chip{min-height:44px;background:transparent;border:1px dashed var(--muted);color:var(--muted)}.ocsym .chip.on{background:var(--accent-soft,#e6f0fb);border:1px solid var(--accent);color:var(--accent);font-weight:600}
 .plancard{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.plancard:first-of-type{border-top:0}
 /* ДМС в профиле (ТЗ-005 блоки 13–16) */
 .poltile{display:flex;gap:12px;align-items:center;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;max-width:560px}
@@ -3982,7 +3984,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 19:09";   // подставляется при публикации
+const BUILD="25.10 19:35";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6763,7 +6765,7 @@ function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   const meas=d&&d.nutrition?()=>{ tab="home"; render(); const w=document.getElementById("wIn"); if(w){ w.scrollIntoView({block:"center"}); w.focus(); } }:null;
-  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],
+  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],["outcome",icon("visits"),"Итоги приёма",()=>outcomeForm()],
     ["lab",icon("labs"),"Анализ",f("labForm")],["event",icon("calendar"),"Событие",()=>eventForm()],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",meas],["bp",icon("m-bp"),"Давление",()=>bpForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["vac",icon("vaccines"),"Прививка",f("vacForm")],["note",icon("note"),"Заметка",f("noteForm")]]
     .filter(x=>x[3]).map(([k,ic,t,open])=>({k,ic,t,open}));
@@ -8915,7 +8917,8 @@ const planCount=(p,k)=>(p[k]||[]).length;
 function planCard(p,today){
   const q=planCount(p,"questions"), t=planCount(p,"tests");
   return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${icon("s-"+p.specialty,"ic--20")} ${esc(specName(p.specialty))}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
-    <div class="muted" style="font-size:13px">${esc(planLabel(p,today))} · ${q} ${plural(q,"вопрос","вопроса","вопросов")}${t?` · ${t} ${plural(t,"анализ","анализа","анализов")}`:""}</div></div><span class="muted">→</span></div>`;
+    <div class="muted" style="font-size:13px">${esc(planLabel(p,today))} · ${q} ${plural(q,"вопрос","вопроса","вопросов")}${t?` · ${t} ${plural(t,"анализ","анализа","анализов")}`:""}</div></div>
+    ${p.status==="planned"&&p.planned_date&&p.planned_date<=today?`<button type="button" class="btn btn-primary ocbtn" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button>`:`<span class="muted">→</span>`}</div>`;
 }
 function plansBlock(){
   plansLoad(); if(!PLANS) return "";
@@ -8950,7 +8953,7 @@ function planDraw(){
       <div class="row" style="margin-top:12px"><label class="btn btn-secondary" style="cursor:pointer">📎 Загрузить файл с вопросами<input type="file" id="plFile" accept=".txt,.md,.docx" hidden></label>
         <button class="btn btn-secondary" data-plan="paste">Вставить текст</button></div>
       <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-plan="persist">Сохранить</button><button class="btn btn-secondary" data-plan="makedoc">Подготовить документ</button>
-        ${p.planned_date&&p.planned_date>=localDay()?(calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person)?calDoneHtml():`<button class="btn btn-secondary" data-plan="cal">📅 В календарь</button>`):""}${p.id?`<button class="btn btn-secondary" data-plan="done">Состоялся</button><button class="btn btn-secondary" data-plan="cancel">Отменён</button>`:""}</div>
+        ${p.planned_date&&p.planned_date>=localDay()?(calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person)?calDoneHtml():`<button class="btn btn-secondary" data-plan="cal">📅 В календарь</button>`):""}${p.id?`<button class="btn btn-secondary" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button><button class="btn btn-secondary" data-plan="cancel">Отменён</button>`:""}</div>
       <div id="plLog" class="formlog"></div></div></div>`;
   const f=document.getElementById("plFile"); if(f) f.onchange=()=>planFile(f.files&&f.files[0]);
 }
@@ -8992,6 +8995,8 @@ function planPaste(){
     <textarea id="plPaste" rows="8" style="width:100%"></textarea><div class="row" style="margin-top:10px"><button class="btn btn-primary" data-plan="pasteok">Разобрать</button><button class="btn btn-secondary" data-plan="rvback">Назад</button></div></div>`;
 }
 function planClick(e){
+  const oc=e.target.closest('[data-plan="outcome"]');
+  if(oc){ if(planEdit&&document.getElementById("plSpec")) planSync(); const p=(PLANS||[]).find(x=>x.id===oc.dataset.pid)||(planEdit&&planEdit.id===oc.dataset.pid?planEdit:null); if(p) outcomeForm(p); return true; }
   const o=e.target.closest("[data-planopen]"); if(o){ const p=(PLANS||[]).find(x=>x.id===o.dataset.planopen); if(p) planOpen(p); return true; }
   const a=e.target.closest("[data-plan],[data-padd],[data-pdel]"); if(!a) return false;
   if(a.dataset.padd){ planSync(); const k=a.dataset.padd, el=document.getElementById("pnew_"+k), t=(el.value||"").trim(); if(t){ planEdit[k].push({t,done:false}); } planDraw(); return true; }
@@ -9719,7 +9724,7 @@ const pickHtml=(id,label,goText)=>`<div class="fld"><label>${label}</label>
 const PICKS={};
 function pickFiles(id){ return (PICKS[id]&&PICKS[id].list)||[]; }
 // onChange(list) вызывается после каждого изменения списка
-function pickInit(id,onChange){
+function pickInit(id,onChange,max){
   const st=PICKS[id]={list:[]}, box=document.getElementById(id+"List"), go=document.getElementById(id+"Go");
   const cam=document.querySelector(`[data-pickcam="${id}"]`), hasCam=(navigator.maxTouchPoints||0)>0||matchMedia("(pointer:coarse)").matches;
   if(cam&&hasCam) cam.hidden=false;
@@ -9727,9 +9732,9 @@ function pickInit(id,onChange){
       ${/^image\//.test(f.type||"")?`<img src="${URL.createObjectURL(f)}" alt="" style="width:44px;height:44px;object-fit:cover;border-radius:8px">`:"<span>📄</span>"}
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name||"снимок")}</span>
       <button type="button" class="addsym" data-pickdel="${id}" data-i="${i}" title="Убрать">✕</button></div>`).join("")
-      +(st.list.length?`<div class="hint" style="margin-top:6px">Приложено: ${st.list.length}${st.over?" — больше 10 файлов нельзя":""}</div>`:"");
+      +(st.list.length?`<div class="hint" style="margin-top:6px">Приложено: ${st.list.length}${st.over?" — больше "+(max||10)+" файлов нельзя":""}</div>`:"");
     if(go) go.hidden=!st.list.length; onChange&&onChange(st.list); };
-  const take=e=>{ const r=docListAdd(st.list,e.target.files||[]); st.list=r.list; st.over=r.over; e.target.value=""; draw(); };
+  const take=e=>{ const r=docListAdd(st.list,e.target.files||[],max); st.list=r.list; st.over=r.over; e.target.value=""; draw(); };
   document.getElementById(id).addEventListener("change",take); document.getElementById(id+"Cam").addEventListener("change",take);
   document.querySelector(`[data-pickfile="${id}"]`).onclick=()=>document.getElementById(id).click();
   if(cam) cam.onclick=()=>document.getElementById(id+"Cam").click();
@@ -9864,34 +9869,86 @@ function docTitle(p){
 }
 const docCount=parts=>Object.keys(DOC_T).map(t=>{ const g=parts.filter(p=>p.type===t); if(!g.length) return "";
   return `${DOC_T[t][1]} (${t==="lab"?g.reduce((a,p)=>a+(p.items||[]).length,0)+" показателей":g.length})`; }).filter(Boolean).join(" · ");
-function docForm(){
-  const d=DATA[cur];
+// ── ТЗ-047: итоги приёма. Тот же разбор текста, что у «Документ или текст», но с привязкой к визиту и к симптомам за 2 недели ──
+function outcomeCheck(text,nFiles){ return String(text||"").trim()||nFiles>0?{ok:true}:{ok:false,msg:"Напишите хотя бы одно слово"}; }
+function outcomeReview(parts,text){
+  if(parts&&parts.length) return {empty:false};
+  return {empty:true,msg:"Ничего не нашли. Сохранить как заметку?",note:{type:"note",on:true,quote:"",fields:{text:text}}};
+}
+// жалобы за 14 дней до приёма (граница: день ровно 14 дней назад — вне, следующий — внутри), по одному чипу на симптом, новые сверху
+function visitSymChips(rows,date){
+  const from=dayShift(date,-14), by=new Map();
+  for(const r of rows||[]){ const d=String(r.occurred_on||""); if(!(d>from&&d<=date)) continue;
+    const k=String(r.symptom||"").trim().toLowerCase(); if(!k) continue;
+    const c=by.get(k)||by.set(k,{name:String(r.symptom).trim(),last:d,ids:[],on:true}).get(k);
+    c.ids.push(r.id); if(d>c.last){ c.last=d; c.name=String(r.symptom).trim(); } }
+  return [...by.values()].sort((x,y)=>y.last.localeCompare(x.last));
+}
+// «Сохранено: приём, 1 лекарство, 1 дело. Они уже в истории»
+function outcomeSaved(list){
+  const on=list.filter(p=>p.on), n=t=>on.filter(p=>p.type===t).length, out=[];
+  if(n("visit")) out.push("приём");
+  const add=(t,one,few,many)=>{ const c=n(t); if(c) out.push(c+" "+plural(c,one,few,many)); };
+  add("med","лекарство","лекарства","лекарств"); add("task","дело","дела","дел"); add("symptom","симптом","симптома","симптомов");
+  add("lab","анализ","анализа","анализов"); add("instr","обследование","обследования","обследований"); add("note","заметка","заметки","заметок");
+  return "Сохранено: "+out.join(", ")+". Они уже в истории";
+}
+const outcomeForm=plan=>docForm({outcome:true,plan:plan||null});
+function docForm(opts){
+  const O=opts&&opts.outcome?opts:null, plan=O&&O.plan||null;
+  if(plan&&plan.person&&DATA[plan.person]) cur=plan.person;
+  const d=DATA[cur], oSpec=plan?plan.specialty:docSt.spec, oDate=plan&&plan.planned_date||localDay();
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Документ или текст</h2>
-    <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и дела и разложу по разделам — вы проверите.</div>
+  modal.innerHTML=O?`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Итоги приёма</h2><div class="ctx">${esc(d.short)}${plan?` · ${esc(specName(oSpec))} ${esc(dd2(oDate))}`:""}</div>
+    <div class="addform">
+      ${plan?"":`<div class="fld"><label for="ocSpec">Врач</label><select id="ocSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===oSpec?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      <div class="fld"><label for="ocDate">Дата приёма</label><input id="ocDate" type="date" value="${esc(oDate)}" max="${esc(localDay())}"></div>`}
+      <div class="fld"><label for="docText">Что сказал врач</label><textarea id="docText" rows="5" placeholder="Например: назначил Флуимуцил на 5 дней, контроль через 2 недели"></textarea>
+        <p class="hint">Можно надиктовать с клавиатуры</p></div>
+      <details class="ocmore"><summary>Дополнить: фото заключения</summary>${pickHtml("docFiles","Фото заключения — до 3")}</details>
+      <p class="hint" id="ocEmpty">${outcomeCheck("",0).msg}</p>
+      ${plan?`<p style="margin:6px 0"><button type="button" class="linkbtn" id="ocDone">Только отметить, что состоялся</button></p>`:""}
+      <div class="row"><button class="btn btn-primary" id="docGo" disabled>Разобрать</button><button class="btn btn-secondary" data-close>Отмена</button></div>
+      <div id="docLog" class="formlog" style="margin-top:28px"></div>
+      <div id="docRev"></div></div></div>`
+  :`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Документ или текст</h2>
+    <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и дела и разложу по разделам — вы проверите и сохраните.</div>
     <div class="addform">
       ${pickHtml("docFiles","Фото или PDF — до 10 файлов")}
       <div class="fld"><label for="docText">…или текст</label><textarea id="docText" rows="3" placeholder="Например: Даня кашлял ночью, дали Пульмикорт, врач сказал сдать ОАК"></textarea></div>
       <div class="row"><button class="btn btn-primary" id="docGo">Разобрать</button><button class="btn btn-secondary" data-close>Отмена</button></div>
       <div id="docLog" class="formlog"></div>
       <div id="docRev"></div></div></div>`;
+  const spec=()=>plan?plan.specialty:((document.getElementById("ocSpec")||{}).value||oSpec);
+  const visitDay=()=>plan?oDate:((document.getElementById("ocDate")||{}).value||oDate);
   const log=(t,c)=>{ const e=document.getElementById("docLog"); if(e) e.innerHTML=t?`<div class="${c||""}">${t}</div>`:""; };
   const slog=(t,c)=>{ const e=document.getElementById("docSaveLog"); if(e) e.innerHTML=`<div class="${c||""}">${t}</div>`; };
   const src={text:"",files:[]};
+  let chips=[];   // жалобы за 2 недели (блок 2)
   const save=async (list,btn)=>{
-    const plan=docSavePlan(list,localDay());
-    if(!plan.entries.length&&!plan.symptoms.length){ slog("Ничего не отмечено.","er"); return; }
+    const plan2=docSavePlan(list,localDay());
+    if(!plan2.entries.length&&!plan2.symptoms.length){ slog("Ничего не отмечено.","er"); return; }
     btn.disabled=true;
     try{
-      if(plan.entries.length) await entriesApi("parse_save",{person:cur,text:src.text,files:src.files,parts:plan.entries});
-      for(const x of plan.symptoms){
+      let res=null;
+      if(plan2.entries.length) res=await entriesApi("parse_save",{person:cur,text:src.text,files:src.files,parts:plan2.entries,plan_id:plan&&plan.id||undefined});
+      else if(plan) await entriesApi("plan_done",{person:cur,plan_id:plan.id});
+      for(const x of plan2.symptoms){
         ovAdd({who:cur,d:x.d,n:x.n,p:"",sys:"other",i:null,f:x.f,m:""});
         await mkApi("symptom_add",{person:cur,d:x.d,n:x.n,f:x.f||null});
       }
       await entriesPull(); render();
+      if(plan) { PLANS=null; plansLoad(true); }
       let vmsg=""; // варианты линейки (ТЗ-046): вторым вызовом, сбой не отменяет запись
       for(const p of list.filter(p=>p.on&&p.type==="med"&&p.variant)){ const r=await medVariantSave((p.fields||{}).title||"",p.variant); if(!r.ok) vmsg=r.msg; else if(r.saved) medplanLoad(true); }
-      slog("✓ Записано: "+docCount(list.filter(p=>p.on))+"."+(vmsg?" "+esc(vmsg)+".":""),vmsg?"wa":"ok"); setTimeout(closeModal,vmsg?3500:1400);
+      // повод приёма (ТЗ-047 блок 2): вторым вызовом, сбой не отменяет приём
+      let lmsg="";
+      if(O&&res&&plan2.entries[0]&&plan2.entries[0].kind==="visit"){
+        const ids=chips.filter(c=>c.on).flatMap(c=>c.ids);
+        if(ids.length) try{ await mkApi("visit_link_set",{person:cur,entry_id:res.ids[0],symptom_ids:ids}); }catch(e){ lmsg="Связь не сохранилась. Приём сохранён, привяжите позже"; }
+      }
+      const warn=[vmsg,lmsg].filter(Boolean).map(esc).join(". ");
+      slog("✓ "+(O?outcomeSaved(list):"Записано: "+docCount(list.filter(p=>p.on)))+"."+(warn?" "+warn+".":""),warn?"wa":"ok"); setTimeout(closeModal,warn?3500:1400);
     }catch(e){ slog("Не сохранилось: "+(e.message||"ошибка")+". Попробуйте ещё раз.","er"); btn.disabled=false; }
   };
   const review=found=>{
@@ -9900,13 +9957,14 @@ function docForm(){
     // жалобы с приёма — галочка снята: часто повторяют уже записанный симптом (ответ Дениса, блок 14)
     const hasVisit=found.some(p=>p.type==="visit");
     const parts=found.map(p=>Object.assign({},p,{fields:Object.assign({},p.fields||{}),on:!(p.type==="symptom"&&hasVisit)}));
-    if(!parts.length){
-      box.innerHTML=`<div class="ctx" style="margin-top:12px">Не нашёл медицинских данных — сохранить как заметку?</div>
+    const emp=O?outcomeReview(parts,src.text):{empty:!parts.length,msg:"Не нашёл медицинских данных — сохранить как заметку?",note:{type:"note",on:true,quote:"",fields:{text:src.text}}};
+    if(emp.empty){
+      box.innerHTML=`<div class="ctx" style="margin-top:12px">${emp.msg}</div>
         <div class="row"><button class="btn btn-primary" id="docAsNote">Сохранить как заметку</button><button class="btn btn-secondary" data-close>Отмена</button></div><div id="docSaveLog" class="formlog"></div>`;
-      document.getElementById("docAsNote").onclick=e=>save([{type:"note",on:true,quote:"",fields:{text:src.text}}],e.currentTarget);
+      document.getElementById("docAsNote").onclick=e=>save([emp.note],e.currentTarget);
       return;
     }
-    let open=-1;
+    let open=-1, more=false;
     const partHtml=(p,i)=>{ const f=p.fields;
       return `<details class="docpart${p.on?"":" off"}" data-i="${i}"${i===open?" open":""}><summary><input type="checkbox" class="docon" ${p.on?"checked":""} aria-label="Сохранить">
         <span class="dt">${esc(docTitle(p))}</span><button type="button" class="addsym docdel" title="Убрать">✕</button></summary>
@@ -9919,19 +9977,36 @@ function docForm(){
           ${p.type==="lab"?`<div class="muted" style="font-size:12.5px">${esc((p.items||[]).map(x=>`${x.name} ${x.value}`).join(" · "))}</div>`:""}
           ${p.quote?`<div class="muted docq">из документа: «${esc(p.quote)}»</div>`:""}
         </div></details>`; };
+    // «Что беспокоило за 2 недели» (ТЗ-047 блок 2): до 5 чипов, остальное под «Ещё»
+    const chipsHtml=()=>{
+      if(!O||!parts.some(p=>p.type==="visit")) return "";
+      if(chips===null) return `<p class="hint">Смотрю жалобы за 2 недели…</p>`;
+      if(!chips.length) return `<p class="hint">За 2 недели симптомов не записано</p>`;
+      const vis=more?chips:chips.slice(0,5);
+      return `<div class="ocsym"><b>Что беспокоило за 2 недели</b><div class="chips">${vis.map((c,i)=>`<button type="button" class="chip${c.on?" on":""}" data-ocsym="${i}" aria-pressed="${c.on}">${c.on?"✓":"＋"} ${esc(c.name.toLowerCase())} ${esc(dd2(c.last))}</button>`).join("")}
+        ${!more&&chips.length>5?`<button type="button" class="chip chip--more" data-ocmore="1">Ещё ${chips.length-5} ▸</button>`:""}</div></div>`;
+    };
     const draw=()=>{
       const groups=Object.keys(DOC_T).filter(t=>parts.some(p=>p.type===t));
       box.innerHTML=`<div class="ctx" style="margin-top:12px">Нашёл: ${docCount(parts)}. Отметьте, что сохранить; нажмите на часть — раскроется для правки.${hasVisit&&parts.some(p=>p.type==="symptom")?" Жалобы с приёма не отмечены: часто они уже есть в журнале симптомов.":""}</div>
         ${groups.map(t=>`<h3 class="docgrp">${DOC_T[t][0]} ${DOC_T[t][1]}</h3>${parts.map((p,i)=>p.type===t?partHtml(p,i):"").join("")}`).join("")}
-        <div class="row" style="margin-top:10px"><select id="docAddT" aria-label="Раздел">${Object.keys(DOC_T).filter(t=>t!=="lab").map(t=>`<option value="${t}">${DOC_T[t][0]} ${DOC_T[t][1]}</option>`).join("")}</select>
-          <button type="button" class="btn btn-secondary" id="docAdd">+ Добавить пропущенное</button></div>
-        <div class="row"><button class="btn btn-primary" id="docSave">Сохранить выбранное</button><button class="btn btn-secondary" data-close>Отмена</button></div>
+        ${O?`<details class="ocmore"><summary>Чего-то не хватает?</summary>`:""}<div class="row" style="margin-top:10px"><select id="docAddT" aria-label="Раздел">${Object.keys(DOC_T).filter(t=>t!=="lab").map(t=>`<option value="${t}">${DOC_T[t][0]} ${DOC_T[t][1]}</option>`).join("")}</select>
+          <button type="button" class="btn btn-secondary" id="docAdd">+ Добавить пропущенное</button></div>${O?"</details>":""}
+        ${chipsHtml()}
+        <div class="row"><button class="btn btn-primary" id="docSave">Сохранить${O?"":" выбранное"}</button><button class="btn btn-secondary" data-close>Отмена</button></div>
         <div id="docSaveLog" class="formlog"></div>`;
     };
+    if(O){   // жалобы за 14 дней до приёма — из журнала симптомов в базе
+      chips=null;
+      const vd=((parts.find(p=>p.type==="visit")||{}).fields||{}).d||visitDay();
+      mkApi("symptoms_list",{person:cur,since:dayShift(vd,-14)}).then(j=>{ chips=visitSymChips(j.rows||[],vd); draw(); }).catch(()=>{ chips=[]; draw(); });
+    }
     draw();
     parts.filter(p=>p.type==="med").forEach(p=>{ const t=(p.fields||{}).title||"", was=medVariantHtml(t,null,"doc")!==""; medLineAsk(t).then(()=>{ if(!was&&medVariantHtml(t,null,"doc")!=="") draw(); }); });   // новые линейки — от справочника с нейросетью
     box.onclick=e=>{
       const del=e.target.closest(".docdel"); if(del){ e.preventDefault(); parts.splice(+del.closest(".docpart").dataset.i,1); open=-1; draw(); return; }
+      const cs=e.target.closest("[data-ocsym]"); if(cs){ const c=chips[+cs.dataset.ocsym]; if(c){ c.on=!c.on; draw(); } return; }
+      if(e.target.closest("[data-ocmore]")){ more=true; draw(); return; }
       if(e.target.id==="docAdd"){ parts.push({type:document.getElementById("docAddT").value,on:true,quote:"",fields:{}}); open=parts.length-1; draw(); return; }
       if(e.target.id==="docSave") save(parts,e.target);
     };
@@ -9949,22 +10024,29 @@ function docForm(){
       if(p.type==="med"&&k==="title"&&was!==(medVariantHtml(p.fields.title||"",null,"doc")!=="")){ if(!medLineOf(p.fields.title||"")) p.variant=null; open=+el.dataset.i; draw(); }
     };
   };
-  pickInit("docFiles");
-  document.getElementById("docGo").onclick=async ()=>{
+  const goBtn=document.getElementById("docGo");
+  const gate=()=>{ if(!O) return; const ok=outcomeCheck(document.getElementById("docText").value,pickFiles("docFiles").length).ok; goBtn.disabled=!ok; document.getElementById("ocEmpty").hidden=ok; };
+  pickInit("docFiles",O?gate:undefined,O?3:undefined);
+  if(O){ document.getElementById("docText").addEventListener("input",gate); gate();
+    const dn=document.getElementById("ocDone");
+    if(dn) dn.onclick=async ()=>{ dn.disabled=true; try{ await entriesApi("plan_done",{person:cur,plan_id:plan.id}); PLANS=null; plansLoad(true); toast("Визит отмечен: состоялся"); closeModal(); }catch(e){ log("Не получилось отметить. Попробуйте ещё раз.","er"); dn.disabled=false; } }; }
+  goBtn.onclick=async ()=>{
     const fl=pickFiles("docFiles"), typed=(document.getElementById("docText").value||"").trim();
-    if(!(fl&&fl.length)&&!typed){ log("Добавьте файл или напишите текст.","er"); return; }
+    if(O){ const c=outcomeCheck(typed,fl.length); if(!c.ok){ log(c.msg,"er"); return; } }
+    else if(!(fl&&fl.length)&&!typed){ log("Добавьте файл или напишите текст.","er"); return; }
     if(!window.__MK_KEY){ log("Нет связи с базой — откройте медкнижку по своей ссылке.","er"); return; }
     if(fl&&fl.length&&!privacyOk()) return;
-    const go=document.getElementById("docGo"); go.disabled=true; document.getElementById("docRev").innerHTML="";
+    goBtn.disabled=true; document.getElementById("docRev").innerHTML="";
     try{
       let text=typed, files=[];
       if(fl&&fl.length){ const p=await prepareDocs(fl,t=>log(t)); src.files=p.keep; files=p.files; text=[p.text,typed].filter(Boolean).join("\n\n"); }
-      log("Разбираю документ…");
-      const res=await entriesApi("parse_source",{person:cur,today:localDay(),text:text||undefined,files:!text&&files.length?files:undefined});
+      log(O?"Разбираем текст…":"Разбираю документ…");
+      const res=await entriesApi("parse_source",{person:cur,today:localDay(),text:text||undefined,files:!text&&files.length?files:undefined,
+        hint:O?{date:visitDay(),specialty:specName(spec())}:undefined});
       src.text=text||res.text||"";
       review(res.parts||[]);
-    }catch(err){ log(err.message==="limit"?"На сегодня распознаваний больше нет (30 в сутки). Заполните через отдельные пункты меню.":"Не получилось прочитать. Переснимите при хорошем свете или напишите текстом.","wa"); }
-    go.disabled=false;
+    }catch(err){ log(err.message==="limit"?"На сегодня распознаваний больше нет (30 в сутки). Заполните через отдельные пункты меню.":O?"Не получилось разобрать. Текст сохранён на экране, попробуйте ещё раз":"Не получилось прочитать. Переснимите при хорошем свете или напишите текстом.","wa"); }
+    goBtn.disabled=false;
   };
 }
 function visitForm(entryId){
