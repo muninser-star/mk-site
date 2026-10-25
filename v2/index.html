@@ -3992,7 +3992,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="25.10 20:15";   // подставляется при публикации
+const BUILD="25.10 20:26";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6396,21 +6396,27 @@ function medRefHtml(r){
   return `<div class="medinfo medref"><div class="mrsec"><b>Что это</b><div>${esc(r.what||"")}</div>${r.class?`<div class="muted">${esc(r.class)}</div>`:""}</div>
     <div class="mrsec"><b>Побочные эффекты</b>${list(r.side)}</div>
     <div class="mrsec"><b>Нельзя, если</b>${list(r.contra)}</div>
+    ${medAnalogsHtml(r)}
     <div class="muted" style="font-size:13px">Справка общая, не заменяет совет врача.${r.source==="ai"?" Составлена нейросетью — сверьте с вкладышем.":""}</div></div>`;
 }
-// «Заплатили, ₽»: «350,50» → 350.5; не число и отрицательное — отказ
-function medPriceParse(t){
-  const x=String(t==null?"":t).replace(/\s/g,"").replace(",","."); if(x==="") return {ok:true,value:null};
-  if(!/^\d+(\.\d{1,2})?$/.test(x)) return {ok:false,msg:"Введите сумму числом"};
-  return {ok:true,value:Math.round(parseFloat(x)*100)/100};
+// «Аналоги» (ТЗ-045 блок 3): название, действующее вещество, ориентир цены «≈ 200–400 ₽»; на виду 4, остальное под «Ещё»; «похожие по действию» отдельной подписью
+function medAnalogsHtml(r){
+  const price=v=>{ const m=String(v||"").match(/^(\d+)-(\d+)$/); return m?` <span class="muted" style="white-space:nowrap">≈\u00a0${m[1]}–${m[2]}\u00a0₽</span>`:""; };
+  const list=a=>{ const L=(Array.isArray(a)?a:[]).filter(x=>x&&x.name); return L.length?`<ul class="mrl">${L.map((x,i)=>`<li${i>3?' class="more" hidden':""}><b>${esc(x.name)}</b>${x.substance?` <span class="muted">· ${esc(x.substance)}</span>`:""}${price(x.price_range)}</li>`).join("")}</ul>${L.length>4?`<button type="button" class="linkbtn" data-mrmore="1">Ещё ▸</button>`:""}`:""; };
+  const same=list(r&&r.analogs), sim=list(r&&r.alike);
+  if(!same&&!sim) return "";
+  return `<div class="mrsec mran"><b>Аналоги</b>${same}${sim?`<div class="muted" style="margin-top:6px">Похожие по действию</div>${sim}`:""}<div class="muted" style="font-size:13px;margin-top:4px">Аналог — не замена: решает врач</div></div>`;
 }
+// для лекарств из справочника семьи (там своего списка аналогов нет) аналоги берём из общей справки
+async function medAnalogsFill(MN,M){
+  if(!window.__MK_KEY) return;
+  const ref=await medRefGet(medRefReq(MN,M)); const box=document.getElementById("mAn");
+  if(box&&ref) box.outerHTML=medAnalogsHtml(ref);
+}
+// строка «Цена» в карточке: только ориентир из справки; свою цену человек не вводит (решение Дениса 25.10.2026)
 function medPriceHtml(ref,plan){
-  const paid=plan&&plan.price_paid!=null&&plan.price_paid!==""?Number(plan.price_paid):null, hint=ref&&ref.price_hint;
-  const fmt=n=>String(n).replace(".",",");
-  const text=[hint?`<span class="mrp muted">Ориентир ${esc(hint)} (примерно, проверьте в аптеке)</span>`:"",paid!=null?`<span class="mrp">Заплатили: <b>${esc(fmt(paid))} ₽</b></span>`:""].filter(Boolean).join("");
-  return `<div class="mrprice"><b>Цена</b> ${text||'<span class="muted">Цены пока нет</span>'}
-    <details style="margin-top:6px"><summary>Записать, сколько заплатили</summary><div class="row" style="gap:8px;align-items:center;margin-top:6px"><label style="display:flex;gap:6px;align-items:center">Заплатили, ₽ <input id="mpPrice" inputmode="decimal" style="width:110px" value="${paid!=null?esc(fmt(paid)):""}"></label>
-      <button type="button" class="btn btn-secondary" data-mpprice="1">Сохранить цену</button></div></details></div>`;
+  const hint=ref&&ref.price_hint;
+  return `<div class="mrprice"><b>Цена</b> ${hint?`<span class="mrp muted">Ориентир ${esc(hint)}</span>`:'<span class="muted">Цены пока нет</span>'}</div>`;
 }
 // клик по кнопке варианта: подсветка, поле «Другое», запоминание выбора (форма — в window.__mvChoice, экран проверки — событием mvchoice, карточка — сразу в базу)
 function medVarClick(btn){
@@ -6440,13 +6446,6 @@ async function medDeclineClick(name,on){
   const r=await medDecline(name,on); if(!r.ok){ toast(esc(r.msg)); return; }
   try{ const j=await mkApi("med_plan_list"); MEDPLAN=j.rows||[]; medplanSave(); }catch(e){}
   render(); if(on) toast(`${esc(medShort(name))} убран из назначенных.`,"Вернуть",()=>medDeclineClick(name,false),10000);
-}
-// «Заплатили, ₽» в карточке: число или пусто; при сбое число остаётся в поле
-async function medPriceSave(name){
-  const inp=document.getElementById("mpPrice"), r=medPriceParse(inp?inp.value:""); if(!r.ok){ toast(r.msg); return; }
-  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-  try{ await mkApi("med_plan_set",{person:cur,key:medKeyOf(name),price:r.value}); const j=await mkApi("med_plan_list"); MEDPLAN=j.rows||[]; medplanSave(); const v=inp.value; render(); await medOpen(name); toast("Цена сохранена"); }
-  catch(e){ toast("Цена не сохранилась, число осталось в поле"); }
 }
 // «Начали» в разделе «Лекарства»: дата начала — сегодня (как «Начали» в карточке); отказ снимается на сервере
 async function medStartNow(name){
@@ -6568,7 +6567,7 @@ async function medOpen(name){
       :`<div class="muted" style="margin-top:6px;font-size:13px">${esc(M.journalText)}</div>`}
     <div id="mInfo" class="muted" style="margin-top:12px">Ищу справку…</div></div>`;
   const box=document.getElementById("mInfo");
-  if(!(M.line&&M.variant)&&medRefFor(MN)){ const html=await medInfoHtml(MN); if(box) box.outerHTML=html||medNoInfoHtml(MN); return; }       // справочник семьи главнее
+  if(!(M.line&&M.variant)&&medRefFor(MN)){ const html=await medInfoHtml(MN); if(box) box.outerHTML=(html||medNoInfoHtml(MN))+(html?'<div id="mAn"></div>':""); if(html) medAnalogsFill(MN,M); return; }       // справочник семьи главнее
   if(!window.__MK_KEY){ if(box) box.outerHTML=medNoInfoHtml(MN); return; }
   if(box) box.textContent="Составляем справку…";
   const ref=await medRefGet(medRefReq(MN,M));
@@ -12439,7 +12438,6 @@ document.addEventListener("click",e=>{
   const mad=e.target.closest("[data-medadd]"); if(mad){ medForm(); return; }
   const mrm=e.target.closest("[data-mrmore]"); if(mrm){ const ul=mrm.previousElementSibling; if(ul) ul.querySelectorAll("li.more").forEach(li=>li.hidden=false); mrm.remove(); return; }
   const mrr=e.target.closest("[data-medrefretry]"); if(mrr){ medOpen(mrr.dataset.medrefretry); return; }
-  const mpp=e.target.closest("[data-mpprice]"); if(mpp){ medPriceSave(window.__medOpenName); return; }
   const mdc=e.target.closest("[data-mdecline],[data-mundecline]"); if(mdc){ e.stopPropagation(); medDeclineClick(mdc.dataset.mdecline||mdc.dataset.mundecline,mdc.dataset.mdecline!=null); return; }
   const mst0=e.target.closest("[data-mstart]"); if(mst0){ e.stopPropagation(); medStartNow(mst0.dataset.mstart); return; }
   const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
