@@ -108,6 +108,8 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hill{border-top:1px solid var(--line,#e5e7eb);padding:0}.hill>summary{min-height:44px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;cursor:pointer;padding:6px 0}.hill>summary{list-style:none}.hill>summary::-webkit-details-marker{display:none}.hill>summary::after{content:"▸";margin-left:auto;color:var(--muted)}.hill[open]>summary::after{content:"▾"}.hill__t{display:flex;flex-direction:column;gap:2px;min-width:0}.hill__b .eplink,.hill__b .editep{min-height:44px;display:inline-flex;align-items:center}.hill__b .editep{min-width:44px;justify-content:center}.hill__b .ep-off{min-height:44px}
 .hill__b{padding:0 0 10px;display:grid;gap:6px}.hill__v{cursor:pointer;min-height:32px;color:var(--muted)}.hfree{min-height:44px;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--line,#e5e7eb);cursor:pointer}.hfree__h{margin:14px 0 4px;font-size:14px}.hfilt .tab--sm{font-size:14px;padding:6px 12px}
 .lrow{display:flex;align-items:center;gap:8px;min-height:52px;border-top:1px solid var(--line)}.lrow:first-of-type{border-top:0}.lrow__n{flex:1;min-width:0}.lmv{min-width:44px;min-height:44px;border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer}.lsw{position:relative;display:inline-flex;min-width:56px;min-height:44px;align-items:center;justify-content:center;cursor:pointer}.lsw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}.lsw__t{width:46px;height:26px;border-radius:13px;background:var(--line);position:relative;transition:background .15s}.lsw__t::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .15s}.lsw input:checked+.lsw__t{background:var(--accent)}.lsw input:checked+.lsw__t::after{left:23px}.lsw input:disabled+.lsw__t{opacity:.5}.lsw input:focus-visible+.lsw__t{outline:2px solid var(--accent);outline-offset:2px}.lsetrow{display:flex;justify-content:flex-end}.lset{min-height:44px;padding:0 4px}.lhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}.lhead h2{margin:0;font-size:20px;text-transform:none;color:var(--ink)}@media (prefers-reduced-motion:reduce){.lsw__t,.lsw__t::after{transition:none}}
+.isc{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}@media (min-width:560px){.isc{grid-template-columns:repeat(10,1fr)}}.isb{min-height:48px;border-radius:12px;border:2px solid transparent;font-size:19px;font-weight:700;cursor:pointer;color:var(--ink)}.isb--lo{background:var(--okbg);color:var(--ok)}.isb--mid{background:var(--warnbg);color:var(--warn)}.isb--hi{background:var(--badbg);color:var(--bad)}.isb.on{color:#fff;border-color:var(--ink)}.isb--lo.on{background:var(--ok)}.isb--mid.on{background:var(--warn)}.isb--hi.on{background:var(--bad)}.isc-cap{margin-top:6px;font-size:13px;color:var(--muted)}.isc-sel{min-height:30px;margin-top:4px;font-size:22px;font-weight:700}
+.cdot{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:-3px;border:1px solid var(--line)}.rfnote{margin:6px 0;padding:8px 10px;border-radius:10px;background:var(--badbg);color:var(--bad);font-size:14px}.chip.on .cdot{border-color:var(--ink)}
 .qsrow{display:flex;gap:8px;flex-wrap:wrap}.qsb{flex:1;min-width:88px;min-height:56px;font-size:17px}.qsb.on,.qsnum .on{background:var(--accent);color:#fff;border-color:var(--accent)}.qsmore>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.qsnum{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}.qsnum .btn{min-height:44px;padding:0}
 .symform .flab{display:block;font-size:13px;color:var(--muted);margin:2px 0 6px}.symform .fin{width:100%;min-height:44px;box-sizing:border-box}.symform .chips,.chips{display:flex;flex-wrap:wrap;gap:6px}.symform .chip,.chips .chip{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);font-size:15px;cursor:pointer}.symform .chip.on,.chips .chip.on{background:var(--accentbg);border-color:var(--accent);color:var(--accent);font-weight:600}.symform .chip--more{border-style:dashed;color:var(--muted)}.secth{margin:14px 0 6px;font-size:14px}.ep-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:6px 0}.ep-row:first-of-type{border-top:0}
 .medref .mrsec{margin:8px 0}.medref .mrl{margin:4px 0 0;padding-left:20px}.medref [hidden]{display:none!important}.mrprice{margin-top:12px}.mrprice summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.mrprice input{min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:0 10px;font:inherit}.mrprice .btn{min-height:44px}.medref [data-mrmore]{min-height:44px}.mrprice .mrp{display:block;margin-top:2px}
@@ -2483,11 +2485,21 @@ function histGroups(P,today,resolver){
   const free=[]; log.forEach(x=>{ if(x&&x.n&&!seen.has(x.n)&&!free.includes(x.n)) free.push(x.n); });
   return {illnesses,free};
 }
+// название болезни для списков: своё; если не задано — по самым частым связанным симптомам, без нейросети («Кашель», «Кашель, сопли и температура с 09.09»).
+// Одно место: ТЗ-049 расширит (объединение симптомов в повод, переименование)
+function illnessTitle(ep,syms,log){
+  if(/[a-zа-яё]{3}/i.test(ep.dx||"")&&!/^не установлен/i.test(ep.dx||"")) return ep.dx;
+  const cnt={}; (log||[]).forEach(x=>{ if((syms||[]).includes(x.n)&&x.d>=ep.d1&&(!ep.d2||x.d<=ep.d2)) cnt[x.n]=(cnt[x.n]||0)+1; });
+  const top=(syms||[]).slice().sort((a,b)=>(cnt[b]||0)-(cnt[a]||0)).slice(0,3);
+  if(!top.length) return "Болезнь с "+dd2(ep.d1);
+  const low=top.map((n,i)=>i?n.toLowerCase():n), list=low.length>1?low.slice(0,-1).join(", ")+" и "+low[low.length-1]:low[0];
+  return top.length>1?`${list} с ${dd2(ep.d1)}`:list;
+}
 function histBsHtml(P,today){
   const G=histGroups(P,today), log=((P.sym||{}).log)||[], d30=dayShift(today,-29);
   const symLink=n=>`<span class="medlink" data-sym="${esc(n)}">${esc(n)}</span>`;
   const ills=G.illnesses.map(({ep,syms,meds,visits})=>{
-    const per=ep.d2?`${ru(ep.d1)} — ${ru(ep.d2)}`:`идёт с ${ru(ep.d1)}`, nm=/[a-zа-яё]{3}/i.test(ep.dx||"")&&!/^не установлен/i.test(ep.dx||"")?ep.dx:"Болезнь без названия";
+    const per=ep.d2?`${ru(ep.d1)} — ${ru(ep.d2)}`:`идёт с ${ru(ep.d1)}`, nm=illnessTitle(ep,syms,log);
     return `<details class="hill" data-hopen="${esc(ep.id)}"${histOpen===ep.id?" open":""}><summary><span class="hill__t"><b>${esc(nm)}</b><span class="muted">${per}</span></span></summary>
       <div class="hill__b">
         <div>${syms.length?syms.map(symLink).join(" · "):'<span class="muted">Симптомов не записано</span>'}</div>
@@ -4058,7 +4070,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 00:23";   // подставляется при публикации
+const BUILD="26.10 00:35";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -11556,54 +11568,87 @@ function hdViewClose(){ if(HDV){ HDV.remove(); HDV=null; } }
 if(typeof window!=="undefined") window.addEventListener("popstate",e=>{ if(HDV){ hdViewClose(); e.stopImmediatePropagation(); } },true);   // раньше общего «назад», который закрыл бы форму
 // ── Слежение (ТЗ-050): блок «Слежу» на главной, настройка у симптома, детали и эпизоды симптома ──
 // Подписи триггеров и вариантов — как в каталоге дневников; id латиницей (такие же знает сервер)
-const TRK_TRIG={sleep:"Недосып",stress:"Стресс",hunger:"Голод",food:"Еда",weather:"Погода",meds:"Лекарства","sick-contact":"Контакт с больным"};
+const TRK_TRIG={other:"Другое","pollen-trees":"Пыльца деревьев","pollen-grass":"Пыльца трав",dust:"Пыль",animals:"Животные",cold:"Холодный воздух",detergent:"Моющие средства",sleep:"Недосып",stress:"Стресс",hunger:"Голод",food:"Еда",weather:"Погода",meds:"Лекарства","sick-contact":"Контакт с больным"};
 const TRK_SEC={how:"Как это было",where:"Где",help:"Что помогло"};
 // справочник «симптом → поля»: names — названия (через sameSym), поля по порядку; sec — секция экрана; kid — подпись для ребёнка до 12 лет
 function symptomFieldDefs(){
   const cs=(k,n,o)=>Object.assign({key:k,type:"chip1",label:n,opts:null},o||{});
+  const TR=(ids,sec)=>({key:"triggers",type:"triggers",label:"Что было перед этим?",ids:ids.concat(["other"]),sec:sec||"help"});
   return [
     {id:"head",title:"Головная боль",names:["головная боль","светобоязнь","звуки раздражают","аура","мигрень"],fields:[
-      {key:"intensity",type:"scale",label:"Сила"},
-      {key:"zones",type:"zones",label:"Где болит",kid:"Где болит",sec:"where"},
-      {key:"chars",type:"chars",label:"Как болит",kid:"Как болит",sec:"how"},
-      {key:"ended_at",type:"duration",label:"Сколько длилась",sec:"how"},
-      {key:"triggers",type:"triggers",label:"Что было перед этим",ids:["sleep","stress","hunger","food","weather"],sec:"help"},
-      {key:"dose",type:"med",label:"Что принял",sec:"help"}]},
+      {key:"zones",type:"zones",label:"Где болит голова?",kid:"Где болит?",sec:"where"},
+      {key:"chars",type:"chars",label:"Какая боль?",kid:"Как болит?",sec:"how"},
+      {key:"ended_at",type:"duration",label:"Сколько длилась?",sec:"how"},
+      TR(["sleep","stress","hunger","food","weather"])]},
     {id:"gi",title:"Живот",names:["боль в животе","вздутие","тошнота","изжога","жидкий стул","запор","рвота"],fields:[
-      {key:"intensity",type:"scale",label:"Сила"},
-      cs("place","Где в животе",{type:"chipN",max:3,sec:"where",opts:[["top","Верх"],["bottom","Низ"],["left","Слева"],["right","Справа"],["navel","Вокруг пупка"],["all","Везде"]]}),
-      cs("stool","Стул",{sec:"how",opts:[["normal","Обычный"],["liquid","Жидкий"],["hard","Твёрдый"],["none","Не было"]]}),
-      cs("nausea","Тошнота",{sec:"how",opts:[["none","Нет"],["weak","Слабая"],["strong","Сильная"]]}),
-      {key:"food",type:"text",label:"Что ели перед этим",sec:"help",max:120},
-      {key:"triggers",type:"triggers",label:"Что было перед этим",ids:["food","stress","meds"],sec:"help"}]},
+      cs("place","Где болит живот?",{type:"chipN",max:3,sec:"where",opts:[["top","Верх"],["bottom","Низ"],["left","Слева"],["right","Справа"],["navel","Вокруг пупка"],["all","Везде"]]}),
+      cs("stool","Какой стул?",{sec:"how",opts:[["normal","Обычный"],["liquid","Жидкий"],["hard","Твёрдый"],["none","Не было"]]}),
+      cs("nausea","Есть ли тошнота?",{sec:"how",opts:[["none","Нет"],["weak","Слабая"],["strong","Сильная"]]}),
+      TR(["food","stress","meds"]),
+      {key:"food",type:"text",label:"Что ели?",ph:"например, молоко, яблоко",sec:"help",max:120,showIf:"food"}]},
     {id:"orvi",title:"ОРВИ",match:n=>/^температура/.test(n),names:["кашель","боль в горле","насморк","заложенность носа","потеря вкуса и обоняния","затруднение дыхания","боль в груди"],fields:[
-      {key:"intensity",type:"scale",label:"Сила"},
-      {key:"temp",type:"temp",label:"Температура, °C",sec:"how"},
-      cs("cough","Кашель",{sec:"how",opts:[["none","Нет"],["dry","Сухой"],["wet","Влажный"]]}),
-      cs("nose","Нос",{sec:"how",opts:[["none","Нет"],["stuffy","Заложен"],["runny","Течёт"]]}),
-      cs("throat","Горло",{sec:"how",opts:[["none","Нет"],["slight","Слегка"],["strong","Сильно"]]})]},
+      {key:"temp",type:"temp",label:"Какая температура, °C?",sec:"how"},
+      cs("cough","Какой кашель?",{sec:"how",opts:[["none","Нет"],["dry","Сухой"],["wet","Влажный"]]}),
+      cs("nose","Что с носом?",{sec:"how",opts:[["none","Нормальный"],["stuffy","Заложен"],["runny","Течёт"]]}),
+      cs("throat","Что с горлом?",{sec:"how",opts:[["none","Нормальное"],["slight","Слегка болит"],["strong","Сильно болит"]]}),
+      TR(["sick-contact"])]},
     {id:"skin",title:"Аллергия, кожа",names:["чихание","слезотечение","покраснение глаз","зуд в носу и глазах","зуд","высыпания","сухость кожи","покраснение"],fields:[
-      {key:"intensity",type:"scale",label:"Сила"},{key:"note",type:"text",label:"Как проявлялось",sec:"how",max:500}]}
+      {key:"note",type:"text",label:"Как проявлялось?",ph:"например, где и как выглядит",sec:"how",max:500},
+      TR(["pollen-trees","pollen-grass","dust","animals","cold","food","stress","detergent"])]}
   ];
 }
 function symNorm(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
-// набор полей симптома: {group, fields:[{key,…,sec}], more:[…]}; на виду ≤ 3 поля в секции, остальные в more; cfg.fields скрывает поля (силу — нельзя)
+// мера симптома (ТЗ-050 блок 4, таблица мер): у большинства симптомов остаётся интенсивность — «Слабо / Средне / Сильно» и «Точнее» (0–10);
+// своя мера только там, где силу оценить нельзя: жидкий стул и рвота — сколько раз за день, температура — число °C
+// шкала интенсивности — один компонент для всех симптомов, где сила осмысленна: цифры 1–10, градации 1–3 слабо · 4–6 средне · 7–10 сильно (цвет не единственный сигнал)
+const INT_BANDS=[[1,3,"слабо","lo"],[4,6,"средне","mid"],[7,10,"сильно","hi"]];
+// значение силы: число как есть; старые словесные записи читаются при показе (слабо=2, средне=5, сильно=8), хранимое значение не меняется
+function intensityOf(v){ if(v==null||v==="") return null; if(typeof v==="number") return isFinite(v)?v:null; const t=String(v).toLowerCase().trim(); if(/^\d+([.,]\d+)?$/.test(t)) return parseFloat(t.replace(",",".")); if(/слаб/.test(t)) return 2; if(/средн/.test(t)) return 5; if(/сильн/.test(t)) return 8; return null; }
+function intensityBand(v){ const n=intensityOf(v); if(n==null) return null; if(n<1) return {label:"нет",cls:"none"}; const b=INT_BANDS.find(x=>Math.round(n)>=x[0]&&Math.round(n)<=x[1])||INT_BANDS[2]; return {label:b[2],cls:b[3]}; }
+function intensityText(v){ const n=intensityOf(v), b=intensityBand(v); return n==null?"":`${Math.round(n)} — ${b.label}`; }
+function intensityScaleHtml(sel,attr){
+  const n=intensityOf(sel), cls=v=>(INT_BANDS.find(b=>v>=b[0]&&v<=b[1])||[0,0,0,"hi"])[3];
+  return `<div class="isc" role="group" aria-label="Сила от 1 до 10">${[1,2,3,4,5,6,7,8,9,10].map(v=>`<button type="button" class="isb isb--${cls(v)}${n===v?" on":""}" ${attr}="${v}" aria-pressed="${n===v}">${v}</button>`).join("")}</div>
+    <div class="isc-cap">1–3 слабо · 4–6 средне · 7–10 сильно</div><div class="isc-sel" data-iscsel>${n!=null?esc(intensityText(n)):""}</div>`;
+}
+const STOOL_COLORS=[["brown","Коричневый",{c:"#8b5a2b"}],["darkbrown","Тёмно-коричневый",{c:"#4a2f1a"}],["lightbrown","Светло-коричневый",{c:"#b98a5a"}],["orange","Оранжевый",{c:"#e8913a"}],["reddish","Красноватый",{c:"#c0392b",red:1}],["green","Зелёный",{c:"#5a8f3c"}],["lightyellow","Светло-жёлтый",{c:"#e8d77a"}],["black","Чёрный",{c:"#1e1e1e",red:1}]];
+const STOOL_FIELDS=[{key:"stool_color",type:"chip1",label:"Какой цвет стула?",sec:"how",opts:STOOL_COLORS,redNote:1},
+  {key:"admix",type:"chipN",max:2,label:"Есть ли примесь?",sec:"how",opts:[["mucus","Слизь"],["blood","Кровь",{red:1}]],redNote:1},
+  {key:"pain_before",type:"chip1",label:"Была ли боль перед стулом?",sec:"where",opts:[["no","Нет"],["yes","Есть"]]}];
+const SYM_MEASURES={
+  scale:{key:"intensity",mtype:"scale",label:"Как сильно?",hint:"1 — почти не заметно, 10 — сильнее не бывает"},
+  pain:{key:"intensity",mtype:"scale",label:"Как сильно болит?",hint:"1 — чуть-чуть, 5 — терпимо, 10 — нестерпимо"},
+  times:{key:"times",mtype:"choice",label:"Сколько раз за день?",opts:[["one","1 раз"],["few","2–3 раза"],["many","4 и больше"]]},
+  temp:{key:"temp",mtype:"temp",label:"Какая температура, °C?"}};
+const COUGH_KINDS=[["dry","Сухой"],["wet","С мокротой"],["barking","Лающий"],["fits","Приступами"],["night","Ночной"],["morning","Утренний"],["exertion","При нагрузке"],["wheeze","С хрипом, свистом"],["before_vomit","До рвоты"],["with_vomit","Со рвотой"]];
+const OTHER_FIELD={key:"other",type:"text",label:"Что ещё заметили?",ph:"например, после еды",sec:"how",max:120};
+// симптом → мера и правки набора (omit — не спрашивать то, что симптом говорит сам; add — свои поля)
+const SYM_SPEC={
+  "головная боль":{m:"pain"},"боль в животе":{m:"pain"},"боль в горле":{m:"pain",omit:["cough","nose","throat"],add:[{key:"throat_kind",type:"chipN",max:3,label:"Что с горлом?",sec:"how",opts:[["tickle","Першит"],["swallow","Болит при глотании"],["red","Красное"]]},OTHER_FIELD]},
+  "боль в груди":{m:"pain"},"боль в ухе":{m:"pain"},
+  "жидкий стул":{m:"times",omit:["stool"],add:STOOL_FIELDS},
+  "рвота":{m:"times",omit:["nausea"]},"тошнота":{m:"scale",omit:["nausea"]},"запор":{m:"scale",omit:["stool"],add:STOOL_FIELDS},
+  "температура":{m:"temp",omit:["temp"]},
+  "кашель":{m:"scale",omit:["cough","nose","throat"],add:[{key:"cough_kind",type:"chipN",max:10,label:"Какой кашель?",sec:"how",opts:COUGH_KINDS},OTHER_FIELD]},
+  "насморк":{m:"scale",omit:["temp","cough","nose","throat"],add:[{key:"nose_kind",type:"chipN",max:4,label:"Какой насморк?",sec:"how",opts:[["clear","Прозрачный"],["thick","Густой"],["green","Зелёный"],["stuffy","Заложенность"]]},OTHER_FIELD]}};
+// набор полей симптома: {group, measure, fields:[мера, поля…], more:[…]}; на виду ≤ 3 поля в секции, остальные в more; cfg.fields скрывает поля (меру — нельзя)
 function symptomFields(name,age,cfg){
   const n=symNorm(name), G=symptomFieldDefs().find(g=>g.names.includes(n)||(g.match&&g.match(n)))||null;
-  const base=G?G.fields:[{key:"intensity",type:"scale",label:"Сила"},{key:"note",type:"text",label:"Заметка",sec:"how",max:500}];
+  const spec=SYM_SPEC[n]||(/^температура/.test(n)?SYM_SPEC["температура"]:null)||{};
+  const base=(G?G.fields.slice():[{key:"note",type:"text",label:"Как проявлялось?",ph:"например, что именно беспокоит",sec:"how",max:500}]).filter(f=>!(spec.omit||[]).includes(f.key)).concat(spec.add||[]);
+  const mdef=SYM_MEASURES[spec.m||"scale"], measure=Object.assign({},mdef,{type:"measure"});
   const kid=age!=null&&age<12, IDS=diaryIdLists();
-  const show=cfg&&Array.isArray(cfg.fields)?new Set([...cfg.fields,"intensity"]):null;
-  const used={}, fields=[], more=[];
+  const show=cfg&&Array.isArray(cfg.fields)?new Set([...cfg.fields,mdef.key]):null;
+  const used={}, fields=[measure], more=[];
   for(const f0 of base){
     if(show&&!show.has(f0.key)) continue;
     const f=Object.assign({},f0,{label:kid&&f0.kid?f0.kid:f0.label});
     if(f.key==="chars") f.opts=(kid?IDS.chars.filter(x=>["pressing","sharp","aching","burning","shooting","humming"].includes(x.id)):IDS.chars).slice(0,kid?6:11).map(x=>[x.id,x.n]);
     if(f.key==="zones") f.opts=IDS.zones.map(x=>[x.id,x.n]);
     if(f.type==="triggers") f.opts=(f.ids||[]).map(id=>[id,TRK_TRIG[id]||id]);
-    if(f.key==="intensity"){ fields.push(f); continue; }
     used[f.sec]=(used[f.sec]||0)+1; (used[f.sec]>3?more:fields).push(f);
   }
-  return {group:G?G.id:"other",quick:"intensity",fields,more};
+  return {group:G?G.id:"other",quick:measure.key,measure,fields,more};
 }
 // поля слежения (блок 3): ключи полей, видимых при записи; остальные — «Ещё»
 function trackFields(name,cfg,age){ const r=symptomFields(name,age,cfg); return {fields:r.fields.map(f=>f.key),more:r.more.map(f=>f.key)}; }
@@ -11612,19 +11657,22 @@ function symptomDetailsView(row,def){
   const A=(row&&row.attrs)||{}, IDS=diaryIdLists(), lab=(arr,id)=>{ const x=arr.find(y=>y.id===id); return x?x.n:id; }, out=[];
   for(const f of def.fields.concat(def.more||[])){
     let v=null;
-    if(f.key==="intensity") v=row.intensity==null?null:String(row.intensity);
+    if(f.key==="intensity") v=row.intensity==null?null:intensityText(row.intensity);
+    else if(f.type==="measure"&&f.mtype==="choice") v=A[f.key]?(f.opts.find(o=>o[0]===A[f.key])||[0,A[f.key]])[1]:"";
+    else if(f.type==="measure"&&f.mtype==="temp") v=row.value_num!=null?String(row.value_num).replace(".",",")+" °C":"";
     else if(f.key==="zones") v=(A.zones||[]).map(id=>lab(IDS.zones,id)).join(", ");
     else if(f.key==="chars") v=(A.chars||[]).map(id=>lab(IDS.chars,id)).join(", ");
     else if(f.key==="ended_at") v=A.ended_at?"до "+dzHM(A.ended_at):"";
     else if(f.key==="triggers") v=(row.triggers||[]).map(id=>TRK_TRIG[id]||id).join(", ");
     else if(f.key==="dose") v=row.med||A.dose||"";
-    else if(f.key==="temp") v=row.value_num!=null?String(row.value_num).replace(".",",")+" °C":"";
+    else if(f.key==="temp"&&f.type!=="measure") v=row.value_num!=null?String(row.value_num).replace(".",",")+" °C":"";
     else if(f.key==="note") v=row.feeling||"";
     else if(f.type==="chipN") v=(A[f.key]||[]).map(id=>(f.opts.find(o=>o[0]===id)||[0,id])[1]).join(", ");
     else if(f.type==="chip1") v=A[f.key]?(f.opts.find(o=>o[0]===A[f.key])||[0,A[f.key]])[1]:"";
     else v=A[f.key]||"";
     if(v) out.push({key:f.key,label:f.label,value:v});
   }
+  const med=(row&&row.med)||A.dose||""; if(med&&!out.some(x=>x.key==="dose")) out.push({key:"dose",label:"Что приняли?",value:med});   // «что приняли» есть у каждого эпизода (общее поле формы)
   return out;
 }
 // эпизоды симптома за день: строки журнала, по времени
@@ -11685,23 +11733,33 @@ function trkAct(id){
   const t=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id); if(!t) return;
   if(t.kind==="symptom") symQuickSheet(t.title||t.ref); else if(t.kind==="illness") epCard(t.ref);
 }
-// ── быстрая запись одним касанием: Слабо 3 · Средне 5 · Сильно 8 (В4); «Точнее» — шкала 0–10; «Дополнить» — подробности
-const SYM_QUICK=[["Слабо",3],["Средне",5],["Сильно",8]];
-function symQuickSheet(name){
-  modal._se=null; modal.dataset.qs=name; modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h2 style="text-transform:none">${esc(name)} · ${esc(DATA[cur].short)}</h2><p class="muted" style="margin:0 0 10px">Как сильно сейчас?</p>
-    <div class="qsrow">${SYM_QUICK.map(([t,v])=>`<button type="button" class="btn btn-secondary qsb" data-qsv="${v}">${t}</button>`).join("")}</div>
-    <details class="qsmore"><summary>Точнее</summary><div class="qsnum">${[0,1,2,3,4,5,6,7,8,9,10].map(v=>`<button type="button" class="btn btn-secondary" data-qsv="${v}">${v}</button>`).join("")}</div></details>
-    <button type="button" class="btn btn-secondary" data-qsmore="1" style="min-height:44px;margin-top:10px">Дополнить ▸</button></div>`;
+// ── быстрая запись одним касанием: мера у каждого симптома своя (SYM_MEASURES); «Точнее» и «Дополнить» свёрнуты (В4)
+function symQuickBody(name){
+  const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), m=symptomFields(name,age,null).measure;
+  if(m.mtype==="temp") return `<div class="row" style="gap:8px"><input id="qsTemp" class="fin" inputmode="decimal" placeholder="37,8" style="flex:1;min-height:56px;font-size:20px"><button type="button" class="btn btn-primary" data-qsm="temp" style="min-height:56px">Записать</button></div>`;
+  if(m.mtype==="choice") return `<div class="qsrow">${m.opts.map(([id,t])=>`<button type="button" class="btn btn-secondary qsb" data-qsm="${m.key}:${id}">${esc(t)}</button>`).join("")}</div>`;
+  return intensityScaleHtml(null,"data-qsv");
 }
-async function symQuickSave(name,i){
-  const d=DATA[cur], day=localDay(), c=((d.sym||{}).cat||[]).find(x=>symNorm(x.n)===symNorm(name)), sys=c?c.sys:"other";
+function symQuickSheet(name){
+  const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), m=symptomFields(name,age,null).measure;
+  modal._se=null; modal.dataset.qs=name; modal.className="modal on";
+  modal.innerHTML=`<div class="mbox addform"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h2 style="text-transform:none">${esc(name)} · ${esc(DATA[cur].short)}</h2><p class="muted" style="margin:0 0 10px">${esc(m.label||"Как сильно сейчас?")}${m.hint?`<br><span style="font-size:13px">${esc(m.hint)}</span>`:""}</p>
+    ${symQuickBody(name)}
+    <details class="qsmore" style="margin-top:6px"><summary>Дополнить</summary><button type="button" class="btn btn-secondary" data-qsmore="1" style="min-height:44px;margin-top:6px">Время, что приняли, детали ▸</button></details></div>`;
+}
+async function symQuickSave(name,val){
+  // val: число силы, «ключ:значение» для выбора, «temp», «none»
+  const d=DATA[cur], day=localDay(), c=((d.sym||{}).cat||[]).find(x=>symNorm(x.n)===symNorm(name)), sys=c?c.sys:"other", pay={person:cur,d:day,n:name,sys:c?c.sys:null,at:new Date().toISOString()};
+  let i=null;
+  if(typeof val==="number"){ i=val; pay.i=val; }
+  else if(val==="temp"){ const t=parseFloat(String((document.getElementById("qsTemp")||{}).value||"").replace(",",".")); if(!isFinite(t)||t<35||t>42){ toast("Температура — от 35 до 42 °C"); return; } pay.v=t; pay.u="°C"; }
+  else if(val&&val!=="none"){ const [k,v]=String(val).split(":"); pay.attrs={[k]:v}; }
   delete modal.dataset.qs; closeModal();
-  try{ const r=await mkApi("symptom_add",{person:cur,d:day,n:name,sys:c?c.sys:null,i,at:new Date().toISOString()});
+  try{ const r=await mkApi("symptom_add",pay);
     ovAdd({who:cur,d:day,n:name,p:"",sys,i}); dzLoadData(true); render();
     toast("Записано","Дополнить",()=>symEntryForm(name,{id:r.id}),12000);
-  }catch(e){ toast("Не сохранилось, нажмите ещё раз","Повторить",()=>symQuickSave(name,i)); }
+  }catch(e){ toast("Не сохранилось, нажмите ещё раз","Повторить",()=>symQuickSave(name,val)); }
 }
 // ── «Дополнить»: новый эпизод за день (время, сила, что приняли, заметка, поля симптома) или подробности записанного эпизода
 function symEntryForm(name,o){
@@ -11709,7 +11767,7 @@ function symEntryForm(name,o){
   const d=DATA[cur], day=o.day||localDay(), D=DZ.data[cur]||{}, row=o.id!=null?(D.all||[]).find(r=>r.id===o.id):null;
   const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), tr=trackerOfSymptom(TRK.rows[cur],name), def=symptomFields(name,age,tr&&tr.config);
   const A=(row&&row.attrs)||{}, hm=row&&row.occurred_at?dzHM(row.occurred_at):dzHM(new Date().toISOString());
-  const chips=(f,sel,multi)=>`<div class="chips" data-f="${f.key}" data-multi="${multi?1:0}" data-max="${f.max||14}">${f.opts.map(([id,n],i)=>`<button type="button" class="chip${(sel||[]).includes(id)?" on":""}${i>=6?" more":""}" data-v="${id}"${i>=6&&!(sel||[]).includes(id)?" hidden":""}>${esc(n)}</button>`).join("")}${f.opts.length>6?`<button type="button" class="chip chip--more" data-chmore="1">Ещё</button>`:""}</div>`;
+  const chips=(f,sel,multi)=>`<div class="chips" data-f="${f.key}" data-multi="${multi?1:0}" data-max="${f.max||14}">${f.opts.map(([id,n,x],i)=>`<button type="button" class="chip${(sel||[]).includes(id)?" on":""}${i>=8?" more":""}" data-v="${id}"${x&&x.red?' data-red="1"':""}${i>=8&&!(sel||[]).includes(id)?" hidden":""}>${x&&x.c?`<i class="cdot" style="background:${x.c}"></i>`:""}${esc(n)}</button>`).join("")}${f.opts.length>8?`<button type="button" class="chip chip--more" data-chmore="1">Ещё</button>`:""}</div>${f.redNote?`<div class="rfnote" hidden><b>Сразу к врачу.</b> Не откладывайте: запишитесь в ближайшие дни, а если станет резко хуже — 103 или 112.</div>`:""}`;
   const field=f=>{
     const lab=`<label class="flab">${esc(f.label)}</label>`;
     if(f.type==="zones"||f.type==="chars"||f.type==="chipN") return lab+chips(f,A[f.key],true);
@@ -11718,21 +11776,24 @@ function symEntryForm(name,o){
     if(f.type==="duration"){ const mins=A.ended_at&&row?Math.round((new Date(A.ended_at)-new Date(row.occurred_at||row.occurred_on))/6e4):null, c2=mins==null?"":mins<=60?"s":mins<=240?"m":"l";
       return lab+`<div class="chips" data-f="ended_at" data-multi="0">${[["s","до часа"],["m","1–4 часа"],["l","дольше"]].map(([id,n])=>`<button type="button" class="chip${c2===id?" on":""}" data-v="${id}">${n}</button>`).join("")}</div>`; }
     if(f.type==="temp") return lab+`<input class="fin" id="seTemp" inputmode="decimal" placeholder="например, 37,8" value="${row&&row.value_num!=null?esc(String(row.value_num).replace(".",",")):""}">`;
-    if(f.type==="text") return lab+`<input class="fin" data-f="${f.key}" maxlength="${f.max||120}" value="${esc(f.key==="note"?(row&&row.feeling)||"":A[f.key]||"")}">`;
+    if(f.type==="text") return lab+`<input class="fin" data-f="${f.key}" maxlength="${f.max||120}" placeholder="${esc(f.ph||"например, коротко своими словами")}" value="${esc(f.key==="note"?(row&&row.feeling)||"":A[f.key]||"")}">`;
     return "";
   };
-  const secs=Object.keys(TRK_SEC).map(k=>({k,list:def.fields.filter(f=>f.sec===k&&f.type!=="med"),rest:def.more.filter(f=>f.sec===k&&f.type!=="med")})).filter(s=>s.list.length||s.rest.length);
-  const iv=row&&row.intensity!=null?row.intensity:null;
+  const secs=Object.keys(TRK_SEC).map(k=>({k,list:def.fields.filter(f=>f.sec===k&&f.type!=="med"&&f.type!=="measure"),rest:def.more.filter(f=>f.sec===k&&f.type!=="med")})).filter(s=>s.list.length||s.rest.length);
+  const iv=row&&row.intensity!=null?row.intensity:null, M=def.measure;
+  const measureHtml=M.mtype==="choice"?`<label class="flab">${esc(M.label)}</label>`+chips({key:M.key,opts:M.opts,max:1},A[M.key]?[A[M.key]]:[],false)
+    :M.mtype==="temp"?`<label class="flab" for="seTemp">${esc(M.label)}</label><input class="fin" id="seTemp" inputmode="decimal" placeholder="например, 37,8" value="${row&&row.value_num!=null?esc(String(row.value_num).replace(".",",")):""}">`
+    :`<label class="flab">${esc(M.label||"Как сильно")}</label>${intensityScaleHtml(iv,"data-sev")}${M.hint?`<div class="muted" style="font-size:13px;margin-top:4px">${esc(M.hint)}</div>`:""}`;
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox symform"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+  modal.innerHTML=`<div class="mbox symform addform"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2 style="text-transform:none">${esc(name)} · ${esc(d.short)}</h2>
     <div class="fld"><label for="seTime">Время</label><input id="seTime" type="time" class="fin" value="${hm}"></div>
-    <div class="fld"><label class="flab">Сила</label><div class="qsrow" id="seInt">${SYM_QUICK.map(([t,v])=>`<button type="button" class="btn btn-secondary qsb${iv===v?" on":""}" data-sev="${v}">${t}</button>`).join("")}</div>
-      <details class="qsmore"${iv!=null&&![3,5,8].includes(iv)?" open":""}><summary>Точнее</summary><div class="qsnum">${[0,1,2,3,4,5,6,7,8,9,10].map(v=>`<button type="button" class="btn btn-secondary${iv===v?" on":""}" data-sev="${v}">${v}</button>`).join("")}</div></details></div>
-    ${secs.map(s=>`<h3 class="secth">${TRK_SEC[s.k]}</h3>${s.list.map(f=>`<div class="fld">${field(f)}</div>`).join("")}${s.rest.length?`<details class="qsmore"><summary>Ещё</summary>${s.rest.map(f=>`<div class="fld">${field(f)}</div>`).join("")}</details>`:""}`).join("")}
-    <div class="fld"><label for="seMed">Что приняли</label><input id="seMed" class="fin" maxlength="200" placeholder="например, Нурофен" value="${esc((row&&(row.med||A.dose))||"")}"></div>
-    ${def.fields.concat(def.more).some(f=>f.key==="note")?"":`<div class="fld"><label for="seNote">Заметка</label><input id="seNote" class="fin" maxlength="500" value="${esc((row&&row.feeling)||"")}"></div>`}
-    <div class="form-actions" style="position:sticky;bottom:0;background:var(--card);padding:10px 0"><button type="button" class="btn btn-primary" id="seSave" style="min-height:44px">Сохранить</button><button type="button" class="btn btn-secondary" data-close style="min-height:44px">Отмена</button></div>
+    <div class="fld">${measureHtml}</div>
+    ${secs.map(s=>`${s.list.map(f=>`<div class="fld"${f.showIf?` data-showif="${f.showIf}"${((row&&row.triggers)||[]).includes(f.showIf)?"":" hidden"}`:""}>${field(f)}</div>`).join("")}${s.rest.length?`<details class="qsmore"><summary>Ещё</summary>${s.rest.map(f=>`<div class="fld"${f.showIf?` data-showif="${f.showIf}" hidden`:""}>${field(f)}</div>`).join("")}</details>`:""}`).join("")}
+    <div class="fld"><label for="seMed" class="flab">Что приняли?</label><input id="seMed" class="fin" maxlength="200" placeholder="например, Нурофен" value="${esc((row&&(row.med||A.dose))||"")}">
+      <div class="chips" data-f="helped" data-multi="0" style="margin-top:6px">${[["yes","Помогло"],["no","Не помогло"],["wait","Пока не ясно"]].map(([id,n])=>`<button type="button" class="chip${(row&&row.helped)===n?" on":""}" data-v="${id}">${n}</button>`).join("")}</div></div>
+    ${def.fields.concat(def.more).some(f=>f.key==="note")?"":`<div class="fld"><label for="seNote" class="flab">Заметка</label><input id="seNote" class="fin" maxlength="500" placeholder="например, что ещё важно врачу" value="${esc((row&&row.feeling)||"")}"></div>`}
+    <div class="row"><button type="button" class="btn btn-primary" id="seSave" style="min-height:44px">Сохранить</button><button type="button" class="btn btn-secondary" data-close style="min-height:44px">Отмена</button></div>
     <div id="seLog" class="formlog"></div></div>`;
   modal._se={name,id:o.id!=null?o.id:null,day,row,def,intensity:iv};
 }
@@ -11740,24 +11801,28 @@ async function symEntrySave(){
   const S=modal._se; if(!S) return; const btn=document.getElementById("seSave"), logEl=document.getElementById("seLog");
   const get=k=>{ const c=modal.querySelector(`.chips[data-f="${k}"]`); return c?[...c.querySelectorAll(".chip.on")].map(x=>x.dataset.v):null; };
   const time=document.getElementById("seTime").value||"12:00", at=new Date(`${S.day}T${time}:00`);
-  const attrs={}; let triggers=null, temp=null;
+  const attrs={}; let triggers=null, temp=null; const M=S.def.measure;
+  if(M.mtype==="choice"){ const v=get(M.key); if(v&&v.length) attrs[M.key]=v[0]; }
+  else if(M.mtype==="temp"){ const t=parseFloat(String((document.getElementById("seTemp")||{}).value||"").replace(",",".")); if(isFinite(t)){ if(t<35||t>42){ logEl.textContent="Температура — от 35 до 42 °C"; return; } temp=t; } }
   for(const f of S.def.fields.concat(S.def.more)){
+    if(f.type==="measure") continue;
     if(f.type==="zones"||f.type==="chars"||f.type==="chipN"){ const v=get(f.key); if(v&&v.length) attrs[f.key]=v; }
     else if(f.type==="chip1"){ const v=get(f.key); if(v&&v.length) attrs[f.key]=v[0]; }
     else if(f.type==="triggers"){ const v=get(f.key); if(v) triggers=v; }
     else if(f.type==="duration"){ const v=get("ended_at"); if(v&&v.length) attrs.ended_at=new Date(at.getTime()+({s:30,m:150,l:300}[v[0]])*6e4).toISOString(); }
-    else if(f.type==="text"&&f.key!=="note"){ const el=modal.querySelector(`input[data-f="${f.key}"]`); if(el&&el.value.trim()) attrs[f.key]=el.value.trim(); }
+    else if(f.type==="text"&&f.key!=="note"){ const el=modal.querySelector(`input[data-f="${f.key}"]`); if(el&&!el.closest("[hidden]")&&el.value.trim()) attrs[f.key]=el.value.trim(); }
     else if(f.type==="temp"){ const t=parseFloat(String((document.getElementById("seTemp")||{}).value||"").replace(",",".")); if(isFinite(t)){ if(t<35||t>42){ logEl.textContent="Температура — от 35 до 42 °C"; return; } temp=t; } }
   }
   const noteEl=document.getElementById("seNote")||modal.querySelector('input[data-f="note"]'), note=noteEl?noteEl.value.trim():"", med=document.getElementById("seMed").value.trim();
+  const hv=get("helped"), helped=hv&&hv.length?({yes:"Помогло",no:"Не помогло",wait:"Пока не ясно"})[hv[0]]:"";
   if(!window.__MK_KEY){ logEl.textContent="Нужен вход по ссылке с кодом"; return; }
   btn.disabled=true;
   try{
     if(S.id!=null){
-      await mkApi("symptom_update",{id:S.id,...(S.intensity!=null?{i:S.intensity}:{}),m:med,f:note,at:at.toISOString(),attrs,...(triggers?{tr:triggers}:{}),...(temp!=null?{v:temp}:{})});
+      await mkApi("symptom_update",{id:S.id,...(S.intensity!=null?{i:S.intensity}:{}),m:med,f:note,h:helped,at:at.toISOString(),attrs,...(triggers?{tr:triggers}:{}),...(temp!=null?{v:temp}:{})});
     } else {
       const c=((DATA[cur].sym||{}).cat||[]).find(x=>symNorm(x.n)===symNorm(S.name));
-      await mkApi("symptom_add",{person:cur,d:S.day,n:S.name,sys:c?c.sys:null,i:S.intensity==null?undefined:S.intensity,at:at.toISOString(),...(med?{m:med}:{}),...(note?{f:note}:{}),...(Object.keys(attrs).length?{attrs}:{}),...(triggers&&triggers.length?{triggers}:{}),...(temp!=null?{v:temp,u:"°C"}:{})});
+      await mkApi("symptom_add",{person:cur,d:S.day,n:S.name,sys:c?c.sys:null,i:S.intensity==null?undefined:S.intensity,at:at.toISOString(),...(med?{m:med}:{}),...(helped?{h:helped}:{}),...(note?{f:note}:{}),...(Object.keys(attrs).length?{attrs}:{}),...(triggers&&triggers.length?{triggers}:{}),...(temp!=null?{v:temp,u:"°C"}:{})});
       ovAdd({who:cur,d:S.day,n:S.name,p:"",sys:c?c.sys:"other",i:S.intensity,f:note,m:med});
     }
     closeModal(); await dzLoadDataAsync(); render(); toast("Записано");
@@ -11767,9 +11832,12 @@ function dzLoadDataAsync(){ return new Promise(r=>{ DZ.data[cur]=null; dzLoadDat
 document.addEventListener("click",e=>{
   const t=e.target; if(!t.closest) return;
   const qs=t.closest("[data-qsv]"); if(qs&&modal.dataset.qs){ symQuickSave(modal.dataset.qs,+qs.dataset.qsv); return; }
-  const sev=t.closest("[data-sev]"); if(sev&&modal._se){ modal._se.intensity=+sev.dataset.sev; modal.querySelectorAll("[data-sev]").forEach(b=>b.classList.toggle("on",+b.dataset.sev===modal._se.intensity)); return; }
+  const qm=t.closest("[data-qsm]"); if(qm&&modal.dataset.qs){ symQuickSave(modal.dataset.qs,qm.dataset.qsm); return; }
+  const sev=t.closest("[data-sev]"); if(sev&&modal._se){ modal._se.intensity=+sev.dataset.sev; modal.querySelectorAll("[data-sev]").forEach(b=>{ const on=+b.dataset.sev===modal._se.intensity; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }); const sl=modal.querySelector("[data-iscsel]"); if(sl) sl.textContent=intensityText(modal._se.intensity); return; }
   if(t.closest("[data-qsmore]")&&modal.dataset.qs){ symEntryForm(modal.dataset.qs,{}); return; }
-  const ch=t.closest(".symform .chip[data-v]"); if(ch){ const box=ch.parentElement; if(box.dataset.multi==="1"){ const on=box.querySelectorAll(".chip.on").length; if(!ch.classList.contains("on")&&on>=+box.dataset.max) return; ch.classList.toggle("on"); } else { const was=ch.classList.contains("on"); box.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); if(!was) ch.classList.add("on"); } return; }
+  const ch=t.closest(".symform .chip[data-v]"); if(ch){ const box=ch.parentElement; if(box.dataset.multi==="1"){ const on=box.querySelectorAll(".chip.on").length; if(!ch.classList.contains("on")&&on>=+box.dataset.max) return; ch.classList.toggle("on"); } else { const was=ch.classList.contains("on"); box.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); if(!was) ch.classList.add("on"); }
+    const rf=box.nextElementSibling; if(rf&&rf.classList.contains("rfnote")) rf.hidden=!box.querySelector(".chip.on[data-red]");
+    modal.querySelectorAll("[data-showif]").forEach(el=>{ el.hidden=!modal.querySelector(`.chip.on[data-v="${el.dataset.showif}"]`); }); return; }
   const cm=t.closest("[data-chmore]"); if(cm){ cm.parentElement.querySelectorAll(".chip.more").forEach(x=>x.hidden=false); cm.remove(); return; }
   if(t.closest("#seSave")){ symEntrySave(); return; }
   const ta=t.closest("[data-trk-act]"); if(ta){ trkAct(ta.dataset.trkAct); return; }
@@ -11787,7 +11855,7 @@ function symTrackCard(name){
   if(!window.__MK_KEY) return "";
   trkLoad(); const tr=trackerOfSymptom(TRK.rows[cur],name), on=!!tr&&tr.on_home&&!tr.ended_on;
   const age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), all=symptomFields(name,age,null), cfgF=tr&&tr.config&&Array.isArray(tr.config.fields)?tr.config.fields:null;
-  const keys=all.fields.concat(all.more).filter(f=>f.key!=="intensity"&&f.type!=="med");
+  const keys=all.fields.concat(all.more).filter(f=>f.type!=="measure"&&f.type!=="med");
   return `<div class="card"><h2>Следить на главной</h2>
     <div class="lrow" style="border:0"><span class="lrow__n">${on?"Вы видите это на главной":"Показывать на главной"}</span>
       <label class="lsw"><input type="checkbox" role="switch" data-trk-sw="${esc(name)}"${on?" checked":""} aria-label="Следить на главной"><span class="lsw__t"></span></label></div>
@@ -11803,7 +11871,7 @@ async function trkSymToggle(name,on){
   }catch(e){ toast("Не получилось включить, нажмите ещё раз"); render(); }
 }
 async function trkFieldToggle(name,key){
-  const tr=trackerOfSymptom(TRK.rows[cur],name), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), all=symptomFields(name,age,null), keys=all.fields.concat(all.more).filter(f=>f.key!=="intensity"&&f.type!=="med").map(f=>f.key);
+  const tr=trackerOfSymptom(TRK.rows[cur],name), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), all=symptomFields(name,age,null), keys=all.fields.concat(all.more).filter(f=>f.type!=="measure"&&f.type!=="med").map(f=>f.key);
   const cur0=tr&&tr.config&&Array.isArray(tr.config.fields)?tr.config.fields:keys, next=cur0.includes(key)?cur0.filter(x=>x!==key):[...cur0,key];
   try{ await mkApi("track_set",{person:cur,kind:"symptom",ref:tr?tr.ref:name,title:tr?tr.title:name,on_home:tr?tr.on_home:false,config:{...((tr&&tr.config)||{}),fields:next}}); TRK.ok[cur]=false; trkLoad(true); }
   catch(e){ toast("Не сохранилось, нажмите ещё раз"); }
@@ -11813,8 +11881,9 @@ function symEpisodesHtml(name,day){
   const D=DZ.data[cur]; if(!window.__MK_KEY) return "";
   if(!D){ if(!DZ.dataErr) dzLoadData(); return ""; }
   const eps=symEpisodes(D.all,name,day), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), tr=trackerOfSymptom(TRK.rows[cur],name), def=symptomFields(name,age,tr&&tr.config);
-  const row=r=>{ const det=symptomDetailsView(r,def).filter(x=>x.key!=="intensity"&&x.key!=="dose"&&x.key!=="note");
-    return `<div class="ep-row"><div><b>${r.occurred_at?dzHM(r.occurred_at):"—"}</b>${r.intensity!=null?` · сила ${r.intensity}`:""}${r.med?` · принял: ${esc(r.med)}`:""}${r.feeling?`<div class="muted">${esc(r.feeling)}</div>`:""}${det.length?`<div class="muted">${det.map(x=>esc(x.label)+": "+esc(x.value)).join(" · ")}</div>`:""}</div>
+  const row=r=>{ const det=symptomDetailsView(r,def).filter(x=>x.key!=="dose"&&x.key!=="note"&&x.key!=="intensity"&&x.key!==def.measure.key);
+    const mv=symptomDetailsView(r,{fields:[def.measure],more:[]})[0];
+    return `<div class="ep-row"><div><b>${r.occurred_at?dzHM(r.occurred_at):"—"}</b>${mv?` · ${esc(def.measure.mtype==="scale"?"сила "+intensityText(r.intensity):def.measure.label+": "+mv.value)}`:""}${r.med?` · принял: ${esc(r.med)}`:""}${r.feeling?`<div class="muted">${esc(r.feeling)}</div>`:""}${det.length?`<div class="muted">${det.map(x=>esc(x.label)+": "+esc(x.value)).join(" · ")}</div>`:""}</div>
       <button type="button" class="linkbtn" data-symedit="${r.id}" data-symname="${esc(name)}" data-symday="${day}" style="min-height:44px">Изменить</button></div>`; };
   return `<div class="card"><h2>Время и детали</h2>${eps.length?eps.map(row).join(""):`<p class="muted" style="margin:0 0 8px">Записей со временем за этот день нет.</p>`}
     <button type="button" class="btn btn-secondary" data-symep="${esc(name)}" data-symday="${day}" style="min-height:44px;margin-top:6px">Дополнить</button></div>`;
