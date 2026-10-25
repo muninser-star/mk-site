@@ -59,6 +59,7 @@ textarea,input{font:inherit;color:var(--ink);background:var(--bg);border:1px sol
 .fixbar button{font-size:13px;padding:6px 10px}
 .fixhint{background:#fff6e5;border:1px solid #f0d49a;border-radius:10px;padding:8px 10px;font-size:13.5px;margin-top:12px;color:#7a5200}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fixhint{background:#2e2615;border-color:#5b4a22;color:#f0d49a}}
+.linkq{background:none;border:0;padding:0;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;height:auto}
 .fixed{color:var(--ok);font-size:13.5px;font-weight:600}
 .fixform{display:flex;gap:8px;margin-top:8px;width:100%}
 .fixform input{flex:1}
@@ -106,7 +107,7 @@ function askChain(hist, hi) {
 // поле «Уточнить» — только под последним ответом цепочки
 function askIsLast(hist, hi) { const next = hist[hi + 1]; return !(next && next.parent === hist[hi].uid); }
 async function loadHistory() {
-  try { const r = await api("ask_history"); hist = (r.rows || []).map(fromRow); paint(); } catch (e) { /* без истории страница работает как раньше */ }
+  try { const r = await api("ask_history"); hist = (r.rows || []).filter(askRowOk).map(fromRow); paint(); } catch (e) { /* без истории страница работает как раньше */ }
 }
 
 async function api(action, payload = {}, retry = true) {
@@ -122,6 +123,13 @@ async function api(action, payload = {}, retry = true) {
     : j.code === "config" ? "Сервис ответов не настроен." : "Не получилось ответить. Попробуйте переформулировать вопрос.");
   return j;
 }
+// запись разговора годится для показа: у вопроса есть слова, а человек известен («вся семья» тоже). Служебные записи проверок («q», «чужой») скрываем
+function askRowOk(r) {
+  const words = String(r && r.question || "").replace(/[^\p{L}\p{N}]/gu, "");
+  return words.length >= 3 && PEOPLE.some(([k]) => k === (r.person || ""));
+}
+// кнопка «Поправить медкнижку» нужна, когда есть что поправлять: ничего не нашлось, источников нет или ответ уже отмечен
+function askCanFix(h) { return askNeedsFix(h.answer, h.sources) || h.flag === "fix"; }
 // ответ, после которого стоит поправить медкнижку: ничего не нашлось или у ответа нет ни одного источника (ТЗ-003 блок 2, ТЗ-031 блок 6)
 function askNeedsFix(answer, sources) {
   if (!answer || !String(answer).trim()) return true;
@@ -169,6 +177,7 @@ function view() {
   document.getElementById("ppl").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return;
     person = b.dataset.p; document.querySelectorAll("#ppl button").forEach(x => x.classList.toggle("on", x === b)); tellPerson(); };
   const q = document.getElementById("q");
+  if (qs.get("q") && !q.value) q.value = qs.get("q").slice(0, 300);
   document.getElementById("go").onclick = () => ask(q.value.trim());
   // Enter отправляет вопрос; Shift+Enter — новая строка
   q.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(q.value.trim()); } };
@@ -197,12 +206,12 @@ function card(h, hi) {
     : `${askNeedsFix(h.answer, h.sources) ? `<div class="fixhint">Похоже, в медкнижке этого нет. Отметить, чтобы поправили?</div>` : ""}
        <div class="fixbar">${fixOpen === hi
          ? `<div class="fixform"><input id="fixnote" placeholder="Что не так или чего не хватает (необязательно)"><button class="primary" data-fixgo="${hi}">Отметить</button></div>`
-         : `<button data-fix="${hi}">📌 Поправить медкнижку</button>`}</div>`;
+         : askCanFix(h) ? `<button data-fix="${hi}">📌 Поправить медкнижку</button>` : `<button class="linkq" data-fix="${hi}">Ответ неверный или неполный?</button>`}</div>`;
   const fu = h.open && !h.error && askIsLast(hist, hi)
     ? `<div class="fu-box"><textarea data-fuq="${hi}" rows="2" placeholder="Уточнить: задайте вопрос по этому ответу"></textarea>
         <button class="primary" data-fugo="${hi}"${busy ? " disabled" : ""}>Спросить</button></div>` : "";
   return `<div class="card${h.open ? "" : " closed"}${h.parent ? " fu" : ""}" data-card="${hi}">
-    <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person ? ` <span class="muted" style="font-weight:400">· ${esc(NAME[h.person])}</span>` : ""}
+    <div class="q" data-toggle="${hi}">${esc(h.q)}${h.person && NAME[h.person] ? ` <span class="muted" style="font-weight:400">· ${esc(NAME[h.person])}</span>` : ""}
       ${h.at ? `<span class="qdate">· ${esc(ru(String(h.at).slice(0, 10)))}</span>` : ""}${flagged && !h.open ? ' <span class="fixed" style="font-size:12px">📌</span>' : ""}</div>
     <div class="body-a">
     ${h.error ? `<div class="err">${esc(h.error)}</div>`
