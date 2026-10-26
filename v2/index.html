@@ -4424,7 +4424,7 @@ function monthRows(log,today,isRed){
 function symTlLines(r,ep){
   const w=sevOf(r), out=[];
   const head=[ (w.t?`<span class="pill" style="background:${w.c}">${esc(sevWord(r))} · ${esc(w.t)}</span>`:""),
-    (r.p?`<span class="muted">повод: ${esc(r.p)}</span>`:"") ].filter(Boolean).join(" ");
+    (r.p?`<span class="muted">болезнь: ${esc(r.p)}</span>`:"") ].filter(Boolean).join(" ");
   if(head) out.push(head);
   if(ep&&ep.tmax&&r.n!=="Температура") out.push(`<span class="pill" style="background:${sevOf({v:ep.tmax,u:"°C"}).c}" title="максимум за эпизод">🌡 до ${String(ep.tmax).replace(".",",")} °C</span>`);
   if(r.m) out.push("💊 "+r.m.split(/,\s+/).map(t=>{ const one=t.trim().replace(/^(затем|и)\s+/i,""); if(!one) return "";
@@ -4627,7 +4627,7 @@ function logLines(list,eps){
     <button class="addsym editrec" data-rk="${encodeURIComponent(JSON.stringify({d:x.d,n:x.n,p:x.p||""}))}" title="Исправить запись">✎</button>
     <button class="addsym delrec" data-rk="${encodeURIComponent(JSON.stringify({d:x.d,n:x.n,p:x.p||""}))}" title="Удалить запись">✕</button>
     ${(()=>{const w=sevOf(x);return w.t?`<span class="pill" style="background:${w.c};margin-left:6px">${w.t}</span>`:""})()}
-    ${x.p?`<span class="muted" style="margin-left:6px;font-size:12px">повод: ${esc(x.p)}</span>`:""}
+    ${x.p?`<span class="muted" style="margin-left:6px;font-size:12px">болезнь: ${esc(x.p)}</span>`:""}
     ${(ep&&ep.tmax&&x.n!=="Температура")?`<span class="pill" style="background:${sevOf({v:ep.tmax,u:"°C"}).c};margin-left:6px" title="максимум за эпизод">🌡 до ${String(ep.tmax).replace(".",",")} °C</span>`:""}</div>
     ${x.f?`<div style="margin-top:2px">${esc(x.f)}</div>`:""}
     ${x.m?`<div class="muted" style="margin-top:2px">💊 ${x.m.split(/,\s+/).map(t=>{
@@ -4641,7 +4641,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 10:56";   // подставляется при публикации
+const BUILD="26.10 11:02";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6187,11 +6187,11 @@ function symMergeBanner(who,day){
   const S=(DATA[who]||{}).sym; if(!S||!day||symMergeNo(who,day)) return "";
   const o=symMergeOffer(S.log,S.ep,day,localDay()); if(!o.offer) return "";
   const all=symDayRows(S.log,day), names=[...new Set(all.map(x=>String(x.n).toLowerCase()))];
-  const q=o.mode==="auto"?`Объединить под поводом «${esc(o.pov)}»?`:o.mode==="choose"?"Под каким поводом объединить?":"Под какой болезнью объединить?";
+  const q=o.mode==="auto"?`Объединить под болезнью «${esc(o.pov)}»?`:o.mode==="choose"?"Под какой болезнью объединить?":"Под какой болезнью объединить?";
   const pick=o.mode==="choose"?`<div class="fld">${o.choose.map((c,i)=>`<label style="display:block"><input type="radio" name="mergePov" value="${esc(c)}"${i?"":" checked"}> ${esc(c)}</label>`).join("")}</div>`
     :o.mode==="ask"?`<div class="fld"><input id="mergePovIn" placeholder="например, ОРВИ" autocomplete="off"></div>`:"";
   return `<div class="note symmerge" data-symmerge="${day}" style="margin:0 0 10px"><button class="addsym" data-mergeno="${day}" title="Закрыть" aria-label="Закрыть" style="float:right">✕</button>
-    <div>За ${ru(day)} записано ${all.length} ${plural(all.length,"запись","записи","записей")}: ${esc(names.join(", "))}. Повод есть не у всех. ${q}</div>${pick}
+    <div>За ${ru(day)} записано ${all.length} ${plural(all.length,"запись","записи","записей")}: ${esc(names.join(", "))}. Болезнь указана не у всех. ${q}</div>${pick}
     <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-primary" data-mergeyes="${day}" style="height:32px">Объединить</button>
     <button class="btn btn-secondary" data-mergeno="${day}" style="height:32px">Нет, оставить как есть</button></div><div class="formlog" id="mergeLog"></div></div>`;
 }
@@ -6267,22 +6267,32 @@ async function symSetPov(who,plan){
 function editRecForm(who,rk){
   const a=findRec(who,rk); if(!a) return;
   if(a.aid) return editAddForm(a.aid);             // запись ещё только на этом устройстве — прежний путь
+  // запись из базы: правится той же формой, что и новая запись (набор по типу симптома, шкала, лекарства чипами); старые значения переносятся
+  if(who===cur&&typeof symEntryForm==="function"&&window.__MK_KEY){
+    const D=DZ.data[who], row=D&&symRowFor(D.all,a);
+    if(row){ symEntryForm(a.n,{id:row.id,day:a.d}); return; }
+    if(!D&&!DZ.dataErr){ dzLoadDataAsync().then(()=>{ const D2=DZ.data[who], r2=D2&&symRowFor(D2.all,a); if(r2) symEntryForm(a.n,{id:r2.id,day:a.d}); else editRecFormOld(who,rk); }); return; }
+  }
+  return editRecFormOld(who,rk);
+}
+function editRecFormOld(who,rk){
+  const a=findRec(who,rk); if(!a) return;
   const d=DATA[who], S=d.sym||{cat:[],log:[],ep:[]};
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
   const eps=[...new Set((S.ep||[]).slice(0,40).map(e=>e.dx).filter(Boolean))];
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Исправить запись</h2>
-    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}</div>
+    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · болезнь: ${esc(a.p)}`:""}</div>
     <div class="addform">
       <div class="fld"><label for="erName">Симптом</label><p class="hint">Если вписать несколько через запятую — «кашель, сопли», — первый останется в этой записи, остальные добавятся отдельными</p><input id="erName" value="${esc(a.n||"")}" autocomplete="off"></div>
       <div class="fld"><label for="erDate">Когда</label><input id="erDate" type="date" value="${esc(a.d||"")}">
         <div class="kindrow"><label><input type="radio" name="erKind" value="one" checked> Один день</label><label><input type="radio" name="erKind" value="range"> Несколько дней</label></div>
         <div class="daterow" id="erTo" hidden><span>по</span><input id="erDate2" type="date" value="${esc(a.d||"")}" min="${esc(a.d||"")}"><label><input type="checkbox" id="erOpen"> ещё идёт</label></div>
-        <p class="hint" id="erToHint" hidden>Запись заменится одним периодом «с этой даты». Сила, лекарства, повод и заметка — на все дни. «Ещё идёт» — пока не отметите конец в карточке симптома</p></div>
+        <p class="hint" id="erToHint" hidden>Запись заменится одним периодом «с этой даты». Сила, лекарства, болезнь и заметка — на все дни. «Ещё идёт» — пока не отметите конец в карточке симптома</p></div>
       <div class="fld"><label for="erInt">Интенсивность 1–10</label><input id="erInt" type="number" min="1" max="10" value="${a.i??""}"></div>
       <div class="fld"><label for="erMed">Чем лечили</label><p class="hint">Через запятую</p><input id="erMed" value="${esc(a.m||"")}" autocomplete="off"></div>
-      <div class="fld"><label for="erPov">Повод</label><input id="erPov" value="${esc(a.p||"")}" autocomplete="off"></div>
+      <div class="fld"><label for="erPov">Болезнь</label><input id="erPov" value="${esc(a.p||"")}" autocomplete="off"></div>
       <div class="fld"><label for="erNote">Заметка</label><input id="erNote" value="${esc(a.f||"")}"></div>
       <div class="row"><button class="btn btn-primary" id="erOk">Сохранить</button><button class="btn btn-secondary" data-close>Отмена</button></div>
       <div id="erLog" class="formlog"></div>
@@ -7986,6 +7996,24 @@ async function medOpen(name){
   const mk2=medCardModel(d,name,today,MN,ref).mark, tg=document.getElementById("mMark"); if(tg&&mk2) { tg.textContent=mk2; tg.hidden=false; }
 }
 const medCard=i=>{ const m=(DATA[cur].meds||[])[i]; if(m) medOpen(m.n); };
+// ── Выбор симптома для новой записи (Денис 26.10.2026): одна форма записи — symEntryForm; здесь только выбор названия. Набор деталей определяется по типу симптома ──
+function symPickNames(S,defs){
+  const cnt={}; for(const x of (S&&S.log)||[]){ const k=symCanon(x.n); cnt[k]=(cnt[k]||0)+1; }
+  const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,8), base=["головная боль","боль в животе","кашель","насморк","температура"];
+  return [...new Set([...top,...base])].slice(0,10).map(n=>n.charAt(0).toUpperCase()+n.slice(1));
+}
+function symPick(){
+  const d=DATA[cur], names=symPickNames(d.sym,null);
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Симптом — ${esc(d.short||d.name)}</h2>
+    <div class="fld"><label class="flab">Что беспокоит?</label><div class="chips">${names.map(n=>`<button type="button" class="chip" data-sympick="${esc(n)}">${esc(n)}</button>`).join("")}</div></div>
+    <div class="fld"><label for="spOther" class="flab">Другое</label><div class="row" style="gap:8px"><input id="spOther" class="fin" maxlength="60" placeholder="например, болит ухо" autocomplete="off" style="flex:1"><button type="button" class="btn btn-primary" data-sympick="" style="min-height:44px">Дальше</button></div></div></div>`;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-sympick]"); if(!b) return;
+  const n=b.dataset.sympick||((document.getElementById("spOther")||{}).value||"").trim(); if(!n) return;
+  symEntryForm(n,{});
+});
 function newSymForm(){
   const d=DATA[cur], S=d.sym||{cat:[],log:[],ep:[]};
   const names=[...new Set([...S.cat.map(x=>x.n),...S.log.map(x=>x.n)])].sort();
@@ -8010,7 +8038,7 @@ function newSymForm(){
         <input id="nsVal" placeholder="необязательно"></div>
       <div class="fld"><label for="nsMed">Чем лечили</label>
         <input id="nsMed" placeholder="через запятую, необязательно"></div>
-      <div class="fld"><label for="nsPov">Повод</label>
+      <div class="fld"><label for="nsPov">Болезнь</label>
         <input id="nsPov" list="nsEps" placeholder="без диагноза" autocomplete="off">
         <datalist id="nsEps">${[...new Set(eps.map(e=>e.dx).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
       <div class="fld"><label for="nsNote">Заметка</label>
@@ -8046,7 +8074,7 @@ function newSymForm(){
     // повод — это болезнь; симптом в поле повода — подсказка (второе нажатие сохраняет как есть) (ТЗ-004 блок 5)
     const symAsPov=!!pov&&!symPovOk(pov,S,names);
     if(symAsPov&&!newSymForm._warned){ newSymForm._warned=1;
-      log(`«${esc(pov)}» — это симптом, а не болезнь. Впишите болезнь (например, ОРВИ) или оставьте повод пустым. Нажмите «Записать» ещё раз, чтобы сохранить как есть.`,"wa"); return; }
+      log(`«${esc(pov)}» — это симптом, а не болезнь. Впишите болезнь (например, ОРВИ) или оставьте болезнь пустой. Нажмите «Записать» ещё раз, чтобы сохранить как есть.`,"wa"); return; }
     newSymForm._warned=0;
     if(pov&&!symAsPov&&!findOpenEp(S.ep,pov,dt)){ epCreate(pov,dt); log(`Открыта болезнь «${esc(pov)}» с ${ru(dt)} — закроете, когда пройдёт.`,"ok"); }
     document.getElementById("nsOk").disabled=true;          // до конца сохранения — второе нажатие не создаёт дубль (ТЗ-004 блок 3)
@@ -8234,7 +8262,7 @@ function addItems(d){
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из дела плана (ТЗ-058)
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
-    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",()=>measForm()],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Дело",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
@@ -11970,7 +11998,7 @@ function editAddForm(aid){
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Исправить запись</h2>
-    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}
+    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · болезнь: ${esc(a.p)}`:""}
       <br>Запись ещё не в медкарте, поэтому править можно свободно.</div>
     <div class="addform">
       <div class="fld">
@@ -11994,7 +12022,7 @@ function editAddForm(aid){
         <input id="eaMed" value="${esc(a.m||"")}" placeholder="например, Холисал" autocomplete="off">
       </div>
       <div class="fld">
-        <label for="eaPov">Повод</label>
+        <label for="eaPov">Болезнь</label>
         <p class="hint">При какой болезни был симптом. Пусто — значит отметили и не лечили</p>
         <input id="eaPov" list="eaEps" value="${esc(a.p||"")}" autocomplete="off">
         <datalist id="eaEps">${eps.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
@@ -12041,7 +12069,7 @@ function delAddForm(aid){
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <h2>Удалить запись</h2>
-    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · повод: ${esc(a.p)}`:""}
+    <div class="ctx">${ru(a.d)} · «<b>${esc(a.n)}</b>»${a.p?` · болезнь: ${esc(a.p)}`:""}
       ${a.f?`<br>${esc(a.f)}`:""}</div>
     <div class="addform">
       <p style="margin:0 0 4px">Запись исчезнет из книжки и в медкарту не попадёт.</p>
@@ -13098,6 +13126,22 @@ if(typeof window!=="undefined") window.addEventListener("popstate",e=>{ if(HDV){
 const TRK_TRIG={other:"Другое","pollen-trees":"Пыльца деревьев","pollen-grass":"Пыльца трав",dust:"Пыль",animals:"Животные",cold:"Холодный воздух",detergent:"Моющие средства",sleep:"Недосып",stress:"Стресс",hunger:"Голод",food:"Еда",weather:"Погода",meds:"Лекарства","sick-contact":"Контакт с больным"};
 const TRK_SEC={how:"Как это было",where:"Где",help:"Что помогло"};
 // справочник «симптом → поля»: names — названия (через sameSym), поля по порядку; sec — секция экрана; kid — подпись для ребёнка до 12 лет
+// ── Тип симптома по имени и синонимам (Денис 26.10.2026): набор деталей зависит от того, ЧТО это за симптом, а не от того, из какого входа он создан. Справочник синонимов — только здесь ──
+function symSynonyms(){ return [
+  ["головная боль",/голов\p{L}*\s+бол\p{L}*|бол\p{L}*\s+голов\p{L}*|мигрен\p{L}*/u],
+  ["боль в животе",/живот\p{L}*\s+бол\p{L}*|бол\p{L}*\s+живот\p{L}*|бол\p{L}*\s+в\s+живот\p{L}*/u],
+  ["жидкий стул",/^(понос|диарея|жидкий стул)/],
+  ["боль в горле",/горл\p{L}*\s+бол\p{L}*|бол\p{L}*\s+(в\s+)?горл\p{L}*/u],
+  ["насморк",/^(сопли|течет из носа|заложен нос)/]
+]; }
+function symCanon(name){ const n=symNorm(name); const g=symSynonyms().find(x=>x[1].test(n)); return g?g[0]:n; }
+// описание набора (группа из symptomFieldDefs) для имени; null — набора нет
+function symSetOf(name){ const n=symNorm(symCanon(name)); return symptomFieldDefs().find(g=>g.names.includes(n)||(g.match&&g.match(n)))||null; }
+// строка журнала (symptom_log), которой соответствует запись книжки: тот же день и тот же симптом; при нескольких — с той же силой
+function symRowFor(rows,a){
+  const n=symNorm(a.n||""), L=(rows||[]).filter(r=>String(r.occurred_on||"").slice(0,10)===a.d&&symNorm(r.symptom)===n);
+  return L.length<=1?(L[0]||null):(L.find(r=>a.i!=null&&Number(r.intensity)===Number(a.i))||L[0]);
+}
 function symptomFieldDefs(){
   const cs=(k,n,o)=>Object.assign({key:k,type:"chip1",label:n,opts:null},o||{});
   const TR=(ids,sec)=>({key:"triggers",type:"triggers",label:"Что было перед этим?",ids:ids.concat(["other"]),sec:sec||"help"});
@@ -13160,7 +13204,7 @@ const SYM_SPEC={
   "насморк":{m:"scale",omit:["temp","cough","nose","throat"],add:[{key:"nose_kind",type:"chipN",max:4,label:"Какой насморк?",sec:"how",opts:[["clear","Прозрачный"],["thick","Густой"],["green","Зелёный"],["stuffy","Заложенность"]]},OTHER_FIELD]}};
 // набор полей симптома: {group, measure, fields:[мера, поля…], more:[…]}; на виду ≤ 3 поля в секции, остальные в more; cfg.fields скрывает поля (меру — нельзя)
 function symptomFields(name,age,cfg){
-  const n=symNorm(name), G=symptomFieldDefs().find(g=>g.names.includes(n)||(g.match&&g.match(n)))||null;
+  const n=symNorm(symCanon(name)), G=symSetOf(name);
   const spec=SYM_SPEC[n]||(/^температура/.test(n)?SYM_SPEC["температура"]:null)||{};
   const base=(G?G.fields.slice():[{key:"note",type:"text",label:"Как проявлялось?",ph:"например, что именно беспокоит",sec:"how",max:500}]).filter(f=>!(spec.omit||[]).includes(f.key)).concat(spec.add||[]);
   const mdef=SYM_MEASURES[spec.m||"scale"], measure=Object.assign({},mdef,{type:"measure"});
@@ -13771,7 +13815,7 @@ function render(){
         </div>
       </div>
       ${hits.length?`<div class="card"><h2>При чём применяли</h2>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">раз</th><th>когда</th><th>повод</th></tr></thead><tbody>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">раз</th><th>когда</th><th>болезнь</th></tr></thead><tbody>
         ${Object.entries(bySym).sort((a,b)=>b[1].length-a[1].length).map(([n,l])=>{
           const ds=l.map(x=>x.d).sort();
           return `<tr class="symlink" data-sym="${esc(n)}"><td><b>${esc(n)}</b></td>
