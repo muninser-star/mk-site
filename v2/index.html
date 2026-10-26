@@ -1856,6 +1856,9 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .additems{grid-template-columns:repeat(2,minmax(0,1fr))}.additems button{min-width:0;overflow-wrap:anywhere}
 .zonepick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.zonepick .chip.hd-ztile{border:0;background:none;padding:0 0 4px;border-radius:0;min-height:44px;height:auto;box-shadow:none;white-space:normal}.zonepick .chip.on .hd-ztile__r{border-color:var(--accent);background:var(--accent-soft)}.zonepick .chip.on .hd-ztile__ok{display:grid}.zonepick .hd-ztile__t{min-height:0;font-size:12px}.zonepick__txt{margin:6px 0 0;font-size:13px}.zmini{display:inline-flex;gap:4px;margin:4px 0}.hd-zmini{width:28px;height:28px;fill:var(--negative);color:var(--muted)}
 .illsym{display:inline-flex;align-items:center;gap:2px;margin:0 8px 0 0}.illsym__x{font-size:12px;color:var(--muted)}.hpast>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--muted)}
+.measgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.measgrid .measrow{flex-direction:column;align-items:stretch;justify-content:space-between;gap:4px;min-height:104px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);width:auto}.measgrid .measrow:first-of-type{border-top:1px solid var(--line)}.measgrid .measrow__l{flex-direction:column;flex:0 0 auto;gap:1px}.measgrid .measrow__l .measrow__v{font-size:20px}.measgrid .measrow .sm{align-self:flex-end;margin-top:auto}.meas-urgent{grid-column:1/-1}.meas-more .measgrid{margin-top:8px}
+.hbar{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;color:var(--muted)}.hbar .hdrag{position:static;display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:1;font-size:22px;cursor:grab;touch-action:none}.hbar__n{flex:1;font-size:var(--fs-small);font-weight:600}.hbar .linkbtn{min-height:44px;padding:0 8px;font-size:var(--fs-small)}.hblk .hbar+.card,.hblk .hbar+.hpv2{margin-top:0}.hedit__t{flex:1;font-size:var(--fs-small)}
+.hblk .measgrid .measrow__l{flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:1px;width:100%}.hblk .measgrid .measrow__l .measrow__n{font-size:var(--fs-small)}.hblk .measgrid .measrow__l .measrow__v{font-size:20px}.hblk .measgrid .measrow__l .measrow__d{flex:0 0 auto;font-size:var(--fs-small);line-height:1.25}.hblk .measgrid .measrow{min-height:96px}
 </style>
 </head>
 <body>
@@ -4680,7 +4683,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 16:23";   // подставляется при публикации
+const BUILD="26.10 16:28";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7322,7 +7325,7 @@ function measTileHtml(S,today,o){
       <span class="measrow__l"><span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span><span class="measrow__d">${r.delta?esc(r.delta)+" · ":""}${esc(r.when)}</span></span>${r.spark||""}</button>
     ${r.urgent?`<div class="note meas-urgent">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}`;
   return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2><button type="button" class="measplus" data-measadd="1" aria-label="Добавить замер">+</button></div>
-    ${T.rows.map(row).join("")}${T.more?`<details class="meas-more"><summary>Ещё ${T.more}</summary>${T.rest.map(row).join("")}</details>`:""}</div>`;
+    <div class="measgrid">${T.rows.map(row).join("")}</div>${T.more?`<details class="meas-more"><summary>Ещё ${T.more}</summary><div class="measgrid">${T.rest.map(row).join("")}</div></details>`:""}</div>`;
 }
 // сохранённый порядок блоков: старые body и bp сворачиваются в meas на месте первого из них
 function homeOrderMerge(ids){
@@ -9454,7 +9457,7 @@ function homeAssemble(html,saved,key,defaults,hidden){
   for(let i=1;i<parts.length;i+=2) by[parts[i]]=parts[i+1];
   const full=homeOrder(Object.keys(by),saved,defaults).filter(id=>by[id].trim());
   if(key===undefined&&typeof window!=="undefined"){ window.__homeAll=full.slice(); window.__homeAllFor=typeof cur!=="undefined"?cur:""; }   // что на главной есть вообще: из этого строится экран «Настроить главную»
-  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}>${key?`<span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>`:""}${by[id]}</div>`).join("");
+  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}>${key?`<span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>`:(typeof window!=="undefined"&&window.__homeEdit&&!key?`<div class="hbar"><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hbar__n">${esc(typeof LAYOUT_NAMES!=="undefined"?(LAYOUT_NAMES[id]||id):id)}</span>${id==="meas"||id==="kpi"?`<button type="button" class="linkbtn" data-htiles="${id}">Плитки</button>`:""}${id==="todo"?"":`<button type="button" class="linkbtn" data-hhide="${id}" aria-label="Скрыть блок">Скрыть</button>`}</div>`:"")}${by[id]}</div>`).join("");
 }
 // ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
 // Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
@@ -9507,8 +9510,8 @@ function kpiDefaults(d,age){
 // плитки: только названия из kpiLive этого человека (чужие и неизвестные молча пропускаем); до 4; нет данных — серая плитка со ссылкой «Добавить»
 function kpiTile(d,fields){
   const all=kpiLive(d), pick=(fields||[]).slice(0,4).map(l=>all.find(k=>k.lab===l)).filter(Boolean);
-  if(!pick.length) return `<div class="card"><h2>Карточка здоровья</h2><p class="muted" style="margin:0 0 8px">Выберите, что показывать.</p><button type="button" class="btn btn-secondary" data-layout="1" style="min-height:44px">Выбрать</button></div>`;
-  return `<div class="card"><div class="kpihead"><h2>Карточка здоровья</h2><button type="button" class="linkbtn" data-layout="1" aria-label="Настроить карточку здоровья">⚙</button></div><div class="kpis kpis--home">${pick.map(x=>{
+  if(!pick.length) return `<div class="card"><h2>Карточка здоровья</h2><p class="muted" style="margin:0 0 8px">Выберите, что показывать.</p><button type="button" class="btn btn-secondary" data-htiles="kpi" style="min-height:44px">Выбрать плитки</button></div>`;
+  return `<div class="card"><div class="kpihead"><h2>Карточка здоровья</h2><button type="button" class="linkbtn" data-htiles="kpi" style="min-height:44px">Изменить плитки</button></div><div class="kpis kpis--home">${pick.map(x=>{
     const none=!x.val||/^нет данных$/i.test(String(x.val));
     return `<div class="kpi${none?" kpi--none":x.st?" kpi--"+x.st:""}" data-kpigo="1" style="cursor:pointer;min-height:64px"><div class="kpi__lab">${esc(x.lab)}</div><div class="kpi__val${String(x.val).length>10?" long":""}">${none?"нет данных":esc(x.val)}</div>${none?`<div class="kpi__sub"><span class="linkbtn">Добавить</span></div>`:`<div class="kpi__sub">${esc(x.sub||"")}</div>`}</div>`; }).join("")}</div></div>`;
 }
@@ -9551,7 +9554,6 @@ function layoutScreenHtml(d){
     <div class="card"><h2>Что показывать</h2>
       ${onN<=1?`<p class="muted" style="margin:0 0 8px">На главной только план здоровья.</p>`:""}
       ${rows.map(r=>`<div class="lrow" data-lrow="${esc(r.id)}"><span class="lrow__n">${esc(LAYOUT_NAMES[r.id]||r.id)}${r.fixed?' <span class="muted">· всегда</span>':""}</span>
-        ${r.on&&!r.fixed?`<button type="button" class="lmv" data-lmove="up" data-lid="${esc(r.id)}" aria-label="Выше">▲</button><button type="button" class="lmv" data-lmove="down" data-lid="${esc(r.id)}" aria-label="Ниже">▼</button>`:""}
         ${r.fixed?"":`<label class="lsw"><input type="checkbox" role="switch" data-lsw="${esc(r.id)}"${r.on?" checked":""} aria-label="${esc(LAYOUT_NAMES[r.id]||r.id)}"><span class="lsw__t"></span></label>`}</div>${r.on?layoutTilesHtml(r.id,TL,L,d):""}`).join("")}
       <div style="margin-top:12px"><button type="button" class="btn btn-secondary" data-lreset="1" style="min-height:44px">Вернуть как было</button></div></div>`;
 }
@@ -9563,12 +9565,39 @@ async function layoutTileToggle(wid,id,on){
   const L=layoutEff(cur), d=DATA[cur];
   if(wid==="kpi"){
     const cur0=kpiFieldsOf(d,L), next=on?[...cur0.filter(x=>x!==id),id]:cur0.filter(x=>x!==id);
-    if(next.length>4){ toast("На главной помещается до 4 плиток"); render(); return; }
-    const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:next}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); return;
+    if(next.length>4){ toast("На главной помещается до 4 плиток"); render(); tilesRedraw(); return; }
+    const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:next}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw(); return;
   }
   const ht=Object.assign({},L.hidden_tiles||{}), now=(ht[wid]||[]).filter(x=>x!==id); ht[wid]=on?now:[...now,id]; if(!ht[wid].length) delete ht[wid];
-  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],hidden_tiles:ht}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render();
+  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],hidden_tiles:ht}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
 }
+// ── Плитки внутри карточек (Денис 26.10.2026): «Изменить плитки» — список с переключателями; у карточки здоровья порядок меняется стрелками ──
+function tilesBodyHtml(wid){
+  const d=DATA[cur], L=layoutEff(cur), TL=layoutTiles(d,["meas"],MZD[cur]), list=wid==="kpi"?TL.kpi:TL.meas;
+  const shown=wid==="kpi"?kpiFieldsOf(d,L).filter(l=>list.some(t=>t.id===l)):list.filter(t=>!tileHidden(L,"meas",t.id)).map(t=>t.id);
+  const order=wid==="kpi"?[...shown,...list.map(t=>t.id).filter(x=>!shown.includes(x))]:list.map(t=>t.id), nm=id=>(list.find(t=>t.id===id)||{name:id}).name;
+  return `<p class="muted" style="margin:0 0 8px">${wid==="kpi"?"На главной помещается до 4 плиток. Порядок — стрелками.":"Выберите, какие замеры показывать."}</p>`+order.map(id=>{ const on=shown.includes(id), i=shown.indexOf(id);
+    return `<div class="lrow lrow--tile"><span class="lrow__n">${esc(nm(id))}</span>${wid==="kpi"&&on?`<button type="button" class="lmv" data-tmove="${esc(id)}" data-tdir="up" aria-label="Выше"${i===0?" disabled":""}>▲</button><button type="button" class="lmv" data-tmove="${esc(id)}" data-tdir="down" aria-label="Ниже"${i===shown.length-1?" disabled":""}>▼</button>`:""}<label class="lsw"><input type="checkbox" role="switch" data-ltile="${wid}" data-lid="${esc(id)}"${on?" checked":""} aria-label="${esc(nm(id))}"><span class="lsw__t"></span></label></div>`; }).join("");
+}
+function tilesOpen(wid){
+  modal.className="modal on"; modal.dataset.tiles=wid;
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>${wid==="kpi"?"Плитки карточки здоровья":"Плитки замеров"}</h2><div id="tilesBody">${tilesBodyHtml(wid)}</div><div class="row"><button type="button" class="btn btn-primary" data-close style="min-height:44px">Готово</button></div></div>`;
+}
+function tilesRedraw(){ const b=document.getElementById("tilesBody"); if(b&&modal.dataset.tiles) b.innerHTML=tilesBodyHtml(modal.dataset.tiles); }
+async function tilesMove(id,dir){
+  const d=DATA[cur], L=layoutEff(cur), cur0=kpiFieldsOf(d,L).slice(), i=cur0.indexOf(id), j=dir==="up"?i-1:i+1; if(i<0||j<0||j>=cur0.length) return;
+  [cur0[i],cur0[j]]=[cur0[j],cur0[i]];
+  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:cur0}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest&&e.target.closest("[data-hedit],[data-htiles],[data-hhide],[data-tmove]"); if(!t) return;
+  if(t.dataset.hedit==="on"){ window.__homeEdit=true; render(); return; }
+  if(t.dataset.hedit==="done"){ window.__homeEdit=false; render(); return; }
+  if(t.dataset.hedit==="all"){ window.__homeEdit=false; goTab("layout"); render(); window.scrollTo({top:0}); return; }
+  if(t.dataset.htiles){ tilesOpen(t.dataset.htiles); return; }
+  if(t.dataset.tmove){ tilesMove(t.dataset.tmove,t.dataset.tdir); return; }
+  if(t.dataset.hhide){ layoutToggle(t.dataset.hhide,false); }
+});
 async function layoutMove(id,dir){
   const rows=layoutRows(DATA[cur],layoutEff(cur),window.__homeAllFor===cur?window.__homeAll:null).filter(r=>r.on).map(r=>r.id), next=moveInOrder(rows,id,dir);
   const hid=(layoutEff(cur).hidden||[]).map(layoutCat);
@@ -13741,7 +13770,7 @@ function render(){
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     layoutLoad(cur); const LAY=layoutEff(cur), LP=layoutForPage(LAY);
     m.innerHTML=homeAssemble(`
-    <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2><button type="button" class="lgear" data-layout="1" aria-label="Настроить главную" title="Настроить главную">⚙</button></div>
+    <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2>${window.__homeEdit?`<span class="muted hedit__t">Править главную</span><button type="button" class="linkbtn" data-hedit="all" style="min-height:44px">Все блоки</button><button type="button" class="btn btn-primary" data-hedit="done" style="min-height:44px">Готово</button>`:`<button type="button" class="lgear" data-hedit="on" aria-label="Править главную" title="Править главную">⚙</button>`}</div>
     <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today))})}
 
     <!--B:weight-->${weightHome(d)}
