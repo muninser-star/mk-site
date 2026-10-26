@@ -1854,6 +1854,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .addsheet{box-sizing:border-box;max-width:min(520px,100%)}.addmenu{overflow:hidden}
 @media (max-width:359px){.app-header{gap:6px;padding:8px 10px}.app-title{gap:6px;font-size:0}.app-title .app-logo{font-size:initial}}
 .additems{grid-template-columns:repeat(2,minmax(0,1fr))}.additems button{min-width:0;overflow-wrap:anywhere}
+.zonepick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.zonepick .chip.hd-ztile{border:0;background:none;padding:0 0 4px;border-radius:0;min-height:44px;height:auto;box-shadow:none;white-space:normal}.zonepick .chip.on .hd-ztile__r{border-color:var(--accent);background:var(--accent-soft)}.zonepick .chip.on .hd-ztile__ok{display:grid}.zonepick .hd-ztile__t{min-height:0;font-size:12px}.zonepick__txt{margin:6px 0 0;font-size:13px}.zmini{display:inline-flex;gap:4px;margin:4px 0}.hd-zmini{width:28px;height:28px;fill:var(--negative);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -4677,7 +4678,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 16:05";   // подставляется при публикации
+const BUILD="26.10 16:08";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -13407,6 +13408,15 @@ async function symQuickSave(name,val){
   }catch(e){ toast("Не сохранилось, нажмите ещё раз","Повторить",()=>symQuickSave(name,val)); }
 }
 // ── «Дополнить»: новый эпизод за день (когда, период, сила, что приняли, заметка, поля симптома) или подробности записанного эпизода
+// зоны головы картинками (ТЗ-041: схемы z-*): плитки с выбором тапом, под ними текст выбранного для экранного диктора; старые записи (id зон) подсвечиваются так же
+function zonePickHtml(f,sel){
+  const L=diaryIdLists().zones, S=sel||[];
+  return `<div class="chips zonepick" data-f="zones" data-multi="1" data-max="${f.max||14}" role="group" aria-label="Зоны головы">${L.map(z=>`<button type="button" class="chip hd-ztile${S.includes(z.id)?" on":""}" data-v="${z.id}" aria-pressed="${S.includes(z.id)}"><span class="hd-ztile__r"><svg class="hd-zimg" viewBox="0 0 120 120" aria-hidden="true"><use href="#z-${z.id}"/></svg><span class="hd-ztile__ok" aria-hidden="true">✓</span></span><span class="hd-ztile__t">${esc(z.n)}</span></button>`).join("")}</div>
+    <div class="zonepick__txt muted" data-zptxt aria-live="polite">${zonePickText(S)}</div>`;
+}
+function zonePickText(sel){ const L=diaryIdLists().zones, n=(sel||[]).map(id=>(L.find(z=>z.id===id)||{n:id}).n); return n.length?"Выбрано: "+esc(n.join(", ")):"Нажмите на картинку, можно выбрать несколько"; }
+// миниатюры отмеченных зон для карточки дня и ленты (до 4)
+function zonesMini(attrs){ const Z=(attrs&&Array.isArray(attrs.zones)?attrs.zones:[]).slice(0,4); return Z.length?`<span class="zmini" aria-hidden="true">${Z.map(z=>`<svg class="hd-zmini" viewBox="0 0 120 120"><use href="#z-${z}"/></svg>`).join("")}</span>`:""; }
 function symEntryForm(name,o){
   o=o||{}; delete modal.dataset.qs; modal._q=null;
   const d=DATA[cur], today=localDay(), day=o.day||today, D=DZ.data[cur]||{}, row=o.id!=null?(D.all||[]).find(r=>r.id===o.id):null;
@@ -13415,7 +13425,8 @@ function symEntryForm(name,o){
   const chips=(f,sel,multi)=>`<div class="chips" data-f="${f.key}" data-multi="${multi?1:0}" data-max="${f.max||14}">${f.opts.map(([id,n,x],i)=>`<button type="button" class="chip${(sel||[]).includes(id)?" on":""}${i>=8?" more":""}" data-v="${id}"${x&&x.red?' data-red="1"':""}${i>=8&&!(sel||[]).includes(id)?" hidden":""}>${x&&x.c?`<i class="cdot" style="background:${x.c}"></i>`:""}${esc(n)}</button>`).join("")}${f.opts.length>8?`<button type="button" class="chip chip--more" data-chmore="1">Ещё</button>`:""}</div>`;
   const field=f=>{
     const lab=`<label class="flab">${esc(f.label)}</label>`;
-    if(f.type==="zones"||f.type==="chars"||f.type==="chipN") return lab+chips(f,A[f.key],true);
+    if(f.type==="zones") return lab+zonePickHtml(f,A[f.key]);
+    if(f.type==="chars"||f.type==="chipN") return lab+chips(f,A[f.key],true);
     if(f.type==="chip1") return lab+chips(f,A[f.key]?[A[f.key]]:[],false);
     if(f.type==="triggers") return lab+chips(f,(row&&row.triggers)||[],true);
     if(f.type==="duration"){ const mins=A.ended_at&&row?Math.round((new Date(A.ended_at)-new Date(row.occurred_at||row.occurred_on))/6e4):null, c2=mins==null?"":mins<=60?"s":mins<=240?"m":"l";
@@ -13528,6 +13539,7 @@ document.addEventListener("click",e=>{
   const qm=t.closest("[data-qsm]"); if(qm&&modal.dataset.qs){ symQuickSave(modal.dataset.qs,qm.dataset.qsm); return; }
   const sev=t.closest("[data-sev]"); if(sev&&modal._se){ modal._se.intensity=+sev.dataset.sev; modal.querySelectorAll("[data-sev]").forEach(b=>{ const on=+b.dataset.sev===modal._se.intensity; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }); const sl=modal.querySelector("[data-iscsel]"); if(sl) sl.textContent=intensityText(modal._se.intensity); return; }
   if(t.closest("[data-qsmore]")&&modal.dataset.qs){ symEntryForm(modal.dataset.qs,{}); return; }
+  const zp=t.closest&&t.closest(".symform .zonepick .chip[data-v]"); if(zp) setTimeout(()=>{ const box=zp.parentElement, on=[...box.querySelectorAll(".chip.on")].map(x=>x.dataset.v), tx=box.parentElement.querySelector("[data-zptxt]"); box.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.classList.contains("on")))); if(tx) tx.innerHTML=zonePickText(on); },0);
   const ch=t.closest(".symform .chip[data-v]"); if(ch){ const box=ch.parentElement; if(box.dataset.multi==="1"){ const on=box.querySelectorAll(".chip.on").length; if(!ch.classList.contains("on")&&on>=+box.dataset.max) return; ch.classList.toggle("on"); } else { const was=ch.classList.contains("on"); box.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); if(!was) ch.classList.add("on"); }
     const rf=document.getElementById("seRed"); if(rf) rf.hidden=!modal.querySelector(".symform .chip.on[data-red]");
     modal.querySelectorAll("[data-showif]").forEach(el=>{ el.hidden=!modal.querySelector(`.chip.on[data-v="${el.dataset.showif}"]`); }); return; }
@@ -13576,7 +13588,7 @@ function symEpisodesHtml(name,day){
   const eps=symEpisodes(D.all,name,day), age=(typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null), tr=trackerOfSymptom(TRK.rows[cur],name), def=symptomFields(name,age,tr&&tr.config);
   const row=r=>{ const det=symptomDetailsView(r,def).filter(x=>x.key!=="dose"&&x.key!=="note"&&x.key!=="intensity"&&x.key!==def.measure.key);
     const mv=symptomDetailsView(r,{fields:[def.measure],more:[]})[0];
-    return `<div class="ep-row"><div><b>${r.occurred_at?dzHM(r.occurred_at):"—"}</b>${mv?` · ${esc(def.measure.mtype==="scale"?"сила "+intensityText(r.intensity):def.measure.label+": "+mv.value)}`:""}${medsText(r.attrs,r.med)?` · принял: ${esc(medsText(r.attrs,r.med))}`:""}${r.feeling?`<div class="muted">${esc(r.feeling)}</div>`:""}${det.length?`<div class="muted">${det.map(x=>esc(x.label)+": "+esc(x.value)).join(" · ")}</div>`:""}</div>
+    return `<div class="ep-row"><div><b>${r.occurred_at?dzHM(r.occurred_at):"—"}</b>${mv?` · ${esc(def.measure.mtype==="scale"?"сила "+intensityText(r.intensity):def.measure.label+": "+mv.value)}`:""}${medsText(r.attrs,r.med)?` · принял: ${esc(medsText(r.attrs,r.med))}`:""}${zonesMini(r.attrs)}${r.feeling?`<div class="muted">${esc(r.feeling)}</div>`:""}${det.length?`<div class="muted">${det.map(x=>esc(x.label)+": "+esc(x.value)).join(" · ")}</div>`:""}</div>
       <button type="button" class="linkbtn" data-symedit="${r.id}" data-symname="${esc(name)}" data-symday="${day}" style="min-height:44px">Изменить</button></div>`; };
   return `<div class="card"><h2>Время и детали</h2>${eps.length?eps.map(row).join(""):`<p class="muted" style="margin:0 0 8px">Записей со временем за этот день нет.</p>`}
     <button type="button" class="btn btn-secondary" data-symep="${esc(name)}" data-symday="${day}" style="min-height:44px;margin-top:6px">Дополнить</button></div>`;
