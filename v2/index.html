@@ -113,6 +113,7 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hpv2__row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:12px}.hpv2__n{line-height:1.1;text-align:left}.hpv2__info{margin-top:6px}.hpv2__info>summary{display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;cursor:pointer;color:var(--accent);list-style:none;font-weight:700}.hpv2__info>summary::-webkit-details-marker{display:none}
 .watchhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:34px}.watchhead h2{margin:0}
 .meashead{display:flex;align-items:center;justify-content:space-between;gap:8px}.meashead h2{margin:0}.measplus{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-size:24px;line-height:1;cursor:pointer}.measrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}.measrow:first-of-type{border-top:0}.measrow__n{flex:0 0 96px;color:var(--muted)}.measrow__v{flex:1 1 auto;min-width:0}.measrow__d{color:var(--muted);font-size:14px}.measrow__w{font-size:13px;white-space:nowrap}.meas-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.meas-urgent{margin:0 0 8px;background:var(--badbg,#fdecea);color:var(--bad)}.meas-skel{height:44px;margin-top:6px;border-radius:8px;background:var(--line);opacity:.5}@media (prefers-reduced-motion:no-preference){.meas-skel{animation:measpulse 1.4s ease-in-out infinite}}@keyframes measpulse{50%{opacity:.25}}
+.permore,.perdate{display:inline-block}.permore>summary,.perdate>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 12px}.permore>summary::-webkit-details-marker,.perdate>summary::-webkit-details-marker{display:none}.permore>summary{background:none;border:0;box-shadow:none;color:var(--muted);font-size:20px}.permore[open]>.btn{display:block}.perbox{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}.perbox>.row{flex:1 1 100%}
 .vhopts{display:flex;gap:8px;margin-top:10px}.vhopts .btn{flex:1 1 0;min-height:44px;padding:0 8px;font-size:15px}
 .lgear{flex:none;min-width:44px;min-height:44px;border:0;background:none;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}.phead--home{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hpv2{padding:16px}.hpv2__h{justify-content:flex-start}.hpv2__h b{font-size:16px}.hpv2__i{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-10px 0 -10px -6px;border:0;background:none;cursor:pointer}.hpv2__i span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1.5px solid var(--muted);border-radius:50%;color:var(--muted);font:600 13px/1 var(--font)}.hpv2__miss{font-size:14px;margin-top:2px}.hpv2__note{font-size:13px;margin-top:6px}.hpv2 .hpv2__go{display:flex;justify-content:flex-start;text-align:left;min-height:44px;height:auto;padding:0;margin-top:2px;font-size:14px;color:var(--accent)}.hpv2__n{font-size:28px}
@@ -4640,7 +4641,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 10:43";   // подставляется при публикации
+const BUILD="26.10 10:52";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6166,6 +6167,44 @@ function symMergeBanner(who,day){
     <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-primary" data-mergeyes="${day}" style="height:32px">Объединить</button>
     <button class="btn btn-secondary" data-mergeno="${day}" style="height:32px">Нет, оставить как есть</button></div><div class="formlog" id="mergeLog"></div></div>`;
 }
+// ── Периоды одного симптома подряд (Денис 26.10.2026): два и более периода с разрывом не больше 2 дней — один эпизод, предлагаем объединить ──
+function perDaysShift(iso,n){ return new Date(Date.parse(iso+"T12:00:00Z")+n*864e5).toISOString().slice(0,10); }
+function symPeriodGroups(periods,who,symptom,today){
+  const k=symNorm(symptom), L=(periods||[]).filter(x=>x&&x.person===who&&symNorm(x.symptom)===k).slice().sort((a,b)=>a.started_on<b.started_on?-1:a.started_on>b.started_on?1:0), out=[]; let g=null;
+  for(const x of L){ const end=x.ended_on||today;
+    if(g&&x.started_on<=perDaysShift(g.end,2)){ g.ids.push(x.id); if(end>g.end) g.end=end; g.open=g.open||!x.ended_on; }
+    else { if(g&&g.ids.length>1) out.push(g); g={ids:[x.id],start:x.started_on,end,open:!x.ended_on}; } }
+  if(g&&g.ids.length>1) out.push(g);
+  return out.map(x=>({ids:x.ids,start:x.start,count:x.ids.length,open:x.open}));
+}
+
+function perNoKey(who,symptom,ids){ return who+"|"+symNorm(symptom)+"|"+ids.slice().sort().join(","); }
+function perNoHas(who,symptom,ids){ try{ return !!(JSON.parse(localStorage.getItem("mk_permerge_no")||"{}")||{})[perNoKey(who,symptom,ids)]; }catch(e){ return false; } }
+function perNoSet(who,symptom,ids){ try{ const o=JSON.parse(localStorage.getItem("mk_permerge_no")||"{}")||{}; o[perNoKey(who,symptom,ids)]=1; localStorage.setItem("mk_permerge_no",JSON.stringify(o)); }catch(e){} }
+// плашка того же вида, что «Объединить под поводом» (symMergeBanner): одна, вверху карточки симптома
+function symPeriodMergeBanner(who,symptom){
+  const g=symPeriodGroups(PERIODS,who,symptom,localDay()).find(x=>!perNoHas(who,symptom,x.ids)); if(!g) return "";
+  const dm=x=>String(x).slice(8,10)+"."+String(x).slice(5,7), ids=g.ids.join(",");
+  return `<div class="note symmerge" data-permerge="1" style="margin:0 0 10px"><div><b>${esc(symptom)}</b> идёт с ${dm(g.start)} — вы записывали его ${g.count} ${plural(g.count,"раз","раза","раз")}. Объединить в один период?</div>
+    <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-primary" data-pmyes="${esc(ids)}" data-pmsym="${esc(symptom)}" style="min-height:44px">Объединить</button>
+    <button class="btn btn-secondary" data-pmno="${esc(ids)}" data-pmsym="${esc(symptom)}" style="min-height:44px">Это разные</button></div><div class="formlog" id="pmLog"></div></div>`;
+}
+// один период в карточке: открытый — «Закончился сегодня» и «Выбрать дату», остальное в «⋯»
+function perCardHtml(x,today){
+  const more=`<details class="permore"><summary aria-label="Ещё">⋯</summary><button type="button" class="btn btn-secondary" data-perdel="${x.id}" style="min-height:44px">Убрать период</button></details>`;
+  if(x.ended_on) return `<div class="note perbox" style="margin:0 0 10px">Период: ${ru(x.started_on)} — ${ru(x.ended_on)}${more}</div>`;
+  return `<div class="note perbox" style="margin:0 0 10px;border-color:var(--warn)"><b>Идёт с ${ru(x.started_on)}</b> · ${rxDays(x.started_on,today)}-й день
+    <div class="row" style="gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" data-perend="${x.id}" style="min-height:44px">Закончился сегодня</button>
+    <details class="perdate"><summary class="btn btn-secondary">Выбрать дату</summary><div class="row" style="gap:8px;margin-top:8px"><input type="date" data-perenddate="${x.id}" max="${today}" min="${x.started_on}" value="${today}"><button type="button" class="btn btn-secondary" data-perendd="${x.id}" style="min-height:44px">Закончился</button></div></details>${more}</div></div>`;
+}
+document.addEventListener("click",async e=>{
+  const T=e.target.closest&&e.target.closest("[data-pmyes],[data-pmno]"); if(!T) return;
+  const ids=(T.dataset.pmyes||T.dataset.pmno).split(","), sym=T.dataset.pmsym, who=cur;
+  if(T.dataset.pmno){ perNoSet(who,sym,ids); render(); return; }
+  T.disabled=true;
+  try{ await mkApi("period_merge",{person:who,ids}); const j=await mkApi("period_list"); PERIODS=j.rows||[]; periodsSave(); window.__perLoaded=1; render(); toast(`✓ Объединили ${ids.length} ${plural(ids.length,"период","периода","периодов")} в один`); }
+  catch(x){ T.disabled=false; const l=document.getElementById("pmLog"); if(l) l.innerHTML=`<div class="er">Не получилось объединить, попробуйте ещё раз</div>`; }
+});
 async function symMergeDo(who,day){
   const S=DATA[who].sym, o=symMergeOffer(S.log,S.ep,day,localDay()), lg=t=>{ const e=document.getElementById("mergeLog"); if(e) e.innerHTML=`<div class="er">${t}</div>`; };
   if(!o.offer) return false;
@@ -13726,14 +13765,10 @@ function render(){
       const L=byName[symSel]||[], c=catOf(symSel);
       const dxs=dxSort((d.diagnoses||[]).filter(x=>x.sys===c.sys));
       const a30=symAgg(L,d30,today), a90=symAgg(L,d90,today);
-      const perHtml=(PERIODS||[]).filter(x=>x.person===cur&&String(x.symptom).toLowerCase()===String(symSel).toLowerCase()).slice(0,3).map(x=>x.ended_on
-        ?`<div class="note" style="margin:0 0 10px">Период: ${ru(x.started_on)} — ${ru(x.ended_on)} <button class="btn btn-secondary" data-perdel="${x.id}" style="height:28px;font-size:12px">Убрать период</button></div>`
-        :`<div class="note" style="margin:0 0 10px;border-color:var(--warn)"><b>Идёт с ${ru(x.started_on)}</b> · ${rxDays(x.started_on,localDay())}-й день
-          <div class="row" style="gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" data-perend="${x.id}" style="height:32px">Закончился сегодня</button>
-          <span class="muted">или по</span><input type="date" data-perenddate="${x.id}" max="${localDay()}" min="${x.started_on}" value="${localDay()}"><button class="btn btn-secondary" data-perendd="${x.id}" style="height:32px">Закончился</button>
-          <button class="btn btn-secondary" data-perdel="${x.id}" style="height:32px">Убрать период</button></div></div>`).join("");
+      const perHtml=(PERIODS||[]).filter(x=>x.person===cur&&symNorm(x.symptom)===symNorm(symSel)).slice(0,3).map(x=>perCardHtml(x,localDay())).join("");
       m.innerHTML=homeAssemble(`
       <button class="back" data-sym="">← Ко всем симптомам</button>
+      ${symPeriodMergeBanner(cur,symSel)}
       <div class="card">
         <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}${signalHtml(signalsNow().filter(x=>symKey(x.name)===symKey(symSel)))}
         ${c.red?`<div class="pill" style="background:var(--bad);margin-bottom:8px">при появлении — к врачу сразу, не дожидаясь записи</div>`:""}
