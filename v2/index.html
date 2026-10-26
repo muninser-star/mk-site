@@ -1637,7 +1637,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]) input[type=date]{color-scheme:dark}}
 .nvrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .nvrow .btn{height:40px;font-size:14px}
-/* страница дела: что сделать — сверху, обоснование — свёрнуто */
+/* страница задачи: что сделать — сверху, обоснование — свёрнуто */
 .taskh{margin:6px 0 0;font:600 22px/28px var(--font);letter-spacing:-.3px;text-transform:none;color:var(--ink)}
 .taskdet{margin-top:4px;font:400 16px/22px var(--font);color:var(--muted)}
 .taskask{margin-top:10px;padding:10px 12px;border-radius:var(--r-l);background:var(--accent-soft);color:var(--text-primary);font:500 15px/21px var(--font)}
@@ -4087,7 +4087,7 @@ function recLinksFill(r,p){
   const c=recLinksLoad(p,paint); if(c.loaded) paint();
 }
 let RZLAB={};   // key → рекомендация «что сдать», показанная на экране
-// форма «Запланировать анализ»: что сдать и когда; сохраняется делом в «Плане здоровья» на главной
+// форма «Запланировать анализ»: что сдать и когда; сохраняется задачей в «Плане здоровья» на главной
 function labPlanForm(o){
   const mo=document.getElementById("modal");
   mo.innerHTML=`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
@@ -4678,7 +4678,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 16:08";   // подставляется при публикации
+const BUILD="26.10 16:14";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5760,7 +5760,7 @@ function epFitsSymptom(ep,name,day,log){
   const lead=Math.round((Date.parse(day+"T12:00:00Z")-Date.parse(ep.d1+"T12:00:00Z"))/864e5);
   return lead<=30;
 }
-// ключ скрытой связи «симптом — болезнь»: хранится как настройка (как состояние дел), своя у кода доступа
+// ключ скрытой связи «симптом — болезнь»: хранится как настройка (как состояние задач), своя у кода доступа
 function symLinkKey(name,epId){ return "связь симптома|"+favKey(name)+"|"+epId; }
 function symDayInfo(S,periods,person,name,day,today,isHidden){
   const same=z=>String(z||"").toLowerCase().replace(/ё/g,"е")===String(name).toLowerCase().replace(/ё/g,"е");
@@ -5850,7 +5850,7 @@ async function symChatSend(name,full){
   catch(e){ c.rows.pop(); toast("Врач не ответил, попробуйте ещё раз"); }
   c.busy=false; render();
 }
-// ── Разбор семейным ИИ-врачом: анализ, показатель, дела из ответа, «Разборы» (ТЗ-031 блоки 1, 2, 5, 9) ──
+// ── Разбор семейным ИИ-врачом: анализ, показатель, задачи из ответа, «Разборы» (ТЗ-031 блоки 1, 2, 5, 9) ──
 // Тема разговора в ask_log: lab:<человек>:<дата анализа>, ind:<человек>:<показатель>, symptom:… (свой разговор в карточке симптома)
 const RZB={};   // тема → {rows, busy, loaded, err, cfg:{person, defaultQ, firstLabel, payload}}
 function rzTopic(kind,p,key){ return `${kind}:${p}:${kind==="ind"?String(key).toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim().slice(0,100):key}`; }
@@ -5863,14 +5863,14 @@ function rzLoad(topic){
     const mine=lg?(o.rows||[]).filter(r=>String(r.question||"").startsWith("Что значит "+lg.title+" ")):[];
     c.rows=mine.concat(j.rows||[]); rzPaint(topic); }).catch(()=>{ c.loaded=false; });
 }
-// «Добавить в дела»: действия из блока «ДЕЛА:» ответа; все отмечены, можно снять лишние
+// «Добавить в задачи»: действия из блока «ДЕЛА:» ответа; все отмечены, можно снять лишние
 function rzTodoAdded(rowId){ return new Set((window.__entries||[]).filter(e=>e&&e.kind==="task"&&e.status!=="deleted"&&e.data&&String(e.data.src||"").startsWith(rowId+":")).map(e=>+String(e.data.src).split(":")[1])); }
 function rzTodosHtml(row,topic){
   const t=Array.isArray(row.todos)?row.todos:[];
   if(!row.id||!t.length||row.todoSkip) return "";
   const added=rzTodoAdded(row.id), left=t.map((x,i)=>({x,i})).filter(o=>!added.has(o.i));
-  if(row.todoDone||!left.length) return `<div class="muted" style="font-size:13px;margin:6px 0">✓ Уже в списке дел — «План здоровья» на главной</div>`;
-  return `<div class="rz-todo" data-rzt="${row.id}"><b>${icon("u-task","ic--20")} Добавить в дела</b>
+  if(row.todoDone||!left.length) return `<div class="muted" style="font-size:13px;margin:6px 0">✓ Уже в списке задач — «План здоровья» на главной</div>`;
+  return `<div class="rz-todo" data-rzt="${row.id}"><b>${icon("u-task","ic--20")} Добавить в задачи</b>
     ${left.map(o=>`<label class="rz-t"><input type="checkbox" data-rzti="${o.i}" checked><span>${esc(o.x.what)}${o.x.term?` <span class="muted">· ${esc(o.x.term)}</span>`:""}</span></label>`).join("")}
     <div class="row" style="margin-top:6px"><button type="button" class="btn btn-primary" data-rzadd="${row.id}" data-rztopic="${esc(topic)}">Добавить выбранные</button>
     <button type="button" class="btn btn-secondary" data-rzskip="${row.id}" data-rztopic="${esc(topic)}">Не нужно</button></div></div>`;
@@ -5925,9 +5925,9 @@ async function rzSend(topic,q){
 async function rzAdd(rowId,topic){
   const c=RZB[topic]||SYMCHAT[topic], row=c&&c.rows.find(r=>r.id===+rowId), box=document.querySelector(`[data-rzt="${rowId}"]`); if(!row||!box) return;
   const picks=[...box.querySelectorAll("[data-rzti]")].filter(x=>x.checked).map(x=>+x.dataset.rzti);
-  if(!picks.length){ toast("Отметьте хотя бы одно дело"); return; }
+  if(!picks.length){ toast("Отметьте хотя бы одну задачу"); return; }
   try{ const j=await entriesApi("tasks_from_ask",{person:(c.cfg&&c.cfg.person)||cur,ask_id:row.id,picks});
-    row.todoDone=true; await entriesPull(); render(); toast(j.added?`Добавлено в дела: ${j.added}`:"Эти дела уже добавлены"); }
+    row.todoDone=true; await entriesPull(); render(); toast(j.added?`Добавлено в задачи: ${j.added}`:"Эти задачи уже добавлены"); }
   catch(e){ toast("Не получилось, попробуйте ещё раз"); }
   RZB[topic]?rzPaint(topic):render();
 }
@@ -7357,7 +7357,7 @@ document.addEventListener("click",e=>{
     confirmDel("Удалить этот замер?",()=>mkApi("metric_delete",{id}).then(()=>{ MZD[cur]=0; mzLoad(true); toast("Замер удалён"); measHistory(key,lab,un); }).catch(()=>toast("Не получилось удалить — нет связи"))); return; }
 });
 
-// ── Свои дела (ТЗ-057 блок 1): название, срок, заметка; оригинал — на сервере, рядом с делами из паспорта ──
+// ── Свои задачи (ТЗ-057 блок 1): название, срок, заметка; оригинал — на сервере, рядом с задачами из паспорта ──
 const OWN={}, OWNL={};
 function ownLoad(force){
   if(!window.__MK_KEY) return; const p=cur; if(OWNL[p]&&!force) return; OWNL[p]=1;
@@ -7365,7 +7365,7 @@ function ownLoad(force){
 }
 const ownFind=(p,title)=>{ const k=taskKey(title); return (OWN[p]||[]).find(r=>taskKey(r.title)===k); };
 const ownState=(p,title)=>{ const r=ownFind(p,title); return r&&r.status==="done"?{s:"done",own:true}:null; };
-// статус своего дела: «Готово» = done, «Вернуть» = open (task_state у своих дел не используется)
+// статус своего задачи: «Готово» = done, «Вернуть» = open (task_state у своих задач не используется)
 async function ownSetStatus(r,status){
   const was=r.status; r.status=status; render();
   try{ await mkApi("todo_save",{id:r.id,person:r.person,status}); }
@@ -7375,7 +7375,7 @@ function ownForm(id){
   const r=id?(OWN[cur]||[]).find(x=>String(x.id)===String(id)):null, y=new Date(Date.now()-864e5), pad=n=>String(n).padStart(2,"0"), minD=`${y.getFullYear()}-${pad(y.getMonth()+1)}-${pad(y.getDate())}`;
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox" id="ownBox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h3 style="margin:0 0 6px;font-size:18px">${r?"Дело":"Новое дело"} — ${esc(DATA[cur].short)}</h3>
+    <h3 style="margin:0 0 6px;font-size:18px">${r?"Задача":"Новая задача"} — ${esc(DATA[cur].short)}</h3>
     <div class="addform"><div class="fld"><label for="owT">Что сделать</label><input id="owT" maxlength="120" autocomplete="off" value="${esc(r?r.title:"")}" placeholder="Забрать справку для бассейна"></div>
       <details class="own-more"${r&&(r.due||r.note)?" open":""}><summary>Дополнить (срок, заметка)</summary>
         <div class="fld"><label for="owD">Срок</label><input id="owD" type="date" min="${minD}" value="${esc(r&&r.due||"")}"></div>
@@ -7398,13 +7398,13 @@ async function ownSave(id){
   try{
     const j=await mkApi("todo_save",{id:id||undefined,person:who,title,due:due||null,note});
     ownLoad(true); closeModal(); render();
-    if(!id) toast("Дело добавлено","Отменить",()=>mkApi("todo_delete",{id:j.id}).then(()=>{ ownLoad(true); }).catch(()=>toast("Не получилось отменить")));
+    if(!id) toast("Задача добавлена","Отменить",()=>mkApi("todo_delete",{id:j.id}).then(()=>{ ownLoad(true); }).catch(()=>toast("Не получилось отменить")));
   }catch(e){ if(btn){ btn.disabled=false; btn.textContent="Сохранить"; } log("Не сохранилось. Текст остался, попробуйте ещё раз"); }
 }
 document.addEventListener("click",e=>{
   const s=e.target.closest&&e.target.closest("[data-ownsave]"); if(s){ ownSave(s.dataset.ownsave); return; }
   const dn=e.target.closest&&e.target.closest("[data-owndone]"); if(dn){ const r=(OWN[cur]||[]).find(x=>String(x.id)===dn.dataset.owndone); closeModal(); if(r) ownSetStatus(r,r.status==="done"?"open":"done"); return; }
-  const dl=e.target.closest&&e.target.closest("[data-owndel]"); if(dl){ const id=dl.dataset.owndel; confirmDel("Удалить дело?",()=>mkApi("todo_delete",{id}).then(()=>{ ownLoad(true); toast("Дело удалено"); }).catch(()=>toast("Не получилось удалить — нет связи"))); return; }
+  const dl=e.target.closest&&e.target.closest("[data-owndel]"); if(dl){ const id=dl.dataset.owndel; confirmDel("Удалить задачу?",()=>mkApi("todo_delete",{id}).then(()=>{ ownLoad(true); toast("Задача удалена"); }).catch(()=>toast("Не получилось удалить — нет связи"))); return; }
   if(e.target.closest&&e.target.closest("[data-ownadd]")){ ownForm(); return; }
 });
 
@@ -7523,7 +7523,7 @@ function regRowHtml(r){
     <div class="muted" style="font-size:13px">${esc(r.why)}</div></div>
     <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${btn}${plan}<button type="button" class="linkbtn" data-regmute="${esc(r.key)}">Не нужно напоминать</button></div></div>`;
 }
-// дела плана здоровья, которые ещё не выполнены: короткое название («Офтальмолог») — по нему врач узнаётся
+// задачи плана здоровья, которые ещё не выполнены: короткое название («Офтальмолог») — по нему врач узнаётся
 function regPlanTasks(d){ try{ return buildTodo(d).filter(x=>!x.self&&x.kind!=="own"&&!(taskState(cur,x.title)&&taskState(cur,x.title).s==='done')).map(x=>({title:taskShort(x.title).title})); }catch(e){ return []; } }
 function regCard(d,plans,today){
   regLoad();
@@ -8297,10 +8297,10 @@ document.addEventListener("click",e=>{
 function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
-  // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из дела плана (ТЗ-058)
+  // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из задачи плана (ТЗ-058)
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
     ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
-    ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Дело",()=>ownForm()],
+    ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Задача",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
 }
@@ -8403,7 +8403,7 @@ function entriesInto(D,rows){
       continue;
     }
     if(e.kind==="task"){
-      (P.soon=P.soon||[]).push({when:x.d?ru(x.d):(x.term||"срок не указан"),what:x.what||"дело",
+      (P.soon=P.soon||[]).push({when:x.d?ru(x.d):(x.term||"срок не указан"),what:x.what||"задача",
         why:[pv?`назначено на приёме: ${pv.who||"врач"} ${pv.d?ru(pv.d):""}`.trim():"",x.due_why||"",q,from].filter(Boolean).join(" · "),st:"warn",sys:x.sys||null,entry:e.id,src:x.src||""});
       continue;
     }
@@ -9272,7 +9272,7 @@ function historyItems(rows,who,skip){
     if(e.kind==="med") return one(x.title||x.n)||"Лекарство";
     if(e.kind==="note") return one(x.text||x.title).slice(0,60)||"Заметка";
     if(e.kind==="instr") return one(x.kind||x.title)||"Обследование";
-    if(e.kind==="task") return one(x.what)||"Дело";
+    if(e.kind==="task") return one(x.what)||"Задача";
     if(e.kind==="vac") return "Прививка: "+(one(x.inf)||"—");
     return "Запись"; };
   const items=[...groups.values()].map(g=>{
@@ -9376,7 +9376,7 @@ function hpPlanItem(x){
   if(x.v==null&&x.why) return {what:"Пересдать: "+x.k,why:x.why};
   return x.v==null?{what:"Сдать: "+x.k,why:"не сдавали, а в зоне риска это нужно"}:{what:"Пересдать: "+x.k,why:`сдан ${x.ageM} мес. назад, повторять раз в ${x.months} мес.`};
 }
-// уже в плане: добавлено отсюда или такое дело уже есть в плане здоровья (по названию показателя)
+// уже в плане: добавлено отсюда или такая задача уже есть в плане здоровья (по названию показателя)
 function hpInPlan(x,entries,titles,who){
   const w=hpPlanItem(x).what.toLowerCase(), k=String(x.k||"").toLowerCase().replace(/ё/g,"е");
   return (entries||[]).some(e=>e&&e.kind==="task"&&e.status!=="deleted"&&e.person===who&&e.data&&String(e.data.what||"").toLowerCase()===w)
@@ -9582,10 +9582,10 @@ function planSpecFor(dx){
     [/кожа|дерматит|экзем|зуд/,"derm"],[/зуб|кариес/,"dent"],[/ухо|горло|лор|отит|синусит/,"ent"],[/сердц|аритм|давлени/,"cardio"],[/живот|гастрит|жкт|стул/,"gastro"],[/тревож|невроз|сон|поведен/,"psych"]];
   const hit=M.find(x=>x[0].test(t)); return hit?hit[1]:"ped";
 }
-// ключ дела для «готово» / «напомнить»: название строчными; состояние лежит у кода доступа
+// ключ задачи для «готово» / «напомнить»: название строчными; состояние лежит у кода доступа
 const taskKey=t=>favKey(t).slice(0,120);
 // дело скрыто с главной: сделано, либо отложено до даты, которая ещё не наступила
-// «не нужно»: дело убрано насовсем — то же состояние «напомнить», только с датой далеко за горизонтом; вернуть можно из полного списка дел
+// «не нужно»: дело убрано насовсем — то же состояние «напомнить», только с датой далеко за горизонтом; вернуть можно из полного списка задач
 function taskNotNeeded(st){ return !!st&&(st.s==="dismissed"||(st.s==="snooze"&&String(st.until)>="2099-01-01")); }   // «убрано из плана» (ТЗ-057): новое состояние dismissed и прежнее «не нужно»
 function taskHidden(st,today){ return !!st&&(st.s==="done"||st.s==="dismissed"||(st.s==="snooze"&&String(st.until)>today)); }
 // ближайшие визиты: из заранее запланированных и из «следующий визит» прошлых приёмов; на одну дату — одна строка, плановый визит главнее
@@ -9841,7 +9841,7 @@ function taskStLoad(){
   mkApi("task_state_list").then(j=>{ const n={}; (j.rows||[]).forEach(r=>{ (n[r.person]=n[r.person]||{})[r.task_key]={s:r.status,until:r.until}; }); TASKST=n; taskStSave(); render(); }).catch(()=>{});
 }
 async function taskStSet(person,title,status,until){
-  const own=ownFind(person,title); if(own){ ownSetStatus(own,status==='done'?'done':'open'); return; }   // свои дела хранятся отдельно (ТЗ-057)
+  const own=ownFind(person,title); if(own){ ownSetStatus(own,status==='done'?'done':'open'); return; }   // свои задачи хранятся отдельно (ТЗ-057)
   const key=taskKey(title), was=JSON.parse(JSON.stringify(TASKST));
   TASKST[person]=TASKST[person]||{}; if(status==="clear") delete TASKST[person][key]; else TASKST[person][key]={s:status,until:until||null};
   taskStSave(); render();
@@ -9849,7 +9849,7 @@ async function taskStSet(person,title,status,until){
   try{ await mkApi("task_state_set",{person,key,status,until}); }
   catch(e){ TASKST=was; taskStSave(); render(); toast("Не получилось сохранить — попробуйте ещё раз"); }
 }
-// статус дела, который человек выбрал в карточке («записан», «сдать»…): свой у кода доступа, хранится и на сервере (ТЗ-025, правка 09.10.2026)
+// статус задачи, который человек выбрал в карточке («записан», «сдать»…): свой у кода доступа, хранится и на сервере (ТЗ-025, правка 09.10.2026)
 const TLK="mk_tasklbl", TLABELS=["записаться","записан","сдать","спросить","разобраться"];
 let TASKLBL=(()=>{ try{ return JSON.parse(localStorage.getItem(TLK)||"{}")||{}; }catch(e){ return {}; } })();
 const taskLblSave=()=>{ try{ localStorage.setItem(TLK,JSON.stringify(TASKLBL)); }catch(e){} };
@@ -9941,19 +9941,19 @@ const SPEC_LINKS={
 };
 // основные системы специальности: у узкого специалиста — первые две из списка (у кардиолога «кровь» и «почки» — смежные, не его), у педиатра — все
 function wzPrim(spec){ const sp=DOC_SPECS.find(x=>x[0]===spec)||DOC_SPECS[0]; return sp[2]==="all"?docSpecSys(spec):sp[2].split(" ").slice(0,2); }
-// специальность дела: по названию врача в тексте, иначе по системе дела (первая специальность, у которой она в списке)
+// специальность задачи: по названию врача в тексте, иначе по системе задачи (первая специальность, у которой она в списке)
 function wzSpecOfTask(x){
   const bySys=x.sys?(DOC_SPECS.find(sp=>sp[0]!=="ped"&&sp[0]!=="other"&&sp[2]!=="all"&&sp[2].split(" ").includes(x.sys))||[])[0]:null;
   const byText=specByDoctor(x.title);
   return byText&&byText!=="ped"?byText:(bySys||"ped");
 }
-// куда идти: ближайшие визиты (запланированные и «следующий визит» с прошлых приёмов), дела «записаться», авто-подбор по записям
+// куда идти: ближайшие визиты (запланированные и «следующий визит» с прошлых приёмов), задачи «записаться», авто-подбор по записям
 function wzCandidates(d,plans,todo,today){
   const out=[], has=k=>out.some(x=>x.spec===k);
   upcomingVisits(d,plans,today).forEach(v=>{ const k=v.src==="plan"?v.title:specByDoctor(v.title); if(!has(k)) out.push({spec:k,date:v.date,why:v.src==="plan"?"запланирован визит":`назначен на прошлом приёме: ${v.title}`}); });
-  // дата дальше чем через 4 месяца — не «ближайший визит»: такие идут после дел «записаться»
+  // дата дальше чем через 4 месяца — не «ближайший визит»: такие идут после задач «записаться»
   const far=x=>x.date&&Math.round((Date.parse(x.date+"T12:00:00Z")-Date.parse(today+"T12:00:00Z"))/864e5)>120, farOnes=out.filter(far); farOnes.forEach(x=>out.splice(out.indexOf(x),1));
-  // «Педиатр 13.11 — уже после забора»: врач и дата из текста дел
+  // «Педиатр 13.11 — уже после забора»: врач и дата из текста задач
   const yr=+today.slice(0,4), fix=(dd,mm,yy)=>{ let y=yy?+yy:yr, iso=`${y}-${mm}-${dd}`; if(!yy&&iso<today) iso=`${y+1}-${mm}-${dd}`; return iso; };
   (todo||[]).forEach(x=>{ const m=(x.title+" "+(x.why||"")).match(/(педиатр|гематолог|невролог|кардиолог|уролог|эндокринолог|офтальмолог|ортопед|аллерголог|гастроэнтеролог|психиатр|психотерапевт|нейропсихолог|стоматолог|лор\b|дерматолог|хирург)[а-яё]*[^.;\n]{0,30}?(\d{2})\.(\d{2})(?:\.(\d{4}))?/i);
     if(m){ const k=specByDoctor(m[1]), date=fix(m[2],m[3],m[4]); if(date>=today&&!has(k)) out.push({spec:k,date,why:`в плане: ${m[1]} ${m[2]}.${m[3]}`}); } });
@@ -9986,12 +9986,12 @@ function wzSuggest(d,spec,todo,today){
   const mine=(d.rec||[]).filter(r=>r.t==="visit"&&specOfName(r.who||r.title)===spec).sort((a,b)=>b.d.localeCompare(a.d)), prev=mine[0]||null;   // приём именно этой специальности: по названию врача
   if(prev){ const rx=(prev.full||[]).find(f=>Array.isArray(f)&&/назначени|рекоменд/i.test(f[0]));
     questions.push(I(`С прошлого приёма (${ru(prev.d)}) что-то менялось — выполнено ли назначенное${rx?`: ${String(rx[1]).slice(0,90)}`:""}?`,prev.d)); }
-  // вопросы: дела «спросить», незакрытые болезни, лекарства, находки анализов
+  // вопросы: задачи «спросить», незакрытые болезни, лекарства, находки анализов
   myTodo.filter(x=>x.tag==="спросить").slice(0,5).forEach(x=>questions.push(I(x.title,x.when||"")));
   eps.slice(0,3).forEach(e=>questions.push(I(`Как долго ждать улучшения при «${e.dx}» и когда нужен повторный приём?`,e.d1)));
   (d.meds||[]).filter(m=>!m.plan&&m.from&&m.from<=today&&(!m.to||m.to>=today)&&!(m.stopped&&m.stopped<=today)&&(all||eps.some(e=>e.id===m.ep))).slice(0,3)
     .forEach(m=>questions.push(I(`${m.n}: до какого срока принимать и по какому признаку судить, что работает?`,m.from)));
-  // анализы: сначала из дел, потом повтор находок вне нормы
+  // анализы: сначала из задач, потом повтор находок вне нормы
   const labs=(d.rec||[]).filter(r=>r.t==="lab"&&r.v&&r.n&&r.title).sort((a,b)=>b.d.localeCompare(a.d)), seen=new Set();
   const last=name=>{ const k=favKey(String(name).split(/[,:(—-]/)[0]); return k.length<4?null:labs.find(r=>favKey(r.title).includes(k)); };
   const note=name=>{ const r=last(name); if(!r) return ""; const dd=days(r.d,today); return dd<=21?`сдавали ${ru(r.d)}: ${r.v}`:`последний ${ru(r.d)}: ${r.v}`; };
@@ -10041,11 +10041,11 @@ function wzSuggest(d,spec,todo,today){
   if(prev) bring.push(I(`Заключение приёма ${ru(prev.d)}`,prev.d));
   return {reasons,questions,tests,bring,extra,known,epIds:eps.map(e=>e.id),prev:prev?{d:prev.d,who:prev.who||prev.title}:null,spec};
 }
-// показатели в тексте дела: «Забор: ферритин, СРБ, ОАК, 25(OH)D…» → список названий (дела без названий показателей остаются как есть)
+// показатели в тексте задачи: «Забор: ферритин, СРБ, ОАК, 25(OH)D…» → список названий (задачи без названий показателей остаются как есть)
 const WZ_ANALYTES=[["Ферритин",/ферритин/i],["СРБ",/срб|с-реактив/i],["ОАК",/(?<![а-яёa-z])оак(?![а-яёa-z])|общий анализ крови|клинический анализ крови/i],["Общий IgA",/общий\s*iga|общий\s*igа/i],["Общий IgE",/общий\s*ige/i],["ТТГ",/(?<![а-яёa-z])ттг(?![а-яёa-z])/i],["25(OH)D",/25\(oh\)d|витамин\s*d/i],
   ["Цинк",/(?<![а-яёa-z])цинк(?![а-яёa-z])/i],["Железо сыворотки",/железо\s+сыворот/i],["Трансферрин",/трансферрин/i],["Глюкоза",/глюкоз/i],["HbA1c",/hba1c|гликирован/i],["Анти-тТГ IgA",/анти-?ттг/i],["Копрограмма",/копрограмм/i],["Общий анализ мочи",/(?<![а-яёa-z])оам(?![а-яёa-z])|общий анализ мочи/i]];
 function wzAnalytes(text){ return WZ_ANALYTES.filter(x=>x[1].test(String(text||""))).map(x=>x[0]); }
-// забор анализов: дела по датам (одна дата — один забор); показатели с последним значением; дата в «когда» или в названии
+// забор анализов: задачи по датам (одна дата — один забор); показатели с последним значением; дата в «когда» или в названии
 function wzLabGroups(d,todo,today){
   const labs=(d.rec||[]).filter(r=>r.t==="lab"&&r.v&&r.title).sort((a,b)=>b.d.localeCompare(a.d));
   const last=name=>{ const an=WZ_ANALYTES.find(x=>x[0]===name); if(name==="ОАК") return labs.find(r=>/гемоглобин|лейкоцит|тромбоцит|эритроцит|соэ|общий анализ крови|клинический анализ крови/i.test(r.title))||null;   // ОАК лежит отдельными показателями
@@ -10223,7 +10223,7 @@ function wzCompute(d){
   const focus=[...sug.tests.map(x=>x.t),...(g?g.items.map(i=>i.t):[])];
   z.reasons=wzItems(sug.reasons); z.questions=wzItems(sug.questions); z.tests=wzItems(sug.tests); z.bring=wzItems(sug.bring); z.extra=wzItems(sug.extra||[]);
   if(g) g.items.forEach(i=>{ if(!z.tests.some(x=>x.t.toLowerCase()===i.t.toLowerCase())) z.tests.unshift({t:`${i.t} — к забору ${g.label}`,src:i.src,on:true}); });
-  // одинаковые показатели из разных дел и из забора — одной строкой, с последним значением
+  // одинаковые показатели из разных задач и из забора — одной строкой, с последним значением
   const key=t=>{ const a=wzAnalytes(t); return a.length?a.join("+"):favKey(t).slice(0,22); }, seenK=new Set();
   z.tests=z.tests.filter(x=>{ const k=key(x.t.replace(/ — к забору.*$/,"")); if(seenK.has(k)) return false; seenK.add(k); return true; });
   z.reasons=z.reasons.slice(0,7);
@@ -10254,7 +10254,7 @@ function wizTab(m){
       <div class="muted" style="margin:-4px 0 12px">Сервис сам подберёт, что рассказать и что спросить, по вашим записям. На каждом шаге вы только подтверждаете и правите.</div>
       <div class="wzstart">
         <button class="wzcard" data-wzstart="visit"><span class="wzic">🩺</span><b>К врачу</b><span class="muted">${cands[0]?`Ближайшее: ${esc(specName(cands[0].spec))}${cands[0].date?" · "+ru(cands[0].date):""}`:"Выберем специальность по записям"}</span></button>
-        <button class="wzcard" data-wzstart="labs"><span class="wzic">🧪</span><b>Сдать плановые анализы</b><span class="muted">${g?`${g.label}: ${g.items.length} ${plural(g.items.length,"показатель","показателя","показателей")}`:"Сводим дела «сдать» в один забор"}</span></button>
+        <button class="wzcard" data-wzstart="labs"><span class="wzic">🧪</span><b>Сдать плановые анализы</b><span class="muted">${g?`${g.label}: ${g.items.length} ${plural(g.items.length,"показатель","показателя","показателей")}`:"Сводим задачи «сдать» в один забор"}</span></button>
         ${g&&g.date?`<button class="wzcard" data-wzstart="chain"><span class="wzic">🧪➜🩺</span><b>Забор ${esc(g.label)} и приём по итогам</b><span class="muted">Сначала анализы, потом разбор результатов с врачом</span></button>`:""}
       </div></div>
       ${(()=>{ handoutsLoad(); const H=HANDOUTS&&HANDOUTS.p===cur?HANDOUTS.rows:[]; return H.length?`<div class="card"><h2>Готовые памятки <span class="muted" style="text-transform:none">— ${H.length}</span></h2>${H.slice(0,8).map(h=>`<div class="tl-item is-link" data-hoopen="${esc(h.id)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-none" style="white-space:nowrap;flex:none">${h.visit_on?ru(h.visit_on):ru(String(h.updated_at).slice(0,10))}</span><div style="min-width:0"><div class="tl-title">${esc(h.title)}</div></div></div>`).join("")}</div>`:""; })()}
@@ -10262,7 +10262,7 @@ function wizTab(m){
   } else if(z.mode==="visit"){
     if(z.step===1){
       const cands=wzCandidates(d,plans,todo,today);
-      html=`<div class="card"><h2>Шаг 1 из 8. К какому врачу идём</h2><div class="muted" style="margin:-4px 0 10px">Подобрал по планам, делам «записаться» и записям. Выберите или укажите другого.</div>
+      html=`<div class="card"><h2>Шаг 1 из 8. К какому врачу идём</h2><div class="muted" style="margin:-4px 0 10px">Подобрал по планам, задачам «записаться» и записям. Выберите или укажите другого.</div>
         <div class="wzcands">${cands.map(c=>`<button class="wzcand${z.spec===c.spec&&(z.date||"")===(c.date||"")?" on":""}" data-wzpick="${esc(c.spec)}|${esc(c.date||"")}"><b>${esc(specName(c.spec))}</b>${c.date?` <span class="status status-none">${ru(c.date)}</span>`:""}<span class="muted">${esc(String(c.why).slice(0,110))}</span></button>`).join("")}</div>
         <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select class="select" id="wzSpec">${docSpecList().map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
           <label class="wzlab">Дата приёма<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label></div>
@@ -10272,7 +10272,7 @@ function wizTab(m){
       html=`<div class="card"><h2>Шаг 2 из 8. Что известно по специальности</h2><div class="muted" style="margin:-4px 0 10px">Когда были у ${esc(specDat(z.spec))} в последний раз, что уже найдено, что есть у родных. Отмеченное попадёт в памятку как анамнез по теме.</div>
         ${z.lastLine?`<div class="wztreat"><b>${esc(z.lastLine)}</b></div>`:""}${wzList("known","свой факт")}${wzNav(z)}</div>`;
     } else if(z.step===3){
-      html=`<div class="card"><h2>Шаг 3 из 8. Повод обращения к ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Что с человеком сейчас и зачем идём — собрал из болезней, симптомов за месяц и дел. Уберите лишнее, допишите своё.</div>${wzList("reasons","например, жалоба, которой нет в списке")}${wzNav(z)}</div>`;
+      html=`<div class="card"><h2>Шаг 3 из 8. Повод обращения к ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Что с человеком сейчас и зачем идём — собрал из болезней, симптомов за месяц и задач. Уберите лишнее, допишите своё.</div>${wzList("reasons","например, жалоба, которой нет в списке")}${wzNav(z)}</div>`;
     } else if(z.step===4){
       html=`<div class="card"><h2>Шаг 4 из 8. Динамика — что рассказать врачу</h2><div class="muted" style="margin:-4px 0 10px">Ключевые показатели: как менялись${z.labGroup?`, с учётом планового забора ${esc(z.labGroup)}`:""}. Отмеченное попадёт в документ.</div>${wzList("dyn","своя строка динамики")}${wzNav(z)}</div>`;
     } else if(z.step===5){
@@ -10286,7 +10286,7 @@ function wizTab(m){
           <input class="input wzt" data-wztreatnote="${i}" placeholder="Что вы видите по самочувствию, переносимости, как принимает" value="${esc(t.note||"")}"><div class="wzsrc">Вопрос врачу: ${esc(wzTreatQ(t))}</div></div>`).join(""):`<div class="muted">Идущих лекарств нет — шаг можно пропустить.</div>`}
         ${wzNav(z)}</div>`;
     } else if(z.step===6){
-      html=`<div class="card"><h2>Шаг 6 из 8. Вопросы ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Из дел «спросить», болезней, лекарств и результатов. Можно дополнить от семейного врача — по вашим записям.</div>${wzList("questions","свой вопрос")}
+      html=`<div class="card"><h2>Шаг 6 из 8. Вопросы ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Из задач «спросить», болезней, лекарств и результатов. Можно дополнить от семейного врача — по вашим записям.</div>${wzList("questions","свой вопрос")}
         <div class="row" style="margin-top:10px"><button class="btn btn-secondary" data-wzai="1" ${z.aiBusy?"disabled":""}>${z.aiBusy?'<span class="spin"></span>Семейный врач думает…':"✨ Дополнить от семейного врача"}</button></div>${wzNav(z)}</div>`;
     } else if(z.step===7){
       html=`<div class="card"><h2>Шаг 7 из 8. Какие анализы и обследования просить, что взять</h2><div class="muted" style="margin:-4px 0 6px">Что сдать к приёму или обсудить, с последними значениями. Недавно сданное помечено.</div><h3 style="font-size:14px;margin:8px 0 4px">Анализы и обследования</h3>${wzList("tests","например, ферритин")}
@@ -10310,8 +10310,8 @@ function wizTab(m){
   } else if(z.mode==="labs"){
     const groups=wzLabGroups(d,todo,today);
     if(z.step===1){
-      html=`<div class="card"><h2>Шаг 1 из 4. Какой забор</h2><div class="muted" style="margin:-4px 0 10px">Собрал дела «сдать» по датам. Один выбранный забор — один визит в лабораторию.</div>
-        <div class="wzcands">${groups.map((g,i)=>`<button class="wzcand${z.group===g.date?" on":""}" data-wzgrp="${esc(g.date)}"><b>${esc(g.label)}</b><span class="muted">${g.items.map(x=>esc(x.t)).join(", ")}</span></button>`).join("")||`<div class="muted">Дел «сдать» нет — добавьте показатели на следующем шаге</div>`}</div>
+      html=`<div class="card"><h2>Шаг 1 из 4. Какой забор</h2><div class="muted" style="margin:-4px 0 10px">Собрал задачи «сдать» по датам. Один выбранный забор — один визит в лабораторию.</div>
+        <div class="wzcands">${groups.map((g,i)=>`<button class="wzcand${z.group===g.date?" on":""}" data-wzgrp="${esc(g.date)}"><b>${esc(g.label)}</b><span class="muted">${g.items.map(x=>esc(x.t)).join(", ")}</span></button>`).join("")||`<div class="muted">Задач «сдать» нет — добавьте показатели на следующем шаге</div>`}</div>
         ${wzNav(z,false,"Что сдаём →")}</div>`;
     } else if(z.step===2){
       html=`<div class="card"><h2>Шаг 2 из 4. Что сдаём</h2><div class="muted" style="margin:-4px 0 10px">Показатели с последним результатом. Добавьте то, о чём договорились с врачом.</div>${wzList("labItems","например, ферритин")}${wzNav(z,false,"Подготовка →")}</div>`;
@@ -11572,7 +11572,7 @@ function labForm(){
   });
 }
 // блок 14: документ или текст → части по разделам → один экран проверки → каждая часть в свой раздел
-const DOC_T={visit:["🩺","Визит"],symptom:["🩹","Симптомы"],med:["💊","Лекарства"],lab:["🧪","Анализы"],instr:["🔬","Обследования"],task:["📌","Дела"],note:["📝","Заметки"]};
+const DOC_T={visit:["🩺","Визит"],symptom:["🩹","Симптомы"],med:["💊","Лекарства"],lab:["🧪","Анализы"],instr:["🔬","Обследования"],task:["📌","Задачи"],note:["📝","Заметки"]};
 const DOC_F={visit:[["d","Дата","date"],["who","Специалист"],["doc","Врач"],["place","Клиника"],["complaints","Жалобы","area"],["exam","Осмотр","area"],
     ["dx","Диагноз"],["mkb","Код МКБ"],["rx","Назначения","area"],["recs","Рекомендации","area"],["next","Следующий визит","date"]],
   symptom:[["name","Симптом"],["d","Дата","date"],["note","Подробности","area"]],
@@ -11581,7 +11581,7 @@ const DOC_F={visit:[["d","Дата","date"],["who","Специалист"],["doc
   instr:[["kind","Вид обследования"],["d","Дата","date"],["place","Где"],["doc","Врач"],["concl","Заключение","area"],["desc","Описание","area"]],
   task:[["what","Что сделать"],["d","Срок","date"],["term","Срок словами"]],
   note:[["text","Текст","area"]]};
-// что и куда сохранить: только отмеченное; визит первым — лекарства и дела с приёма ссылаются на него (parent 0);
+// что и куда сохранить: только отмеченное; визит первым — лекарства и задачи с приёма ссылаются на него (parent 0);
 // симптомы — отдельно, в журнал симптомов; лекарство без «уже принимаем» — «назначено»
 function docSavePlan(parts,today){
   const on=parts.filter(p=>p.on), vis=on.filter(p=>p.type==="visit");
@@ -11609,7 +11609,7 @@ function docTitle(p){
   if(p.type==="med") return [f.title||"лекарство",f.dose,f.started?"принимаем":"назначено"].filter(Boolean).join(" · ");
   if(p.type==="lab") return [f.lab||"Анализ",dd(f.d),(p.items||[]).length+" показателей"].filter(Boolean).join(" · ");
   if(p.type==="instr") return [f.kind||"обследование",dd(f.d),f.concl].filter(Boolean).join(" · ").slice(0,140);
-  if(p.type==="task") return [f.what||"дело",f.d?"до "+dd(f.d):(f.term||"срок не указан")].join(" · ");
+  if(p.type==="task") return [f.what||"задача",f.d?"до "+dd(f.d):(f.term||"срок не указан")].join(" · ");
   return String(f.text||p.quote||"заметка").slice(0,120);
 }
 const docCount=parts=>Object.keys(DOC_T).map(t=>{ const g=parts.filter(p=>p.type===t); if(!g.length) return "";
@@ -11629,12 +11629,12 @@ function visitSymChips(rows,date){
     c.ids.push(r.id); if(d>c.last){ c.last=d; c.name=String(r.symptom).trim(); } }
   return [...by.values()].sort((x,y)=>y.last.localeCompare(x.last));
 }
-// «Сохранено: приём, 1 лекарство, 1 дело. Они уже в истории»
+// «Сохранено: приём, 1 лекарство, 1 задача. Они уже в истории»
 function outcomeSaved(list){
   const on=list.filter(p=>p.on), n=t=>on.filter(p=>p.type===t).length, out=[];
   if(n("visit")) out.push("приём");
   const add=(t,one,few,many)=>{ const c=n(t); if(c) out.push(c+" "+plural(c,one,few,many)); };
-  add("med","лекарство","лекарства","лекарств"); add("task","дело","дела","дел"); add("symptom","симптом","симптома","симптомов");
+  add("med","лекарство","лекарства","лекарств"); add("task","задача","задачи","задач"); add("symptom","симптом","симптома","симптомов");
   add("lab","анализ","анализа","анализов"); add("instr","обследование","обследования","обследований"); add("note","заметка","заметки","заметок");
   return "Сохранено: "+out.join(", ")+". Они уже в истории";
 }
@@ -11657,7 +11657,7 @@ function docForm(opts){
       <div id="docLog" class="formlog" style="margin-top:28px"></div>
       <div id="docRev"></div></div></div>`
   :`<div class="mbox"><button class="mclose" data-close><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Документ или текст</h2>
-    <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и дела и разложу по разделам — вы проверите и сохраните.</div>
+    <div class="ctx">Для <b>${esc(d.short)}</b>. Загрузите заключение, бланк, выписку — или напишите своими словами (можно надиктовать с клавиатуры). Найду визит, симптомы, лекарства, анализы, обследования и задачи и разложу по разделам — вы проверите и сохраните.</div>
     <div class="addform">
       ${pickHtml("docFiles","Фото или PDF — до 10 файлов")}
       <div class="fld"><label for="docText">…или текст</label><textarea id="docText" rows="3" placeholder="Например: Даня кашлял ночью, дали Пульмикорт, врач сказал сдать ОАК"></textarea></div>
@@ -11901,7 +11901,7 @@ function vacForm(entryId,pre){
     if(!window.__MK_KEY){ log("Нет связи с базой — откройте медкнижку по своей ссылке.","er"); return; }
     const btn=document.getElementById("vcOk"); btn.disabled=true;
     const data={d:v("vcD"),inf:v("vcInf"),vaccine:v("vcVac"),dose:v("vcDose"),place:v("vcPlace"),note:v("vcNote")};
-    const showVac=()=>{ if(pre&&pre.stay){ render(); return; }   // из дела плана: остаёмся на деле, оно подскажет «можно отметить готовым»
+    const showVac=()=>{ if(pre&&pre.stay){ render(); return; }   // из задачи плана: остаёмся на деле, оно подскажет «можно отметить готовым»
       window.__vacOpen=true; tab="hp"; if(typeof hpOrgan!=="undefined") hpOrgan=null; render(); setTimeout(()=>document.getElementById("vacCard")?.scrollIntoView({block:"start",behavior:"smooth"}),550); };
     if(entryId){ const ok=await entrySave("vac",data,entryId,log); if(ok) showVac(); else btn.disabled=false; return; }
     try{
@@ -12192,7 +12192,7 @@ function addSymForm(epId){
 const inApp=/(FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|VKClient|TelegramBot)/i.test(navigator.userAgent)
   ||(/(iPhone|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent));
 
-// ── Единый список дел: ближайшие записи + то, что требует внимания ──────────
+// ── Единый список задач: ближайшие записи + то, что требует внимания ──────────
 // Сортировка одна: чем ближе дело, тем выше. Просроченное и бессрочное — сверху.
 const MONTHS_RU=[["январ",0],["феврал",1],["март",2],["апрел",3],["ма",4],["июн",5],
   ["июл",6],["август",7],["сентябр",8],["октябр",9],["ноябр",10],["декабр",11]];
@@ -12227,7 +12227,7 @@ function whenDays(str,today){
   const m=s.match(/(\d{4})/); if(m) return day(new Date(+m[1],0,1));
   return null;
 }
-// ── План здоровья (ТЗ-025 блок 3): группы по срочности, статус словами, строка дела
+// ── План здоровья (ТЗ-025 блок 3): группы по срочности, статус словами, строка задачи
 function taskGroup(x,today){
   const dated=x.kind==="soon"||x.due===true||x.merged===true;
   const days=dated?exactDays(x.when,today):null;
@@ -12237,7 +12237,7 @@ function taskGroup(x,today){
   if(days<=30) return {group:"soon",days,status:booked?"Записан":days===0?(/не откладыв|срочно|сейчас|тем же заходом|идёт|идет/i.test(String(x.when))?"Не откладывать":"Сегодня"):days===1?"Завтра":`Через ${days} дн.`};
   return {group:"later",days,status:booked?"Записан":days<=99?`Через ${days} дн.`:`Через ${Math.round(days/30)} мес.`};
 }
-// список дел → группы по порядку срочности; limit — сколько дел показать всего (самые срочные)
+// список задач → группы по порядку срочности; limit — сколько задач показать всего (самые срочные)
 function planGroups(list,today,limit){
   const GI={overdue:0,soon:1,later:2,nodate:3};
   const rows=list.map(x=>Object.assign({x},taskGroup(x,today))).sort((a,b)=>GI[a.group]-GI[b.group]||(a.group==="nodate"?(a.x.p||99)-(b.x.p||99):a.days-b.days));
@@ -12266,7 +12266,7 @@ function taskDates(a){
     assigned=m?"Назначено: "+m[1]:c?"Тянется с: "+c[1]:"Ранее: "+d; }
   return {assigned,due:due?"Срок: "+due:"",basis:due?(why?"Основание срока: "+why:"Основание срока не записано"):""};
 }
-// точная дата срока для календаря (ГГГГ-ММ-ДД) или пусто: «срок словами», месяц без дня и дата в тексте дела — не срок
+// точная дата срока для календаря (ГГГГ-ММ-ДД) или пусто: «срок словами», месяц без дня и дата в тексте задачи — не срок
 function planIso(x){
   const dated=x.kind==="soon"||x.due===true||x.merged===true, m=dated&&String(x.when||"").trim().match(/(\d{1,2})[.](\d{1,2})[.](\d{4})/);
   return m?`${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`:"";
@@ -12304,7 +12304,7 @@ function taskNewerFor(a){
   if(TASKNEW_C.k!==k) TASKNEW_C={k,rows:measRows(cur)};
   return taskNewer(a,TASKNEW_C.rows);
 }
-// короткий заголовок дела: что сделать / к кому — отдельно, подробности — отдельно; ничего не теряется (Денис, 11.10.2026)
+// короткий заголовок задачи: что сделать / к кому — отдельно, подробности — отдельно; ничего не теряется (Денис, 11.10.2026)
 function taskShort(t){
   t=String(t==null?"":t).replace(/\s+/g," ").trim(); if(!t) return {title:"",detail:""};
   const MON="(?:январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-я]*";
@@ -12354,7 +12354,7 @@ function groupOf(x){
   if(RX_LAB.test(t)||/сдать/i.test(x.tag||"")) return "lab";
   return "etc";
 }
-// метка дела из паспорта (раздел «ближайшее»): «записаться» и «сдать» — только если в названии явное действие; «Уточнить дни бассейна» и вопросы — не записи (Денис 25.10.2026)
+// метка задачи из паспорта (раздел «ближайшее»): «записаться» и «сдать» — только если в названии явное действие; «Уточнить дни бассейна» и вопросы — не записи (Денис 25.10.2026)
 function soonAction(what){
   const t=String(what||"").toLowerCase().replace(/ё/g,"е").replace(/^[\s«(]+/,""), fw=(t.match(/^[а-я]+/)||[""])[0];
   if(/^(уточнить|спросить|проверить|решить|забрать|сказать|вести|измерить|наблюдать|выяснить|обсудить|узнать|понять|найти|держать|получить|разобраться|расширить|взять)$/.test(fw)) return "спросить";
@@ -12363,7 +12363,7 @@ function soonAction(what){
   if(w("записаться|записать|запись|привиться|прививк[а-я]*|вакцин[а-я]*|сходить|вылечить|[а-я]*олог[а-я]*|педиатр[а-я]*|терапевт[а-я]*|ортопед[а-я]*|хирург[а-я]*|окулист[а-я]*|узи|мрт|экг|эхокг|рентген|консультаци[а-я]*|осмотр[а-я]*|приема?|контрол[а-я]*")) return "записаться";
   return "разобраться";
 }
-// на главной в плане — только дела с явным действием: записаться, записан, сдать (остальное — в полном списке дел)
+// на главной в плане — только задачи с явным действием: записаться, записан, сдать (остальное — в полном списке задач)
 function planExplicit(x){ return /^(записаться|записан|сдать)$/.test(String(x&&x.tag||"")); }
 // ── ТЗ-057 блок 2: что считается пунктом плана ──
 // название — действие, а не обрывок паспорта и не режим врача («После удаления: без горячего душа…»)
@@ -12386,15 +12386,15 @@ function planIsQuestion(x,today){
   return /^(спросить|разобраться)$/.test(String(x.tag||""));
 }
 function planEligible(x,today){ return planTitleOk(x)&&!planIsQuestion(x,today); }
-// разбор списка дел: plan — настоящие дела, ask — вопросы («Что уточнить на приёме»), unclear — «Требуют уточнения»
+// разбор списка задач: plan — настоящие задачи, ask — вопросы («Что уточнить на приёме»), unclear — «Требуют уточнения»
 function planSplit(items,today){
   const r={plan:[],ask:[],unclear:[]};
   (items||[]).forEach(x=>{ if(!planTitleOk(x)) r.unclear.push(x); else if(planIsQuestion(x,today)) r.ask.push(x); else r.plan.push(x); });
   return r;
 }
-// сколько дел в плане: всего, с точной датой, без срока (ТЗ-054 блок 1); список уже очищен от выполненных, убранных и отложенных
+// сколько задач в плане: всего, с точной датой, без срока (ТЗ-054 блок 1); список уже очищен от выполненных, убранных и отложенных
 function planCounts(list,today){ const dated=list.filter(x=>taskGroup(x,today).group!=="nodate").length; return {total:list.length,dated,nodate:list.length-dated}; }
-// главная (ТЗ-054 блок 1): до 3 дел с точной датой, просроченное первым; дела без срока — только счётчиком
+// главная (ТЗ-054 блок 1): до 3 задач с точной датой, просроченное первым; задачи без срока — только счётчиком
 function homePlan(list,today,limit){
   const rows=list.map(x=>Object.assign({x},taskGroup(x,today))), dated=rows.filter(r=>r.group!=="nodate").sort((a,b)=>a.days-b.days);
   return {list:dated.slice(0,limit||3).map(r=>Object.assign(r.x,{_g:r})), hiddenNoDate:rows.length-dated.length, total:rows.length};
@@ -12457,7 +12457,7 @@ const todoRow=x=>{ const ts=taskState(cur,x.title); return `<tr class="row is-li
         <td><span class="status status-${x.st}">${esc(x.tag)}</span></td>
         <td><b>${esc(taskShort(x.title).title)}</b><div class="muted">${(()=>{ const s=taskShort(x.title); return s.detail?esc(s.detail)+" · ":x.sys?esc(sysName(x.sys))+" · ":""; })()}${x.kind==="at"?"подробно →":"запись"}${ts?` · <b>${ts.s==="done"?"готово":taskNotNeeded(ts)?"не нужно":"напомнить с "+ru(ts.until)}</b>`:""}</div></td>
         <td class="muted">${esc(x.why)}</td>
-        <td class="rowdone"><button class="rowdone__b" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}" title="${ts?"Вернуть в дела":"Отметить выполненным"}" aria-label="${ts?"Вернуть в дела":"Отметить выполненным"}">${ts?"↺":"✓"}</button></td></tr>`; };
+        <td class="rowdone"><button class="rowdone__b" data-rowdone="${esc(x.title)}" data-rowst="${ts?"clear":"done"}" title="${ts?"Вернуть в задачи":"Отметить выполненным"}" aria-label="${ts?"Вернуть в задачи":"Отметить выполненным"}">${ts?"↺":"✓"}</button></td></tr>`; };
 const todoAttrs=x=>x.kind==="own"?` data-own="${esc(x.id)}"`:x.task!=null?` data-task="${x.task}"`:(x.sys?` data-sys="${x.sys}"`:"");
 
 // страница «Спросить» (iframe) сообщает, о ком спрашивают: этот человек становится текущим, вкладки не перерисовываются (разговор не пропадает)
@@ -13722,8 +13722,8 @@ function render(){
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
       ${signalHtml(signalsNow())}
       ${(()=>{ const HP=homePlan(todoV,today,3);
-        if(!HP.total) return `<div class="muted">Запланированных дел нет</div><button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="chk">Что проверить по возрасту</button></div>`;
-        return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummaryShort(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных дел нет</div>`}
+        if(!HP.total) return `<div class="muted">Запланированных задач нет</div><button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="chk">Что проверить по возрасту</button></div>`;
+        return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummaryShort(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных задач нет</div>`}
         <div class="plan-foot"><button class="linkbtn" data-t="todo">Весь план (${HP.total}) →</button>${HP.hiddenNoDate?`<button type="button" class="linkbtn plan-more" data-t="todo">Ещё ${HP.hiddenNoDate} без срока</button>`:""}</div></div>`; })()}
 
     <!--B:reco-->${recoHome()}
@@ -13761,7 +13761,7 @@ function render(){
 
   else if(tab==="meds"){ m.innerHTML=medsScreenHtml(d,localDay()); }   // «Лекарства» (ТЗ-044 блок 1)
 
-  else if(tab==="todo"){   // «Все дела»: полный список и справка (раньше на главной)
+  else if(tab==="todo"){   // «Все задачи»: полный список и справка (раньше на главной)
     const cnt=t=>d.rec.filter(r=>r.t===t).length;
     ownLoad(); taskStLoad(); taskLblLoad();
     const todoFull=buildTodo(d);
@@ -13772,8 +13772,8 @@ function render(){
       ${cut(list).map(todoRow).join("")}</tbody></table></div>`;
     m.innerHTML=`
     <div class="card">
-      <h2>План здоровья — ${PV.active.length} <button type="button" class="linkbtn" data-ownadd="1" style="min-height:44px;font-weight:600">+ Дело</button></h2>
-      ${(OWN[cur]||[]).length||PV.active.length?"":`<div class="muted" style="margin-bottom:8px">В плане пока нет своих дел. Добавьте первое</div>`}
+      <h2>План здоровья — ${PV.active.length} <button type="button" class="linkbtn" data-ownadd="1" style="min-height:44px;font-weight:600">+ Задача</button></h2>
+      ${(OWN[cur]||[]).length||PV.active.length?"":`<div class="muted" style="margin-bottom:8px">В плане пока нет своих задач. Добавьте первое</div>`}
       ${(()=>{const shown=cut(todoVisit), t=localDay(); return `<div class="muted plan-sum">${esc(planSummary(shown.filter(x=>!taskState(cur,x.title)),t))}</div>${planListHtml(planGroups(shown,t),t)}`;})()}
       ${todoSelf.length?`<h2 style="margin-top:26px">Рекомендации — что делать самому, ${todoSelf.length} <span class="hint" tabindex="0" title="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность." aria-label="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность.">?</span></h2>
       ${todoTable(todoSelf)}`:""}
@@ -14354,12 +14354,12 @@ function render(){
       <button class="back" data-t="home">← На главную</button>
       <div class="card">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-          ${(()=>{ const cur0=taskLabel(cur,a.t)||labelOf(a); return TLABELS.includes(cur0)||taskLabel(cur,a.t)?`<div class="tlbl" role="group" aria-label="Статус дела">${TLABELS.map(l=>`<button type="button" class="tlbl__b${l===cur0?" on":""}" data-tlbl="${l}">${l.charAt(0).toUpperCase()+l.slice(1)}</button>`).join("")}</div>`:`<span class="status status-${a.st}">${esc(labelOf(a))}</span>`; })()}
+          ${(()=>{ const cur0=taskLabel(cur,a.t)||labelOf(a); return TLABELS.includes(cur0)||taskLabel(cur,a.t)?`<div class="tlbl" role="group" aria-label="Статус задачи">${TLABELS.map(l=>`<button type="button" class="tlbl__b${l===cur0?" on":""}" data-tlbl="${l}">${l.charAt(0).toUpperCase()+l.slice(1)}</button>`).join("")}</div>`:`<span class="status status-${a.st}">${esc(labelOf(a))}</span>`; })()}
         </div>
         ${(()=>{ const T=taskDates(a), L=[T.due].filter(Boolean); return L.length?`<div class="muted taskdates" style="margin-bottom:8px">${L.map(esc).join("<br>")}</div>`:""; })()}
         ${(()=>{ const s=taskShort(a.t); return `<h2 class="taskh">${esc(s.title)}</h2>${s.detail?`<div class="taskdet">${esc(s.detail)}</div>`:""}${a.ask?`<div class="taskask">${esc(a.ask)}</div>`:""}`; })()}
         ${(()=>{ const V=vacActionFor(a); if(!V) return ""; const done=vacRecentFor(window.__entries,cur,V.inf,localDay());
-          return `<div class="vacact" style="margin-top:10px"><button type="button" class="btn btn-primary" data-vacplan="${esc(V.inf)}" style="min-height:44px">Записать прививку</button>${done?`<div class="note" style="margin-top:8px">Прививка записана — можно отметить дело готовым</div>`:""}</div>`; })()}
+          return `<div class="vacact" style="margin-top:10px"><button type="button" class="btn btn-primary" data-vacplan="${esc(V.inf)}" style="min-height:44px">Записать прививку</button>${done?`<div class="note" style="margin-top:8px">Прививка записана — можно отметить задачу готовой</div>`:""}</div>`; })()}
         ${(()=>{ const ts=taskState(cur,a.t), tm=new Date(Date.now()+864e5*14); const def=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,"0")}-${String(tm.getDate()).padStart(2,"0")}`;
           return ts?`<div class="note" style="margin-top:12px">${ts.s==="done"?"Отмечено как готово — на главной не показывается.":taskNotNeeded(ts)?"Убрано из плана — на главной не показывается. Это не значит, что сделано.":"Напомню с "+ru(ts.until)+" — до этого на главной не показывается."}</div>
             <button class="btn btn-secondary" data-tsk="clear" style="margin-top:8px">Вернуть в план</button>`
@@ -14372,7 +14372,7 @@ function render(){
           return `<details class="taskwhy"><summary>Почему это нужно${nw.length?` <span class="plan-new">есть новые результаты</span>`:""}</summary>
             ${why?`<div class="taskwhy__t">${rich(why)}</div>`:""}
             ${nw.length?`<div class="note tasknew" style="margin-top:12px"><b>После этого текста сданы новые анализы</b>
-              <div class="muted" style="margin:2px 0 6px">Текст дела написан по данным до ${ru(taskTextDate(a))}. Свежие результаты — ниже; сам текст ещё не пересмотрен.</div>
+              <div class="muted" style="margin:2px 0 6px">Текст задачи написан по данным до ${ru(taskTextDate(a))}. Свежие результаты — ниже; сам текст ещё не пересмотрен.</div>
               ${nw.map(r=>`<div class="tasknew__r" data-favopen="${esc(r.n)}" role="button" tabindex="0"><b>${esc(r.n)}</b> <span>${esc(r.v)} ${esc(r.u)}</span> <span class="muted">${ru(r.d)}</span></div>`).join("")}</div>`:""}
             ${st.length?`<h3 class="taskwhy__h">Что делать</h3><ul class="taskwhy__l">${st.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
             ${fl.length?`<h3 class="taskwhy__h">На чём основано</h3><ul class="taskwhy__l">${fl.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
