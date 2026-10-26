@@ -4641,7 +4641,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 10:52";   // подставляется при публикации
+const BUILD="26.10 10:56";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -4783,11 +4783,39 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-wrange]");
 // форма замера — одна на все экраны
 // ── Прогресс по метрикам. Значения обновляются при недельном разборе, вес — сам из замеров
 // Плитки, которые считаются на лету: вес из замеров, ИМТ из него же, давление — среднее по ряду
+// ── Единый источник замеров (Денис 26.10.2026): последнее значение веса и роста — из сводки замеров (и «Питания»), а не из паспорта ──
+function lastMeasure(p,metric){
+  if(!window.__MK_KEY) return null;
+  const S=(typeof MZD!=="undefined"&&MZD[p]&&typeof MZD[p]==="object")?MZD[p]:null;
+  if(metric==="weight"){
+    const e=S&&(S.last||{}).weight, a=e&&e.last&&e.last.weight_kg!=null?{v:+e.last.weight_kg,d:e.last.measured_on}:null;
+    const nut=DATA[p]&&DATA[p].nutrition?nutLS("weight",[],p).filter(f=>f&&f.d&&f.v):[], l=nut[nut.length-1];
+    return l&&(!a||l.d>=a.d)?{v:+l.v,d:l.d}:a;
+  }
+  if(metric==="height"){ const e=S&&(S.last||{}).height; return e&&e.last&&e.last.value!=null?{v:+e.last.value,d:dzDayOf(e.last.measured_at)}:null; }
+  return null;
+}
+// плитка «Рост / вес» без привязки к данным (паспорт: «122 / 23,25», дата в подписи): замер свежее паспорта — показываем замер с датой; иначе паспорт с подписью
+function kpiHwFresh(t,p,age){
+  const m=/^\s*([\d.,]+)\s*\/\s*([\d.,]+)/.exec(String(t.val||"")), dm=/(\d{2})\.(\d{2})\.(\d{4})/.exec(String(t.sub||"")); if(!m) return t;
+  const pd=dm?`${dm[3]}-${dm[2]}-${dm[1]}`:"", num=x=>parseFloat(String(x).replace(",",".")), nz=v=>String(v).replace(".",",");
+  const w=lastMeasure(p,"weight"), h=lastMeasure(p,"height"), useW=w&&(!pd||w.d>=pd), useH=h&&(!pd||h.d>=pd);
+  if(!useW&&!useH){ if(!/по паспорту/.test(t.sub||"")) t.sub=String(t.sub||"")+" · по паспорту"; return t; }
+  const hv=useH?h.v:num(m[1]), wv=useW?w.v:num(m[2]), day=[useW?w.d:"",useH?h.d:""].sort().pop(), today=localDay();
+  const fresh=day===today?"сегодня":ru(day), bmi=wv/Math.pow(hv/100,2);
+  t.val=`${nz(hv)} / ${useW?nz(wv.toFixed(1)):m[2]}`;
+  t.sub=`см / кг · ${fresh}${isFinite(bmi)?`, ИМТ ${nz(bmi.toFixed(1))}`:""}${useW&&useH?"":" (часть — по паспорту)"}`;
+  return t;
+}
 function kpiLive(d){
   const out=(d.kpi||[]).map(k=>Object.assign({},k));
   const nz=v=>String(v).replace(".",",");
-  const F=nutLS("weight",[]), last=F[F.length-1], first=F[0];
+  const F=nutLS("weight",[]); let last=F[F.length-1]; const first=F[0], lw=lastMeasure(cur,"weight"), lh=lastMeasure(cur,"height");
+  if(lw&&(!last||lw.d>last.d)) last={v:lw.v,d:lw.d};   // замер из единого источника свежее — берём его
   const hw=out.find(k=>k.auto==="hw"), bmi=out.find(k=>k.auto==="bmi"), bp=out.find(k=>k.auto==="bp");
+  if(hw&&lh) hw.hcm=lh.v;
+  if(typeof mzLoad==="function"&&typeof MZD!=="undefined"&&window.__MK_KEY&&MZD[cur]===undefined) mzLoad();   // замеры грузятся один раз, плитка обновится сама
+  const hwp=out.find(k=>k.lab==="Рост / вес"&&!k.auto); if(hwp) kpiHwFresh(hwp,cur,d.age);
 
   if(hw && last && last.v){
     hw.val=`${hw.hcm} / ${nz(last.v)}`;
@@ -7142,7 +7170,7 @@ async function measSave(){
 const MZD={};
 function mzLoad(force){
   if(!window.__MK_KEY) return; const p=cur; if(MZD[p]&&!force) return; MZD[p]=1;
-  const done=v=>{ MZD[p]=v; if(typeof tab!=="undefined"&&tab==="home"&&cur===p&&!window.__mzNoRender) render(); };
+  const done=v=>{ MZD[p]=v; if(typeof tab!=="undefined"&&(tab==="home"||tab==="hp")&&cur===p&&!window.__mzNoRender) render(); };
   mkApi("measures_summary",{person:p}).then(j=>done(j)).catch(()=>done("err"));
 }
 // ── Плитка «Замеры» на главной (ТЗ-056 блок 1): последние значения того, что человек измеряет, без оценок
