@@ -113,7 +113,9 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hpv2__row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:12px}.hpv2__n{line-height:1.1;text-align:left}.hpv2__info{margin-top:6px}.hpv2__info>summary{display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;cursor:pointer;color:var(--accent);list-style:none;font-weight:700}.hpv2__info>summary::-webkit-details-marker{display:none}
 .watchhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:34px}.watchhead h2{margin:0}
 .meashead{display:flex;align-items:center;justify-content:space-between;gap:8px}.meashead h2{margin:0}.measplus{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-size:24px;line-height:1;cursor:pointer}.measrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}.measrow:first-of-type{border-top:0}.measrow__n{flex:0 0 96px;color:var(--muted)}.measrow__v{flex:1 1 auto;min-width:0}.measrow__d{color:var(--muted);font-size:14px}.measrow__w{font-size:13px;white-space:nowrap}.meas-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.meas-urgent{margin:0 0 8px;background:var(--badbg,#fdecea);color:var(--bad)}.meas-skel{height:44px;margin-top:6px;border-radius:8px;background:var(--line);opacity:.5}@media (prefers-reduced-motion:no-preference){.meas-skel{animation:measpulse 1.4s ease-in-out infinite}}@keyframes measpulse{50%{opacity:.25}}
-#vacCard .tbl td:first-child{width:36%;min-width:104px;overflow-wrap:normal;word-break:normal;hyphens:manual}#vacCard .tbl td:nth-child(3){white-space:nowrap}.vachead{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:8px}.vachead h2{margin:0;flex:1 1 auto}.vacplus{min-width:44px;min-height:44px}.vac-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}
+#vacCard .tbl td:first-child{width:36%;min-width:104px;overflow-wrap:normal;word-break:normal;hyphens:manual}#vacCard .tbl td:nth-child(3){white-space:nowrap}.signal{padding:6px 0}.sigrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.signals{border-bottom:1px solid var(--line);margin-bottom:8px}.illmerge{margin:8px 0}.illmerge .row .btn{flex:1 1 0;min-width:0}.illsel__foot{position:sticky;bottom:0;background:var(--card);padding:8px 0;gap:8px;display:flex}.illsel__foot .btn{flex:1 1 0;min-width:0}.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.illrow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 10px;min-height:44px;padding:4px 0;border-top:1px solid var(--line)}.illrow:first-child{border-top:0}.illrow__b{display:flex;gap:8px}.illrow__b .btn{min-height:44px;padding:0 12px}.chip--maybe{display:inline-flex;align-items:center;gap:2px}.ill-follow{width:100%}
+.vachead{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:8px}.vachead h2{margin:0;flex:1 1 auto}.vacplus{min-width:44px;min-height:44px}.vac-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}
 .lsetrow{display:flex;justify-content:flex-end}.lset{min-height:44px;padding:0 4px}.lhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}.lhead h2{margin:0;font-size:20px;text-transform:none;color:var(--ink)}@media (prefers-reduced-motion:reduce){.lsw__t,.lsw__t::after{transition:none}}
 .isc{display:flex;flex-wrap:nowrap;gap:3px}.isb{flex:1 1 0;min-width:0;height:40px;padding:0;border-radius:8px;border:2px solid transparent;font-size:16px;font-weight:700;cursor:pointer;color:var(--ink)}@media (max-width:340px){.isb{font-size:14px}}.isb--lo{background:var(--okbg);color:var(--ok)}.isb--mid{background:var(--warnbg);color:var(--warn)}.isb--hi{background:var(--badbg);color:var(--bad)}.isb.on{color:#fff;border-color:var(--ink);outline:2px solid var(--ink);outline-offset:1px}.isb--lo.on{background:var(--ok)}.isb--mid.on{background:var(--warn)}.isb--hi.on{background:var(--bad)}.isc-cap{margin-top:6px;font-size:13px;color:var(--muted)}.isc-sel{min-height:30px;margin-top:4px;font-size:22px;font-weight:700}
 .cdot{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:-3px;border:1px solid var(--line)}.rfnote{margin:6px 0;padding:8px 10px;border-radius:10px;background:var(--badbg);color:var(--bad);font-size:14px}.chip.on .cdot{border-color:var(--ink)}
@@ -2505,39 +2507,29 @@ let histOpen=null, HISTLAST="all", CARDFROM=null;   // раскрытая бол
 function cardBackTarget(from){ return from&&CARDK.includes(from.tab)?{tab:from.tab,symView:from.symView||"main",histOpen:from.histOpen||null}:{tab:"all",symView:"main",histOpen:null}; }
 // болезни и симптомы одним списком: у каждой болезни — её симптомы, лекарства, приёмы; симптомы без болезни — отдельной группой (ТЗ-052 блок 1)
 function histGroups(P,today,resolver){
-  const S=(P&&P.sym)||{}, log=S.log||[], res=resolver||(typeof epLinksFinal==="function"?epLinksFinal:epLinks), seen=new Set();
+  const S=(P&&P.sym)||{}, log=S.log||[], res=resolver||((P0,ep0,t0)=>epLinksFinal(P0,ep0,t0,illLinksCur())), seen=new Set();
   const eps=(S.ep||[]).slice().sort((a,b)=>(!a.d2===!b.d2?0:!a.d2?-1:1)||String(b.d1).localeCompare(String(a.d1)));
   const illnesses=eps.map(ep=>{
     const L=res(P,ep,today)||{}, syms=[];
     (L.sym||[]).forEach(x=>{ if(x&&x.n&&!syms.includes(x.n)) syms.push(x.n); });
     syms.forEach(n=>seen.add(n));
-    return {ep,syms,meds:L.meds||[],visits:L.visits||[]};
+    return {ep,syms,rows:L.sym||[],meds:L.meds||[],visits:L.visits||[]};
   });
   const free=[]; log.forEach(x=>{ if(x&&x.n&&!seen.has(x.n)&&!free.includes(x.n)) free.push(x.n); });
   return {illnesses,free};
 }
-// название болезни для списков: своё; если не задано — по самым частым связанным симптомам, без нейросети («Кашель», «Кашель, сопли и температура с 09.09»).
-// Одно место: ТЗ-049 расширит (объединение симптомов в повод, переименование)
-function illnessTitle(ep,syms,log){
-  if(/[a-zа-яё]{3}/i.test(ep.dx||"")&&!/^не установлен/i.test(ep.dx||"")) return ep.dx;
-  const cnt={}; (log||[]).forEach(x=>{ if((syms||[]).includes(x.n)&&x.d>=ep.d1&&(!ep.d2||x.d<=ep.d2)) cnt[x.n]=(cnt[x.n]||0)+1; });
-  const top=(syms||[]).slice().sort((a,b)=>(cnt[b]||0)-(cnt[a]||0)).slice(0,3);
-  if(!top.length) return "Болезнь с "+dd2(ep.d1);
-  const low=top.map((n,i)=>i?n.toLowerCase():n), list=low.length>1?low.slice(0,-1).join(", ")+" и "+low[low.length-1]:low[0];
-  return top.length>1?`${list} с ${dd2(ep.d1)}`:list;
-}
 function histBsHtml(P,today){
   const G=histGroups(P,today), log=((P.sym||{}).log)||[], d30=dayShift(today,-29);
   const symLink=n=>`<span class="medlink" data-sym="${esc(n)}">${esc(n)}</span>`;
-  const ills=G.illnesses.map(({ep,syms,meds,visits})=>{
-    const per=ep.d2?`${ru(ep.d1)} — ${ru(ep.d2)}`:`идёт с ${ru(ep.d1)}`, nm=illnessTitle(ep,syms,log);
+  const ills=G.illnesses.map(({ep,syms,rows,meds,visits})=>{
+    const per=ep.d2?`${ru(ep.d1)} — ${ru(ep.d2)}`:`идёт с ${ru(ep.d1)}`, nm=illnessTitle(ep,illStatsFor(ep,rows,today),visits,illLinksCur());
     return `<details class="hill" data-hopen="${esc(ep.id)}"${histOpen===ep.id?" open":""}><summary><span class="hill__t"><b>${esc(nm)}</b><span class="muted">${per}</span></span></summary>
       <div class="hill__b">
         <div>${syms.length?syms.map(symLink).join(" · "):'<span class="muted">Симптомов не записано</span>'}</div>
         ${meds.length?`<div class="muted">Лекарства: ${esc(meds.map(m=>m.n).join(", "))}</div>`:""}
         ${(ep.rx&&ep.rx.length)?`<div class="muted">Лечение: ${esc(rxText(ep.rx,today))}</div>`:""}
         ${visits.map(r=>`<div class="hill__v" data-rec="${idOf(r)}">Приём ${dd2(r.d)} · ${esc(r.title||"")}</div>`).join("")}
-        <div class="row" style="gap:10px;margin-top:6px"><span class="eplink" data-epcard="${esc(ep.id)}">Карточка болезни →</span><button class="addsym editep" data-ep="${esc(ep.id)}" title="Изменить болезнь">✎</button>${ep.d2?"":`<button type="button" class="btn btn-secondary ep-off" data-epdismiss="${esc(ep.id)}" title="Болезнь больше не актуальна — закрыть">Не актуальна</button>`}</div>
+        <div class="row" style="gap:10px;margin-top:6px"><span class="eplink" data-epcard="${esc(ep.id)}">Карточка болезни →</span><button type="button" class="linkbtn" data-illrename="${esc(ep.id)}" style="min-height:44px">Переименовать</button><button class="addsym editep" data-ep="${esc(ep.id)}" title="Изменить болезнь">✎</button>${ep.d2?"":`<button type="button" class="btn btn-secondary ep-off" data-epdismiss="${esc(ep.id)}" title="Болезнь больше не актуальна — закрыть">Не актуальна</button>`}</div>
       </div></details>`; });
   const FREE=5, SHOW=8, illHtml=ills.slice(0,SHOW).join("")+(ills.length>SHOW?`<div class="hmore" hidden>${ills.slice(SHOW).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё болезней: ${ills.length-SHOW} ▸</button>`:"");
   const freeRows=G.free.map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
@@ -2546,7 +2538,7 @@ function histBsHtml(P,today){
   if(!illHtml&&!free) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
   return `<div class="card"><div class="watchhead"><h2>Болезни и симптомы</h2><button class="btn btn-secondary" id="newEp" style="min-height:44px;font-size:14px;white-space:nowrap;padding:0 14px">+ Болезнь</button></div>
     ${illHtml||'<p class="muted" style="margin:0">Болезней пока нет.</p>'}
-    ${G.free.length?`<h3 class="hfree__h">Без болезни <span class="muted">— ${G.free.length}</span></h3>${free}`:""}</div>`;
+    ${G.free.length?`<h3 class="hfree__h">Без болезни <span class="muted">— ${G.free.length}</span> <button type="button" class="linkbtn" data-illselopen="" style="min-height:44px;margin-left:8px">Выбрать</button></h3>${free}`:""}</div>`;
 }
 // полоса Медкарты и переключатель «Истории»
 function cardStripHtml(){
@@ -4111,7 +4103,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 04:54";   // подставляется при публикации
+const BUILD="26.10 05:19";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5907,6 +5899,363 @@ function epLinks(P,ep,today){
     meds:(P.meds||[]).filter(m=>m.ep===ep.id)
   };
 }
+// ── Болезнь как единая система (ТЗ-049): решения человека поверх автоматических совпадений. links — строки illness_links (illlink_list)
+const ILK={rows:{},ok:{},busy:null};
+const illLinksCur=()=>(typeof ILK!=="undefined"&&typeof cur!=="undefined"&&ILK.rows[cur])||[];
+function illLoad(force){
+  if(!window.__MK_KEY||ILK.busy===cur||(ILK.ok[cur]&&!force)) return; const p=cur; ILK.busy=p;
+  mkApi("illlink_list",{person:p}).then(j=>{ ILK.rows[p]=j.rows||[]; ILK.ok[p]=true; ILK.busy=null; if(cur===p&&["home","sym","all","visit","meds"].includes(tab)) render(); }).catch(()=>{ ILK.busy=null; });
+}
+// записать решения человека (items — как у illlink_set): сразу на экране, потом на сервер; не ушло — вернуть как было
+async function illSet(epId,epName,items){
+  const p=cur, was=(ILK.rows[p]||[]).slice();
+  let next=was.slice();
+  for(const it of items){
+    const kind=it.kind||"symptom", key=kind==="name"?"@name":kind==="visit"?symKey(it.symptom):symKey(it.symptom), st=it.state||"linked";
+    next=next.filter(r=>!(r.ep_id===epId&&r.symptom_key===key));
+    if(st!=="clear") next.push({ep_id:epId,ep_name:epName||"",kind,symptom:it.symptom,symptom_key:key,state:st,created_at:new Date().toISOString()});
+  }
+  ILK.rows[p]=next; ILK.ok[p]=true;
+  if(!window.__MK_KEY) return {ok:true,local:true};
+  try{ await mkApi("illlink_set",{person:p,ep_id:epId,ep_name:epName||"",items}); return {ok:true}; }
+  catch(e){ ILK.rows[p]=was; toast("Не получилось сохранить, нажмите ещё раз"); return {ok:false}; }
+}
+// болезнь сменила id (сдвинулась дата начала): связи со старым id переезжают на новый, пока человек открывает карточку
+function illRelink(ep){
+  const eps=((DATA[cur].sym||{}).ep||[]), rows=illLinksCur(), old=[...new Set(rows.filter(l=>l.ep_id!==ep.id&&!eps.some(e=>e.id===l.ep_id)&&sameIll(l.ep_name,ep.dx)).map(l=>l.ep_id))];
+  for(const from of old){
+    ILK.rows[cur]=rows.filter(l=>l.ep_id!==from).concat(rows.filter(l=>l.ep_id===from&&!rows.some(r=>r.ep_id===ep.id&&r.symptom_key===l.symptom_key)).map(l=>Object.assign({},l,{ep_id:ep.id,ep_name:ep.dx||l.ep_name})));
+    if(window.__MK_KEY) mkApi("illlink_move",{person:cur,from,to:ep.id,ep_name:ep.dx||""}).catch(()=>{});
+  }
+}
+// блок «С какими болезнями связан» на карточке симптома: связанные — с «Не связано», возможные — «Связать» / «Нет»; ≤ 5 на виду
+function symIllHtml(name){
+  const D=DATA[cur]||{}, today=localDay(), eps=((D.sym||{}).ep||[]).slice().sort((a,b)=>String(b.d1).localeCompare(String(a.d1))), links=illLinksCur();
+  const linked=[], maybe=[];
+  for(const ep of eps){ const L=epLinksFinal(D,ep,today,links); if(L.sym.some(x=>sameSym(x.n,name))) linked.push(ep); else if(L.maybe.some(x=>sameSym(x.n,name))) maybe.push(ep); }
+  const per=ep=>ep.d2?`${dd2(ep.d1)}–${dd2(ep.d2)}`:`с ${dd2(ep.d1)}`, nm=ep=>illnessTitleFor(D,ep,today);
+  const row=(ep,btns)=>`<div class="illrow"><span class="eplink" data-epcard="${esc(ep.id)}"><b>${esc(nm(ep))}</b> <span class="muted">· ${per(ep)}</span></span><span class="illrow__b">${btns}</span></div>`;
+  const lr=linked.map(ep=>row(ep,`<button type="button" class="btn btn-secondary" data-illlink="${esc(ep.id)}" data-illsym="${esc(name)}" data-illstate="rejected">Не связано</button>`)),
+    mr=maybe.map(ep=>row(ep,`<button type="button" class="btn btn-secondary" data-illlink="${esc(ep.id)}" data-illsym="${esc(name)}" data-illstate="linked">Связать</button><button type="button" class="btn btn-secondary" data-illlink="${esc(ep.id)}" data-illsym="${esc(name)}" data-illstate="rejected">Нет</button>`));
+  const lab=`<div class="muted" style="font-size:13px;margin-top:6px">Возможно, относится</div>`, room=Math.max(0,5-lr.length);
+  const shown=[...lr.slice(0,5),...(mr.length&&lr.length<5?[lab,...mr.slice(0,room)]:[])], more=[...lr.slice(5),...mr.slice(room)];
+  return `<div class="illlinks">${shown.length?shown.join(""):`<p class="muted" style="margin:0 0 8px">Связей пока нет. Выберите болезнь из списка</p>`}
+    ${more.length?`<details class="trk-more"><summary class="muted" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Ещё ${more.length}</summary>${more.join("")}</details>`:""}
+    ${eps.length?`<button type="button" class="linkbtn" data-illpick="${esc(name)}" style="min-height:44px">Связать с болезнью</button>`:""}</div>`;
+}
+// выбор болезни для симптома (кнопка «Связать с болезнью»)
+function illPickEp(name){
+  const D=DATA[cur], today=localDay(), eps=((D.sym||{}).ep||[]).slice().sort((a,b)=>String(b.d1).localeCompare(String(a.d1))).slice(0,12);
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 8px;font-size:18px">«${esc(name)}» — к какой болезни</h3>
+    ${eps.map(ep=>`<button type="button" class="btn btn-secondary btn-block" data-illlink="${esc(ep.id)}" data-illsym="${esc(name)}" data-illstate="linked" data-illclose="1" style="min-height:48px;margin-bottom:8px;text-align:left">${esc(illnessTitleFor(D,ep,today))} <span class="muted">· ${ep.d2?dd2(ep.d1)+"–"+dd2(ep.d2):"с "+dd2(ep.d1)}</span></button>`).join("")||`<p class="muted">Болезней пока нет</p>`}</div>`;
+}
+// «+ Симптом» в карточке болезни: последние симптомы человека, «Ещё» и поле «Новый симптом»; выбор связывает с болезнью
+function illPickSym(epId,all){
+  const D=DATA[cur], ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const today=localDay(), P=illSymptomPicker(D,ep,today,illLinksCur()), list=all?[...P.shown,...P.more]:P.shown;
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox" id="illPick"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 8px;font-size:18px">Добавить симптом в болезнь</h3>
+    <div class="ill__chips">${list.map(x=>`<button type="button" class="chip" data-illadd2="${esc(epId)}" data-illsym="${esc(x.name)}" style="min-height:44px">${esc(x.name)}</button>`).join("")||`<span class="muted">Свободных симптомов за 60 дней нет — впишите новый</span>`}</div>
+    ${!all&&P.more.length?`<button type="button" class="linkbtn" data-illmore="${esc(epId)}" style="min-height:44px">Ещё ${P.more.length}</button>`:""}
+    <div class="fld" style="margin-top:10px"><label for="illNew">Новый симптом</label><input id="illNew" maxlength="80" autocomplete="off" placeholder="например, кашель"><div id="illErr" class="er" role="alert" style="display:none"></div></div>
+    <div class="row"><button type="button" class="btn btn-primary" data-illadd2="${esc(epId)}" data-illnew="1" style="min-height:44px">Добавить</button><button type="button" class="btn btn-secondary" data-close>Отмена</button></div></div>`;
+}
+async function illAddSym(epId,name,fresh){
+  const D=DATA[cur], ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); name=String(name||"").replace(/\s+/g," ").trim();
+  if(!ep||!name){ const e=document.getElementById("illErr"); if(e){ e.textContent="Впишите название симптома или выберите из списка"; e.style.display="block"; } return; }
+  const today=localDay(), ttl=illnessTitleFor(D,ep,today), exists=((D.sym||{}).log||[]).some(x=>symKey(x.n)===symKey(name));
+  if(fresh&&!exists){   // новый симптом: запись сегодня, сила не заполнена, повод — название болезни
+    const c=(((D.sym||{}).cat||[]).find(z=>symKey(z.n)===symKey(name)));
+    ovAdd({who:cur,d:today,n:name,p:ttl,sys:c?c.sys:"other",i:null,f:"",m:""});
+    if(window.__MK_KEY){ try{ await mkApi("symptom_add",{person:cur,d:today,n:name,sys:c?c.sys:null,i:null,f:"",m:"",p:ttl}); }catch(e){ toast("Симптом сохранён на этом устройстве, в базу не ушёл"); } }
+  }
+  const r=await illSet(ep.id,ttl,[{symptom:name,state:"linked"}]); if(!r.ok) return;
+  closeModal(); render(); epCard(ep.id); toast(`«${esc(name)}» добавлен в болезнь`);
+}
+// переименовать болезнь: одна строка ≤ 60 знаков; «Вернуть предложенное» стирает своё название
+function illRename(epId){
+  const D=DATA[cur], ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const now=illnessTitleFor(D,ep,localDay());
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 8px;font-size:18px">Название болезни</h3>
+    <div class="fld"><label for="illRn">Как назвать</label><input id="illRn" maxlength="60" autocomplete="off" value="${esc(now)}"><div id="illRnErr" class="er" role="alert" style="display:none"></div></div>
+    <div class="row"><button type="button" class="btn btn-primary" data-illrnok="${esc(epId)}" style="min-height:44px">Сохранить</button><button type="button" class="btn btn-secondary" data-illrnclear="${esc(epId)}" style="min-height:44px">Предложенное</button><button type="button" class="btn btn-secondary" data-close>Отмена</button></div></div>`;
+  const f=document.getElementById("illRn"); if(f){ f.focus(); f.select(); }
+}
+async function illRenameSave(epId,clear){
+  const D=DATA[cur], ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const v=String((document.getElementById("illRn")||{}).value||"").replace(/\s+/g," ").trim();
+  if(!clear&&(!v||v.length>60)){ const e=document.getElementById("illRnErr"); if(e){ e.textContent=!v?"Название не может быть пустым":"Не больше 60 знаков"; e.style.display="block"; } return; }
+  const r=await illSet(ep.id,ep.dx||"",[clear?{kind:"name",symptom:"",state:"clear"}:{kind:"name",symptom:v,state:"linked"}]); if(!r.ok) return;
+  closeModal(); render(); toast(clear?"Название вернулось к предложенному":"Название сохранено");
+}
+// «Следить на главной» в карточке болезни: слежение kind illness (ТЗ-050); выключить — убрать с главной, записи остаются
+async function illFollow(epId){
+  const D=DATA[cur], ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep||!window.__MK_KEY) { toast("Нужен вход по ссылке с кодом"); return; }
+  const on=!!(TRK.rows[cur]||[]).find(t=>t.kind==="illness"&&t.ref===epId&&!t.ended_on&&t.on_home!==false);
+  try{ if(on) await mkApi("track_delete",{person:cur,kind:"illness",ref:epId}); else await mkApi("track_set",{person:cur,kind:"illness",ref:epId,title:illnessTitleFor(D,ep,localDay()),on_home:true,reopen:true});
+    const j=await mkApi("track_list",{person:cur}); TRK.rows[cur]=j.rows||[]; TRK.ok[cur]=true; epCard(epId); render(); toast(on?"Слежение выключено":"Болезнь на главной в «Слежу»"); }
+  catch(e){ toast("Не получилось, нажмите ещё раз"); }
+}
+document.addEventListener("click",async e=>{
+  const t=e.target.closest&&e.target.closest("[data-illlink],[data-illpick],[data-illadd],[data-illadd2],[data-illmore],[data-illrename],[data-illrnok],[data-illrnclear],[data-illfollow]"); if(!t) return;
+  const D=DATA[cur];
+  if(t.dataset.illlink){ const ep=((D.sym||{}).ep||[]).find(x=>x.id===t.dataset.illlink); if(!ep) return;
+    const name=t.dataset.illsym, st=t.dataset.illstate, r=await illSet(ep.id,ep.dx||illnessTitleFor(D,ep,localDay()),[{symptom:name,state:st}]); if(!r.ok) return;
+    if(t.dataset.illclose) closeModal(); render(); if(modal.classList.contains("on")&&!t.dataset.illclose) epCard(ep.id);
+    toast(st==="rejected"?"Связь убрана":"Связано","Вернуть",()=>{ illSet(ep.id,ep.dx||"",[{symptom:name,state:"clear"}]).then(()=>{ render(); }); }); return; }
+  if(t.dataset.illpick){ illPickEp(t.dataset.illpick); return; }
+  if(t.dataset.illadd){ illPickSym(t.dataset.illadd,false); return; }
+  if(t.dataset.illmore){ illPickSym(t.dataset.illmore,true); return; }
+  if(t.dataset.illadd2){ const fresh=!!t.dataset.illnew; illAddSym(t.dataset.illadd2,fresh?(document.getElementById("illNew")||{}).value:t.dataset.illsym,fresh); return; }
+  if(t.dataset.illrename){ illRename(t.dataset.illrename); return; }
+  if(t.dataset.illrnok){ illRenameSave(t.dataset.illrnok,false); return; }
+  if(t.dataset.illrnclear){ illRenameSave(t.dataset.illrnclear,true); return; }
+  if(t.dataset.illfollow){ illFollow(t.dataset.illfollow); return; }
+});
+// долгое нажатие на строку болезни в «Истории» (и правая кнопка мыши) — переименовать
+(()=>{ if(typeof document==="undefined"||window.__illLong) return; window.__illLong=1; let tm=null;
+  const ep=e=>{ const h=e.target.closest&&e.target.closest(".hill[data-hopen]"); return h&&e.target.closest("summary")?h.dataset.hopen:null; };
+  document.addEventListener("touchstart",e=>{ const id=ep(e); if(!id) return; clearTimeout(tm); tm=setTimeout(()=>{ tm=null; illRename(id); },650); },{passive:true});
+  ["touchend","touchmove","touchcancel"].forEach(n=>document.addEventListener(n,()=>{ clearTimeout(tm); },{passive:true}));
+  document.addEventListener("contextmenu",e=>{ const id=ep(e); if(id){ e.preventDefault(); illRename(id); } });
+})();
+// ── Сигнал «пора к врачу» и объединение симптомов в одну болезнь (ТЗ-051)
+function signalKey(name,since){ return "signal:"+symKey(name)+":"+since; }
+// затянувшиеся симптомы без приёма: sym — записи журнала человека {n,d}; periods — {symptom,started_on,ended_on}; visits — приёмы {d}; taskState — {ключ: {s,until}}; age — лет (нет — 14 дней)
+// «идёт»: открытый период или записи минимум в 3 из последних 5 дней; цепочка рвётся разрывом больше 3 дней без записей; приём с датой не раньше начала цепочки гасит сигнал
+function longSignals(person,today,sym,periods,visits,taskState,age){
+  const need=age!=null&&age<12?7:14, from5=illDay(today,-4), by={}, out=[];
+  for(const x of sym||[]){ if(!x||!x.n||!x.d||x.d>today) continue; const k=symKey(x.n), e=by[k]||(by[k]={name:x.n,days:new Set(),open:false}); e.days.add(x.d); e.name=x.n; }
+  for(const p of periods||[]){ if(!p||p.ended_on||!p.symptom||!p.started_on) continue; const k=symKey(p.symptom), e=by[k]||(by[k]={name:p.symptom,days:new Set(),open:false}); e.open=true;
+    for(let d=p.started_on;d<=today;d=illDay(d,1)) e.days.add(d); }
+  for(const k of Object.keys(by)){
+    const e=by[k], ds=[...e.days].sort();
+    if(!e.open&&ds.filter(d=>d>=from5).length<3) continue;
+    let since=ds[ds.length-1]; for(let i=ds.length-2;i>=0;i--){ if(illSpan(ds[i],ds[i+1])-1>4) break; since=ds[i]; }
+    const n=illSpan(since,today); if(n<need) continue;
+    if((visits||[]).some(v=>v&&v.d&&v.d>=since)) continue;
+    const key=signalKey(e.name,since), st=(taskState||{})[key];
+    if(st&&(st.s==="done"||st.s==="dismissed"||(st.s==="snooze"&&String(st.until)>today))) continue;
+    out.push({key,name:e.name,days:n,since});
+  }
+  return out.sort((a,b)=>b.days-a.days);
+}
+// предложить объединить только что записанный симптом с другими, что идут рядом (3 суток) и ещё не в одной болезни → {with, epId, epName, askName} или null
+function mergeSuggestion(newSym,person,today,sym,periods,eps,links,ts){
+  const nk=symKey(newSym), from=illDay(today,-2), win=(sym||[]).filter(x=>x&&x.d>=from&&x.d<=today);
+  const act=new Map(); for(const x of win) act.set(symKey(x.n),x.n);
+  for(const p of periods||[]) if(p&&!p.ended_on&&p.symptom&&p.started_on<=today) act.set(symKey(p.symptom),p.symptom);
+  if(!act.has(nk)) return null;
+  const L=(links||[]).filter(l=>l.kind==="symptom"), openEps=(eps||[]).filter(e=>!e.d2);
+  const inEp=(k,ep)=>L.some(l=>l.ep_id===ep.id&&l.state==="linked"&&l.symptom_key===k)||(sym||[]).some(x=>symKey(x.n)===k&&x.p&&sameIll(x.p,ep.dx)&&x.d>=ep.d1&&x.d<=(ep.d2||today));
+  const names=[]; let epId=null, epName="";
+  for(const [k,nm] of act){ if(k===nk) continue;
+    if((eps||[]).some(e=>inEp(k,e)&&inEp(nk,e))) continue;                                 // уже в одной болезни
+    const ep=openEps.find(e=>inEp(k,e)); 
+    if(ep){ if(L.some(l=>l.ep_id===ep.id&&l.symptom_key===nk&&l.state==="rejected")) continue; if(!epId){ epId=ep.id; epName=ep.dx||""; } else if(epId!==ep.id) continue; }
+    else if(((ts||{})["merge:"+[nk,k].sort().join("+")])) continue;                           // отказ без болезни
+    names.push(nm);
+  }
+  return names.length?{with:names,epId,epName,askName:!epId}:null;
+}
+// свободные симптомы за 14 дней: записи, которые не вошли ни в одну болезнь (ни по поводу и датам, ни вручную); последние сверху
+function recentFreeSymptoms(P,today,links){
+  const from=illDay(today,-13), S=(P&&P.sym)||{}, claimed=new Set();
+  for(const ep of S.ep||[]){ const L=epLinksFinal(P,ep,today,links); L.sym.forEach(x=>claimed.add(x)); }
+  return illSymStats((S.log||[]).filter(x=>x.d>=from&&x.d<=today&&!claimed.has(x))).sort((a,b)=>b.last.localeCompare(a.last));
+}
+// что записать, когда человек собрал симптомы в одну болезнь: связи симптомов и приёмов и название (пусто, если симптомов нет)
+function illMergePlan(o){
+  if(!o||!(o.names||[]).length) return [];
+  return [...o.names.map(n=>({symptom:n,state:"linked"})),...(o.visits||[]).map(v=>({kind:"visit",symptom:v,state:"linked"})),{kind:"name",symptom:o.title,state:"linked"}];
+}
+// ── UI: сигнал «пора к врачу»
+function genName(n){ n=String(n||""); return /а$/.test(n)?n.slice(0,-1)+"ы":/я$/.test(n)?n.slice(0,-1)+"и":/[бвгджзклмнпрстфхцчшщ]$/i.test(n)?n+"а":n; }
+function signalsNow(){
+  const D=DATA[cur]; if(!D||!D.sym) return []; const today=localDay(), ag=ageOf(hdBirth(),today);
+  return longSignals(cur,today,D.sym.log||[],(PERIODS||[]).filter(p=>p.person===cur),(D.rec||[]).filter(r=>r.t==="visit"),TASKST[cur]||{},ag?ag.years:null);
+}
+// строка сигнала: одна на виду, остальные «Ещё N»; только имя и число дней, без диагноза
+function signalHtml(list){
+  if(!list||!list.length) return "";
+  const D=DATA[cur], one=x=>`<div class="signal" data-signal="${esc(x.key)}"><div><b>${esc(x.name)}</b> у ${esc(genName(D.short||D.name))} · ${x.days} ${plural(x.days,"день","дня","дней")}, приёма не было</div>
+    <button type="button" class="btn btn-primary btn-block" data-sigprep="${esc(x.name)}" data-sigdays="${x.days}" style="min-height:44px;margin-top:8px">Подготовиться к приёму</button>
+    <div class="sigrow"><button type="button" class="btn btn-secondary" data-sigsnooze="${esc(x.key)}" style="min-height:44px">Позже</button><button type="button" class="btn btn-secondary" data-sigdone="${esc(x.key)}" style="min-height:44px">Уже был</button></div></div>`;
+  return `<div class="signals" role="group" aria-label="Пора к врачу">${one(list[0])}${list.length>1?`<details class="trk-more"><summary class="muted" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Ещё ${list.length-1}</summary>${list.slice(1).map(one).join("")}</details>`:""}<div class="muted" style="font-size:12px;margin:4px 0 8px">Ориентир, не диагноз: возможно, стоит записаться</div></div>`;
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest&&e.target.closest("[data-sigprep],[data-sigsnooze],[data-sigdone]"); if(!t) return;
+  if(t.dataset.sigprep){ planOpen(null); planEdit.purpose=`${t.dataset.sigprep}: идёт ${t.dataset.sigdays} дн.`.slice(0,480); planEdit.specialty=planSpecFor(t.dataset.sigprep); planDraw(); return; }
+  if(t.dataset.sigsnooze){ taskStSet(cur,t.dataset.sigsnooze,"snooze",illDay(localDay(),3)); return; }
+  taskStSet(cur,t.dataset.sigdone,"done");
+});
+// ── UI: предложение объединить симптомы после записи (ТЗ-051 блок 2)
+let ILM=null;   // {sug, newName}
+function illMergeBannerHtml(sug,newName){
+  ILM={sug,newName}; const D=DATA[cur], names=[newName,...sug.with];
+  const sg=suggestIllnessName(illSymStats((D.sym.log||[]).filter(x=>names.some(n=>symKey(n)===symKey(x.n)))),[],localDay());
+  return `<div class="note illmerge" id="illMerge" role="group" aria-label="Объединить в одну болезнь"><div><b>${esc(newName)}</b> сохранён. Объединить с «${esc(sug.with.join("», «"))}» в одну болезнь${sug.epId?` «${esc(sug.epName)}»`:""}?</div>
+    ${sug.askName?`<div class="fld" style="margin-top:8px"><label for="illMergeName">Как назвать болезнь?</label><input id="illMergeName" maxlength="60" autocomplete="off" value="${esc(sg)}" placeholder="например, ОРВИ"></div>`:""}
+    <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-illmerge="yes" style="min-height:44px">Объединить</button><button type="button" class="btn btn-secondary" data-illmerge="no" style="min-height:44px">Нет, отдельно</button></div><div id="illMergeLog" class="formlog"></div></div>`;
+}
+// выполнить объединение: deps.create(title,d1) → id новой болезни; возвращает {epId, items} или {error}
+function illMergeApply(sug,newName,title,deps){
+  const names=[newName,...sug.with];
+  if(sug.epId) return {epId:sug.epId,epName:sug.epName,items:names.map(n=>({symptom:n,state:"linked"}))};
+  const t=String(title||"").replace(/\s+/g," ").trim().slice(0,60); if(!t) return {error:"Впишите название болезни или нажмите «Нет, отдельно»"};
+  const id=deps.create(t,deps.d1); return {epId:id,epName:t,items:names.map(n=>({symptom:n,state:"linked"}))};
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest&&e.target.closest("[data-illmerge]"); if(!b||!ILM) return;
+  const {sug,newName}=ILM, D=DATA[cur], today=localDay(), log=D.sym.log||[], lg=t=>{ const x=document.getElementById("illMergeLog"); if(x) x.innerHTML=`<div class="er">${t}</div>`; };
+  if(b.dataset.illmerge==="no"){
+    if(sug.epId) await illSet(sug.epId,sug.epName,[{symptom:newName,state:"rejected"}]);
+    else for(const o of sug.with) await taskStSet(cur,"merge:"+[symKey(newName),symKey(o)].sort().join("+"),"done");
+    ILM=null; closeModal(); return; }
+  const names=[newName,...sug.with], d1=log.filter(x=>names.some(n=>symKey(n)===symKey(x.n))).map(x=>x.d).sort()[0]||today;
+  const r=illMergeApply(sug,newName,(document.getElementById("illMergeName")||{}).value,{create:(t,d)=>epCreate(t,d),d1});
+  if(r.error){ lg(r.error); return; }
+  const w=await illSet(r.epId,r.epName,r.items);
+  ILM=null; closeModal(); render(); if(!w.ok) return;
+  toast(`Теперь это одна болезнь: ${esc(r.epName||"")}. Откройте её в Болезнях`,"Открыть",()=>epCard(r.epId));
+});
+// ── UI: «В одну болезнь» — свободные симптомы за 14 дней в одну болезнь вручную (ТЗ-051 блок 2)
+let ILS=null;   // {names:Set, visits:Set, nameEdited:bool, all:bool, allV:bool}
+function illSelOpen(pre){
+  ILS={names:new Set(pre?[pre]:[]),visits:new Set(),nameEdited:false,all:false,allV:false,title:"",ep:""}; illSelDraw(); }
+function illSelModel(){
+  const D=DATA[cur], today=localDay(), free=recentFreeSymptoms(D,today,illLinksCur());
+  const visits=(D.rec||[]).filter(r=>r.t==="visit"&&r.d>=illDay(today,-30)&&r.d<=today).sort((a,b)=>b.d.localeCompare(a.d)).map(r=>({key:visitKey(r),d:r.d,t:r.who||r.title||"Приём"}));
+  return {free,visits,today};
+}
+function illSelSuggest(M){
+  const sel=M.free.filter(x=>ILS.names.has(x.name)), vs=M.visits.filter(v=>ILS.visits.has(v.key)).map(v=>({who:v.t,d:v.d}));
+  return suggestIllnessName(sel,vs,sel.map(x=>x.first).sort()[0]);
+}
+function illSelDraw(){
+  const D=DATA[cur], M=illSelModel(); if(!ILS) return;
+  const sg=illSelSuggest(M), title=ILS.nameEdited?ILS.title:sg, sym=ILS.all?M.free:M.free.slice(0,8), vis=ILS.allV?M.visits:M.visits.slice(0,5);
+  const open=((D.sym||{}).ep||[]).filter(e=>!e.d2).slice(0,8);
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox illsel" id="illSel"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    <h3 style="margin:0 0 8px;font-size:18px">В одну болезнь</h3>
+    <div class="ill__sec">Что входит</div>
+    <div class="ill__chips">${sym.map(x=>`<button type="button" class="chip${ILS.names.has(x.name)?" on":""}" data-illsel="${esc(x.name)}" aria-pressed="${ILS.names.has(x.name)}" style="min-height:44px">${esc(x.name)}</button>`).join("")||`<span class="muted">Свободных симптомов за 14 дней нет</span>`}${!ILS.all&&M.free.length>8?`<button type="button" class="linkbtn" data-illselmore="s" style="min-height:44px">Ещё ${M.free.length-8}</button>`:""}</div>
+    ${ILS.names.size?"":`<div class="muted" style="font-size:13px">Отметьте хотя бы один симптом</div>`}
+    <div class="ill__sec">Как назвать</div>
+    <div class="fld"><input id="illSelName" maxlength="60" autocomplete="off" value="${esc(title)}" aria-label="Название болезни"${ILS.ep?" disabled":""}><span class="muted" style="font-size:12px">${ILS.nameEdited||ILS.ep?"":"предложено"}</span></div>
+    ${open.length?`<div class="fld"><label for="illSelEp">Добавить в существующую</label><select id="illSelEp"><option value="">Новая болезнь</option>${open.map(e=>`<option value="${esc(e.id)}"${e.id===ILS.ep?" selected":""}>${esc(illnessTitleFor(D,e,M.today))}</option>`).join("")}</select></div>`:""}
+    <div class="ill__sec">Приёмы (необязательно)</div>
+    <div class="ill__chips">${vis.map(v=>`<button type="button" class="chip${ILS.visits.has(v.key)?" on":""}" data-illselv="${esc(v.key)}" aria-pressed="${ILS.visits.has(v.key)}" style="min-height:44px">${esc(v.t)} ${dd2(v.d)}</button>`).join("")||`<span class="muted">Приёмов за 30 дней нет</span>`}${!ILS.allV&&M.visits.length>5?`<button type="button" class="linkbtn" data-illselmore="v" style="min-height:44px">Ещё ${M.visits.length-5}</button>`:""}</div>
+    <div id="illSelLog" class="formlog"></div>
+    <div class="row illsel__foot"><button type="button" class="btn btn-primary" data-illselsave="1" style="min-height:44px"${ILS.names.size?"":" disabled"}>Сохранить</button><button type="button" class="btn btn-secondary" data-close style="min-height:44px">Отмена</button></div></div>`;
+}
+async function illSelSave(){
+  const D=DATA[cur], M=illSelModel(), today=M.today, lg=t=>{ const x=document.getElementById("illSelLog"); if(x) x.innerHTML=`<div class="er">${t}</div>`; };
+  if(!ILS||!ILS.names.size) return;
+  const typed=String((document.getElementById("illSelName")||{}).value||"").replace(/\s+/g," ").trim(), title=(ILS.ep?"":(typed||illSelSuggest(M))).slice(0,60);
+  const names=[...ILS.names], visits=[...ILS.visits], d1=M.free.filter(x=>ILS.names.has(x.name)).map(x=>x.first).sort()[0]||today;
+  let epId=ILS.ep, epName="";
+  if(epId){ const ep=((D.sym||{}).ep||[]).find(e=>e.id===epId); epName=ep?ep.dx||"":""; }
+  else { if(!title){ lg("Не получилось придумать название — впишите своё"); return; } epId=epCreate(title,d1); epName=title; }
+  const items=illMergePlan({names,visits,title}); if(ILS.ep) items.pop();   // у существующей болезни название не трогаем
+  const r=await illSet(epId,epName||title,items); if(!r.ok){ lg("Не получилось сохранить, нажмите ещё раз"); return; }
+  ILS=null; closeModal(); render(); toast(`Собрано: ${esc(epName||title)}`); epCard(epId);
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest&&e.target.closest("[data-illsel],[data-illselv],[data-illselmore],[data-illselsave],[data-illselopen]"); if(!t) return;
+  if(t.dataset.illselopen!==undefined){ illSelOpen(t.dataset.illselopen||""); return; }
+  if(!ILS) return;
+  if(t.dataset.illselsave){ illSelSave(); return; }
+  const keep=()=>{ const el=document.getElementById("illSelName"); if(el&&!el.disabled&&el.value.trim()!==illSelSuggestSafe()){ ILS.nameEdited=true; ILS.title=el.value; } };
+  if(t.dataset.illsel){ keep(); const n=t.dataset.illsel; ILS.names.has(n)?ILS.names.delete(n):ILS.names.add(n); }
+  else if(t.dataset.illselv){ keep(); const k=t.dataset.illselv; ILS.visits.has(k)?ILS.visits.delete(k):ILS.visits.add(k); }
+  else if(t.dataset.illselmore){ if(t.dataset.illselmore==="s") ILS.all=true; else ILS.allV=true; }
+  illSelDraw();
+});
+function illSelSuggestSafe(){ try{ return illSelSuggest(illSelModel()); }catch(e){ return ""; } }
+document.addEventListener("input",e=>{ if(ILS&&e.target&&e.target.id==="illSelName"){ ILS.nameEdited=true; ILS.title=e.target.value; } });
+document.addEventListener("change",e=>{ if(ILS&&e.target&&e.target.id==="illSelEp"){ ILS.ep=e.target.value; illSelDraw(); } });
+// название болезни для любого экрана: своё → из записи → предложенное по симптомам и приёмам
+function illStatsFor(ep,rows,today){
+  const st=illSymStats(rows); if(st.length||!ep.sym) return st;   // у болезни нет связанных записей — берём симптомы из самой записи болезни
+  return String(ep.sym).split(/\s*[,;]\s*/).filter(Boolean).slice(0,6).map(n=>({name:n,first:ep.d1,days:illSpan(ep.d1,ep.d2||today),count:1}));
+}
+function illnessTitleFor(P,ep,today){
+  today=today||localDay(); const L=epLinksFinal(P,ep,today,illLinksCur());
+  return illnessTitle(ep,illStatsFor(ep,L.sym,today),L.visits,illLinksCur());
+}
+function symKey(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
+// ключ приёма: «ГГГГ-ММ-ДД|специальность» строчными, как хранит сервер
+function visitKey(r){ return String((r&&r.d)||"")+"|"+symKey((r&&(r.who||r.title))||"").slice(0,60); }
+function illDay(d,n){ const x=new Date(d+"T12:00:00Z"); x.setUTCDate(x.getUTCDate()+n); return x.toISOString().slice(0,10); }
+function illSpan(a,b){ return Math.round((Date.parse(b+"T12:00:00Z")-Date.parse(a+"T12:00:00Z"))/864e5)+1; }
+// что связано с болезнью с учётом решений человека → {sym, maybe, visits, meds}. sym — записи журнала; maybe — «возможно, относится» (записи без повода в датах болезни)
+function epLinksFinal(P,ep,today,links){
+  const end=ep.d2||today, inDates=x=>x.d>=ep.d1&&x.d<=end, log=((P&&P.sym)||{}).log||[], eps=((P&&P.sym)||{}).ep||[];
+  const mine=(links||[]).filter(l=>l.ep_id===ep.id||(!eps.some(e=>e.id===l.ep_id)&&sameIll(l.ep_name,ep.dx)));   // болезнь сменила id (сдвинулась дата начала) — связь находим по названию
+  const rej=new Set(mine.filter(l=>l.kind==="symptom"&&l.state==="rejected").map(l=>l.symptom_key));
+  const lin=mine.filter(l=>l.kind==="symptom"&&l.state==="linked");
+  const own=log.filter(x=>sameIll(x.p,ep.dx)&&inDates(x)&&!rej.has(symKey(x.n)));
+  const linked=[]; for(const l of lin){ const rows=log.filter(x=>symKey(x.n)===l.symptom_key); if(rows.length) linked.push(...rows); else linked.push({n:l.symptom,d:ep.d1,p:ep.dx,syn:1}); }
+  const sym=[...new Set([...own,...linked])].sort((a,b)=>a.d.localeCompare(b.d)), have=new Set(sym.map(x=>symKey(x.n)));
+  const maybe=(own.length||linked.length)?log.filter(x=>!String(x.p||"").trim()&&inDates(x)&&!rej.has(symKey(x.n))&&!have.has(symKey(x.n))):[];
+  const base=epLinks(P,ep,today), vr=new Set(mine.filter(l=>l.kind==="visit"&&l.state==="rejected").map(l=>l.symptom_key)), vl=new Set(mine.filter(l=>l.kind==="visit"&&l.state==="linked").map(l=>l.symptom_key));
+  const visits=[...new Set([...base.visits.filter(r=>!vr.has(visitKey(r))),...(P.rec||[]).filter(r=>r.t==="visit"&&vl.has(visitKey(r)))])];
+  return {sym,maybe:[...new Map(maybe.map(x=>[symKey(x.n),x])).values()],visits,meds:base.meds};
+}
+// статистика по названиям симптомов: сколько дней идёт (от первой записи до последней), сколько записей
+function illSymStats(rows){
+  const g={}; for(const x of rows||[]){ if(!x||!x.n) continue; const k=symKey(x.n), e=g[k]||(g[k]={name:x.n,first:x.d,last:x.d,count:0}); if(x.d<e.first) e.first=x.d; if(x.d>e.last) e.last=x.d; e.count++; }
+  return Object.values(g).map(e=>({name:e.name,first:e.first,last:e.last,count:e.count,days:illSpan(e.first,e.last)})).sort((a,b)=>b.days-a.days||b.count-a.count);
+}
+// симптомы человека за 60 дней, ещё не связанные с этой болезнью: ≤ 8 на виду, остальные — «Ещё»
+function illSymptomPicker(P,ep,today,links){
+  const from=illDay(today,-59), L=epLinksFinal(P,ep,today,links), have=new Set(L.sym.map(x=>symKey(x.n)));
+  const rows=(((P&&P.sym)||{}).log||[]).filter(x=>x.d>=from&&x.d<=today&&!have.has(symKey(x.n)));
+  const list=illSymStats(rows).sort((a,b)=>b.last.localeCompare(a.last));
+  return {shown:list.slice(0,8),more:list.slice(8)};
+}
+// предложение названия болезни без нейросети (ТЗ-049 блок 2). syms — [{name,days,count,first}], visits — приёмы болезни. since — запасная дата «с ДД.ММ»
+function suggestIllnessName(syms,visits,since){
+  const S=(syms||[]).slice().sort((a,b)=>(b.days||0)-(a.days||0)), keys=S.map(x=>symKey(x.name)), has=re=>keys.some(k=>re.test(k));
+  const cnt=re=>keys.filter(k=>re.test(k)).length, vis=(visits||[]).map(v=>symKey((v.who||"")+" "+(v.title||"")+" "+(v.spec||""))).join(" ");
+  const TEMP=/^температур|^жар|лихорад/, COUGH=/кашел/, THROAT=/горл/, NOSE=/насмор|^сопл|заложен/, ARVI=/^температур|кашел|горл|насмор|^сопл|заложен|потеря вкуса|затруднение дыхания|боль в груди/;
+  const GI=/боль в живот|вздути|тошнот|изжог|жидкий стул|запор/, ALL=/чихани|насмор|^зуд|слезотеч/;
+  if(S.length>=2&&has(TEMP)||S.length>=2&&has(COUGH)||S.length>=2&&has(THROAT)){ if(cnt(ARVI)>=2&&(has(TEMP)||has(COUGH)||has(THROAT))) return "ОРВИ"; }
+  if(cnt(GI)>=2) return has(/боль в живот/)?"Боль в животе":"Расстройство пищеварения";
+  if(cnt(ALL)>=2&&!has(TEMP)) return "Аллергия";
+  if(/(^|[^а-я])лор([^а-я]|$)|оториноларинг/.test(vis)&&(has(NOSE)||has(COUGH)||has(THROAT))) return "ОРВИ";
+  if(/аллерголог/.test(vis)&&has(ALL)) return "Аллергия";
+  if(/гастроэнтеролог/.test(vis)&&has(GI)) return "Боль в животе";
+  const cap=t=>t.charAt(0).toUpperCase()+t.slice(1), low=(t,i)=>i?t.charAt(0).toLowerCase()+t.slice(1):cap(t);
+  if(S.length===1){
+    const n=S[0].name, k=keys[0];
+    if((S[0].days||0)>=14){ if(/кашел|насмор/.test(k)) return "Длительный "+k; if(/головн|температур|боль в живот/.test(k)) return "Длительная "+k; return cap(n)+", длительно"; }
+    return cap(n);
+  }
+  if(!S.length) return "";
+  const first=S.map(x=>x.first).filter(Boolean).sort()[0]||since, top=S.slice(0,3).map((x,i)=>low(x.name,i)), more=S.length-top.length;
+  const list=more>0?top.join(", ")+" и ещё "+more:top.length>1?top.slice(0,-1).join(", ")+" и "+top[top.length-1]:top[0];
+  return first?`${list} с ${first.slice(8,10)}.${first.slice(5,7)}`:list;
+}
+// название, которое человек дал болезни: names — строки illness_links (kind name) или карта {ep_id: название}
+function illNameOf(names,epId){
+  if(Array.isArray(names)){ const r=names.find(x=>x&&x.kind==="name"&&x.ep_id===epId&&String(x.symptom||"").trim()); return r?String(r.symptom).trim():""; }
+  return names&&names[epId]?String(names[epId]).trim():"";
+}
+// одно название болезни для списка истории, карточки, главной и «Слежу»: своё → из записи → предложенное → «Недомогание с ДД.ММ»
+function illnessTitle(ep,syms,visits,names){
+  const own=illNameOf(names,ep.id); if(own) return own;
+  if(/[a-zа-яё]{3}/i.test(ep.dx||"")&&!/^не установлен|^не уточн|^без /i.test(ep.dx||"")) return ep.dx;
+  const s=(syms||[]).length?suggestIllnessName(syms,visits,ep.d1):"";
+  return s||("Недомогание с "+dd2(ep.d1));
+}
 // болезни из журнала: симптомы с поводом-болезнью, которых не покрывает ни одна болезнь, — на любом устройстве, не только там,
 // где сохраняли форму. Только идущие случаи (последний симптом не старше 15 дней): старые поводы-симптомы не трогаем (Денис 28.09).
 // id постоянный (человек, начало, название), чтобы «Закрыть болезнь» и правки находили его и после перезагрузки
@@ -6542,7 +6891,9 @@ function epMedsEmptyText(){ return "В записях лекарств нет"; 
 // карточка болезни: сроки, симптомы, приёмы, лекарства — с переходами (ТЗ-004 блоки 5, 11)
 function epCard(epId){
   const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
-  const today=localDay(), sp=epSpan(ep,today), L=epLinks(d,ep,today);
+  illRelink(ep);
+  const today=localDay(), sp=epSpan(ep,today), L=epLinksFinal(d,ep,today,illLinksCur()), ttl=illnessTitle(ep,illStatsFor(ep,L.sym,today),L.visits,illLinksCur());
+  trkLoad(); const trk=(TRK.rows[cur]||[]).find(t=>t.kind==="illness"&&t.ref===ep.id&&!t.ended_on&&t.on_home!==false);
   const sec=(t,body)=>`<div class="ill__sec">${t}</div>${body}`;
   const symNames=[...new Set(L.sym.map(x=>x.n))];
   // курсы: из записи болезни (с датами) — полосой; остальные лекарства из приёмов и симптомов — строкой
@@ -6555,9 +6906,13 @@ function epCard(epId){
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="ill${sp.open?"":" ill--closed"}" style="padding:0;background:none">
-      <div class="ill__head"><div><h3 class="ill__title">${esc(ep.dx||"Без диагноза")}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div></div>
+      ${sp.open?signalHtml(signalsNow().filter(x=>symNames.some(n=>symKey(n)===symKey(x.name)))):""}
+      <div class="ill__head"><div><h3 class="ill__title">${esc(ttl)}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div><button type="button" class="linkbtn" data-illrename="${esc(ep.id)}" style="min-height:44px">Переименовать</button></div>
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
-      ${sec("Симптомы — "+L.sym.length,symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">—</div>`)}
+      ${sp.open?`<button type="button" class="btn ${trk?"btn-secondary":"btn-primary"} ill-follow" data-illfollow="${esc(ep.id)}" aria-pressed="${!!trk}" style="min-height:44px;margin:8px 0 0">${trk?"Слежу на главной · выключить":"Следить на главной"}</button>`:`<div class="muted" style="margin-top:6px">Слежение выключено: болезнь закончилась</div>`}
+      <div class="ill__sec">Симптомы — ${symNames.length} <button type="button" class="linkbtn" data-illadd="${esc(ep.id)}" style="min-height:44px;font-weight:600">+ Симптом</button></div>
+      ${symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">К болезни пока ничего не добавлено. Нажмите «+ Симптом»</div>`}
+      ${L.maybe.length?`<div class="muted" style="margin-top:8px;font-size:13px">Возможно, относится</div><div class="ill__chips">${[...new Set(L.maybe.map(x=>x.n))].slice(0,6).map(n=>`<span class="chip chip--maybe">${esc(n)} <button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="linked" style="min-height:44px;min-width:44px">Связать</button><button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="rejected" style="min-height:44px;min-width:44px" aria-label="Не связано">Нет</button></span>`).join("")}</div>`:""}
       ${(()=>{ const rz=razbLoad(()=>{ if(modal.classList.contains("on")) epCard(epId); }), R=rz.rows.filter(r=>symNames.some(n=>r.topic===symTopic(cur,n)));
         return R.length?sec("Разборы — "+R.length,R.map(r=>`<div class="plancard" data-rzopen="${esc(r.topic)}"><div><b>${esc(rzLabel(r.topic))}</b> <span class="muted">· ${ru(String(r.created_at).slice(0,10))}</span><div class="muted" style="font-size:13px">${esc(r.first||"")}</div></div><span class="muted">→</span></div>`).join("")):""; })()}
       ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)); return sec("Приёмы — "+V.length+(V.length>5?" (последние 5)":""),V.length?V.slice(0,5).map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-${r.st==="ok"?"ok":"bad"}" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`); })()}
@@ -6577,6 +6932,7 @@ function epCard(epId){
     const rxChanged=JSON.stringify(rxNow)!==JSON.stringify(ep.rx||[]);
     if(rxChanged){ o.rxSet=o.rxSet||{}; o.rxSet[cur+"|"+ep.id]={list:rxNow,ts}; }
     o.epEdits=[...(o.epEdits||[]),{who:cur,id:ep.id,rec,ts}]; ovSave(o); ovApply(); render();
+    if(trk&&window.__MK_KEY) mkApi("track_end",{person:cur,kind:"illness",ref:ep.id}).then(()=>trkLoad(true)).catch(()=>{});   // закрытая болезнь уходит с главной, записи остаются
     if(rxChanged) inboxSend(TREAT,[today,d.short,ep.id,JSON.stringify(rxNow),String(ts),"нет"]);
     inboxSend(EDITS,[today,d.short,ep.id,ep.d1,"Болезнь целиком",JSON.stringify({id:ep.id,ts}),JSON.stringify({...rec,ts}),"нет"]);
     epCard(ep.id);
@@ -7030,6 +7386,8 @@ function newSymForm(){
     }
     render();
     log("✓ Записано: "+esc(names.join(", ").toLowerCase())+".","ok");
+    { const sg=ok?mergeSuggestion(names[names.length-1],cur,localDay(),DATA[cur].sym.log,(PERIODS||[]).filter(p=>p.person===cur),DATA[cur].sym.ep,illLinksCur(),TASKST[cur]||{}):null;
+      if(sg&&names.length===1){ symMergeShow(document.getElementById("nsMerge"),illMergeBannerHtml(sg,names[0])); return; } }   // вопрос виден сразу, окно к нему прокручено (ТЗ-051 блок 2)
     const af=symFormAfter({ok,range:false,day:dt},DATA[cur].sym.log,DATA[cur].sym.ep,localDay(),cur);
     if(af.offer){ symMergeShow(document.getElementById("nsMerge"),symMergeBanner(cur,dt)); return; }   // окно закроется после ответа (ТЗ-030 блок 3)
     if(ok) setTimeout(closeModal,900); else document.getElementById("nsOk").disabled=false;
@@ -12069,7 +12427,7 @@ function symEpisodes(rows,name,day){
     .sort((a,b)=>String(a.occurred_at||a.occurred_on).localeCompare(String(b.occurred_at||b.occurred_on)));
 }
 // строки блока «Слежу»: legacy — строки старых дневников (homeDiaryRows), trackers — новые слежения; на виду ≤ 3 (В2), остальные в more
-function trackRows(trackers,legacy,symptoms,eps,today,periods){
+function trackRows(trackers,legacy,symptoms,eps,today,periods,titleOf){
   const rows=[];
   for(const r of (legacy||[])){
     const personal=r.form==="grForm"||r.form==="thForm";
@@ -12084,7 +12442,7 @@ function trackRows(trackers,legacy,symptoms,eps,today,periods){
       rows.push({id:"tr:"+t.ref,title:t.title||t.ref,kind:"symptom",symptom:t.title||t.ref,count:k,label:per?`идёт с ${per.started_on.split("-").reverse().slice(0,2).join(".")}`:k?`сегодня ${k}`:(last?`сегодня нет · последний ${last.split("-").reverse().slice(0,2).join(".")}`:"записей пока нет"),btn:"Записать"});
     } else if(t.kind==="illness"){
       const ep=(eps||[]).find(e=>e.id===t.ref); if(!ep||ep.d2) continue;
-      rows.push({id:"tr:"+t.ref,title:ep.dx||t.title||"Болезнь",kind:"illness",ep:ep.id,count:0,label:`день ${rxDays(ep.d1,today)}`,btn:"Записать"});
+      rows.push({id:"tr:"+t.ref,title:(titleOf?titleOf(ep):ep.dx)||t.title||"Болезнь",kind:"illness",ep:ep.id,count:0,label:`день ${rxDays(ep.d1,today)}`,btn:"Записать"});
     }
   }
   return {rows,shown:rows.slice(0,3),more:rows.slice(3)};
@@ -12108,7 +12466,7 @@ function homeTrackHtml(today){
   const defs=DZ.ok[cur]?homeDiaryDefs(DZ.rows[cur],diaryCatalog(),hdBirth(),today):[];
   if(!DZ.data[cur]&&!DZ.dataErr) dzLoadData();
   const D=DZ.data[cur], legacy=defs.length?homeDiaryRows(defs,D?D.entries:[],D?D.sym:[],today):[];
-  const R=trackRows(TRK.rows[cur]||[],legacy,D?D.all:[],((DATA[cur].sym||{}).ep||[]),today,(PERIODS||[]).filter(p=>p.person===cur));
+  const R=trackRows(TRK.rows[cur]||[],legacy,D?D.all:[],((DATA[cur].sym||{}).ep||[]),today,(PERIODS||[]).filter(p=>p.person===cur),ep=>illnessTitleFor(DATA[cur],ep,today));
   if(!R.rows.length) return "";
   const row=r=>`<div class="hdz-row"><button type="button" class="hdz-go" data-trk-go="${esc(r.id)}"><b>${esc(r.title)}</b><span class="muted">${esc(r.label)}</span></button>
     <button type="button" class="btn btn-secondary hdz-btn" data-trk-act="${esc(r.id)}"${!D?" disabled":""}>Записать</button></div>`;
@@ -12449,6 +12807,7 @@ function render(){
     return;
   }
 
+  illLoad();   // решения человека о связях болезней (ТЗ-049)
   const inCard=CARDK.includes(tab);
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
   document.getElementById("nav").innerHTML=navItems(d)
@@ -12479,6 +12838,7 @@ function render(){
     <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition})}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
+      ${signalHtml(signalsNow())}
       ${(()=>{ const HP=homePlan(todoV,today,3);
         if(!HP.total) return `<div class="muted">Запланированных дел нет</div><button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="chk">Что проверить по возрасту</button></div>`;
         return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных дел нет</div>`}
@@ -12507,7 +12867,7 @@ function render(){
 
     <!--B:now-->${has("now")?`<div class="card"><h2>Сейчас</h2>
       ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
-        <div><b>${esc(L.title)}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span><div class="ill-banner__row"><button type="button" class="btn btn-secondary ill-banner__off" data-epdismiss="${esc(e.id)}" title="Болезнь больше не актуальна — убрать из «Сейчас»">Не актуальна</button></div></div>`; }).join("")}
+        <div><b>${esc(illnessTitleFor(d,e,today))}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span><div class="ill-banner__row"><button type="button" class="btn btn-secondary ill-banner__off" data-epdismiss="${esc(e.id)}" title="Болезнь больше не актуальна — убрать из «Сейчас»">Не актуальна</button></div></div>`; }).join("")}
       ${medsNowHtml(d,today)}
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
@@ -12658,7 +13018,7 @@ function render(){
       m.innerHTML=homeAssemble(`
       <button class="back" data-sym="">← Ко всем симптомам</button>
       <div class="card">
-        <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}
+        <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}${signalHtml(signalsNow().filter(x=>symKey(x.name)===symKey(symSel)))}
         ${c.red?`<div class="pill" style="background:var(--bad);margin-bottom:8px">при появлении — к врачу сразу, не дожидаясь записи</div>`:""}
         ${c.why?(()=>{ const w=shortWhy(c.why,140); return `<p class="sym-why">${esc(w.head)}</p>${w.rest?`<details class="sym-more"><summary>Подробнее</summary><p>${esc(w.rest)}</p></details>`:""}`; })():""}
       </div>
@@ -12671,8 +13031,9 @@ function render(){
       <!--B:doc-->${symDoctorsCard(d,symSel,c)}
       <!--B:ai-->${symAiCard(symSel)}${symChatCard(symSel)}${symRazbCard(symSel)}
       <!--B:events-->${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
-      <!--B:povod--><div class="card"><h2>С какими поводами связан <span class="hint" tabindex="0" title="Повод — по какой болезни или причине приходил симптом. Отдельная строка — случаи, когда его просто отмечали и не лечили. Нажмите повод — откроется болезнь." aria-label="Повод — по какой болезни или причине приходил симптом">?</span></h2>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Повод</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
+      <!--B:povod--><div class="card"><h2>С какими болезнями связан <span class="hint" tabindex="0" title="По какой болезни приходил симптом. Отдельная строка — случаи, когда его просто отмечали и не лечили. Нажмите болезнь — она откроется." aria-label="По какой болезни приходил симптом">?</span></h2>
+        ${symIllHtml(symSel)}
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Болезнь</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
         ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
           const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
           return `<tr${g.p?"":' style="background:var(--nonebg)"'}>
