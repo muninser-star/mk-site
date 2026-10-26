@@ -1859,6 +1859,10 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .measgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.measgrid .measrow{flex-direction:column;align-items:stretch;justify-content:space-between;gap:4px;min-height:104px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-1);width:auto}.measgrid .measrow:first-of-type{border-top:1px solid var(--line)}.measgrid .measrow__l{flex-direction:column;flex:0 0 auto;gap:1px}.measgrid .measrow__l .measrow__v{font-size:20px}.measgrid .measrow .sm{align-self:flex-end;margin-top:auto}.meas-urgent{grid-column:1/-1}.meas-more .measgrid{margin-top:8px}
 .hbar{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;color:var(--muted)}.hbar .hdrag{position:static;display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:1;font-size:22px;cursor:grab;touch-action:none}.hbar__n{flex:1;font-size:var(--fs-small);font-weight:600}.hbar .linkbtn{min-height:44px;padding:0 8px;font-size:var(--fs-small)}.hblk .hbar+.card,.hblk .hbar+.hpv2{margin-top:0}.hedit__t{flex:1;font-size:var(--fs-small)}
 .hblk .measgrid .measrow__l{flex-direction:column;flex-wrap:nowrap;align-items:flex-start;gap:1px;width:100%}.hblk .measgrid .measrow__l .measrow__n{font-size:var(--fs-small)}.hblk .measgrid .measrow__l .measrow__v{font-size:20px}.hblk .measgrid .measrow__l .measrow__d{flex:0 0 auto;font-size:var(--fs-small);line-height:1.25}.hblk .measgrid .measrow{min-height:96px}
+.epmore{display:inline-block}.epmore>summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:20px}.epmore>summary::-webkit-details-marker{display:none}
+.thandle{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin-left:-8px;color:var(--muted);font-size:22px;cursor:grab;touch-action:none;user-select:none}.tlist .lrow--tile{position:relative;background:var(--card)}.lrow--tile.tdrag{z-index:3;box-shadow:var(--shadow-lg,0 6px 20px rgba(0,0,0,.2));opacity:.95}.lrow--tile.tdrop{box-shadow:0 -3px 0 0 var(--accent)}.lrow--tile.tdrop-end{box-shadow:0 3px 0 0 var(--accent)}.tmenu{display:inline-block;position:relative}.tmenu>summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}.tmenu>summary::-webkit-details-marker{display:none}.tmenu[open]>.btn{display:block;min-height:44px;margin:2px 0}.tmenu[open]{flex-basis:100%}
+.tlist .lrow--tile{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;min-height:52px;padding:0;border-top:1px solid var(--line)}.tlist .lrow--tile .lrow__n{flex:1 1 0;min-width:0;text-align:left}.tlist .tmenu{border:0;background:none;padding:0;margin:0;box-shadow:none;border-radius:0;flex:0 0 auto}.tlist .tmenu[open]{order:9;flex:1 1 100%;display:flex;gap:8px;padding:0 0 8px 0;align-items:center}.tlist .tmenu[open]>.btn{flex:1}
+.form-actions .epmore{border:0;background:none;padding:0;margin:0;box-shadow:none;border-radius:0;flex:0 0 auto}.form-actions .epmore[open]{flex:1 1 100%}.form-actions .epmore[open]>.btn{display:block;margin-top:6px;min-height:44px;color:var(--bad)}
 </style>
 </head>
 <body>
@@ -2731,7 +2735,8 @@ function histBsHtml(P,today){
         <div class="row" style="gap:10px;margin-top:6px"><span class="eplink" data-epcard="${esc(ep.id)}">Карточка болезни →</span><button type="button" class="linkbtn" data-illrename="${esc(ep.id)}" style="min-height:44px">Переименовать</button><button class="addsym editep" data-ep="${esc(ep.id)}" title="Изменить болезнь">✎</button>${ep.d2?"":`<button type="button" class="btn btn-secondary ep-off" data-epdismiss="${esc(ep.id)}" title="Болезнь больше не актуальна — закрыть">Не актуальна</button>`}</div>
       </div></details>`; });
   const isAct=({ep})=>!ep.d2||ep.d2>=dayShift(today,-30), actI=[],pastI=[]; G.illnesses.forEach((g,i)=>(isAct(g)?actI:pastI).push(ills[i]));
-  const illHtml=actI.join("")+(pastI.length?`<details class="hpast"><summary>Прошлые болезни (${pastI.length})</summary>${pastI.join("")}</details>`:"");
+  const trash=(ovLoad().epDel||[]).filter(x=>x.who===cur);
+  const illHtml=actI.join("")+(pastI.length?`<details class="hpast"><summary>Прошлые болезни (${pastI.length})</summary>${pastI.join("")}</details>`:"")+(trash.length?`<details class="hpast"><summary>Корзина болезней (${trash.length})</summary>${trash.map(x=>`<div class="lrow"><span class="lrow__n">${esc(x.dx||"Болезнь")} <span class="muted">${ru(x.d1)}</span></span><button type="button" class="linkbtn" data-eprestore="${esc(x.id)}" style="min-height:44px">Вернуть</button></div>`).join("")}</details>`:"");
   const freeRows=G.free.map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
     return `<div class="hfree" data-sym="${esc(n)}"><b>${esc(n)}</b><span class="muted">${k?`${k} ${plural(k,"раз","раза","раз")} за 30 дней`:"давно"} · ${L[0]?dd2(L[0].d):""}</span></div>`; });
   const free=freeRows.slice(0,FREE).join("")+(freeRows.length>FREE?`<div class="hmore" hidden>${freeRows.slice(FREE).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё без болезни: ${freeRows.length-FREE} ▸</button>`:"");
@@ -4683,7 +4688,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 16:28";   // подставляется при публикации
+const BUILD="26.10 18:40";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5670,6 +5675,7 @@ function ovApply(){
     const EE=(o.epEdits||[]).filter(x=>x.who===k).sort((a,b)=>(a.ts||0)-(b.ts||0));
     if(EE.length) S.ep=applyEpEdits(S.ep,EE);
     for(const e of S.ep){ const r=(o.rxSet||{})[k+"|"+e.id]; if(r) e.rx=r.list; }
+    S.ep=epsWithoutDeleted(S.ep,o.epDel,k);   // «Удалить болезнь»: скрыта, симптомы и приёмы остались
   }
   for(const k of Object.keys(DATA)){
     const S=DATA[k].sym; if(!S||!S.log) continue;
@@ -7022,15 +7028,50 @@ function medRowHtml(r,btns){
     <div class="muted">${esc(r.text)}</div></div>${btns?`<div class="medrow__act">${btns}</div>`:""}</div>`;
 }
 // плитка «Сейчас» на главной: идущие по названию, назначенные не начатые — строкой-счётчиком, вход в раздел
+// ── Отмена лекарства в итогах приёма (Денис 26.10.2026): правило по ключевым словам, без нейросети; предлагаем, человек подтверждает ──
+// on — принимаемые сейчас [{name}], visits — [{d,who,text}] за последние недели; no — уже отклонённые предложения (ключи «лекарство|дата»)
+function medCancelOffers(on,visits,today,no){
+  const CANCEL=/отмен|не\s+давать|не\s+принимать|не\s+назначать|прекрат|перестал[иа]?\s+дава|перестан|исключит|снят[ьи]\s+с|замен(?:ил|или|ить|а|ён|ена|ено)(?![а-я])/i;
+  const stem=n=>String(n||"").toLowerCase().replace(/ё/g,"е").split(/[^a-zа-я0-9]+/).filter(Boolean)[0]||"", lo=t=>String(t||"").toLowerCase().replace(/ё/g,"е");
+  const from=new Date(Date.parse(today+"T12:00:00Z")-21*864e5).toISOString().slice(0,10), out=[], seen=new Set();
+  for(const v of (visits||[]).filter(v=>v&&v.d&&v.d>=from&&v.d<=today).sort((a,b)=>b.d.localeCompare(a.d))){
+    for(const sent of String(v.text||"").split(/[.;\n]+/)){
+      if(!CANCEL.test(sent)) continue;
+      for(const m of on||[]){ const st=stem(m.name); if(st.length<4) continue;
+        const key=st+"|"+v.d; if(seen.has(st)||(no||{})[key]) continue;
+        if(lo(sent).includes(st.slice(0,Math.max(4,st.length-2)))){ seen.add(st); out.push({name:m.name,stem:st,d:v.d,who:v.who||"Врач",phrase:sent.trim().slice(0,140),key}); } }
+    }
+  }
+  return out;
+}
+function medCancelVisits(who,d){
+  const out=[]; for(const e of ((typeof window!=="undefined"&&window.__entries)||[]).filter(e=>e&&e.person===who&&e.kind==="visit"&&e.status!=="deleted")){ const x=e.data||{}; out.push({d:x.d,who:x.who||x.doc,text:[x.recs,x.rx,x.exam,x.complaints,x.dx].filter(Boolean).join(". ")}); }
+  for(const r of ((d&&d.rec)||[]).filter(r=>r.t==="visit")) out.push({d:r.d,who:r.who,text:[r.rx,r.res,r.title].filter(Boolean).join(". ")});
+  return out;
+}
+function medCancelBannerHtml(d,today){
+  let no={}; try{ no=JSON.parse(localStorage.getItem("mk_medcancel_no")||"{}")||{}; }catch(e){}
+  const g=medStatusGroups(d,"",today), offers=medCancelOffers(g.on,medCancelVisits(cur,d),today,no), dm=x=>String(x).slice(8,10)+"."+String(x).slice(5,7);
+  return offers.map(o=>`<div class="note medcancel" data-mckey="${esc(o.key)}"><div><b>${esc(o.who)} ${dm(o.d)}:</b> ${esc(o.name)} отменён? <span class="muted">«${esc(o.phrase)}»</span></div>
+    <div class="row" style="gap:8px;margin-top:6px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-mcyes="${esc(o.name)}" data-mcd="${esc(o.d)}" data-mck="${esc(o.key)}" style="min-height:44px">Да, прекратить с ${dm(o.d)}</button><button type="button" class="btn btn-secondary" data-mcno="${esc(o.key)}" style="min-height:44px">Нет</button></div></div>`).join("");
+}
+document.addEventListener("click",async e=>{
+  const T=e.target.closest&&e.target.closest("[data-mcyes],[data-mcno]"); if(!T) return;
+  if(T.dataset.mcno){ try{ const o=JSON.parse(localStorage.getItem("mk_medcancel_no")||"{}")||{}; o[T.dataset.mcno]=1; localStorage.setItem("mk_medcancel_no",JSON.stringify(o)); }catch(x){} render(); return; }
+  const name=T.dataset.mcyes, day=T.dataset.mcd, pl=medPlanOf(cur,name)||{};
+  if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+  try{ await mkApi("med_plan_set",{person:cur,key:medKeyOf(name),started:pl.started_on||null,stop:day}); const j=await mkApi("med_plan_list"); MEDPLAN=j.rows||[]; medplanSave(); render(); toast(`${esc(name)}: прекращено с ${ru(day)}`); }
+  catch(x){ toast("Не получилось сохранить, нажмите ещё раз"); }
+});
 function medsNowHtml(d,today){
   const g=medStatusGroups(d,"",today); if(!g.on.length&&!g.plan.length) return "";
-  return (g.on.length?`<div style="margin-top:8px"><b>Принимает:</b> ${g.on.map(r=>{ const pl=medPlanOf(cur,r.name); return `<span class="eplink" data-medname="${esc(r.name)}">${esc(r.label)}</span>${pl&&pl.stop_on?` <span class="muted">(до ${ru(pl.stop_on)})</span>`:""}`; }).join(", ")}</div>`:"")
+  return medCancelBannerHtml(d,today)+(g.on.length?`<div style="margin-top:8px"><b>Принимает:</b> ${g.on.map(r=>{ const pl=medPlanOf(cur,r.name); return `<span class="eplink" data-medname="${esc(r.name)}">${esc(r.label)}</span>${pl&&pl.stop_on?` <span class="muted">(до ${ru(pl.stop_on)})</span>`:""}`; }).join(", ")}</div>`:"")
     +`<button type="button" class="btn btn-secondary btn-block" style="margin-top:8px;min-height:44px" data-t="meds">${g.plan.length?`Назначено, не начали: ${g.plan.length} · `:""}Все лекарства →</button>`;
 }
 function medsScreenHtml(d,today){
   const g=medStatusGroups(d,"",today), none=!g.on.length&&!g.plan.length&&!g.doneTotal&&!g.schemes.length;
   const sec=(t,n,rows,open)=>rows.length?`<h3 class="docgrp">${t} (${n})</h3>${rows}`:"";
-  return `<div class="card"><div class="row medhead" style="justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Лекарства</h2>
+  return medCancelBannerHtml(d,today)+`<div class="card"><div class="row medhead" style="justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Лекарства</h2>
     <button type="button" class="btn btn-primary" data-medadd="1">+ Добавить лекарство</button></div>
     ${none?`<div class="muted" style="margin-top:12px">Лекарств пока нет. Они появятся, когда вы внесёте приём врача или назначение.</div>`:""}
     ${sec("Принимает сейчас",g.on.length,g.on.map(r=>medRowHtml(r)).join(""))}
@@ -7294,7 +7335,7 @@ function measSerAll(p,S){
   return out;
 }
 // S — ответ measures_summary ({last:{weight,bp,height,…:{last,prev}}}); → {rows (на виду ≤4), rest, more}. Вес и давление первые, остальные по свежести; давление старше 90 дней и остальное старше 365 — не показываем
-function measTile(S,today,hidden,ser){
+function measTile(S,today,hidden,ser,order){
   const MEAS_MON=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"], L=(S&&S.last)||{}, H=hidden||[], out=[], fmt=n=>String(n).replace(".",","), tdn=new Date(today+"T12:00:00");
   const age=day=>Math.round((tdn-new Date(day+"T12:00:00"))/864e5);
   const when=day=>{ const a=age(day); if(a<=0) return "сегодня"; if(a===1) return "вчера"; return +day.slice(8,10)+" "+MEAS_MON[+day.slice(5,7)-1]; };
@@ -7311,6 +7352,7 @@ function measTile(S,today,hidden,ser){
   }
   const rank=r=>r.key==="weight"?0:r.key==="bp"?1:2;
   out.sort((a,b)=>rank(a)-rank(b)||(rank(a)===2?String(b.day).localeCompare(String(a.day)):0));
+  const ord=Array.isArray(order)?order:[]; if(ord.length){ const ix=r=>{ const i=ord.indexOf(r.metric||r.key); return i<0?999:i; }; out.sort((a,b)=>ix(a)-ix(b)); }   // свой порядок плиток (стабильно: остальные — по умолчанию)
   return {rows:out.slice(0,4),rest:out.slice(4),more:Math.max(0,out.length-4)};
 }
 // state: объект сводки · 1 — грузится · "err" — не загрузилось. o: {hidden, nutrition}. Нет замеров — пусто (плитка не просит данные)
@@ -7319,7 +7361,7 @@ function measTileHtml(S,today,o){
   if(S==="err") return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><p class="muted" style="margin:0">Замеры не загрузились. Обновите страницу</p></div>`;
   if(S===1) return `<div class="card meastile" aria-busy="true"><div class="meashead"><h2>Замеры</h2></div><div class="meas-skel"></div><div class="meas-skel"></div></div>`;
   if(!S||typeof S!=="object") return "";
-  const T=measTile(S,today,o.hidden,o.ser); if(!T.rows.length&&(o.hidden||[]).length) return "";   // всё скрыто человеком — плитки нет
+  const T=measTile(S,today,o.hidden,o.ser,o.order); if(!T.rows.length&&(o.hidden||[]).length) return "";   // всё скрыто человеком — плитки нет
   if(!T.rows.length) return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><button type="button" class="linkbtn meastile__add" data-measadd="1">Добавить замер</button></div>`;
   const row=r=>`<button type="button" class="measrow" data-measopen="${esc(r.metric||r.key)}"${r.label?` data-measlab="${esc(r.label)}"`:""}${r.unit?` data-measun="${esc(r.unit)}"`:""}>
       <span class="measrow__l"><span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span><span class="measrow__d">${r.delta?esc(r.delta)+" · ":""}${esc(r.when)}</span></span>${r.spark||""}</button>
@@ -7641,6 +7683,20 @@ function epMeds(ep,L,today){
 function epMedCount(ep,L,today){ return epMeds(ep,L,today).length; }
 function epCloseText(ep,today,count){ return `«${ep.dx}» закрыта: ${epSpan({...ep,d2:today},today).text}`+(count?` · лекарств: ${count}`:""); }
 function epMedsEmptyText(){ return "В записях лекарств нет"; }
+// ── Мягкое удаление болезни (Денис 26.10.2026): болезнь скрывается, симптомы, приёмы и лекарства остаются, связь снимается; можно вернуть. Запись в реестре на Маке не трогается ──
+function epsWithoutDeleted(eps,del,who){ const ids=new Set((del||[]).filter(x=>x.who===who).map(x=>x.id)); return ids.size?(eps||[]).filter(e=>!ids.has(e.id)):(eps||[]); }
+function epDelEntry(who,ep,n,ts){ return {who,id:ep.id,dx:ep.dx||"",d1:ep.d1||"",d2:ep.d2||"",n:n||0,ts:ts||Date.now()}; }
+function epDeleteAsk(epId){
+  const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const L=epLinksFinal(d,ep,localDay(),illLinksCur()), n=(L.sym||[]).length+(L.visits||[]).length;
+  confirmDel(`Удалить болезнь «${esc(ep.dx||"Болезнь")}»? Симптомы, приёмы и лекарства останутся (связанных записей: ${n}), связь с болезнью снимется.`,()=>epDeleteDo(epId,n));
+}
+function epDeleteDo(epId,n){
+  const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const o=ovLoad(); o.epDel=[...(o.epDel||[]).filter(x=>!(x.who===cur&&x.id===epId)),epDelEntry(cur,ep,n)]; ovSave(o); ovApply(); closeModal(); render();
+  toast(`Болезнь «${esc(ep.dx||"")}» удалена`,"Вернуть",()=>epRestore(cur,epId));
+}
+function epRestore(who,epId){ const o=ovLoad(); o.epDel=(o.epDel||[]).filter(x=>!(x.who===who&&x.id===epId)); ovSave(o); ovApply(); render(); toast("Болезнь возвращена"); }
 // карточка болезни: сроки, симптомы, приёмы, лекарства — с переходами (ТЗ-004 блоки 5, 11)
 function epCard(epId){
   const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
@@ -7673,7 +7729,7 @@ function epCard(epId){
       ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">${epMedsEmptyText()}</div>`)}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
       ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
-      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button></div>
+      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button><details class="epmore"><summary aria-label="Ещё">⋯</summary><button type="button" class="btn btn-secondary" data-epdel="${esc(ep.id)}">Удалить болезнь</button></details></div>
     </div></div>`;
   const pl=document.getElementById("epPlan"); if(pl) pl.onclick=()=>{ planOpen(null); planEdit.purpose=ep.dx||""; planEdit.specialty=planSpecFor(ep.dx); planDraw(); };
   const eh=document.getElementById("epHome"); if(eh) eh.onchange=()=>homeHideSet(cur,ep.id,!eh.checked);
@@ -9457,7 +9513,7 @@ function homeAssemble(html,saved,key,defaults,hidden){
   for(let i=1;i<parts.length;i+=2) by[parts[i]]=parts[i+1];
   const full=homeOrder(Object.keys(by),saved,defaults).filter(id=>by[id].trim());
   if(key===undefined&&typeof window!=="undefined"){ window.__homeAll=full.slice(); window.__homeAllFor=typeof cur!=="undefined"?cur:""; }   // что на главной есть вообще: из этого строится экран «Настроить главную»
-  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}>${key?`<span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>`:(typeof window!=="undefined"&&window.__homeEdit&&!key?`<div class="hbar"><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hbar__n">${esc(typeof LAYOUT_NAMES!=="undefined"?(LAYOUT_NAMES[id]||id):id)}</span>${id==="meas"||id==="kpi"?`<button type="button" class="linkbtn" data-htiles="${id}">Плитки</button>`:""}${id==="todo"?"":`<button type="button" class="linkbtn" data-hhide="${id}" aria-label="Скрыть блок">Скрыть</button>`}</div>`:"")}${by[id]}</div>`).join("");
+  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}>${key?`<span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>`:(typeof window!=="undefined"&&window.__homeEdit&&!key?`<div class="hbar"><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hbar__n">${esc(typeof LAYOUT_NAMES!=="undefined"?(LAYOUT_NAMES[id]||id):id)}</span>${id==="meas"||id==="kpi"||id==="watch"?`<button type="button" class="linkbtn" data-htiles="${id}">Плитки</button>`:""}${id==="todo"?"":`<button type="button" class="linkbtn" data-hhide="${id}" aria-label="Скрыть блок">Скрыть</button>`}</div>`:"")}${by[id]}</div>`).join("");
 }
 // ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
 // Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
@@ -9572,24 +9628,58 @@ async function layoutTileToggle(wid,id,on){
   const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],hidden_tiles:ht}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
 }
 // ── Плитки внутри карточек (Денис 26.10.2026): «Изменить плитки» — список с переключателями; у карточки здоровья порядок меняется стрелками ──
+function tilesModel(wid){
+  const d=DATA[cur], L=layoutEff(cur), TL=layoutTiles(d,["meas"],MZD[cur]);
+  if(wid==="watch"){ const keys=(FAV[cur]||[]).slice(); return {order:keys,shown:keys,name:k=>k.charAt(0).toUpperCase()+k.slice(1),removable:true}; }
+  const list=wid==="kpi"?TL.kpi:TL.meas, shown=wid==="kpi"?kpiFieldsOf(d,L).filter(l=>list.some(t=>t.id===l)):list.filter(t=>!tileHidden(L,"meas",t.id)).map(t=>t.id);
+  const saved=wid==="meas"?((L.tile_order||{}).meas||[]):[], base=list.map(t=>t.id), ordAll=wid==="kpi"?[...shown,...base.filter(x=>!shown.includes(x))]:[...saved.filter(x=>base.includes(x)),...base.filter(x=>!saved.includes(x))];
+  return {order:ordAll,shown,name:id=>(list.find(t=>t.id===id)||{name:id}).name};
+}
 function tilesBodyHtml(wid){
-  const d=DATA[cur], L=layoutEff(cur), TL=layoutTiles(d,["meas"],MZD[cur]), list=wid==="kpi"?TL.kpi:TL.meas;
-  const shown=wid==="kpi"?kpiFieldsOf(d,L).filter(l=>list.some(t=>t.id===l)):list.filter(t=>!tileHidden(L,"meas",t.id)).map(t=>t.id);
-  const order=wid==="kpi"?[...shown,...list.map(t=>t.id).filter(x=>!shown.includes(x))]:list.map(t=>t.id), nm=id=>(list.find(t=>t.id===id)||{name:id}).name;
-  return `<p class="muted" style="margin:0 0 8px">${wid==="kpi"?"На главной помещается до 4 плиток. Порядок — стрелками.":"Выберите, какие замеры показывать."}</p>`+order.map(id=>{ const on=shown.includes(id), i=shown.indexOf(id);
-    return `<div class="lrow lrow--tile"><span class="lrow__n">${esc(nm(id))}</span>${wid==="kpi"&&on?`<button type="button" class="lmv" data-tmove="${esc(id)}" data-tdir="up" aria-label="Выше"${i===0?" disabled":""}>▲</button><button type="button" class="lmv" data-tmove="${esc(id)}" data-tdir="down" aria-label="Ниже"${i===shown.length-1?" disabled":""}>▼</button>`:""}<label class="lsw"><input type="checkbox" role="switch" data-ltile="${wid}" data-lid="${esc(id)}"${on?" checked":""} aria-label="${esc(nm(id))}"><span class="lsw__t"></span></label></div>`; }).join("");
+  const M=tilesModel(wid), hint=wid==="kpi"?"На главной помещается до 4 плиток. Порядок — перетаскиванием за ⠿.":wid==="watch"?"Порядок — перетаскиванием за ⠿. Добавить показатель — «Выбрать» в карточке.":"Выберите, какие замеры показывать. Порядок — перетаскиванием за ⠿.";
+  return `<p class="muted" style="margin:0 0 8px">${hint}</p><div class="tlist" id="tList">`+M.order.map(id=>{ const on=M.shown.includes(id);
+    const menu=`<details class="tmenu"><summary aria-label="Меню плитки ${esc(M.name(id))}">⋯</summary><button type="button" class="btn btn-secondary" data-tmove="${esc(id)}" data-tdir="up">Выше</button><button type="button" class="btn btn-secondary" data-tmove="${esc(id)}" data-tdir="down">Ниже</button></details>`;
+    const sw=M.removable?`<button type="button" class="linkbtn" data-favrm="${esc(id)}" style="min-height:44px">Убрать</button>`:`<label class="lsw"><input type="checkbox" role="switch" data-ltile="${wid}" data-lid="${esc(id)}"${on?" checked":""} aria-label="${esc(M.name(id))}"><span class="lsw__t"></span></label>`;
+    return `<div class="lrow lrow--tile" data-tid="${esc(id)}"><span class="thandle" role="button" tabindex="0" aria-label="Перетащить: ${esc(M.name(id))}">⠿</span><span class="lrow__n">${esc(M.name(id))}</span>${menu}${sw}</div>`; }).join("")+`</div>`;
 }
 function tilesOpen(wid){
   modal.className="modal on"; modal.dataset.tiles=wid;
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>${wid==="kpi"?"Плитки карточки здоровья":"Плитки замеров"}</h2><div id="tilesBody">${tilesBodyHtml(wid)}</div><div class="row"><button type="button" class="btn btn-primary" data-close style="min-height:44px">Готово</button></div></div>`;
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>${wid==="kpi"?"Плитки карточки здоровья":wid==="watch"?"Ключевые показатели":"Плитки замеров"}</h2><div id="tilesBody">${tilesBodyHtml(wid)}</div><div class="row"><button type="button" class="btn btn-primary" data-close style="min-height:44px">Готово</button></div></div>`;
 }
 function tilesRedraw(){ const b=document.getElementById("tilesBody"); if(b&&modal.dataset.tiles) b.innerHTML=tilesBodyHtml(modal.dataset.tiles); }
-async function tilesMove(id,dir){
-  const d=DATA[cur], L=layoutEff(cur), cur0=kpiFieldsOf(d,L).slice(), i=cur0.indexOf(id), j=dir==="up"?i-1:i+1; if(i<0||j<0||j>=cur0.length) return;
-  [cur0[i],cur0[j]]=[cur0[j],cur0[i]];
-  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:cur0}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
+// сохранить новый порядок плиток: kpi — порядок выбранных; meas — tile_order на сервере; watch — на устройстве
+async function tilesSaveOrder(wid,ids){
+  const d=DATA[cur], L=layoutEff(cur);
+  if(wid==="watch"){ FAV[cur]=ids.slice(); favSave(); render(); tilesRedraw(); return; }
+  if(wid==="kpi"){ const shown=kpiFieldsOf(d,L).filter(x=>ids.includes(x)), next=ids.filter(x=>shown.includes(x));
+    const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:next}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw(); return; }
+  const to=Object.assign({},L.tile_order||{}, {meas:ids.slice()});
+  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],tile_order:to}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
 }
+function tilesMoveIds(ids,id,dir){ const i=ids.indexOf(id), j=dir==="up"?i-1:i+1; if(i<0||j<0||j>=ids.length) return ids; const a=ids.slice(); [a[i],a[j]]=[a[j],a[i]]; return a; }
+async function tilesMove(id,dir){ const wid=modal.dataset.tiles; if(!wid) return; const M=tilesModel(wid), next=tilesMoveIds(M.order,id,dir); if(next!==M.order) await tilesSaveOrder(wid,next); }
+// перетаскивание плитки за ⠿: подсветка места вставки, прокрутка у края окна; на телефоне работает по касанию ручки
+document.addEventListener("pointerdown",e=>{
+  const h=e.target.closest&&e.target.closest(".thandle"); if(!h||!modal.dataset.tiles) return;
+  const row=h.closest(".lrow--tile"), box=row.parentElement, wid=modal.dataset.tiles, y0=e.clientY, scroller=modal.querySelector(".mbox")||modal;
+  e.preventDefault(); row.classList.add("tdrag"); try{ h.setPointerCapture(e.pointerId); }catch(x){}
+  let tgt=null, sc=0, timer=setInterval(()=>{ if(sc) scroller.scrollTop+=sc; },16);
+  const rows=()=>[...box.querySelectorAll(":scope>.lrow--tile")];
+  const move=ev=>{
+    row.style.transform=`translateY(${ev.clientY-y0}px)`;
+    const others=rows().filter(r=>r!==row); others.forEach(r=>r.classList.remove("tdrop"));
+    tgt=others.find(r=>{ const b=r.getBoundingClientRect(); return ev.clientY<b.top+b.height/2; })||null; if(tgt) tgt.classList.add("tdrop"); else if(others.length) others[others.length-1].classList.add("tdrop-end");
+    const sb=scroller.getBoundingClientRect(); sc=ev.clientY<sb.top+50?-8:ev.clientY>sb.bottom-50?8:0;
+  };
+  const up=()=>{ clearInterval(timer); document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); document.removeEventListener("pointercancel",up);
+    row.classList.remove("tdrag"); row.style.transform=""; rows().forEach(r=>r.classList.remove("tdrop","tdrop-end"));
+    box.insertBefore(row,tgt); const ids=rows().map(r=>r.dataset.tid), M=tilesModel(wid); if(JSON.stringify(ids)!==JSON.stringify(M.order)) tilesSaveOrder(wid,ids); };
+  document.addEventListener("pointermove",move); document.addEventListener("pointerup",up); document.addEventListener("pointercancel",up);
+});
+document.addEventListener("click",e=>{ const r=e.target.closest&&e.target.closest("[data-favrm]"); if(r){ FAV[cur]=(FAV[cur]||[]).filter(k=>k!==r.dataset.favrm); favSave(); render(); tilesRedraw(); } });
 document.addEventListener("click",e=>{
+  const dl=e.target.closest&&e.target.closest("[data-epdel]"); if(dl){ epDeleteAsk(dl.dataset.epdel); return; }
+  const rs=e.target.closest&&e.target.closest("[data-eprestore]"); if(rs){ epRestore(cur,rs.dataset.eprestore); return; }
   const t=e.target.closest&&e.target.closest("[data-hedit],[data-htiles],[data-hhide],[data-tmove]"); if(!t) return;
   if(t.dataset.hedit==="on"){ window.__homeEdit=true; render(); return; }
   if(t.dataset.hedit==="done"){ window.__homeEdit=false; render(); return; }
@@ -13771,7 +13861,7 @@ function render(){
     layoutLoad(cur); const LAY=layoutEff(cur), LP=layoutForPage(LAY);
     m.innerHTML=homeAssemble(`
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2>${window.__homeEdit?`<span class="muted hedit__t">Править главную</span><button type="button" class="linkbtn" data-hedit="all" style="min-height:44px">Все блоки</button><button type="button" class="btn btn-primary" data-hedit="done" style="min-height:44px">Готово</button>`:`<button type="button" class="lgear" data-hedit="on" aria-label="Править главную" title="Править главную">⚙</button>`}</div>
-    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today))})}
+    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today)),order:(LAY.tile_order&&LAY.tile_order.meas)||[]})}
 
     <!--B:weight-->${weightHome(d)}
 
