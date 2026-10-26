@@ -1818,6 +1818,33 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .th-note{margin:-4px 0 12px}
 .th-sl{display:grid;grid-template-columns:minmax(90px,auto) 1fr 3ch;gap:10px;align-items:center;min-height:44px;font:400 14px/20px var(--font)}
 .th-sl input{width:100%;min-height:44px;accent-color:var(--accent)} .th-sl output{text-align:right;font-weight:600}
+
+/* ── Главная плотнее (Денис 26.10.2026): общие токены в одном месте, действуют на карточках главной (.hblk) ── */
+:root{--fs-title:16px;--fs-body:14px;--fs-small:12.5px;--gap-card:10px;--pad-card:12px}
+.hblk>.card,.hblk>.hpv2{padding:var(--pad-card);margin-bottom:var(--gap-card);border-radius:16px;font-size:var(--fs-body);line-height:1.3}
+.hblk h2,.hblk .card>h2,.hblk .card h2{font-size:var(--fs-title);line-height:1.3;margin:0 0 6px;padding-right:0}
+.hblk .muted,.hblk .plan-sum,.hblk .hpv2__miss,.hblk .reco__foot{font-size:var(--fs-small);line-height:1.3}
+.hblk .plan-sum{margin:-2px 0 6px;padding-right:0}
+.hblk .plan-list{gap:6px}
+.hblk .addcal.plan-row{padding:8px 8px 8px 10px;gap:10px;border-radius:12px;min-height:56px}
+.hblk .addcal.plan-row .addcal__date{width:42px;min-height:40px;padding:2px 0;border-radius:10px}
+.hblk .addcal.plan-row .addcal__date span{font-size:10px;line-height:12px}.hblk .addcal.plan-row .addcal__date b{font-size:15px;line-height:17px}
+.hblk .addcal.plan-row .addcal__date b.addcal__w{font-size:10px;line-height:12px}
+.hblk .addcal.plan-row .addcal__info{flex:1 1 0}
+.hblk .addcal.plan-row .plan-line1{flex-direction:row;flex-wrap:wrap;gap:2px 6px;align-items:baseline}
+.hblk .addcal.plan-row .plan-line1 .plan-chip{padding:0 6px;font:600 10px/16px var(--font);border-radius:8px}
+.hblk .addcal.plan-row .addcal__info b.plan-title{font:600 var(--fs-body)/1.3 var(--font);-webkit-line-clamp:2;flex:1 1 140px}
+.hblk .addcal.plan-row .plan-sub,.hblk .addcal.plan-row .plan-stline{font:400 var(--fs-small)/1.3 var(--font);margin-top:1px;-webkit-line-clamp:1}
+.hblk .addcal.plan-row .plan-cal{display:none}
+.hblk .addcal.plan-row .plan-done{min-width:44px;min-height:44px;width:44px;padding:0;border:0;background:none}
+.plan-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}.plan-foot .linkbtn{min-height:44px;padding:0 2px;font-size:var(--fs-body)}.plan-foot .plan-more{color:var(--muted);font-size:var(--fs-small)}
+.hblk .meastile{padding:var(--pad-card)}.hblk .meashead{min-height:0}.hblk .measplus{min-width:44px;min-height:44px;margin:-8px -8px -8px 0;border:0;background:none;font-size:22px}
+.hblk .measrow{min-height:48px;padding:2px 0}.hblk .measrow__l{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:0 8px}.hblk .measrow__l .measrow__n{font-size:var(--fs-small);flex:0 0 auto}.hblk .measrow__l .measrow__v{font-size:17px;flex:0 0 auto}.hblk .measrow__l .measrow__d{font-size:var(--fs-small);flex:1 1 100%}
+.hblk .hpv2__n,.hblk .kpi__val{font-size:22px}.hblk .kpi{padding:8px 10px}.hblk .kpi__lab,.hblk .kpi__sub{font-size:var(--fs-small)}
+.hblk .reco__t{font-size:var(--fs-body)}.hblk .reco__it{padding:8px 0}.hblk .reco__btns{margin-top:4px}
+.hblk .hblk .ill-banner b{font-size:var(--fs-body)}
+.hblk .ill-banner b{font:600 var(--fs-body)/1.3 var(--font)}.hblk .ill-banner span{font-size:var(--fs-small)}
+.hblk .watchtile__v{font-size:20px}
 </style>
 </head>
 <body>
@@ -4641,7 +4668,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 11:02";   // подставляется при публикации
+const BUILD="26.10 14:25";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -12208,6 +12235,13 @@ function planGroups(list,today,limit){
   return [["overdue","Просрочено"],["soon","Скоро"],["later","Позже"],["nodate","Нужно уточнить срок"]].map(([g,title])=>({group:g,title,items:cut.filter(r=>r.group===g).map(r=>Object.assign(r.x,{_g:r}))})).filter(g=>g.items.length);
 }
 function ruDayMonth(t,days){ const RU_GEN=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"], d=new Date(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)+days); const y=d.getFullYear()!==+t.slice(0,4)?" "+d.getFullYear():""; return `${d.getDate()} ${RU_GEN[d.getMonth()]}${y}`; }
+// «6 действий · ближайшее 22.11» — коротко, для главной
+function planSummaryShort(list,today){
+  const n=list.length, rows=list.map(x=>taskGroup(x,today)).filter(g=>g.days!=null&&g.days>=0).map(g=>g.days), head=`${n} ${plural(n,"действие","действия","действий")}`;
+  if(!rows.length) return head;
+  const d=new Date(+today.slice(0,4),+today.slice(5,7)-1,+today.slice(8,10)+Math.min(...rows));
+  return `${head} · ближайшее ${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}`;
+}
 function planSummary(list,today){
   const n=list.length, rows=list.map(x=>taskGroup(x,today)).filter(g=>g.days!=null&&g.days>=0).map(g=>g.days);
   const head=`${n} ${plural(n,"предстоящее действие","предстоящих действия","предстоящих действий")}`;
@@ -13668,9 +13702,8 @@ function render(){
       ${signalHtml(signalsNow())}
       ${(()=>{ const HP=homePlan(todoV,today,3);
         if(!HP.total) return `<div class="muted">Запланированных дел нет</div><button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="chk">Что проверить по возрасту</button></div>`;
-        return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных дел нет</div>`}
-        ${HP.hiddenNoDate?`<button type="button" class="linkbtn plan-more" data-t="todo" style="min-height:44px">Ещё ${HP.hiddenNoDate} без срока</button>`:""}
-        <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Весь план (${HP.total}) →</button></div>`; })()}
+        return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummaryShort(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных дел нет</div>`}
+        <div class="plan-foot"><button class="linkbtn" data-t="todo">Весь план (${HP.total}) →</button>${HP.hiddenNoDate?`<button type="button" class="linkbtn plan-more" data-t="todo">Ещё ${HP.hiddenNoDate} без срока</button>`:""}</div></div>`; })()}
 
     <!--B:reco-->${recoHome()}
 
