@@ -4103,7 +4103,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 05:19";   // подставляется при публикации
+const BUILD="26.10 05:26";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6909,7 +6909,7 @@ function epCard(epId){
       ${sp.open?signalHtml(signalsNow().filter(x=>symNames.some(n=>symKey(n)===symKey(x.name)))):""}
       <div class="ill__head"><div><h3 class="ill__title">${esc(ttl)}</h3><div class="ill__dates">${ru(ep.d1)}${ep.d2?" — "+ru(ep.d2):""} · ${sp.text}</div><button type="button" class="linkbtn" data-illrename="${esc(ep.id)}" style="min-height:44px">Переименовать</button></div>
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
-      ${sp.open?`<button type="button" class="btn ${trk?"btn-secondary":"btn-primary"} ill-follow" data-illfollow="${esc(ep.id)}" aria-pressed="${!!trk}" style="min-height:44px;margin:8px 0 0">${trk?"Слежу на главной · выключить":"Следить на главной"}</button>`:`<div class="muted" style="margin-top:6px">Слежение выключено: болезнь закончилась</div>`}
+      ${sp.open?`<button type="button" class="btn btn-secondary ill-follow" data-illfollow="${esc(ep.id)}" aria-pressed="${!!trk}" style="min-height:44px;margin:8px 0 0">${trk?"Перестать следить":"Следить на главной"}</button>`:`<div class="muted" style="margin-top:6px">Слежение выключено: болезнь закончилась</div>`}
       <div class="ill__sec">Симптомы — ${symNames.length} <button type="button" class="linkbtn" data-illadd="${esc(ep.id)}" style="min-height:44px;font-weight:600">+ Симптом</button></div>
       ${symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span>`).join("")}</div>`:`<div class="muted">К болезни пока ничего не добавлено. Нажмите «+ Симптом»</div>`}
       ${L.maybe.length?`<div class="muted" style="margin-top:8px;font-size:13px">Возможно, относится</div><div class="ill__chips">${[...new Set(L.maybe.map(x=>x.n))].slice(0,6).map(n=>`<span class="chip chip--maybe">${esc(n)} <button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="linked" style="min-height:44px;min-width:44px">Связать</button><button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="rejected" style="min-height:44px;min-width:44px" aria-label="Не связано">Нет</button></span>`).join("")}</div>`:""}
@@ -7387,7 +7387,7 @@ function newSymForm(){
     render();
     log("✓ Записано: "+esc(names.join(", ").toLowerCase())+".","ok");
     { const sg=ok?mergeSuggestion(names[names.length-1],cur,localDay(),DATA[cur].sym.log,(PERIODS||[]).filter(p=>p.person===cur),DATA[cur].sym.ep,illLinksCur(),TASKST[cur]||{}):null;
-      if(sg&&names.length===1){ symMergeShow(document.getElementById("nsMerge"),illMergeBannerHtml(sg,names[0])); return; } }   // вопрос виден сразу, окно к нему прокручено (ТЗ-051 блок 2)
+      if(sg&&names.length===1){ symMergeShow(document.getElementById("nsMerge"),illMergeBannerHtml(sg,names[0])); const okb=document.getElementById("nsOk"); if(okb) okb.hidden=true; const cb=modal.querySelector(".row [data-close]"); if(cb) cb.textContent="Готово"; return; } }   // вопрос виден сразу, окно к нему прокручено (ТЗ-051 блок 2)
     const af=symFormAfter({ok,range:false,day:dt},DATA[cur].sym.log,DATA[cur].sym.ep,localDay(),cur);
     if(af.offer){ symMergeShow(document.getElementById("nsMerge"),symMergeBanner(cur,dt)); return; }   // окно закроется после ответа (ТЗ-030 блок 3)
     if(ok) setTimeout(closeModal,900); else document.getElementById("nsOk").disabled=false;
@@ -13033,7 +13033,7 @@ function render(){
       <!--B:events-->${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
       <!--B:povod--><div class="card"><h2>С какими болезнями связан <span class="hint" tabindex="0" title="По какой болезни приходил симптом. Отдельная строка — случаи, когда его просто отмечали и не лечили. Нажмите болезнь — она откроется." aria-label="По какой болезни приходил симптом">?</span></h2>
         ${symIllHtml(symSel)}
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Болезнь</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
+        <details class="sym-more"><summary>По записям</summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Болезнь</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
         ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
           const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
           return `<tr${g.p?"":' style="background:var(--nonebg)"'}>
@@ -13042,7 +13042,7 @@ function render(){
             <td style="text-align:center"><b>${g.list.length}</b></td>
             <td class="muted">${per}</td>
             <td class="muted">${medLinks(meds)}</td></tr>`;}).join("")}
-        </tbody></table></div>
+        </tbody></table></div></details>
         ${dxs.length?`<details class="sym-dx"><summary>Диагнозы по этой системе — ${dxs.length}</summary>
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
           ${dxs.map(x=>`<tr class="dxrow" data-sys="${esc(x.sys||"")}"><td><b>${esc(x.n)}</b></td>
@@ -13480,13 +13480,14 @@ function render(){
         </div>
         ${(()=>{ const T=taskDates(a), L=[T.due].filter(Boolean); return L.length?`<div class="muted taskdates" style="margin-bottom:8px">${L.map(esc).join("<br>")}</div>`:""; })()}
         ${(()=>{ const s=taskShort(a.t); return `<h2 class="taskh">${esc(s.title)}</h2>${s.detail?`<div class="taskdet">${esc(s.detail)}</div>`:""}${a.ask?`<div class="taskask">${esc(a.ask)}</div>`:""}`; })()}
+        ${(()=>{ const V=vacActionFor(a); if(!V) return ""; const done=vacRecentFor(window.__entries,cur,V.inf,localDay());
+          return `<div class="vacact" style="margin-top:10px"><button type="button" class="btn btn-primary" data-vacplan="${esc(V.inf)}" style="min-height:44px">Записать прививку</button>${done?`<div class="note" style="margin-top:8px">Прививка записана — можно отметить дело готовым</div>`:""}</div>`; })()}
         ${(()=>{ const ts=taskState(cur,a.t), tm=new Date(Date.now()+864e5*14); const def=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,"0")}-${String(tm.getDate()).padStart(2,"0")}`;
           return ts?`<div class="note" style="margin-top:12px">${ts.s==="done"?"Отмечено как готово — на главной не показывается.":taskNotNeeded(ts)?"Убрано из плана — на главной не показывается. Это не значит, что сделано.":"Напомню с "+ru(ts.until)+" — до этого на главной не показывается."}</div>
             <button class="btn btn-secondary" data-tsk="clear" style="margin-top:8px">Вернуть в план</button>`
-          :`<div class="row taskact"><button class="btn btn-primary" data-tsk="done">Готово</button>
+          :`<div class="row taskact"><button class="btn ${vacActionFor(a)?"btn-secondary":"btn-primary"}" data-tsk="done">Готово</button>
             <span class="muted">или напомнить с</span><input type="date" id="tskDate" value="${def}" aria-label="Напомнить с даты"><button class="btn btn-secondary" data-tsk="snooze">Напомнить</button><button class="btn btn-secondary" data-tsk="never">Убрать из плана</button></div>`; })()}
-        ${(()=>{ const V=vacActionFor(a); if(!V) return ""; const done=vacRecentFor(window.__entries,cur,V.inf,localDay());
-          return `<div class="vacact" style="margin-top:10px"><button type="button" class="btn btn-secondary" data-vacplan="${esc(V.inf)}" style="min-height:44px">Записать прививку</button>${done?`<div class="note" style="margin-top:8px">Прививка записана — можно отметить дело готовым</div>`:""}</div>`; })()}
+
         ${a.urgent?`<div class="taskurgent"><b>Не ждать, если:</b> ${esc(a.urgent)}</div>`:""}
         ${(()=>{ const nw=taskNewerFor(a), why=a.why||a.w, fl=(a.facts||[]), st=(a.steps||[]);
           if(!why&&!fl.length&&!nw.length&&!st.length) return "";
