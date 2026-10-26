@@ -113,6 +113,9 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hpv2__row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:12px}.hpv2__n{line-height:1.1;text-align:left}.hpv2__info{margin-top:6px}.hpv2__info>summary{display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;cursor:pointer;color:var(--accent);list-style:none;font-weight:700}.hpv2__info>summary::-webkit-details-marker{display:none}
 .watchhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:34px}.watchhead h2{margin:0}
 .meashead{display:flex;align-items:center;justify-content:space-between;gap:8px}.meashead h2{margin:0}.measplus{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-size:24px;line-height:1;cursor:pointer}.measrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}.measrow:first-of-type{border-top:0}.measrow__n{flex:0 0 96px;color:var(--muted)}.measrow__v{flex:1 1 auto;min-width:0}.measrow__d{color:var(--muted);font-size:14px}.measrow__w{font-size:13px;white-space:nowrap}.meas-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.meas-urgent{margin:0 0 8px;background:var(--badbg,#fdecea);color:var(--bad)}.meas-skel{height:44px;margin-top:6px;border-radius:8px;background:var(--line);opacity:.5}@media (prefers-reduced-motion:no-preference){.meas-skel{animation:measpulse 1.4s ease-in-out infinite}}@keyframes measpulse{50%{opacity:.25}}
+.lgear{flex:none;min-width:44px;min-height:44px;border:0;background:none;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}.phead--home{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hpv2{padding:16px}.hpv2__h{justify-content:flex-start}.hpv2__h b{font-size:16px}.hpv2__i{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-10px 0 -10px -6px;border:0;background:none;cursor:pointer}.hpv2__i span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1.5px solid var(--muted);border-radius:50%;color:var(--muted);font:600 13px/1 var(--font)}.hpv2__miss{font-size:14px;margin-top:2px}.hpv2__note{font-size:13px;margin-top:6px}.hpv2 .hpv2__go{display:flex;justify-content:flex-start;text-align:left;min-height:44px;height:auto;padding:0;margin-top:2px;font-size:14px;color:var(--accent)}.hpv2__n{font-size:28px}
+.hblk .ill-banner{background:none;border-radius:0;padding:10px 0 4px;border-top:1px solid var(--line);gap:4px 12px}.hblk .ill-banner:hover{transform:none}.hblk .ill-banner:first-of-type{border-top:0;padding-top:0}.hblk .ill-banner+.ill-banner{margin-top:0}.hblk .ill-banner__dot{animation:none}.hblk .ill-banner__row{padding-left:22px;margin-top:-2px}.hblk .ill-banner .ill-banner__off{height:auto;min-height:44px;padding:0 4px;background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;box-shadow:none}
 .measrow{display:flex;align-items:center;flex-wrap:nowrap;justify-content:space-between;gap:12px}.measrow__l{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}.measrow__l .measrow__n{flex:none;font-size:14px}.measrow__l .measrow__v{flex:none;font-size:18px}.measrow__l .measrow__d{font-size:13px}.sm{flex:none;display:block}.sm__l{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.sm__d{fill:var(--accent)}.sm__band{fill:var(--line);opacity:.5}.mrange{margin:4px 0 8px}.mrange button{min-height:44px}.meastile__add{min-height:44px;padding:0}
 #vacCard .tbl td:first-child{width:36%;min-width:104px;overflow-wrap:normal;word-break:normal;hyphens:manual}#vacCard .tbl td:nth-child(3){white-space:nowrap}.signal{padding:6px 0}.sigrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.signals{border-bottom:1px solid var(--line);margin-bottom:8px}.illmerge{margin:8px 0}.illmerge .row .btn{flex:1 1 0;min-width:0}.illsel__foot{position:sticky;bottom:0;background:var(--card);padding:8px 0;gap:8px;display:flex}.illsel__foot .btn{flex:1 1 0;min-width:0}.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .illrow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 10px;min-height:44px;padding:4px 0;border-top:1px solid var(--line)}.illrow:first-child{border-top:0}.illrow__b{display:flex;gap:8px}.illrow__b .btn{min-height:44px;padding:0 12px}.chip--maybe{display:inline-flex;align-items:center;gap:2px}.ill-follow{width:100%}
@@ -735,7 +738,7 @@ body.sv-lock{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.sv__bar i{transition:none}}
 .hpnext__h{display:flex;justify-content:space-between;align-items:baseline}.hpnext__p{color:var(--accent);font-weight:700}
 .hpsrc{padding:3px 0}.hpok{color:var(--ok);font-weight:700}.hpno{color:var(--muted)}
-.hmove{display:none}.hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}@media (pointer:coarse){.hdrag{display:none}.hmove{display:flex;flex-direction:column;position:absolute;top:4px;right:4px;z-index:3}.hmove button{width:44px;height:30px;border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hblk>.card>h2:first-child{padding-right:52px}.hblk>.hpv2 .hpv2__body{padding-right:44px}}
+.hmove{display:none}.hblk{position:relative}.hdrag{position:absolute;top:6px;right:10px;z-index:2;cursor:grab;touch-action:none;user-select:none;color:var(--muted);opacity:.55;font-size:18px;line-height:1;padding:4px 6px}.hdrag:hover{opacity:1}@media (pointer:coarse){.hdrag{display:none}.hmove{display:flex;flex-direction:column;position:absolute;top:4px;right:4px;z-index:3}.hmove button{width:44px;height:30px;border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hblk[data-ord]>.card>h2:first-child{padding-right:52px}.hblk[data-ord]>.hpv2 .hpv2__body{padding-right:44px}}
 @media (pointer:none){.hdrag{top:0;right:0;width:48px;height:48px;padding:0;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.8;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}}.hblk.hdragging{opacity:.6;outline:2px dashed var(--accent)}
 .favstar{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 6px;vertical-align:middle}.favstar.on{color:#f5a623}
 .favrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.favrow:first-child{border-top:0;padding-top:0}
@@ -1517,8 +1520,8 @@ nav.tabs#nav{padding-left:max(16px,calc((100% - 1120px)/2 + 16px));padding-right
   body.kb .bottombar{display:none}
   .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
   .bottombar button{flex:1 1 0;min-width:0;padding:6px 2px}
-  main{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
-  .verline{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  main{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+  .verline{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   body.kb main,body.kb .verline{padding-bottom:16px}
   #addBtn{display:none}
   #q{order:10;flex:1 1 100%;display:none}
@@ -1533,7 +1536,7 @@ nav.tabs#nav{padding-left:max(16px,calc((100% - 1120px)/2 + 16px));padding-right
   .who-wrap.open #who{display:flex}
   .who-wrap #who button{text-align:left;padding:10px 12px}
   .app-header .pop-anchor{margin-left:auto}
-  .phead--home{display:none}
+  .phead--home{justify-content:flex-end;margin:0 0 4px}.phead--home h2{display:none}
 }
 @media print{.app-header,.bottombar,.drawer-overlay,nav.tabs{display:none!important}main,.verline{padding-bottom:0!important}}
 /* верхняя полоса вкладок не показывается на телефоне (ТЗ-011 блок 3) */
@@ -4468,7 +4471,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 09:59";   // подставляется при публикации
+const BUILD="26.10 10:06";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8911,11 +8914,12 @@ function hpTileLines(m){
   return {main,missing:m.missing.length?`Мало данных: ${sh.join(", ")}${more>0?` и ещё ${more}`:""}`:""};
 }
 function hpTile(d){ const hm=hpModel(d), m=hpTileModel(hm.covs.map(c=>c.score),ORGANS), L=hpTileLines(m);
+  const low=t=>String(t||"").replace(/^(Мало данных: )(.)/,(x,a,c)=>a+c.toLowerCase()).replace(/, ([А-ЯЁ])(?![А-ЯЁ])/g,(x,c)=>", "+c.toLowerCase());
   return `<div class="card hpv2" aria-label="Профиль здоровья${hm.wait?"":": "+hm.pct+"%"}, ${esc(L.main)}"><div class="hpv2__row"><div class="hpv2__n">${hm.wait?"…":hm.pct+"%"}</div>
-    <div class="hpv2__body"><div class="hpv2__h"><b>Профиль здоровья</b></div>
-    <div class="hpv2__main">${esc(L.main)}</div>${L.missing?`<div class="muted hpv2__miss">${esc(L.missing)}</div>`:""}</div></div>
-    <details class="hpv2__info"><summary aria-label="Как считается число">i</summary><div class="muted hpv2__note">Число — полнота профиля: до 70 % дают свежие анализы и осмотры по органам, ещё 30 % — личные данные и анкета. Это не оценка здоровья.</div></details>
-    <button class="btn btn-secondary hpv2__go" type="button" data-hpjump="1">Что и где не хватает →</button></div>`; }
+    <div class="hpv2__body"><div class="hpv2__h"><b>Профиль заполнен${hm.wait?"":" на "+hm.pct+" %"}</b><button type="button" class="hpv2__i" data-hpinfo="1" aria-expanded="false" aria-label="Как считается число"><span>i</span></button></div>
+    ${L.missing?`<div class="muted hpv2__miss">${esc(low(L.missing))}</div>`:""}
+    <div class="muted hpv2__note" hidden>Число — полнота профиля: до 70 % дают свежие анализы и осмотры по органам, ещё 30 % — личные данные и анкета. Это не оценка здоровья.</div>
+    <button class="linkbtn hpv2__go" type="button" data-hpjump="1">Чего не хватает →</button></div></div></div>`; }
 // ── История добавлений (ТЗ-022 блок 1, личная версия): всё, что добавлено с сайта — источник, дата, состояние ──
 // «Ждёт внесения» — запись уже видна в книжке, но ещё не внесена в медкарту; «Внесено» — уже там (показываем 30 дней).
 function historyItems(rows,who,skip){
@@ -9072,6 +9076,7 @@ function hpClick(e){
   const sg=e.target.closest&&e.target.closest("[data-svgo]"); if(sg&&!document.getElementById("svov")){ svOpen(cur,sg.dataset.svgo); return; }
   if(e.target.closest&&e.target.closest("[data-svres]")){ svOpen(cur,"base"); SVU.view="results"; svDraw(); return; }
   if(e.target.closest&&e.target.closest("[data-svtake]")){ svOpen(cur,"base"); SVU.view="take"; svDraw(); return; }
+  const hi=e.target.closest&&e.target.closest("[data-hpinfo]"); if(hi){ const n=hi.closest(".hpv2").querySelector(".hpv2__note"); n.hidden=!n.hidden; hi.setAttribute("aria-expanded",String(!n.hidden)); return; }
   if(e.target.closest("[data-hpjump]")){ hpOrgan=null; goTab("hp"); render(); setTimeout(()=>{ const c=document.getElementById("hpOrgans"); if(c) c.scrollIntoView({block:"start",behavior:"smooth"}); else window.scrollTo({top:0}); },60); return true; }
   const op=e.target.closest("[data-hpopen]"); if(op){ e.preventDefault(); hpOrgan=op.dataset.hpopen; goTab("hp"); render(); window.scrollTo({top:0}); return true; }
   const o=e.target.closest("[data-hporg]"); if(o){ hpOrgan=o.dataset.hporg||null; render(); window.scrollTo({top:0}); return true; }
@@ -9093,7 +9098,7 @@ function homeAssemble(html,saved,key,defaults,hidden){
   for(let i=1;i<parts.length;i+=2) by[parts[i]]=parts[i+1];
   const full=homeOrder(Object.keys(by),saved,defaults).filter(id=>by[id].trim());
   if(key===undefined&&typeof window!=="undefined"){ window.__homeAll=full.slice(); window.__homeAllFor=typeof cur!=="undefined"?cur:""; }   // что на главной есть вообще: из этого строится экран «Настроить главную»
-  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}><span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>${by[id]}</div>`).join("");
+  return head+full.filter(id=>!(hidden||[]).includes(id)).map(id=>`<div class="hblk" data-blk="${id}"${key?` data-ord="${key}"`:""}>${key?`<span class="hdrag" title="Перетащить блок" aria-label="Перетащить блок">⠿</span><span class="hmove"><button type="button" data-hmove="up" aria-label="Блок выше">▲</button><button type="button" data-hmove="down" aria-label="Блок ниже">▼</button></span>`:""}${by[id]}</div>`).join("");
 }
 // ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
 // Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
@@ -13335,8 +13340,7 @@ function render(){
     const sug=watchRows.length?[]:suggestWatch(rows.filter(r=>!/сон|засыпани|шаг|среднее|в день/i.test(r.n)),3);   // ряды сна и шагов — не анализы
     layoutLoad(cur); const LAY=layoutEff(cur), LP=layoutForPage(LAY);
     m.innerHTML=homeAssemble(`
-    <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2></div>
-    <div class="lsetrow"><button type="button" class="linkbtn lset" data-layout="1">Настроить главную</button></div>
+    <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2><button type="button" class="lgear" data-layout="1" aria-label="Настроить главную" title="Настроить главную">⚙</button></div>
     <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today))})}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
