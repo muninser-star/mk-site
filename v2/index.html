@@ -113,6 +113,7 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hpv2__row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:12px}.hpv2__n{line-height:1.1;text-align:left}.hpv2__info{margin-top:6px}.hpv2__info>summary{display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;cursor:pointer;color:var(--accent);list-style:none;font-weight:700}.hpv2__info>summary::-webkit-details-marker{display:none}
 .watchhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:34px}.watchhead h2{margin:0}
 .meashead{display:flex;align-items:center;justify-content:space-between;gap:8px}.meashead h2{margin:0}.measplus{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-size:24px;line-height:1;cursor:pointer}.measrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}.measrow:first-of-type{border-top:0}.measrow__n{flex:0 0 96px;color:var(--muted)}.measrow__v{flex:1 1 auto;min-width:0}.measrow__d{color:var(--muted);font-size:14px}.measrow__w{font-size:13px;white-space:nowrap}.meas-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.meas-urgent{margin:0 0 8px;background:var(--badbg,#fdecea);color:var(--bad)}.meas-skel{height:44px;margin-top:6px;border-radius:8px;background:var(--line);opacity:.5}@media (prefers-reduced-motion:no-preference){.meas-skel{animation:measpulse 1.4s ease-in-out infinite}}@keyframes measpulse{50%{opacity:.25}}
+.vhopts{display:flex;gap:8px;margin-top:10px}.vhopts .btn{flex:1 1 0;min-height:44px;padding:0 8px;font-size:15px}
 .lgear{flex:none;min-width:44px;min-height:44px;border:0;background:none;color:var(--ink);font-size:22px;line-height:1;cursor:pointer}.phead--home{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hpv2{padding:16px}.hpv2__h{justify-content:flex-start}.hpv2__h b{font-size:16px}.hpv2__i{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-10px 0 -10px -6px;border:0;background:none;cursor:pointer}.hpv2__i span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1.5px solid var(--muted);border-radius:50%;color:var(--muted);font:600 13px/1 var(--font)}.hpv2__miss{font-size:14px;margin-top:2px}.hpv2__note{font-size:13px;margin-top:6px}.hpv2 .hpv2__go{display:flex;justify-content:flex-start;text-align:left;min-height:44px;height:auto;padding:0;margin-top:2px;font-size:14px;color:var(--accent)}.hpv2__n{font-size:28px}
 .hblk .ill-banner{background:none;border-radius:0;padding:10px 0 4px;border-top:1px solid var(--line);gap:4px 12px}.hblk .ill-banner:hover{transform:none}.hblk .ill-banner:first-of-type{border-top:0;padding-top:0}.hblk .ill-banner+.ill-banner{margin-top:0}.hblk .ill-banner__dot{animation:none}.hblk .ill-banner__row{padding-left:22px;margin-top:-2px}.hblk .ill-banner .ill-banner__off{height:auto;min-height:44px;padding:0 4px;background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;box-shadow:none}
@@ -680,7 +681,6 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .hphead{display:flex;align-items:center;gap:16px}.hpring{flex:none;color:var(--ink)}
 .filters .chip--n{background:var(--seg);color:var(--muted)}
 .filters .chip--g1{background:rgba(52,200,110,.16)}.filters .chip--g2{background:rgba(52,200,110,.28)}.filters .chip--g3{background:rgba(52,200,110,.42)}
-.fb-legend{display:flex;flex-wrap:wrap;gap:4px 14px;width:100%;font-size:12.5px;order:9;margin:6px 2px 0}.fb-legend span{display:inline-flex;align-items:center;gap:5px}.fb-dot{width:12px;height:12px;border-radius:50%;display:inline-block}.fb-dot--o{background:rgba(105,118,130,.40)}.fb-dot--g{background:rgba(52,200,110,.60)}.fb-dot--y{background:rgba(232,190,50,.65)}.fb-dot--r{background:rgba(176,92,92,.50)}
 .filters .chip--o1{background:rgba(105,118,130,.20)}.filters .chip--o2{background:rgba(105,118,130,.32)}.filters .chip--o3{background:rgba(105,118,130,.42)}
 .filters .chip--y1{background:rgba(232,190,50,.20)}.filters .chip--y2{background:rgba(232,190,50,.34)}.filters .chip--y3{background:rgba(232,190,50,.48)}
 .filters .chip--r1{background:rgba(176,92,92,.14)}.filters .chip--r2{background:rgba(176,92,92,.26)}.filters .chip--r3{background:rgba(176,92,92,.40)}
@@ -1003,12 +1003,37 @@ body.sv-lock{overflow:hidden}
 .tbl .nvm{display:none;font-size:12.5px}
 .srow{padding:7px 0;border-top:1px solid var(--surface-2);overflow-wrap:anywhere;line-height:1.45}.srow:first-child{border-top:0}.srow b{font-weight:600}.srow>div{margin-top:2px}
 .lgrp{border-bottom:1px solid var(--surface-2)}
-.lg-h{display:grid;grid-template-columns:minmax(0,1fr) auto 28px;grid-template-areas:"t st chev" "sub sub chev" "why why chev";gap:2px 10px;align-items:center;width:100%;min-height:56px;padding:10px 4px;background:none;border:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
-.lgrp--flat .lg-h{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t st" "sub sub";cursor:pointer}.lgrp--flat{cursor:pointer}.lgrp--flat:hover{background:var(--surface-1)}
-.lg-t{grid-area:t;min-width:0;overflow-wrap:anywhere;font-size:15px}.lg-st{grid-area:st;justify-self:end;white-space:nowrap}.lg-sub{grid-area:sub;font-size:13px}.lg-why{grid-area:why;font-size:13px;color:var(--text-warning)}
-.lg-chev{grid-area:chev;width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);justify-self:center;margin-top:-4px}.lgrp.is-open .lg-chev{transform:rotate(-135deg);margin-top:4px}
-.lg-h:hover{background:var(--surface-1)}.lg-b{padding:0 0 10px}.lg-sech{font:600 13px/20px var(--font);color:var(--text-secondary);margin:2px 4px 2px}
-.lg-more{margin:4px 0;border:0;background:none;box-shadow:none;padding:0;border-radius:0}.lg-more>summary{cursor:pointer;padding:10px 4px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;gap:6px;font:600 13px/20px var(--font);color:var(--text-secondary);list-style:none}.lg-more>summary::-webkit-details-marker{display:none}
+.lg-b{padding:0 0 10px 8px;margin-left:6px;border-left:2px solid var(--surface-2)}.lg-sech{font:600 13px/20px var(--font);color:var(--text-secondary);margin:6px 4px 2px}
+.lg-more{margin:0;border:0;background:none;box-shadow:none;padding:0;border-radius:0}.lg-more>summary{list-style:none}.lg-more>summary::-webkit-details-marker{display:none}
+/* ТЗ-070: одна строка списка анализов, три секции, меню «Фильтры» */
+.labh{margin:0 0 10px}
+.labtop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.labtop-q{flex:1 1 100%;margin:0}.labtop-q input{width:100%;min-height:44px;box-sizing:border-box}
+.labtop-b{flex:1 1 0;min-height:44px;white-space:nowrap}
+.labact{flex:1 1 100%;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px;color:var(--text-secondary)}.labact .linkbtn{min-height:44px;padding:0 6px;margin:0}.labact[hidden]{display:none}
+@media (min-width:701px){ .labtop-q{flex:1 1 280px}.labtop-b{flex:0 0 auto;padding:0 18px}.labtop #recAdd{display:none} }   /* на широком экране «Добавить» — в шапке страницы, вторая в разделе не нужна */
+.lsec{margin:14px 0 6px}.lsec-h{margin:0 0 2px;font:700 12.5px/18px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary)}.lsec-c{font-weight:600}
+.lsec-n{margin:4px 0 8px;font-size:14px}
+.ldate{margin:6px 0 4px}.ldate-h{margin:14px 0 0;font:600 14px/20px var(--font);color:var(--text-primary)}
+.lr1{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n n" "v s";column-gap:12px;row-gap:3px;align-items:center;width:100%;box-sizing:border-box;min-height:56px;padding:10px 4px;margin:0;border:0;border-bottom:1px solid var(--surface-2);background:none;text-align:left;color:inherit;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lr1:hover{background:var(--surface-1)}.lr1:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.lr1-n{grid-area:n;min-width:0;font:600 15px/20px var(--font);color:var(--text-primary);overflow-wrap:break-word;word-break:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lr1-v{grid-area:v;min-width:0;font-size:14px;line-height:20px;color:var(--text-primary);overflow-wrap:break-word}.lr1-v--m{color:var(--text-secondary)}.lr1-v--w{color:var(--text-warning);font-size:13px}
+.lr1-s{grid-area:s;display:inline-flex;align-items:center;gap:6px;justify-self:end}.lr1-s .status{white-space:nowrap}
+.lr1-go{flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);margin:0 4px 0 2px}.lr1-go.is-down{transform:rotate(45deg);margin-top:-3px}
+.lgrp.is-open>.lr1 .lr1-go,.lg-more[open]>summary .lr1-go{transform:rotate(-135deg);margin-top:3px}
+.lr1--sum{grid-template-areas:"n s";min-height:48px}.lr1--sum .lr1-n{font-weight:600;color:var(--text-secondary);font-size:14px;align-self:center}
+.labempty{text-align:center;padding:20px 8px}.labempty p{margin:0 0 10px}
+.lab-mean{margin:2px 0 8px;font-size:14.5px;line-height:1.45}
+.labadv__a{display:flex;flex-wrap:wrap;gap:0 16px;margin-top:2px}.labadv__a .linkbtn{min-height:44px;margin:0;text-align:left;padding:0}.labadv__a .muted{align-self:center}
+.sdet-h{margin:14px 0 4px;font:700 13px/18px var(--font);color:var(--text-secondary)}.labinfo{min-height:44px;margin:0;padding:0}
+.att-l{margin:0 0 10px;padding-left:20px}.att-l li{margin:0 0 5px;line-height:1.4}.ser-t{margin:10px 0 2px;font-size:14px}
+.labfm{max-height:88vh;overflow:auto}
+.labfm-h{display:flex;align-items:center;justify-content:space-between;gap:8px}.labfm-h h2{margin:0}.labfm-h .linkbtn{min-height:44px;margin:0;padding:0 6px}
+.labfm-l{margin:12px 0 6px;font:600 13px/18px var(--font);color:var(--text-secondary)}
+.labfm-seg{display:flex;gap:8px}.labfm-seg button{flex:1 1 0;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}.labfm-seg button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accentbg)}
+.labfm-sys{margin:0}.labfm-sys .chip{display:inline-flex;flex-direction:column;align-items:flex-start;min-height:44px;height:auto;padding:6px 12px;gap:0;text-align:left}.labfm-sys .chip small{font-size:11.5px;font-weight:500;color:var(--text-secondary)}
+.labfm-f{display:flex;gap:8px;margin-top:14px}.labfm-f .btn{flex:1 1 0;min-height:44px}
 .lg-nn{font-size:13px;padding:2px 4px}
 .chart__sum{margin:0 0 6px;font-size:13.5px;line-height:1.4;color:var(--text-primary)}
 .chart__band{fill:var(--positive);opacity:.14}
@@ -1020,16 +1045,11 @@ body.sv-lock{overflow:hidden}
 .cpt__nav{display:flex;align-items:center;gap:6px}.cpt__nav b{flex:1;text-align:center}.cpt__b{min-width:44px;min-height:44px;border:0;border-radius:12px;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--text-primary)}.cpt__b:disabled{opacity:.3;cursor:default}.cpt__b:not(:disabled):hover{background:var(--surface-2)}
 .cpt__v{margin:2px 0 2px;font-size:15px}.cpt__v b{font-size:22px}.cpt__a{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}.cpt__a .btn{flex:1 1 140px;min-height:44px;text-align:center;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .rzb [data-rzgo]{min-height:44px}
-.lf-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}.lf-chip{flex:1 1 0;min-width:0;min-height:44px;padding:0 10px;border:1px solid var(--surface-2);border-radius:22px;background:var(--surface-1);color:var(--text-primary);font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}.lf-chip b{color:var(--text-secondary);font-weight:600;margin-left:4px}.lf-chip:hover{background:var(--surface-2)}
-.lf-all{flex:0 0 100%;min-height:44px;padding:0 6px;border:0;background:none;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-align:right}
-@media (min-width:641px){ .lf-chip{flex:0 0 auto;padding:0 16px}.lf-all{flex:0 0 auto;margin-left:auto} }
 .lf-bar{display:flex;align-items:center;gap:8px;margin:10px 0 4px;background:var(--card);scroll-margin-top:calc(var(--hdrh,56px) + 4px)}
 .lf-h{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:4px 2px;border:0;background:none;text-align:left;color:inherit;cursor:pointer;font:inherit}
 .lf-n{font:600 16px/22px var(--font);overflow-wrap:anywhere}.lf-c{color:var(--text-secondary);font-weight:500}
 .lf-chev{flex:none;width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:-4px 6px 0 0}.pgsec.is-closed .lf-chev{transform:rotate(-45deg);margin:0 6px 0 0}
 .lf-h[aria-expanded="false"] .lf-chev{transform:rotate(-45deg);margin:0 6px 0 0}
-.lf-add{flex:none;min-height:44px;font-size:13px}.lf-add::before{content:"＋";margin-right:4px}
-@media (max-width:640px){ .lf-add{width:44px;padding:0;font-size:18px;margin-right:2px}.lf-add::before{margin:0}.lf-addt{display:none} }
 .lf-b[hidden]{display:none}
 @media (max-width:640px){ .lf-bar{position:sticky;top:var(--hdrh,56px);z-index:4;margin:0 -2px;padding:2px} }
 /* ТЗ-059: строка показателя со шкалой нормы */
@@ -2474,7 +2494,7 @@ function chartModel(s){
     return {i,x:X(i),y:Y(v),v,label:String(p[0]),iso:x.iso||chartIso(p[0]),word,bad:word==="выше"||word==="ниже",shape:word==="выше"||word==="ниже"?"diamond":"circle",edge:word==="в норме"?near(v):"",extra:x}; });
   const zone=hasNorm?{lo,hi,y1:hi!=null?Math.max(P.t,Y(hi)):P.t,y2:lo!=null?Math.min(H-P.b,Y(lo)):H-P.b}:null;
   const out={W,H,P,min,max,axis:[min,(min+max)/2,max].map(v=>Math.round(v*100)/100),zone,pts,hasNorm,unit:s.unit||"",name:s.name||"",lo,hi,lab:!!s.lab};
-  out.summary=chartSummary(out);
+  out.summary=s.nosum?"":chartSummary(out);   // в карточке показателя изменение пишет один текст (ТЗ-070), не сравнение первого с последним
   return out;
 }
 // строка-вывод над графиком: что изменилось, насколько и как это соотносится с нормой лаборатории (без диагнозов и назначений)
@@ -2634,7 +2654,7 @@ const TABS=[["home","Обзор"],["nutr","Питание"],["all","Лента"]
 // «Чекапы» — раздел профиля, «Динамика» из меню убрана (Денис, 20.10.2026): график открывается из строки анализа и из поиска показателя
 // ТЗ-052: пять разделов Медкарты по задаче человека. «Профиль» — не вид Медкарты, а переход на страницу профиля (в полосе не подсвечивается).
 // Внутри «Истории» — переключатель (histFilters); сам `tab` остаётся прежним (all / visit / sym / meds / dz), чтобы старые ссылки и карточки работали.
-function cardTabs(){ return [["hist","История"],["lab","Документы"],["dyn","Динамика"],["doc","К врачу"],["health","Профиль"]]; }
+function cardTabs(){ return [["hist","История"],["lab","Анализы и исследования"],["dyn","Динамика"],["doc","К врачу"],["health","Профиль"]]; }
 const CARD=cardTabs(), CARDK=["sym","dz","visit","lab","meds","dyn","all","doc"];   // значения tab внутри Медкарты
 function histFilters(){ return [["all","Лента"],["visit","Приёмы"],["bs","Болезни и симптомы"],["meds","Лекарства"]]; }   // слежение ушло на главную и в карточку симптома (ТЗ-050); экран дневника открывается из «Слежу»
 const histFilterOf=t=>t==="sym"?"bs":t, histTabOf=f=>f==="bs"?"sym":f;
@@ -3087,116 +3107,263 @@ function labItems(list){
   });
   return out.map(x=>x.kind==="group"&&x.members.length===1?{kind:"rec",rec:x.members[0]}:x);   // группа из одного показателя — обычная строка
 }
-// класс члена группы: с референсом лаборатории — bad/warn/ok; без нормы — none (в итог не входит)
-function labMemberCls(r){ return r.st==="bad"?"bad":r.st==="warn"?"warn":(r.st==="ok"&&normCaption(r.n).kind!=="none")?"ok":"none"; }
-function labGroupSummary(members){
-  const c={bad:0,warn:0,ok:0,none:0}; members.forEach(r=>c[labMemberCls(r)]++);
-  const out=members.filter(r=>labMemberCls(r)==="bad").concat(members.filter(r=>labMemberCls(r)==="warn"));
-  const reasons=out.slice(0,2).map(r=>`${r.title} ${normScale(r.v,r.n,r.st).word.toLowerCase()}`);
-  const dev=c.bad+c.warn>0;
-  return {n:members.length,noNorm:c.none,counts:c,reasons,more:Math.max(0,out.length-2),
-    status:dev?"warn":c.ok?"ok":"none",badge:dev?"Есть отклонения":c.ok?"В пределах нормы":"Норма не указана"};
+// ═══ ТЗ-070: анализы — упрощение (блоки 4, 1, 3). Один вид строки, три секции, фильтры в меню ═══
+// Слова статуса одни в списке, карточке и графике. Слово берётся из записи (st) и положения значения; «Нет нормы» ≠ «В норме».
+function labStatus(r){
+  r=r||{}; const S=normScale(r.v,r.n,r.st), w=S.word, qual=normValue(r.v)==null&&String(r.v==null?"":r.v).trim()!=="";
+  let key,word;
+  if(w==="Выше"){ key="high"; word="Выше"; }
+  else if(w==="Ниже"){ key="low"; word="Ниже"; }
+  else if(w==="У границы"||w==="Внимание"){ key="edge"; word="У границы"; }
+  else if(w==="Проблема"){ key="out"; word="Вне нормы"; }
+  else if(w==="Норма"){ key="ok"; word="В норме"; }
+  else if(w==="Нет нормы"){ if(qual&&r.st==="ok"){ key="ok"; word="В норме"; } else { key="none"; word="Нет нормы"; } }
+  else { key="none"; word=normCaption(r.n).kind==="none"?"Нет нормы":"Без оценки"; }
+  const attention=key==="high"||key==="low"||key==="edge"||key==="out";
+  return {key,word,attention,cls:key==="ok"?"ok":key==="edge"?"warn":attention?(S.cls==="warn"?"warn":"bad"):"none"};
 }
-function labGroupModel(members){
-  const pick=cls=>members.filter(r=>labMemberCls(r)===cls).map(r=>({title:r.title,v:r.v,n:r.n,st:r.st,rec:r}));
-  const out=pick("bad").concat(pick("warn")), none=pick("none"), ok=pick("ok"), sections=[];
-  if(out.length) sections.push({key:"out",title:`Вне нормы (${out.length})`,rows:out,open:true});
-  if(none.length) sections.push({key:"none",title:`Без нормы (${none.length})`,rows:none,open:false});
-  if(ok.length) sections.push({key:"ok",title:`В норме (${ok.length})`,rows:ok,open:false});
-  return {summary:labGroupSummary(members),sections};
+function labValueText(r,unit){
+  const v=String(r&&r.v!=null?r.v:"").replace(/\s+/g," ").trim(), u=String(unit||"").trim(); if(!v) return "";
+  return u&&normValue(v)!=null&&!/[а-яёa-z%]/i.test(v)?`${v} ${u}`:v;
 }
-function labGroupHtml(g,person){
-  if(g.kind==="novals"){
-    const r=g.rec, b=r.st==="ok"?["ok","В пределах нормы"]:(r.st==="warn"||r.st==="bad")?["warn","Есть отклонения"]:["none","Норма не указана"];
-    return `<div class="lgrp lgrp--flat is-link" data-rec="${idOf(r)}"><div class="lg-h"><span class="lg-t"><b>${esc(r.title)}</b></span><span class="status status-${b[0]} lg-st">${b[1]}</span><span class="lg-sub muted">${ruLong(r.d)}</span></div></div>`;
-  }
-  const M=labGroupModel(g.members), S=M.summary, key=(person||"")+"|"+g.key, open=!!(labGroupHtml.open||{})[key], id="lgb-"+String(key).replace(/[^\wа-яё]+/gi,"-");
-  const rowsH=rows=>labRowsHtml(rows.map(p=>labRowHtml(p,{})));
-  const body=M.sections.map(s=>s.key==="out"?`<div class="lg-sech">${s.title}</div>${rowsH(s.rows)}`
-    :`<details class="lg-more"><summary>${s.title} <span class="muted">· показать</span></summary>${rowsH(s.rows)}</details>`).join("")
-    +(S.noNorm?`<div class="muted lg-nn">У ${S.noNorm} нет нормы</div>`:"");
-  return `<div class="lgrp${open?" is-open":""}" data-lg="${esc(key)}"><button type="button" class="lg-h" aria-expanded="${open}" aria-controls="${esc(id)}" data-lgtoggle="${esc(key)}">
-    <span class="lg-t"><b>${esc(g.title)}</b></span><span class="status status-${S.status==="none"?"none":S.status} lg-st">${S.badge}</span>
-    <span class="lg-sub muted">${ruLong(g.d)} · ${S.n} ${plural(S.n,"показатель","показателя","показателей")}</span>
-    ${S.reasons.length?`<span class="lg-why">${S.reasons.map(esc).join(" · ")}${S.more?` · ещё ${S.more}`:""}</span>`:""}<span class="lg-chev" aria-hidden="true"></span></button>
+// запись-панель без значений («Клинический анализ крови — норма») — в списке строка «без значений»
+function labIsPanel(r){ return !!r&&indicatorParts(r.title).some(x=>x.panel)&&normValue(r.v)==null; }
+function labIsDeviation(r){ if(!r) return false; if(r.t==="instr"||labIsPanel(r)) return r.st==="warn"||r.st==="bad"; return labStatus(r).attention; }
+function labRowModel(r,unit){ const S=labStatus(r); return {title:String(r.title||""),value:labValueText(r,unit)||"—",status:S.word,cls:S.cls,key:S.key,attention:S.attention,rec:r}; }
+// насколько сильное отклонение: красное — дальше всех, затем Выше/Ниже, затем «У границы»
+function labSev(m){ return m.cls==="bad"?3:(m.key==="high"||m.key==="low"||m.key==="out")?2:1; }
+function labNovalsModel(r){ const w=r.st==="ok"?["В норме","ok"]:(r.st==="warn"||r.st==="bad")?["Есть отклонения","warn"]:["Без оценки","none"];
+  return {title:String(r.title||""),value:"без значений",muted:true,status:w[0],cls:w[1],key:w[1],attention:w[1]==="warn",rec:r}; }
+function labInstrRowModel(r){ const w=r.st==="ok"?["В норме","ok"]:(r.st==="warn"||r.st==="bad")?["Есть отклонения","warn"]:["Без оценки","none"];
+  return {title:String(r.title||""),value:ruLong(r.d),muted:true,status:w[0],cls:w[1],key:w[1],attention:w[1]==="warn",rec:r}; }
+// последнее значение каждого показателя не старше 12 месяцев вне нормы или у границы: свежие и дальние от нормы первыми; до max строк, остальное — «Ещё N»
+function labCutoff(today,months){ const m=String(today||"").match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return ""; const d=new Date(Date.UTC(+m[1],+m[2]-1-(months||12),+m[3])); return d.toISOString().slice(0,10); }
+function labAttention(recs,today,max,unitOf){
+  max=max||5; unitOf=unitOf||(()=>""); const last={};
+  (recs||[]).forEach(r=>{ if(!r||r.t!=="lab"||labIsPanel(r)) return; const k=labBare(r.title); if(!last[k]||String(r.d)>String(last[k].d)) last[k]=r; });
+  const cut=labCutoff(today,12), L=Object.values(last), fresh=L.filter(r=>String(r.d)>=cut);
+  const hot=fresh.map(r=>labRowModel(r,unitOf(r.title))).filter(x=>x.attention)
+    .sort((a,b)=>String(b.rec.d).localeCompare(String(a.rec.d))||labSev(b)-labSev(a)||a.title.localeCompare(b.title,"ru"));
+  let state="has";
+  if(!hot.length) state=!fresh.length?(L.length?"old":"none"):fresh.some(r=>labStatus(r).key==="ok"&&normCaption(r.n).kind!=="none")?"allok":"nonorm";
+  return {items:hot.slice(0,max),rest:hot.slice(max),more:Math.max(0,hot.length-max),total:hot.length,state};
+}
+// группа: итог словами, одна строка причин, секции «Требуют внимания (N)», «В норме · N», «Без нормы · N»; счётчик равен числу строк
+function labGroupModel(members,unitOf){
+  unitOf=unitOf||(()=>""); const rows=members.map(r=>labRowModel(r,unitOf(r.title)));
+  const out=rows.filter(x=>x.attention).sort((a,b)=>labSev(b)-labSev(a)||a.title.localeCompare(b.title,"ru")),
+    ok=rows.filter(x=>x.key==="ok"), none=rows.filter(x=>!x.attention&&x.key!=="ok");
+  const sections=[]; if(out.length) sections.push({key:"out",title:`Требуют внимания (${out.length})`,rows:out});
+  if(ok.length) sections.push({key:"ok",title:`В норме · ${ok.length}`,rows:ok}); if(none.length) sections.push({key:"none",title:`Без нормы · ${none.length}`,rows:none});
+  return {n:rows.length,word:out.length?"Есть отклонения":ok.length?"В норме":"Нет нормы",cls:out.length?"warn":ok.length?"ok":"none",attention:out.length>0,
+    reasons:out.slice(0,2).map(x=>`${x.title} ${x.status.toLowerCase()}`),more:Math.max(0,out.length-2),sections,counts:{out:out.length,ok:ok.length,none:none.length}};
+}
+// сдача одной даты: сначала записи с отклонениями, потом группы и записи без значений, потом без нормы; одиночные в норме — одной строкой «В норме · N»
+function labDateModel(d,items,unitOf){
+  unitOf=unitOf||(()=>""); const hot=[], rest=[], none=[], ok=[], rank=e=>e.kind==="group"?0:e.kind==="novals"?1:2;
+  items.forEach(it=>{
+    if(it.kind==="group"){ const g=labGroupModel(it.members,unitOf); (g.attention?hot:rest).push({kind:"group",key:it.key,title:it.title,d,g}); }
+    else if(it.kind==="novals"){ const m=labNovalsModel(it.rec); (m.attention?hot:rest).push({kind:"novals",m}); }
+    else { const m=labRowModel(it.rec,unitOf(it.rec.title)); if(m.attention) hot.push({kind:"rec",m}); else if(m.key==="ok") ok.push(m); else none.push({kind:"rec",m}); }
+  });
+  const by=(a,b)=>rank(a)-rank(b), entries=[...hot.sort(by),...rest.sort(by),...none];
+  if(ok.length===1) entries.push({kind:"rec",m:ok[0]});
+  return {d,label:ruLong(d),entries,okRows:ok.length>1?ok:[]};
+}
+function labListModel(labs,instr,o){
+  o=o||{}; const unitOf=o.unitOf||(()=>""), items=labItems(labs||[]), by={};
+  items.forEach(it=>{ const d=it.kind==="rec"?it.rec.d:it.d; (by[d]=by[d]||[]).push(it); });
+  const all=Object.keys(by).sort().reverse().map(d=>labDateModel(d,by[d],unitOf)), n=o.dates||3;
+  return {attention:labAttention(labs,o.today,o.max||5,unitOf),dates:all.slice(0,n),datesRest:Math.max(0,all.length-n),datesTotal:all.length,
+    instr:(instr||[]).map(labInstrRowModel),empty:!(labs||[]).length&&!(instr||[]).length};
+}
+// ── фильтры (блок 4)
+function labFilterApply(recs,f){ return f&&f.only?(recs||[]).filter(labIsDeviation):(recs||[]); }
+function labFilterCount(f,sys){ return (f&&f.only?1:0)+(sys?1:0); }
+function labFilterSummary(f,sysTitle){ return [sysTitle||"",f&&f.only?"только вне нормы":""].filter(Boolean).join(" · "); }
+function labSysChips(items,opt){
+  const max=(opt&&opt.max)||6, sel=(opt&&opt.selected)||"", dev=t=>/^[ry]/.test(t), word=t=>dev(t)?"есть отклонения":/^o/.test(t)?"давно не сдавали":"в норме";
+  const L=(items||[]).filter(x=>x&&x.n>0&&x.tone&&x.tone!=="n").map(x=>({id:x.id,name:x.name,tone:x.tone,n:x.n,bad:x.bad||0,word:word(x.tone)}));
+  const rank=x=>dev(x.tone)?(x.tone[0]==="r"?0:1):/^o/.test(x.tone)?2:3;
+  L.sort((a,b)=>rank(a)-rank(b)||b.bad-a.bad||b.n-a.n||String(a.name).localeCompare(String(b.name),"ru"));
+  const shown=L.slice(0,max); if(sel&&!shown.some(x=>x.id===sel)){ const k=L.find(x=>x.id===sel); if(k&&shown.length){ shown.pop(); shown.push(k); } }
+  return {shown,more:L.filter(x=>!shown.includes(x))};
+}
+function labEmptyModel(o){
+  o=o||{}; if(o.filters>0) return {text:"По этим фильтрам анализов нет",action:"Сбросить",act:"reset"};
+  if(String(o.q||"").trim()) return {text:`По запросу «${String(o.q).trim()}» ничего не найдено`,action:"Сбросить",act:"reset"};
+  return {text:"Анализов пока нет",action:"Добавить анализ",act:"add"};
+}
+function labQHit(r,q){ const n=s=>String(s==null?"":s).toLowerCase().replace(/ё/g,"е"), t=n(q).trim(); if(!t) return true; const h=n(r.title+" "+(r.v||"")); return t.split(/\s+/).every(w=>h.includes(w)); }
+function labUnitMap(rows){ const m={}; (rows||[]).forEach(x=>{ if(!x||!x.u) return; const k=labBare(x.n); if(!m[k]||String(x.d)>String(m[k].d)) m[k]={u:x.u,d:x.d}; }); return k=>(m[labBare(k)]||{}).u||""; }
+// ── вид (одна строка: название на всю ширину, значение, статус; вся строка — одна цель нажатия)
+function labLineHtml(m,o){
+  o=o||{}; return `<div class="lr1 is-link" role="button" tabindex="0" data-rec="${idOf(m.rec)}"><span class="lr1-n">${esc(m.title)}</span><span class="lr1-v${m.muted?" lr1-v--m":""}">${esc(m.value)}</span><span class="lr1-s"><span class="status status-${m.cls}">${esc(m.status)}</span>${o.go?'<i class="lr1-go" aria-hidden="true"></i>':""}</span></div>`;
+}
+function labMoreHtml(title,rows){ return `<details class="lg-more"><summary class="lr1 lr1--sum"><span class="lr1-n">${esc(title)}</span><span class="lr1-s"><i class="lr1-go is-down" aria-hidden="true"></i></span></summary>${rows}</details>`; }
+function labGroupHtml(e,person){
+  const g=e.g, key=(person||"")+"|"+e.key, open=!!(labGroupHtml.open||{})[key], id="lgb-"+String(key).replace(/[^\wа-яё]+/gi,"-");
+  const rowsH=rows=>rows.map(m=>labLineHtml(m)).join("");
+  const body=g.sections.map(s=>s.key==="out"?`<div class="lg-sech">${esc(s.title)}</div>${rowsH(s.rows)}`:labMoreHtml(s.title,rowsH(s.rows))).join("");
+  const why=g.reasons.length?g.reasons.join(" · ")+(g.more?` · ещё ${g.more}`:""):`${g.n} ${plural(g.n,"показатель","показателя","показателей")}`;
+  return `<div class="lgrp${open?" is-open":""}" data-lg="${esc(key)}"><button type="button" class="lr1 lr1--btn" aria-expanded="${open}" aria-controls="${esc(id)}" data-lgtoggle="${esc(key)}"><span class="lr1-n">${esc(e.title)}</span><span class="lr1-v${g.reasons.length?" lr1-v--w":" lr1-v--m"}">${esc(why)}</span><span class="lr1-s"><span class="status status-${g.cls}">${esc(g.word)}</span><i class="lr1-go is-down" aria-hidden="true"></i></span></button>
     <div class="lg-b" id="${esc(id)}"${open?"":" hidden"}>${body}</div></div>`;
 }
-// ── ТЗ-069: свёртывание разделов «Анализы» и «Исследования». Состояние — удобство человека в браузере (mk_labfold:<человек>), не данные
-const LABFOLD={};   // человек → {lab, instr: "open"|"closed"} — в памяти страницы
-function labFoldRead(person,st){
-  try{ const raw=(st||localStorage).getItem("mk_labfold:"+person); const o=raw?JSON.parse(raw):{}; return o&&typeof o==="object"?{...(o.lab?{lab:o.lab}:{}),...(o.instr?{instr:o.instr}:{})}:{}; }catch(e){ return {}; }
+function labDateHtml(D,person){
+  const ent=D.entries.map(e=>e.kind==="group"?labGroupHtml(e,person):labLineHtml(e.m,{go:e.kind==="novals"})).join("");
+  return `<div class="ldate"><h4 class="ldate-h">${esc(D.label)}</h4>${ent}${D.okRows.length?labMoreHtml("В норме · "+D.okRows.length,D.okRows.map(m=>labLineHtml(m)).join("")):""}</div>`;
 }
+function labAttentionHtml(A){
+  const line=A.state==="allok"?"Всё в пределах нормы по последним сдачам":A.state==="nonorm"?"Норм для сравнения нет":A.state==="old"?"За последний год анализов не сдавали":"";
+  return `<section class="lsec"><h3 class="lsec-h">Требуют внимания${A.total?` <span class="lsec-c">· ${A.total}</span>`:""}</h3>`
+    +(A.items.length?A.items.map(m=>labLineHtml(m)).join("")+(A.more?labMoreHtml("Ещё "+A.more,A.rest.map(m=>labLineHtml(m)).join("")):""):`<p class="lsec-n muted">${esc(line||"Анализов за последний год нет")}</p>`)+`</section>`;
+}
+// «Исследования» — свёрнутая секция; состояние хранится у человека (mk_labfold), раскрыта при поиске
+const LABFOLD={};   // человек → {instr: "open"|"closed"}
+function labFoldRead(person,st){ try{ const raw=(st||localStorage).getItem("mk_labfold:"+person); const o=raw?JSON.parse(raw):{}; return o&&typeof o==="object"?{...(o.lab?{lab:o.lab}:{}),...(o.instr?{instr:o.instr}:{})}:{}; }catch(e){ return {}; } }
 function labFoldWrite(person,saved,st){ try{ (st||localStorage).setItem("mk_labfold:"+person,JSON.stringify(saved)); }catch(e){} }
-// по умолчанию: самый свежий раздел открыт; остальные открыты, если в них ≤ 8 записей; пустой раздел открыт всегда
-function labFoldDefault(counts,latest){
-  const fresh=(latest.lab||"")>=(latest.instr||"")?"lab":"instr", d={};
-  ["lab","instr"].forEach(k=>{ d[k]=!counts[k]||k===fresh||counts[k]<=8; }); return d;
+function labInstrOpen(saved,count,query){ if(!count) return true; if(String(query||"").trim()) return true; return !!(saved&&saved.instr==="open"); }
+function labFoldBar(sec,title,count,open){
+  return `<div class="lf-bar"><button type="button" class="lf-h" aria-expanded="${open}" aria-controls="lfb-${sec}" data-lftoggle="${sec}" id="lfh-${sec}"><span class="lf-n">${title} <span class="lf-c">· ${count}</span></span><span class="lf-chev" aria-hidden="true"></span></button></div>`;
 }
-function labFoldEffective(saved,counts,latest,query){
-  const out={};
-  if(String(query||"").trim()){ ["lab","instr"].forEach(k=>{ out[k]=(counts[k]||0)>0; }); return out; }   // поиск: открыты разделы с совпадениями; сохранённое не трогаем
-  const d=labFoldDefault(counts,latest);
-  ["lab","instr"].forEach(k=>{ out[k]=!counts[k]?true:saved&&saved[k]?saved[k]==="open":d[k]; }); return out;
+// состояние страницы анализов: фильтры не запоминаются между визитами (чтобы не прятать анализы незаметно)
+const LABF={only:false,q:"",dates:3,moreSys:false,cur:null};
+function labfReset(){ LABF.only=false; LABF.q=""; LABF.dates=3; LABF.moreSys=false; }
+function labPool(type){ const q=LABF.q.trim(), list=DATA[cur].rec.filter(r=>r.t===type&&(q?labQHit(r,q):matches(r))); list.sort((a,b)=>b.d.localeCompare(a.d)); return q?list:labFilterApply(list,LABF); }
+function labTopHtml(){
+  const n=labFilterCount(LABF,sysFilter), act=labFilterSummary(LABF,sysFilter?sysName(sysFilter):"");
+  return `<div class="labtop"><div class="fld labtop-q"><input id="labQ" type="search" placeholder="Найти показатель…" aria-label="Найти показатель" value="${esc(LABF.q)}" autocomplete="off"></div>
+    <button type="button" class="btn btn-secondary labtop-b" id="labFbtn" aria-haspopup="dialog">Фильтры${n?` · ${n}`:""}</button><button type="button" class="btn btn-primary labtop-b" id="recAdd">+ Добавить</button>
+    ${act&&!LABF.q.trim()?`<div class="labact"><span>${esc(act)}</span><button type="button" class="linkbtn" data-labreset="1">Сбросить</button></div>`:""}</div>`;
 }
-function labFoldChipAction(saved,sec){ return {saved:{...(saved||{}),[sec]:"open"},scroll:sec}; }
-function labFoldAllAction(saved,eff){
-  const anyOpen=!!(eff.lab||eff.instr);
-  return anyOpen?{saved:{...(saved||{}),lab:"closed",instr:"closed"},collapseGroups:true,label:"Развернуть всё"}
-                :{saved:{...(saved||{}),lab:"open",instr:"open"},collapseGroups:false,label:"Свернуть всё"};
-}
-function labFoldBar(sec,title,count,open,addHtml){
-  return `<div class="lf-bar"><button type="button" class="lf-h" aria-expanded="${open}" aria-controls="lfb-${sec}" data-lftoggle="${sec}" id="lfh-${sec}"><span class="lf-n">${title} <span class="lf-c">· ${count}</span></span><span class="lf-chev" aria-hidden="true"></span></button>${addHtml||""}</div>`;
-}
-function labFoldChips(counts,eff){
-  if(Object.keys(counts).length<2) return "";
-  const t={lab:"Анализы",instr:"Исследования"}, all=!(eff.lab||eff.instr)?"Развернуть всё":"Свернуть всё";
-  return `<div class="lf-chips">${["lab","instr"].map(k=>`<button type="button" class="lf-chip" data-lfchip="${k}">${t[k]} <b>${counts[k]}</b></button>`).join("")}<button type="button" class="lf-all" data-lfall="1">${all}</button></div>`;
-}
-// «Анализы и исследования»: два сворачиваемых раздела; в каждом по 10 строк и «Показать ещё»; анализы — группами (ТЗ-060)
-function labInstrHtml(labs,instr){
+function labBodyHtml(){
+  const labs=labPool("lab"), instr=labPool("instr"), today=localDay(), MR=measRows(cur), q=LABF.q.trim();
   pgReset();
-  const counts={lab:labs.length,instr:instr.length}, latest={lab:(labs[0]||{}).d||"",instr:(instr[0]||{}).d||""};
+  if(!labs.length&&!instr.length){ const E=labEmptyModel({filters:q?0:labFilterCount(LABF,sysFilter),q});
+    return `<div class="empty labempty"><p>${esc(E.text)}${E.act==="reset"?". Сбросить?":""}</p><button type="button" class="btn btn-secondary" ${E.act==="reset"?'data-labreset="1"':'data-labadd="1"'}>${esc(E.action)}</button></div>`; }
+  const M=labListModel(labs,instr,{today,dates:LABF.dates,unitOf:labUnitMap(MR)});
   if(!LABFOLD[cur]) LABFOLD[cur]=labFoldRead(cur);
-  const eff=labFoldEffective(LABFOLD[cur],counts,latest,query);
-  const blk=(key,title,list,add)=>{
-    const items=key==="lab"?labItems(list):list.map(r=>({kind:"rec",rec:r})), pg=pgSlice(items,pgShown[key]);
-    let html="", batch=[]; const flush=()=>{ if(batch.length){ html+=tableRows(batch,{}); batch=[]; } };
-    pg.items.forEach(it=>{ if(it.kind==="rec") batch.push(it.rec); else { flush(); html+=labGroupHtml(it,cur); } }); flush();
-    if(!pg.items.length) html=tableRows([],{empty:query?"Ничего не найдено":key==="lab"?"Анализов нет":"Исследований нет"});
-    return `<div class="pgsec" data-lfs="${key}">${labFoldBar(key,title,list.length,eff[key],add)}
-      <div class="lf-b" id="lfb-${key}"${eff[key]?"":" hidden"}>${html}
-      ${pg.rest?`<button class="btn btn-secondary btn-block" data-pgmore="${key}" style="margin-top:8px">Показать ещё ${Math.min(10,pg.rest)} · осталось ${pg.rest}</button>`:""}</div></div>`; };
-  return labFoldChips(counts,eff)+blk("lab","Анализы",labs)+blk("instr","Исследования",instr,`<button class="btn btn-secondary lf-add" id="recAddInstr" type="button" aria-label="Добавить исследование"><span class="lf-addt">Исследование</span></button>`);
+  const open=labInstrOpen(LABFOLD[cur],M.instr.length,q), pg=pgSlice(M.instr,pgShown.instr);
+  let h="";
+  if(labs.length){
+    h+=labAttentionHtml(M.attention)+`<section class="lsec"><h3 class="lsec-h">Последние сдачи</h3>${M.dates.map(D=>labDateHtml(D,cur)).join("")}${M.datesRest?`<button type="button" class="btn btn-secondary btn-block" data-labdates="1" style="margin-top:8px">Показать раньше</button>`:""}</section>`;
+  } else h+=`<section class="lsec"><h3 class="lsec-h">Анализы</h3><p class="lsec-n muted">${q?"Среди анализов ничего не найдено":"Анализов нет"}</p></section>`;
+  if(instr.length) h+=`<div class="pgsec" data-lfs="instr">${labFoldBar("instr","Исследования",instr.length,open)}<div class="lf-b" id="lfb-instr"${open?"":" hidden"}>${pg.items.map(m=>labLineHtml(m,{go:true})).join("")}${pg.rest?`<button class="btn btn-secondary btn-block" data-pgmore="instr" style="margin-top:8px">Показать ещё ${Math.min(10,pg.rest)} · осталось ${pg.rest}</button>`:""}</div></div>`;
+  return h;
 }
-// действия на странице: заголовок, чип, «Свернуть всё». Раскрытие меняет только показ (hidden), данные и «Показать ещё» не затрагиваются
+function labInstrHtml(){ return `<div id="labBody">${labBodyHtml()}</div>`; }
+function labBodyPaint(){ const el=document.getElementById("labBody"); if(el) el.innerHTML=labBodyHtml(); }
 function labFoldApply(sec,open,persist){
   const box=document.querySelector(`.pgsec[data-lfs="${sec}"]`); if(!box) return;
   const b=box.querySelector(".lf-b"), h=box.querySelector(".lf-h"); if(open) b.removeAttribute("hidden"); else b.setAttribute("hidden","");
   h.setAttribute("aria-expanded",String(open)); box.classList.toggle("is-closed",!open);
   if(persist){ const sv=LABFOLD[cur]||(LABFOLD[cur]={}); sv[sec]=open?"open":"closed"; labFoldWrite(cur,sv); }
 }
-function labFoldSync(){
-  const open=["lab","instr"].some(k=>{ const h=document.getElementById("lfh-"+k); return h&&h.getAttribute("aria-expanded")==="true"; }), a=document.querySelector("[data-lfall]");
-  if(a) a.textContent=open?"Свернуть всё":"Развернуть всё";
-}
-// прокрутка к разделу: от самого раздела, а не от липкого заголовка; повтор через 650 мс подправляет сдвиг, если таблицы выше успели перестроиться
-function labFoldScroll(sec,smooth){
-  const h=document.getElementById("lfh-"+sec); if(!h) return; const box=h.closest(".pgsec"), bar=h.closest(".lf-bar"), hd=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hdrh"))||56;
-  const top=Math.max(0,box.getBoundingClientRect().top+scrollY+(bar.getBoundingClientRect().top-box.getBoundingClientRect().top)-hd-4);
-  if(!smooth&&Math.abs(top-scrollY)<3) return;
-  window.scrollTo({top,behavior:smooth&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"smooth":"auto"});
-}
 document.addEventListener("click",e=>{
-  const t=e.target.closest&&e.target.closest("[data-lftoggle],[data-lfchip],[data-lfall]"); if(!t) return;
-  if(t.dataset.lftoggle){ const k=t.dataset.lftoggle, open=t.getAttribute("aria-expanded")!=="true"; labFoldApply(k,open,!String(query||"").trim()); labFoldSync(); return; }
-  if(t.dataset.lfchip){ const r=labFoldChipAction(LABFOLD[cur]||{},t.dataset.lfchip); LABFOLD[cur]=r.saved; labFoldWrite(cur,r.saved); labFoldApply(r.scroll,true,false);
-    labFoldScroll(r.scroll,true); setTimeout(()=>labFoldScroll(r.scroll,false),650); const h=document.getElementById("lfh-"+r.scroll); if(h) h.focus({preventScroll:true}); labFoldSync(); return; }
-  if(t.dataset.lfall){ const eff={lab:document.getElementById("lfh-lab")?.getAttribute("aria-expanded")==="true",instr:document.getElementById("lfh-instr")?.getAttribute("aria-expanded")==="true"};
-    const r=labFoldAllAction(LABFOLD[cur]||{},eff); LABFOLD[cur]=r.saved; labFoldWrite(cur,r.saved);
-    ["lab","instr"].forEach(k=>labFoldApply(k,r.saved[k]==="open",false));
-    if(r.collapseGroups){ labGroupHtml.open={}; document.querySelectorAll(".lgrp.is-open").forEach(g=>{ g.classList.remove("is-open"); g.querySelector(".lg-b")?.setAttribute("hidden",""); g.querySelector(".lg-h")?.setAttribute("aria-expanded","false"); }); }
-    labFoldSync(); }
+  const t=e.target.closest&&e.target.closest("[data-lftoggle]"); if(!t) return;
+  const k=t.dataset.lftoggle, open=t.getAttribute("aria-expanded")!=="true"; labFoldApply(k,open,!LABF.q.trim());
 });
+// ── меню «Фильтры»: нижний лист
+function labFmItems(){ const d=DATA[cur], today=localDay();
+  return SYS_GROUPS.map(g=>{ const t=sysTone(d.rec,g.sys,{today,months:12,risk:false,grp:g.id}); return {id:"grp:"+g.id,name:g.name,tone:t.tone,n:t.n,bad:t.bad}; }); }
+function labFmHtml(){
+  const M=labSysChips(labFmItems(),{max:6,selected:sysFilter}), chip=x=>`<button type="button" class="chip chip--${x.tone}${sysFilter===x.id?" chip--main":""}" data-labsys="${esc(x.id)}" aria-pressed="${sysFilter===x.id}"><span>${esc(x.name)}</span><small>${esc(x.word)}</small></button>`;
+  return `<div class="addsheet labfm" role="dialog" aria-modal="true" aria-label="Фильтры"><i class="grab"></i>
+    <div class="labfm-h"><h2>Фильтры</h2><button type="button" class="linkbtn" data-labreset="1">Сбросить</button></div>
+    <div class="labfm-l" id="labfmShow">Показывать</div>
+    <div class="labfm-seg" role="radiogroup" aria-labelledby="labfmShow"><button type="button" role="radio" aria-checked="${!LABF.only}" data-labonly="0" class="${LABF.only?"":"on"}">Всё</button><button type="button" role="radio" aria-checked="${LABF.only}" data-labonly="1" class="${LABF.only?"on":""}">Только вне нормы</button></div>
+    <div class="labfm-l">Система</div>
+    <div class="filters labfm-sys">${M.shown.map(chip).join("")}${M.more.length?`<button type="button" class="chip chip--more" data-labmoresys="1" aria-expanded="${LABF.moreSys}">Ещё${M.more.length?" · "+M.more.length:""}</button>`:""}${LABF.moreSys?M.more.map(chip).join(""):""}</div>
+    <div class="labfm-f"><button type="button" class="btn btn-secondary" data-labcollapse="1">Свернуть все группы</button><button type="button" class="btn btn-primary" data-labdone="1">Готово</button></div></div>`;
+}
+function labFmOpen(){
+  let m=document.getElementById("labFm"); if(!m){ m=document.createElement("div"); m.id="labFm"; m.className="addmenu"; m.setAttribute("aria-hidden","true"); document.body.appendChild(m);
+    m.addEventListener("click",e=>{ if(e.target===m) labFmClose(); });
+    let y0=null; m.addEventListener("touchstart",e=>{ if(e.target.closest(".labfm-sys,.labfm-seg")) return; y0=e.touches[0].clientY; },{passive:true});
+    m.addEventListener("touchmove",e=>{ if(y0==null) return; const dy=e.touches[0].clientY-y0, sh=m.firstElementChild; if(dy>0&&sh) sh.style.transform=`translateY(${dy}px)`; },{passive:true});
+    m.addEventListener("touchend",e=>{ if(y0==null) return; const dy=e.changedTouches[0].clientY-y0; y0=null; if(dy>70) labFmClose(); else if(m.firstElementChild) m.firstElementChild.style.transform=""; }); }
+  m.innerHTML=labFmHtml(); m.classList.add("on"); m.setAttribute("aria-hidden","false"); const b=m.querySelector("[data-labdone]"); if(b) b.focus({preventScroll:true});
+}
+function labFmClose(){ const m=document.getElementById("labFm"); if(!m) return; m.classList.remove("on"); m.setAttribute("aria-hidden","true"); const sh=m.firstElementChild; if(sh) sh.style.transform=""; const b=document.getElementById("labFbtn"); if(b) b.focus({preventScroll:true}); }
+function labFmRefresh(){ render(); const m=document.getElementById("labFm"); if(m&&m.classList.contains("on")){ const y=(m.querySelector(".labfm-sys")||{}).scrollTop; m.innerHTML=labFmHtml(); } }
+document.addEventListener("click",e=>{
+  const c=e.target.closest&&e.target.closest("#labFbtn,[data-labsys],[data-labonly],[data-labreset],[data-labdone],[data-labcollapse],[data-labmoresys],[data-labdates],[data-labadd]"); if(!c) return;
+  if(c.id==="labFbtn"){ labFmOpen(); return; }
+  if(c.dataset.labsys!=null){ sysFilter=sysFilter===c.dataset.labsys?null:c.dataset.labsys; labFmRefresh(); return; }
+  if(c.dataset.labonly!=null){ LABF.only=c.dataset.labonly==="1"; labFmRefresh(); return; }
+  if(c.dataset.labreset!=null){ LABF.only=false; LABF.q=""; sysFilter=null; LABF.moreSys=false; labFmRefresh(); return; }
+  if(c.dataset.labmoresys!=null){ LABF.moreSys=!LABF.moreSys; labFmOpen(); return; }
+  if(c.dataset.labcollapse!=null){ labGroupHtml.open={}; document.querySelectorAll(".lgrp.is-open").forEach(g=>{ g.classList.remove("is-open"); const b=g.querySelector(".lg-b"); if(b) b.setAttribute("hidden",""); const h=g.querySelector("[data-lgtoggle]"); if(h) h.setAttribute("aria-expanded","false"); }); labFmClose(); return; }
+  if(c.dataset.labdone!=null){ labFmClose(); return; }
+  if(c.dataset.labdates!=null){ LABF.dates+=3; labBodyPaint(); return; }
+  if(c.dataset.labadd!=null){ if(typeof labForm==="function") labForm(); return; }
+});
+document.addEventListener("input",e=>{ const q=e.target&&e.target.id==="labQ"?e.target:null; if(!q) return; LABF.q=q.value; pgShown.instr=10; labBodyPaint(); const a=document.querySelector(".labact"); if(a) a.hidden=!!LABF.q.trim(); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ const m=document.getElementById("labFm"); if(m&&m.classList.contains("on")){ e.preventDefault(); labFmClose(); } return; }
+  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("lr1")&&e.target.getAttribute("role")==="button"){ e.preventDefault(); e.target.click(); }
+});
+// ── ТЗ-070 блок 2: карточка показателя. Одна функция фактов; все тексты карточки строятся только из неё
+function labCountText(n,one,few,many){ return `${n} ${plural(n,one,few,many)}`; }
+function labFacts(r,rows,o){
+  o=o||{}; const S=labStatus(r), cap=normCaption(r.n), nr=cap.kind==="scale"?normRange(r.n):null, cur=normValue(r.v), unit=String(o.unit||"").trim();
+  const sorted=(rows||[]).filter(x=>x&&x.d).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+  const prev=sorted.find(x=>String(x.d)<String(r.d)&&normValue(x.v)!=null)||null, pv=prev?normValue(prev.v):null;
+  const dec=x=>{ const m=String(x).replace(",",".").match(/\.(\d+)/); return m?m[1].length:0; };
+  let delta=null; if(cur!=null&&pv!=null){ const k=Math.min(3,Math.max(dec(r.v),dec(prev.v))), abs=Math.abs(cur-pv);
+    delta={dir:cur>pv?"up":cur<pv?"down":"same",abs:abs.toFixed(k).replace(".",","),pct:pv?Math.round(abs/Math.abs(pv)*100):null}; }
+  const lo=nr&&!nr.upper?nr.lo:null, hi=nr?nr.hi:null, dist=v=>(v==null||!nr)?null:(lo!=null&&v<lo?lo-v:0)+(hi!=null&&v>hi?v-hi:0);
+  const pos=!nr||cur==null?"none":lo!=null&&cur<lo?"low":hi!=null&&cur>hi?"high":"in";
+  const trend=pos==="in"||pos==="none"||pv==null?"":dist(cur)<dist(pv)?"closer":dist(cur)>dist(pv)?"farther":"same";
+  return {title:r.title,value:labValueText(r,unit)||"—",unit,status:S,normKind:cap.kind,normText:cap.kind==="none"?"":cap.text,
+    prev:prev?{v:prev.v,d:prev.d}:null,delta,pos,trend,histN:Math.max(1,sorted.length),panelN:o.panelN||0};
+}
+// одна фраза «что это значит»: норма, затем изменение к прошлой сдаче (одно число); положение — только словами записи
+function labMeaning(f){
+  if(f.normKind==="none") return "Нормы на бланке нет, статус не определён.";
+  const s1=(f.normKind==="scale"?"Норма "+f.normText.replace(/^норма\s*/i,""):"Норма: "+f.normText.replace(/^норма:\s*/i,""))+".";
+  if(!f.prev) return s1+" Сдавался один раз, сравнить пока не с чем.";
+  if(!f.delta) return s1;
+  const rd=d=>String(d).split("-").reverse().join("."), u=f.unit?" "+f.unit:"";
+  let s=f.delta.dir==="same"?`Без изменений с ${rd(f.prev.d)} (${String(f.prev.v).replace(".",",")})`
+    :`${f.delta.dir==="up"?"Выше":"Ниже"}, чем ${rd(f.prev.d)} (${String(f.prev.v).replace(".",",")}), на ${f.delta.abs}${u}${f.delta.pct!=null?` (${f.delta.pct} %)`:""}`;
+  const k=f.status.key;
+  if(f.pos==="in"&&(k==="ok"||k==="edge")) s+=k==="edge"&&f.delta.dir!=="same"?", но в пределах нормы":", в пределах нормы";
+  else if(f.trend==="closer") s+=", ближе к норме"; else if(f.trend==="farther") s+=", дальше от нормы";
+  return s1+" "+s+".";
+}
+// ── ТЗ-070 блок 3: исследование. Что отклонилось — только из отметок самой записи; текст не придумывается
+function studyDevRank(x){
+  const name=String(x[0]==null?"":x[0]), val=String(x[1]==null?"":x[1]), note=String(x[2]==null?"":x[2]);
+  if(/🔴/u.test(name)) return 3; if(/[🟡⚠]/u.test(name)) return 2;
+  const mk=markVal(note?val+" "+note:val); if(mk&&mk.c==="var(--bad)") return 3; if(mk&&mk.why==="немного вне нормы") return 2;
+  const t=(name+" "+val+" "+note).toLowerCase().replace(/ё/g,"е").replace(/не\s+(?:\S+\s+)?(?:повышен|снижен|уплотнен|утолщен|ремоделир)[а-я]*/g," ").replace(/(?:выше|ниже)\s+\d/g," ");
+  if(/(^|[^а-я])(выше|ниже|снижен[а-я]*|повышен[а-я]*|уплотнен[а-я]*|утолщен[а-я]*|ремоделирован[а-я]*)([^а-я]|$)/.test(t)) return 2;
+  return mk&&mk.why==="на границе нормы"?1:0;
+}
+function studyReport(r){
+  const NARR=/^(заключение|главное|что дальше|что остаётся|что остается|протокол|направление|кто|кто и где|как читать|условия|что это закрывает|чем закрылось)/i;
+  const clean=l=>String(l==null?"":l).replace(/^[\s🟢🔴🟡⚠️]+/u,"").trim(), F=(r.full||[]).filter(f=>Array.isArray(f)&&f[1]!=null);
+  const short=(t,n)=>firstSentence(t,n), cand=[];
+  F.forEach((f,i)=>{ if(NARR.test(clean(f[0]))) return; const k=studyDevRank(f); if(k>0) cand.push({k,i,f}); });
+  const strong=cand.filter(c=>c.k>=2), use=(strong.length?strong:cand).slice().sort((a,b)=>b.k-a.k||a.i-b.i);
+  const trim=x=>String(x).replace(/[.\s]+$/,""), text=c=>{ const nt=c.f[2]?` · ${trim(short(c.f[2],150))}`:""; return `${clean(c.f[0])}: ${trim(short(c.f[1],90))}${nt}`; };
+  let attention=use.slice(0,3).map(text), total=strong.length||cand.length;
+  if(!attention.length&&(r.st==="warn"||r.st==="bad")){ const c=F.find(f=>/^(заключение|главное)/i.test(clean(f[0]))); const t=short(c?c[1]:r.res,120); if(t){ attention=[t]; total=1; } }
+  const lead=short(r.res,160), tail=total?` Отклонений в заключении: ${total}.`:"";
+  return {attention,total,lead:(lead+tail).trim(),empty:attention.length?"":"Отклонений не отмечено в заключении"};
+}
+function studyAttention(r){ return studyReport(r).attention; }
+// графики исследования — только по показателям, названным в самой записи (давление, пульс, ЭКГ из домашних замеров не добавляются)
+function studyChartNames(r,series){
+  const txt=[r.title,r.res,...(r.full||[]).map(f=>Array.isArray(f)?f.join(" "):String(f))].join(" ").toLowerCase().replace(/ё/g,"е");
+  const has=(a,abbr)=>{ a=String(a||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); if(a.length<(abbr?2:3)||/^(вес|рост|возраст)$/.test(a)) return false;
+    return a.length<=4?new RegExp("(^|[^а-яa-z0-9])"+a.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![а-яa-z0-9])").test(txt):txt.includes(a); };
+  return (series||[]).filter(s=>{ if(!s) return false; if(r.ser&&s.id===r.ser) return true; if(s.sys!==r.sys) return false;
+    const nm=String(s.name||""), base=nm.split(/\s+[—–-]\s+|,/)[0].replace(/\s*\(.*?\)\s*/g," ").trim(), ab=m=>(String(m).match(/\(([^)]{2,12})\)/)||[])[1];
+    const info=[].concat(...indicatorParts(nm).map(x=>[x.name,...(x.synonyms||[])]));
+    return [base,...info.map(x=>String(x).replace(/\s*\(.*?\)\s*/g," ").trim())].some(a=>has(a))||[ab(nm),...info.map(ab)].some(a=>has(a,true)); }).map(s=>s.name);
+}
 // кто и где: у анализа лаборатория в списке не нужна (Денис, 18.10.2026); у остальных — врач и место без повтора
 function recWhoHtml(r,hl){
   if(r.t==="lab"||!r.who) return "";
@@ -3356,14 +3523,14 @@ function labNormHtml(S){
   return long?`<details class="lr-nd"><summary>${esc(S.caption.slice(0,22).replace(/[\s,;:]+$/,""))}… ещё</summary>${esc(S.caption)}</details>`:esc(S.caption);
 }
 function labRowHtml(p,o){
-  const f=o.from||{}, S=normScale(p.v,p.n,p.st), name=o.name!=null?o.name:p.title, link=o.link!==false&&p.rec;
+  const f=o.from||{}, S=normScale(p.v,p.n,p.st), LS=labStatus(p), name=o.name!=null?o.name:p.title, link=o.link!==false&&p.rec;
   const btn=o.name!=null?"":`${indBtn(p.title,labDir(p.v,p.n))}${o.graph?`<button type="button" class="ind-g" data-grind="${esc(p.title)}" data-grd="${esc(f.d||"")}" data-gri="${f.i??""}" aria-label="График: ${esc(p.title)}" title="Динамика показателя">📈</button>`:""}`;
   return `<div class="lrow${link?" is-link":""}"${link?` data-rec="${idOf(p.rec)}"`:""}${o.sel?' style="background:var(--accentbg)"':''}>
     <div class="lr-n"><b>${esc(name)}</b>${btn?`<span class="lr-b">${btn}</span>`:""}</div>
     <div class="lr-val"><b style="color:${statusColor(S.cls)}">${esc(p.v||"—")}</b></div>
     ${normScaleHtml(S)?`<div class="lr-sc">${normScaleHtml(S)}</div>`:""}
     <div class="lr-r">${labNormHtml(S)}</div>
-    <div class="lr-s"><span class="status status-${S.cls}">${esc(S.word)}</span></div></div>`;
+    <div class="lr-s"><span class="status status-${LS.cls}">${esc(LS.word)}</span></div></div>`;
 }
 function labRowsHtml(rows,o){
   return `<div class="lrows"><div class="lrow lrow--h" aria-hidden="true"><span class="lr-n">${(o&&o.head)||"Показатель"}</span><span class="lr-val">Результат</span><span class="lr-r">Норма</span><span class="lr-s">Статус</span></div>${rows.join("")}</div>`;
@@ -3443,19 +3610,19 @@ function studySections(rows,recTitle){
     out.sort((a,b)=>(a.key==="rest")-(b.key==="rest")); }
   return out.map(z=>({key:z.key,title:z.title,rows:z.rows,same:z.same||[],open:!!z.open}));
 }
-function studyDetailsHtml(more,recTitle){
+function studyDetailsHtml(more,recTitle,o){
   const S=studySections(more,recTitle); if(!S.length) return "";
   const rowH=x=>{ const m=studyRowModel(x), nt=m.note?` <span class="muted">${esc(m.note)}</span>`:"";
     return m.long?`<div class="srow"><b>${esc(m.name)}</b><div>${esc(m.value)}${nt}</div></div>`:`<div class="srow"><b>${esc(m.name)}</b> — ${esc(m.value)}${nt}</div>`; };
   const sameH=g=>`<div class="srow"><b>Одинаково:</b> ${esc(g.text)}<div class="muted">${g.names.map(esc).join(", ")}</div></div>`;
   const body=s=>s.rows.map(rowH).join("")+(s.same||[]).map(sameH).join("");
-  const h3='<h3 style="font-size:14px;margin:14px 0 6px">Подробнее</h3>';
+  const h3=o&&o.head===false?"":'<h3 style="font-size:14px;margin:14px 0 6px">Подробнее</h3>';
   if(S.length===1&&S[0].flat) return h3+`<div class="sdet">${body(S[0])}</div>`;
   return h3+S.map(s=>`<details class="fold"${s.open?" open":""}><summary><span>${esc(s.title)} <span class="muted">(${studyRowCount(s)})</span></span></summary><div class="fold-b sdet">${body(s)}</div></details>`).join("");
 }
 // шапка и кнопка «Все записи» карточки (ТЗ-004 блок 4): у приёма с сайта нет статуса и системы — без «undefined» и «null»
 function recBadge(r){ const t=TYPE[r.t]||(r.t==="note"?"Заметка":"Запись"); return ST[r.st]?t+" · "+ST[r.st]:t; }   // заметка с сайта не имеет типа в списке: раньше в шапке карточки было «undefined»
-function recGoAll(r){ const n=r.sys?sysName(r.sys):""; return n?`<button class="btn btn-primary btn-block" data-f="${r.sys}" data-close="1">Все записи: ${esc(n)} →</button>`:""; }
+function recGoAll(r){ const n=r.sys?sysName(r.sys):""; return n?`<button class="btn btn-secondary btn-block" data-f="${r.sys}" data-close="1" style="margin-top:10px">Все записи: ${esc(n)} →</button>`:""; }
 // что известно о человеке для рекомендаций: курение из паспорта (HABITS), у ребёнка — не применимо; нет данных — null
 function personFacts(p){
   const h=(typeof HABITS!=="undefined"&&HABITS[p])||{}, age=(DATA[p]||{}).age;
@@ -3793,17 +3960,10 @@ function LAB_NUM(v){ return parseFloat(String(v==null?"":v).replace(/\s/g,"").re
 function LAB_RU(v){ return String(v).replace(".",","); }
 // «Сейчас…» — где значение относительно нормы и куда оно движется
 function labStateLine(r,dir,level,hist,parts){
-  const rd=d=>String(d||"").split("-").reverse().join(".");
-  if(parts){ const out=parts.filter(x=>x.flag==="выше"||x.flag==="ниже");
-    return out.length?"Вне нормы: "+out.map(x=>`${x.name} ${x.flag} (${LAB_RU(x.val)} при ${x.norm})`).join(", ")+".":""; }
-  const cur=LAB_NUM(String(r.v||"").split(/\s/)[0]), prev=(hist||[]).slice(-1)[0], pv=prev?LAB_NUM(prev.v):NaN;
-  const pos=level==="edge"?(dir==="high"?"в норме, у верхней границы":"в норме, у нижней границы"):(dir==="high"?"выше нормы":"ниже нормы");
-  let s=`Сейчас ${LAB_RU(String(r.v||"").split(/\s/)[0])} при норме ${r.n||"—"}: ${pos}.`;
-  if(isFinite(cur)&&isFinite(pv)&&pv!==cur){
-    const up=cur>pv, better=dir==="low"?up:dir==="high"?!up:null;
-    s+=` В прошлый раз (${rd(prev.d)}) было ${LAB_RU(prev.v)}: показатель ${up?"вырос":"снизился"}${better===true?" — в сторону нормы":better===false?" — дальше от нормы":""}.`;
-  }
-  return s;
+  // составной результат («Вне нормы: нейтрофилы выше…»); у обычного показателя текст собирает labMeaning из labFacts (ТЗ-070)
+  if(!parts) return "";
+  const out=parts.filter(x=>x.flag==="выше"||x.flag==="ниже");
+  return out.length?"Вне нормы: "+out.map(x=>`${x.name} ${x.flag} (${LAB_RU(x.val)} при ${x.norm})`).join(", ")+".":"";
 }
 // блок «что это значит и что делать» в карточке показателя: вне нормы или у границы; учитывает составные результаты, динамику и возраст
 function labAdviceFor(r,parts,facts,hist){
@@ -3993,14 +4153,25 @@ function razbRecsCard(){
       <div class="row" style="gap:6px"><button type="button" class="btn btn-primary" data-rzplan="${esc(x.key)}">Запланировать</button><button type="button" class="btn btn-secondary" data-rzhide="${esc(x.key)}" aria-label="Не нужно">✕</button></div></div>`).join("")}${tests}</div>`;
 }
 // блок «Что это значит и что делать» в карточке показателя вне нормы или у границы
+// не больше 3 пунктов; совет «пересдайте…» — один раз
+function labTodoList(todo){ let rt=false; return (todo||[]).filter(x=>{ if(/пересда/i.test(x)){ if(rt) return false; rt=true; } return true; }).slice(0,3); }
+// «Что делать» (до 3 пунктов) и вторичные действия — текстовые кнопки; число и смысл показателя — выше, в labFacts/labMeaning (ТЗ-070)
 function labAdvHtml(r,idx){
   const a=labAdviceFor(r,indicatorParts(r.title),personFacts(cur),labHistFor((DATA[cur]||{}).rec,r)); if(!a) return "";
-  return `<div class="labadv labadv--${a.level}"><h3 class="labsec" style="margin-top:0">${a.level==="bad"?"Что это значит и что делать":"Значение у границы нормы — что делать"}</h3>
-    ${a.state?`<p style="margin:6px 0"><b>Сейчас.</b> ${esc(a.state.replace(/^Сейчас\s*/,""))}</p>`:""}
-    ${a.consequence?`<p style="margin:6px 0"><b>${a.level==="edge"?(a.dir==="high"?"Если выйдет за верхнюю границу нормы:":"Если выйдет за нижнюю границу нормы:"):(a.dir==="high"?"Если выше нормы:":"Если ниже нормы:")}</b> ${esc(a.consequence)}</p>`:""}
-    <ol class="labadv__l">${a.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
-    <div class="row" style="gap:8px;margin-top:8px"><button type="button" class="btn btn-primary" data-labplan="${idx}">Запланировать: ${esc(specName(a.spec))}</button><button type="button" class="btn btn-secondary" data-labask="${idx}">${esc(rzFirst().label)}</button>${(()=>{ const rp=retestPlan(r,a.level,localDay()), pl=labPlanned(rp.src); return pl?`<span class="muted" style="align-self:center">✓ пересдача запланирована на ${esc(pl.when)}</span>`:`<button type="button" class="btn btn-secondary" data-labretest="${idx}">Запланировать пересдачу</button>`; })()}</div>
-    <div class="muted" style="font-size:12px;margin-top:6px">Общие рекомендации, не врачебное заключение.</div></div>`;
+  const rp=retestPlan(r,a.level,localDay()), pl=labPlanned(rp.src);
+  return `<div class="labadv labadv--${a.level}"><h3 class="labsec" style="margin-top:0">Что делать</h3>
+    <ul class="labadv__l">${labTodoList(a.todo).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <div class="labadv__a"><button type="button" class="linkbtn" data-labplan="${idx}">Запланировать: ${esc(specName(a.spec))}</button>${pl?`<span class="muted">✓ пересдача запланирована на ${esc(pl.when)}</span>`:`<button type="button" class="linkbtn" data-labretest="${idx}">Запланировать пересдачу</button>`}</div>
+</div>`;
+}
+// эта же сдача — показатели той же группы за ту же дату (не по «системе»: у биохимии они разные)
+function labSameSdacha(D,r){
+  const day=(D.rec||[]).filter(x=>x.t==="lab"&&x.d===r.d), g=labGroupOf(r.title);
+  let same=g?day.filter(x=>labGroupOf(x.title)===g):day.filter(x=>x.sys===r.sys); if(!same.length) same=[r];
+  same=same.slice().sort((a,b)=>(labStatus(b).attention-labStatus(a).attention)||String(a.title).localeCompare(String(b.title),"ru"));
+  const out=same.filter(x=>labStatus(x).attention).length;
+  return {group:g,same,other:day.filter(x=>!same.includes(x)),n:same.length,out,
+    summary:`${labCountText(same.length,"показатель","показателя","показателей")}, ${out?`${out} ${out===1?"требует":"требуют"} внимания`:"без отклонений"}`};
 }
 document.addEventListener("click",e=>{
   const rp=e.target.closest&&e.target.closest("[data-rzplan]"); if(rp){
@@ -4072,51 +4243,53 @@ function openRec(i,showSer){
   const head=(st,sub)=>`<div class="status status-${st||"none"}" style="margin-bottom:8px">${recBadge(Object.assign({},r,{st}))}</div>
     <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}${r.t==="lab"?indBtn(r.title):""}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who&&r.t!=="lab"?" · "+esc(r.who):""}</div>`;   // лаборатория в шапке анализа не нужна (Денис, 18.10.2026): она в «Подробнее»
   let cardHtml=null;
-  if(r.t==="lab"){            // ТЗ-010 блок 12: шапка и ключевые показатели видны, остальное свёрнуто
-    const M=labCardModel(D,r);
-    const MR=measRows(cur), chartHtml=indChartFor(r.title,MR);
-    const row=p=>labRowHtml(p,{sel:p.rec===r,graph:indSeriesCount(MR,p.title)>=2,from:{i:idOf(r),d:r.d}});
-    const rel=M.related?fold(`В тот же день: ${esc(M.related.preview)}`,`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Показатель</th><th>Результат</th><th>Было раньше</th><th>Статус</th></tr></thead><tbody>
-      ${M.related.rows.map(p=>`<tr class="row is-link" data-rec="${idOf(p)}"><td><b>${esc(p.title)}</b></td><td><b style="color:${statusColor(p.st)}">${esc(p.v||"—")}</b></td><td style="font-size:13px">${prevCell(p)}</td>
-      <td><span class="status status-${p.st}">${ST[p.st]||ST.none}</span></td></tr>`).join("")}</tbody></table></div>`):"";
-    const concl=(r.full&&r.full.length)?fold("Заключение",fullRows(r.full)):"";
-    const dyn=(M.hist||ser.length)?fold(`Динамика: ${esc(r.title)}${M.hist?` — ${M.hist.length} ${plural(M.hist.length,"значение","значения","значений")}`:""}`,
-      (M.hist?labRowsHtml(M.hist.map(h=>labRowHtml(h,{name:ru(h.d),link:false,sel:h===r})),{head:"Дата"}):"")+(chartHtml?"":serHtml)):"";
-    const det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm],["Добавлено",M.details.from]].filter(x=>x[1]);
-    const detHtml=(det.length||M.baseline)?fold("Подробнее",(det.length?`<div class="sdet">${det.map(([k,v])=>{ const m=studyRowModel({title:k,text:v}); return m.long?`<div class="srow"><b>${esc(m.name)}</b><div>${esc(m.value)}</div></div>`:`<div class="srow"><b>${esc(m.name)}</b> — ${esc(m.value)}</div>`; }).join("")}</div>`:"")
-      +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка. Вторая сдача превратит цифру в направление.</div>`:"")):"";
-    cardHtml=shell(`${head(M.status)}
-      <div style="margin:-4px 0 6px">${favStar(cur,r.title)} <span class="muted" style="font-size:13px">следить за показателем</span></div>
-      ${M.own.v?`<div class="labown"><b style="color:${statusColor(M.own.st)}">${esc(M.own.v)}</b>${M.own.n?`<span class="muted">норма ${esc(M.own.n)}</span>`:""}${M.own.edge?`<span class="muted" style="color:var(--warn)">${M.own.edge==="high"?"у верхней":"у нижней"} границы нормы</span>`:""}</div>`:""}
-      ${(()=>{ const pr=(M.hist||[]).find(h=>h.d<r.d); if(!pr) return ""; const u=((MR||[]).find(x=>labBare(x.n)===labBare(r.title)&&x.u)||{}).u||(ser[0]&&ser[0].unit)||""; const t=deltaText(r.v,pr.v,u,pr.d);
-        return t?`<div class="muted" style="font-size:13px;margin:-2px 0 6px">Изменение: ${esc(t)}</div>`:""; })()}
-      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:`<div class="muted" style="margin:2px 0 8px">${M.baseline?"Сдавался один раз — сравнить пока не с чем":""}</div>`}
+  if(r.t==="lab"){            // ТЗ-070 блок 2: число и статус → что значит → график → что делать → ИИ-врач → «Подробнее»
+    const M=labCardModel(D,r), MR=measRows(cur), cards=indicatorCards(r.title,MR), card=cards.find(x=>indicatorMatch(r.title,x.name)===3)||cards[0]||null;
+    const SD=labSameSdacha(D,r), LF=labFacts(r,card?card.rows:[],{unit:card?card.unit:"",panelN:SD.n}), adv=labAdviceFor(r,indicatorParts(r.title),personFacts(cur),labHistFor(D.rec,r));
+    const chartHtml=indChartFor(r.title,MR,{nosum:true}), row=p=>labRowHtml(p,{sel:p.rec===r,graph:indSeriesCount(MR,p.title)>=2,from:{i:idOf(r),d:r.d}});
+    const sub=(t,b)=>b?`<h4 class="sdet-h">${t}</h4>${b}`:"";
+    const S=normScale(r.v,r.n,r.st), det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm],["Добавлено",M.details.from]].filter(x=>x[1]);
+    const about=(indicatorParts(r.title).length?`<button type="button" class="linkbtn labinfo" data-ind="${esc(r.title)}" data-dir="${labDir(r.v,r.n)}">Что это за показатель</button>`:"")
+      +(normScaleHtml(S)?`<div class="lr-sc">${normScaleHtml(S)}</div><div class="muted" style="font-size:13px">${esc(S.caption)}</div>`:"")
+      +(det.length?`<div class="sdet">${det.map(([k,v])=>{ const m=studyRowModel({title:k,text:v}); return m.long?`<div class="srow"><b>${esc(m.name)}</b><div>${esc(m.value)}</div></div>`:`<div class="srow"><b>${esc(m.name)}</b> — ${esc(m.value)}</div>`; }).join("")}</div>`:"");
+    const dynRows=card?card.rows:[], dyn=LF.histN>1&&dynRows.length>1?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th></tr></thead><tbody>${dynRows.map(x=>`<tr${x.d===r.d?' style="background:var(--accentbg)"':''}><td class="muted">${ru(x.d)}</td><td><b>${esc(String(x.v).replace(".",","))}</b>${x.u?" "+esc(x.u):""}</td><td class="muted">${esc(x.norm||"—")}</td></tr>`).join("")}</tbody></table></div>`:"";
+    const conseq=adv&&adv.consequence?`<p style="margin:4px 0">${esc((adv.level==="edge"?(adv.dir==="high"?"Если выйдет за верхнюю границу нормы: ":"Если выйдет за нижнюю границу нормы: "):(adv.dir==="high"?"Если выше нормы: ":"Если ниже нормы: "))+adv.consequence)}</p>`:"";
+    const thisHtml=SD.n>1?labRowsHtml(SD.same.map(x=>({title:x.title,v:x.v,n:x.n,st:x.st,rec:x})).map(row)):"";
+    const dayOther=sameDay.length+SD.other.length?`<div class="lrows">${SD.other.map(x=>labLineHtml(labRowModel(x,""))).join("")}</div>${sameDayHtml}`:"";
+    const more=sub("О показателе",about)+sub("К чему это может привести",conseq)+sub(`Динамика — ${labCountText(LF.histN,"значение","значения","значений")}`,dyn)
+      +sub(`Эта же сдача${SD.group?": "+esc(SD.group):""} — ${esc(SD.summary)}`,thisHtml)+sub("Заключение",(r.full&&r.full.length)?fullRows(r.full):"")+sub("Комментарий",M.verdict?`<p style="margin:4px 0">${esc(M.verdict)}</p>`:"")
+      +sub(`В этот же день — ещё ${sameDay.length+SD.other.length}`,dayOther)
+      +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка.</div>`:"")
+      +`<div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>${recGoAll(r)}${origHtml}${filesHtml}`;   // оригиналы — в самом конце (Денис, 04.10.2026)
+    const meaning=adv&&adv.state?adv.state:labMeaning(LF);
+    cardHtml=shell(`<h3 style="margin:0 0 2px;font-size:18px;padding-right:44px">${esc(r.title)}</h3><div class="muted" style="margin-bottom:6px">${ru(r.d)}</div>
+      <div class="labown"><b style="color:${statusColor(LF.status.cls)}">${esc(LF.value)}</b><span class="status status-${LF.status.cls}">${esc(LF.status.word)}</span></div>
+      <p class="lab-mean">${esc(meaning)}</p>
+      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(serHtml?`<div class="ind-ch">${serHtml}</div>`:"")}
       ${labAdvHtml(r,idOf(r))}
-      ${M.verdict?`<p class="verdict-line">${esc(M.verdict)}</p>`:""}
       ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,
         legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return rzHtml(tp); })()}
-      ${fold(`Показатели этой сдачи — ${esc(M.summary)}`,labRowsHtml(M.table.map(row)))}
-      ${rel}${concl}${dyn}${detHtml}
-      ${sameDay.length?fold(`В этот же день — ещё ${sameDay.length}`,sameDayHtml):""}
-      <div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>
-      ${recGoAll(r)}
-      ${origHtml}${filesHtml}`);   // оригиналы — в самом конце, после всех записей (Денис, 04.10.2026)
-  } else if(r.t==="instr"){   // ТЗ-010 блок 13: что сейчас и что делать — сверху, лекция — по желанию
-    const M=instrCardModel(r), A=M.actions;
+      <div style="margin:6px 0 2px">${favStar(cur,r.title)} <span class="muted" style="font-size:13px">следить за показателем</span></div>
+      ${fold("Подробнее",more)}`);
+  } else if(r.t==="instr"){   // ТЗ-070 блок 3: заключение → что требует внимания → графики → ИИ-врач → «Подробнее»
+    const M=instrCardModel(r), A=M.actions, R=studyReport(r), IS=labInstrRowModel(r), names=studyChartNames(r,D.series);
     const act=a=>a?`<div class="act"><b>${a.red?'<span class="red-dot">●</span> ':""}${esc(a.title)}</b><div>${esc(a.text)}</div></div>`:"";
-    cardHtml=shell(`${head(r.st)}
-      ${M.header.verdict?`<p class="verdict-line">${esc(M.header.verdict)}</p>`:""}
-      ${M.figures.length?`<h3 style="font-size:14px;margin:14px 0 6px">Ключевые цифры</h3><ul class="figs">${M.figures.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
-      ${M.main.length?`<h3 style="font-size:14px;margin:14px 0 6px">Главное</h3>${M.main.map(x=>fold(esc(x.title),esc(x.text))).join("")}`:""}
-      ${(A.watch||A.dont||A.when)?`<div class="acts"><h3 style="font-size:14px;margin:0 0 6px">Что делать</h3>${act(A.watch)}${act(A.dont)}${act(A.when)}</div>`:""}
+    const sers=D.series.filter(s=>names.includes(s.name)), serI=sers.map(sr=>`<div class="ser-t"><b>${esc(sr.name)}</b>${sr.unit?`<span class="muted">, ${esc(sr.unit)}</span>`:""}</div>${chart(sr)}`).join("");
+    const sub=(t,b)=>b?`<h4 class="sdet-h">${t}</h4>${b}`:"";
+    const more=sub("Ключевые цифры",M.figures.length?`<ul class="figs">${M.figures.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:"")
+      +sub("Главное",M.main.map(x=>`<p style="margin:4px 0"><b>${esc(x.title)}.</b> ${esc(x.text)}</p>`).join(""))
+      +((A.watch||A.dont||A.when)?`<div class="acts"><h4 class="sdet-h" style="margin-top:0">Что делать</h4>${act(A.watch)}${act(A.dont)}${act(A.when)}</div>`:"")
+      +studyDetailsHtml(M.more,r.title,{head:false})
+      +(sameDay.length?`<h4 class="sdet-h">В этот же день — ещё ${sameDay.length}</h4>${sameDayHtml}`:"")
+      +(o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:"")
+      +`<div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>${recGoAll(r)}${origHtml}${filesHtml}`;
+    cardHtml=shell(`<div class="status status-${IS.cls}" style="margin-bottom:8px">${esc(IS.status)}</div>
+      <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who?" · "+esc(r.who):""}</div>
+      ${R.lead?`<p class="verdict-line">${esc(R.lead)}</p>`:""}
+      ${R.attention.length?`<h3 class="labsec">Что требует внимания</h3><ul class="att-l">${R.attention.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p class="muted" style="margin:0 0 10px">${esc(R.empty)}</p>`}
+      ${serI}
       ${studyAskHtml(r,cur)}
-      ${studyDetailsHtml(M.more,r.title)}
-      ${serHtml?`<h3 style="font-size:14px;margin:18px 0 4px">Динамика${ser[0]?": "+esc(ser[0].name):""}</h3>${serHtml}`:""}
-      ${sameDay.length?`<h3 style="font-size:14px;margin:18px 0 6px">В этот же день — ещё ${sameDay.length}</h3>${sameDayHtml}`:""}
-      ${o?`<div class="note" style="background:var(--nonebg)"><b>${o.ic} ${esc(o.name)}</b><br>${esc(o.txt)}</div>`:""}
-      <div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>
-      ${recGoAll(r)}
-      ${origHtml}${filesHtml}`);
+      ${fold("Подробнее",more)}`);
   }
   document.getElementById("modal").innerHTML=cardHtml||`
     <div class="mbox" role="dialog" aria-modal="true">
@@ -4206,17 +4379,13 @@ function openRec(i,showSer){
   { const mb=document.querySelector("#modal .mbox"); if(mb) mb.scrollTop=0; }
 }
 
-let fbOpen=false;   // чипы систем свёрнуты под «＋», пока человек не развернул (Денис, 18.10.2026: тегов много)
+let fbOpen=false;   // чипы систем свёрнуты под «＋», пока человек не развернул (Денис, 18.10.2026: тегов много); в анализах вместо этого меню «Фильтры» (ТЗ-070)
 function filterBar(){
-  const d=DATA[cur], today=localDay(), hm=tab==="lab"?hpModel(d):null;
-  const chip=g=>{ const og=ORGANS.find(o=>o.id===g.id)||(g.id==="vit"?VIT_ORGAN:null), rk=og&&og!==VIT_ORGAN?organRisk(og.id,d.family,d.diagnoses):null,
-      t=tab!=="lab"?null:og?organTone(organDetail(og.id,hm.rows,hm.today,!!(rk&&rk.risk))):sysTone(d.rec,g.id==="other"?(x=>groupOfSys(x)==="other"):g.sys,{today,months:12,risk:false,grp:g.id}), v="grp:"+g.id;
-      return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}${t?" chip--"+t.tone:""}"${t?` title="${t.tone==="n"?"Анализов нет":(t.bad||t.old)?`Показателей: ${t.n}${t.bad?(/^r/.test(t.tone)?`, плохо: ${t.bad}`:`, требует внимания: ${t.bad}`):""}${t.old?`, давно не сдавались: ${t.old}`:""}`:`Показателей: ${t.n}, всё хорошо`}${rk&&rk.risk?" · зона риска":""}"`:""}>${esc(g.name)}</button>`; };
+  const chip=g=>{ const v="grp:"+g.id; return `<button data-f="${v}" class="chip${sysFilter===v?" chip--main":""}">${esc(g.name)}</button>`; };
   const shown=fbOpen?SYS_GROUPS:SYS_GROUPS.filter(g=>sysFilter==="grp:"+g.id);
   return `<div class="filters">
     <button data-f="" class="chip${sysFilter?"":" chip--main"}">Все системы</button>
     ${shown.map(chip).join("")}
-    ${tab==="lab"?`<div class="fb-legend muted"><span><i class="fb-dot fb-dot--o"></i>давно не сдавали</span><span><i class="fb-dot fb-dot--g"></i>всё хорошо</span><span><i class="fb-dot fb-dot--y"></i>требует внимания</span><span><i class="fb-dot fb-dot--r"></i>плохо</span></div>`:""}
     <button type="button" class="chip chip--more" data-fbtoggle="1" aria-expanded="${fbOpen}">${fbOpen?"Скрыть системы":`Системы · ${SYS_GROUPS.length}`}<svg class="ic ic--16 chip__arr${fbOpen?" is-up":""}" aria-hidden="true"><use href="#i-chevron"/></svg></button>
   </div>`;
 }
@@ -4471,7 +4640,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 10:13";   // подставляется при публикации
+const BUILD="26.10 10:43";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5642,7 +5811,7 @@ function rzTodosHtml(row,topic){
 }
 function rzSrc(r){ return (r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""; }
 // ТЗ-063 блок 2: текст кнопки первого разбора и подсказка до нажатия — один источник для карточек анализа, показателя, динамики, исследования и сохранённого анализа
-function rzFirst(){ return {label:"Объяснить простыми словами",hint:"Семейный ИИ-врач расскажет, что значат цифры и о чём спросить врача. Диагноз не ставит."}; }
+function rzFirst(){ return {label:"Спросить ИИ-врача",hint:"Семейный ИИ-врач расскажет, что значат цифры и о чём спросить врача. Диагноз не ставит."}; }
 function rzHtml(topic){
   const c=RZB[topic]; if(!c) return "";
   rzLoad(topic);
@@ -7962,14 +8131,45 @@ function epForm(epId){
 const newEpForm=()=>epForm(null), editEpForm=id=>epForm(id);
 
 // ── «＋ Добавить» (ТЗ-001 блок 6): один вход для любой записи. Пункт без готовой формы в меню не попадает ──
+// ── «Визит врача» (Денис 26.10.2026): один вход вместо «Визит» и «Итоги приёма». Состояние выбирается одним касанием; прежние входы в итоги (кнопка на карточке визита) ведут в тот же экран ──
+function visitHubInfo(plans,who,today,date){
+  const past=(plans||[]).filter(p=>p&&p.person===who&&p.status==="planned"&&p.planned_date&&p.planned_date<today).sort((a,b)=>String(b.planned_date).localeCompare(String(a.planned_date)))[0]||null;
+  return {past,state:!date||date<=today?"was":"plan"};
+}
+function visitHubHtml(plans,who,today,date){
+  const I=visitHubInfo(plans,who,today,date), p=I.past, dm=x=>String(x).slice(8,10)+"."+String(x).slice(5,7);
+  return `${p?`<button type="button" class="btn btn-primary btn-block" data-vhout="${esc(p.id)}">Итоги приёма для: ${esc(specName(p.specialty))} ${dm(p.planned_date)}</button><div class="muted" style="margin:8px 0 12px;font-size:13px">или выберите ниже</div>`:""}
+    <div class="fld"><label for="vhD">Дата приёма</label><input id="vhD" type="date" value="${esc(date||today)}"></div>
+    <div class="vhopts"><button type="button" class="btn ${I.state==="was"?"btn-primary":"btn-secondary"}" data-vhstate="was">Был(а) на приёме</button><button type="button" class="btn ${I.state==="plan"?"btn-primary":"btn-secondary"}" data-vhstate="plan">Записан(а) на приём</button></div>
+    <button type="button" class="linkbtn" data-vhmanual="1" style="min-height:44px;margin-top:6px">Внести приём вручную</button>`;
+}
+function visitHub(){
+  const d=DATA[cur], who=cur;
+  if(!PLANS&&window.__MK_KEY) mkApi("plan_list").then(j=>{ PLANS=j.rows||[]; const b=document.getElementById("vhBody"); if(b&&!(document.getElementById("vhD")||{}).dataset.touched) b.innerHTML=visitHubHtml(PLANS,who,localDay(),(document.getElementById("vhD")||{}).value); }).catch(()=>{ PLANS=PLANS||[]; });
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Визит врача — ${esc(d.short||d.name)}</h2><div id="vhBody">${visitHubHtml(PLANS,cur,localDay())}</div></div>`;
+}
+document.addEventListener("input",e=>{
+  if(!e.target||e.target.id!=="vhD") return; const st=e.target.value&&e.target.value>localDay()?"plan":"was";
+  document.querySelectorAll("[data-vhstate]").forEach(b=>{ const on=b.dataset.vhstate===st; b.classList.toggle("btn-primary",on); b.classList.toggle("btn-secondary",!on); });
+});
+document.addEventListener("click",e=>{
+  const T=e.target.closest&&e.target.closest("[data-vhout],[data-vhstate],[data-vhmanual]"); if(!T) return;
+  const date=(document.getElementById("vhD")||{}).value||"";
+  if(T.dataset.vhout){ const p=(PLANS||[]).find(x=>x.id===T.dataset.vhout); closeModal(); outcomeForm(p||null); return; }
+  if(T.dataset.vhmanual){ closeModal(); visitForm(); return; }
+  closeModal();
+  if(T.dataset.vhstate==="was") outcomeForm();
+  else planOpen({id:null,person:cur,specialty:docSt.spec,planned_date:date>localDay()?date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null});
+});
 function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
-  // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка, Итоги приёма — под «Ещё». Прививки здесь нет: вход — в Профиле здоровья и из дела плана (ТЗ-058)
-  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",f("visitForm")],
+  // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из дела плана (ТЗ-058)
+  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
     ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>newSymForm()],["meas",icon("scale"),"Замер",()=>measForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Дело",()=>ownForm()],
-    ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1],["outcome",icon("visits"),"Итоги приёма",()=>outcomeForm(),1]]
+    ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
 }
 function addMenuOpen(){
@@ -10994,11 +11194,11 @@ function indCardChart(c){
     return [ru(x.d),x.v,extra]; });
   if(pts.length<2) return "";
   const nr=(c.rows.map(r=>normRange(r.norm)).find(Boolean))||null;   // зона — из нормы последней записи, где она есть (ТЗ-061)
-  return chart({name:c.name,unit:c.unit,pts,lab:true,lo:nr&&!nr.upper?nr.lo:null,hi:nr?nr.hi:null});
+  return chart({name:c.name,unit:c.unit,pts,lab:true,nosum:!!c.nosum,lo:nr&&!nr.upper?nr.lo:null,hi:nr?nr.hi:null});
 }
-function indChartFor(name,rows){
+function indChartFor(name,rows,o){
   const cards=indicatorCards(name,rows), c=cards.find(x=>indicatorMatch(name,x.name)===3)||cards[0];
-  return c?indCardChart(c):"";
+  return c?indCardChart(o&&o.nosum?Object.assign({},c,{nosum:true}):c):"";
 }
 function indicatorBlock(){
   measLoad();
@@ -13302,6 +13502,7 @@ function render(){
   Promise.resolve().then(navSync);
   if(!DATA[cur]) cur=Object.keys(DATA)[0];   // человека нет в книжке (скрыт для этого кода) — первый из доступных
   const d=DATA[cur];
+  if(tab!=="lab"||LABF.cur!==cur) labfReset(); LABF.cur=cur;   // ТЗ-070: фильтры анализов не запоминаются между визитами
   // появление блоков — только при смене человека или вкладки, не при каждой перерисовке
   const view=cur+"|"+tab+"|"+nutLS("wrange","3m")+"|"+(typeof progWk!=="undefined"?progWk:""), mEl=document.getElementById("main");
   if(view!==lastView&&mEl){ lastView=view; mEl.classList.remove("enter"); void mEl.offsetWidth; mEl.classList.add("enter");
@@ -14130,12 +14331,12 @@ function render(){
           ${others.map(x=>`<span class="tag" data-w="${x.k}" style="cursor:pointer;font-size:13px;padding:4px 10px">${DATA[x.k].short} — ${x.n} →</span>`).join(" ")}</div>`:""}
       </div>`:""}
       <div class="card" id="s-rec">
-        <h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length+list2.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>
+        ${tab==="lab"&&!query?"":`<h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length+list2.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>`}
         ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
           <div id="vtab">${visitsTable(list,d)}</div>`
-        :`${tab==="all"&&!sysFilter?"":filterBar()}${tab==="lab"&&sysFilter?hpOrgCard(d,sysFilter):""}
-        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+(tlKind==="cal"?calBody():timeline(d)):(tab==="lab"?labInstrHtml(list,list2):tableRows(list,{showType:tab==="all"}))}`}
-        ${(!list.length&&!list2.length&&sysFilter&&other&&!String(sysFilter).startsWith("grp:"))?`<div style="text-align:center;margin-top:10px">
+        :`${tab==="all"&&!sysFilter?"":tab==="lab"?labTopHtml():filterBar()}
+        ${tab==="all"&&!sysFilter?`<div class="tabs tabs--scroll" id="tlKinds" style="padding:0 0 10px;background:none">${TL_FILTERS.map(([k,t])=>`<button data-tlk="${k}" class="tab${tlKind===k?" is-active":""}">${t}</button>`).join("")}</div>`+(tlKind==="cal"?calBody():timeline(d)):(tab==="lab"?labInstrHtml():tableRows(list,{showType:tab==="all"}))}`}
+        ${(tab!=="lab"&&!list.length&&!list2.length&&sysFilter&&other&&!String(sysFilter).startsWith("grp:"))?`<div style="text-align:center;margin-top:10px">
           <button class="btn btn-primary btn-block" style="max-width:320px" data-sys="${sysFilter}">Показать все ${other} записей системы →</button></div>`:""}
       </div>
       ${query?`
@@ -14354,9 +14555,8 @@ document.addEventListener("click",e=>{
   const sal=e.target.closest("#symAllLink"); if(sal){ e.preventDefault(); symAllOpen=!symAllOpen;
     const c=document.getElementById("symAllCard"); if(c) c.hidden=!symAllOpen;
     sal.textContent=symAllOpen?"Скрыть историю ▴":sal.textContent.replace(/▴/,"▾").replace("Скрыть историю ▾",`Все симптомы — ${document.querySelectorAll("#symAllCard tbody tr").length}, вся история ▾`); return; }
-  if(e.target.closest("#recAddInstr")){ if(typeof docForm==="function") docForm(); return; }
   const pgm=e.target.closest("[data-pgmore]"); if(pgm){ pgShown[pgm.dataset.pgmore]+=10; render(); return; }
-  if(e.target.closest("#recAdd")){ const f=tab==="visit"?visitForm:tab==="lab"?labForm:docForm; if(typeof f==="function") f(); return; }   // исследование — документом или текстом: отдельной формы нет
+  if(e.target.closest("#recAdd")){ const f=tab==="visit"?visitForm:tab==="lab"?addMenuOpen:docForm; if(typeof f==="function") f(); return; }   // исследование — документом или текстом: отдельной формы нет
   if(e.target.closest("#newEp")){ newEpForm(); return; }
   const em=e.target.closest(".editmed"); if(em){ e.stopPropagation(); medForm(+em.dataset.entry); return; }
   const of=e.target.closest("[data-origfile]"); if(of){ e.stopPropagation(); const w=window.open("","_blank");
