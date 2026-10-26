@@ -113,6 +113,7 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .hpv2__row{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:12px}.hpv2__n{line-height:1.1;text-align:left}.hpv2__info{margin-top:6px}.hpv2__info>summary{display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;cursor:pointer;color:var(--accent);list-style:none;font-weight:700}.hpv2__info>summary::-webkit-details-marker{display:none}
 .watchhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:34px}.watchhead h2{margin:0}
 .meashead{display:flex;align-items:center;justify-content:space-between;gap:8px}.meashead h2{margin:0}.measplus{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--accent);font-size:24px;line-height:1;cursor:pointer}.measrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}.measrow:first-of-type{border-top:0}.measrow__n{flex:0 0 96px;color:var(--muted)}.measrow__v{flex:1 1 auto;min-width:0}.measrow__d{color:var(--muted);font-size:14px}.measrow__w{font-size:13px;white-space:nowrap}.meas-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}.meas-urgent{margin:0 0 8px;background:var(--badbg,#fdecea);color:var(--bad)}.meas-skel{height:44px;margin-top:6px;border-radius:8px;background:var(--line);opacity:.5}@media (prefers-reduced-motion:no-preference){.meas-skel{animation:measpulse 1.4s ease-in-out infinite}}@keyframes measpulse{50%{opacity:.25}}
+.measrow{display:flex;align-items:center;flex-wrap:nowrap;justify-content:space-between;gap:12px}.measrow__l{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}.measrow__l .measrow__n{flex:none;font-size:14px}.measrow__l .measrow__v{flex:none;font-size:18px}.measrow__l .measrow__d{font-size:13px}.sm{flex:none;display:block}.sm__l{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.sm__d{fill:var(--accent)}.sm__band{fill:var(--line);opacity:.5}.mrange{margin:4px 0 8px}.mrange button{min-height:44px}.meastile__add{min-height:44px;padding:0}
 #vacCard .tbl td:first-child{width:36%;min-width:104px;overflow-wrap:normal;word-break:normal;hyphens:manual}#vacCard .tbl td:nth-child(3){white-space:nowrap}.signal{padding:6px 0}.sigrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.signals{border-bottom:1px solid var(--line);margin-bottom:8px}.illmerge{margin:8px 0}.illmerge .row .btn{flex:1 1 0;min-width:0}.illsel__foot{position:sticky;bottom:0;background:var(--card);padding:8px 0;gap:8px;display:flex}.illsel__foot .btn{flex:1 1 0;min-width:0}.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .illrow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 10px;min-height:44px;padding:4px 0;border-top:1px solid var(--line)}.illrow:first-child{border-top:0}.illrow__b{display:flex;gap:8px}.illrow__b .btn{min-height:44px;padding:0 12px}.chip--maybe{display:inline-flex;align-items:center;gap:2px}.ill-follow{width:100%}
 .vachead{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:8px}.vachead h2{margin:0;flex:1 1 auto}.vacplus{min-width:44px;min-height:44px}.vac-more>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent)}
@@ -614,6 +615,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .labown{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;margin:2px 0 6px} .labown b{font-size:26px;letter-spacing:-.5px} .labsec{font-size:14px;margin:14px 0 6px;color:var(--muted)} .ind-chart-row td{padding:0 0 10px!important} .ind-chart-row .btn{margin-top:6px}
 .labadv{border-radius:14px;padding:12px 14px;margin:8px 0 12px;background:var(--negative-soft,#ffe9ec)} .labadv--edge{background:var(--warning-soft,#fff0e5)} .labadv__l{margin:6px 0 0;padding-left:20px} .labadv__l li{margin-bottom:5px}
 .rzdocs{margin-bottom:10px} .rzdoc{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)} .rzdoc .btn{flex:none} .rzrec{align-items:center}
+.reco__it{padding:12px 0;border-top:1px solid var(--line)}.reco h2+.reco__it{border-top:0;padding-top:4px}.reco__row{display:flex;gap:10px;align-items:flex-start}.reco__row .ic{flex:none;margin-top:2px;color:var(--muted)}.reco__t{font-size:16px;line-height:1.35}.reco__btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.reco__btns .btn{min-height:44px;font-size:14px}.reco__btns{align-items:center}.reco__why{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--bg2,rgba(127,127,127,.08));font-size:14px}.reco__why p{margin:0 0 6px}.reco__why ul{margin:0;padding:0;list-style:none}.reco__why li{margin:6px 0}.reco__why .linkbtn{display:block;width:100%;text-align:left;min-height:44px;padding:8px 0}.reco__it--dis{border-left:3px solid var(--line);padding-left:10px}.reco__no{min-height:44px;padding:0 10px;color:var(--muted)}.reco__st{margin:0 0 8px}.reco__foot{margin:10px 0 0;font-size:13px}.reco__foot .linkbtn{min-height:44px;padding:0;margin-left:2px}
 .labvals{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;font-size:22px;letter-spacing:-.4px;margin:2px 0}
 .verdict-line{margin:6px 0 12px;color:var(--ink)}
 .figs{margin:0 0 4px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -623,7 +625,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .watchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
 .watchtile{background:var(--surface-2,#f3f4f6);border-radius:12px;padding:10px 12px;cursor:pointer;min-width:0}
 .watchtile__n{font-size:13px;font-weight:600;line-height:1.25;min-height:32px}.watchtile__v{font-size:20px;font-weight:700;margin-top:2px}
-.watchtile .spark{height:26px;margin-top:4px}.watchtile__s{font-size:12px;margin-top:2px}
+.watchtile__row{display:flex;align-items:center;justify-content:space-between;gap:8px}.watchtile__row .sm{margin-top:2px}.watchtile__s{font-size:12px;margin-top:2px}
 @media (max-width:700px){.hblk .tbl td:nth-child(4){display:none}}
 .row-done td{color:var(--muted)!important}.row-done .status{background:var(--surface-2,#eceff3)!important;color:var(--muted)!important}.row-done .status::before,.row-done .status i{display:none}.row-done b{font-weight:500}.row-done .rowdone__b{background:transparent}
 .rowdone{width:34px;text-align:center}.rowdone__b{border:1px solid var(--border,#d0d5dd);background:var(--card,#fff);color:var(--muted);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1}.rowdone__b:hover{background:var(--okbg,#e7f6ec);color:var(--ok,#157f3b)}
@@ -3906,6 +3908,64 @@ function labPlanForm(o){
   };
 }
 const labPlanned=src=>((DATA[cur]||{}).soon||[]).find(x=>src&&x.src===src);
+// ── ТЗ-067: «На ближайшие две недели» — три коротких совета, считает сервер (mk → reco_get / reco_generate / reco_dismiss) ──
+const RECO={}, RECO_OPEN={}, RECO_ICON={regime:"calendar",food:"nutr",sleep:"clock",activity:"m-pulse",discuss:"s-gen"};
+// один пункт: текст, «Почему» (только если есть факты), «Не подходит»; раскрытие — why и факты со ссылками на записи-источники
+function recoItemHtml(it,facts,open){
+  const F=(it.facts||[]).map(id=>(facts||{})[id]).filter(Boolean), can=F.length>0;
+  return `<div class="reco__it${it.kind==="discuss"?" reco__it--dis":""}" data-recokey="${esc(it.key)}"><div class="reco__row">${icon(RECO_ICON[it.kind]||"calendar","ic--20")}<span class="reco__t">${esc(it.text)}</span></div>
+    <div class="reco__btns">${can?`<button type="button" class="btn btn-secondary" data-recowhy="${esc(it.key)}" aria-expanded="${open?"true":"false"}">Почему</button>`:""}<button type="button" class="linkbtn reco__no" data-recono="${esc(it.key)}">Не подходит</button></div>
+    ${can&&open?`<div class="reco__why"><p>${esc(it.why||"")}</p><ul>${F.map(f=>`<li>${f.l&&f.l!=="diet"&&f.l!=="bp"?`<button type="button" class="linkbtn" data-recofact="${esc(f.l)}">${esc(f.t)}</button>`:esc(f.t)}</li>`).join("")}</ul></div>`:""}</div>`;
+}
+function recoCardHtml(st,child,open){
+  const H=`<div class="card reco" id="reco"><h2>На ближайшие две недели</h2>`;
+  if(!st||st.state==="loading"||st.state==="running") return H+`<p class="muted reco__st" role="status">Собираем советы…</p></div>`;
+  if(st.state==="error") return H+`<p class="muted reco__st">Не получилось. Попробуйте позже</p><button type="button" class="btn btn-secondary" data-recoref="1">Обновить</button></div>`;
+  const L=st.items||[];
+  if(!L.length) return H+`<p class="muted reco__st">Пока нечего советовать${child?"":". Добавьте замеры или записи"}</p></div>`;
+  return H+L.map(it=>recoItemHtml(it,st.facts,!!(open||{})[it.key])).join("")+`<p class="muted reco__foot">Это советы по образу жизни, не лечение.${st.can_refresh?` <button type="button" class="linkbtn" data-recoref="1">Обновить</button>`:""}</p></div>`;
+}
+function recoPaint(p){
+  if(tab!=="home"||cur!==p) return; const el=document.getElementById("reco"); if(!el){ return; }
+  el.outerHTML=recoCardHtml(RECO[p],((DATA[p]||{}).age!=null&&DATA[p].age<18),RECO_OPEN);
+}
+async function recoLoad(p){
+  if(!window.__MK_KEY) return; const S=RECO[p]||(RECO[p]={state:"loading"});
+  if(S.busy||(S.day===localDay()&&(S.state==="done"||S.state==="empty")&&!S.force)) return;
+  S.busy=true; S.day=localDay(); const force=!!S.force; S.force=false;
+  try{
+    let j=await mkApi("reco_get",{person:p});
+    if(j.state==="none"||(force&&j.state==="done")){
+      if(force) { S.state="running"; recoPaint(p); }
+      const g=await mkApi("reco_generate",{person:p,refresh:force});
+      if(g.empty){ Object.assign(S,{state:"empty",items:[],facts:{},can_refresh:false}); return; }
+      j=await mkApi("reco_get",{person:p});
+    }
+    for(let i=0;i<15&&j.state==="running";i++){ S.state="running"; recoPaint(p); await new Promise(z=>setTimeout(z,3000)); j=await mkApi("reco_get",{person:p}); }
+    if(j.state==="running") j={state:"error"};
+    Object.assign(S,{state:j.state==="none"?"empty":j.state,items:j.items||[],facts:j.facts||{},can_refresh:!!j.can_refresh});
+  }catch(e){ S.state="error"; }
+  finally{ S.busy=false; recoPaint(p); }
+}
+// html карточки для главной; у человека, скрывшего блок, модель не вызывается
+function recoHome(){
+  if(!window.__MK_KEY) return ""; if((layoutEff(cur).hidden||[]).includes("reco")) return "";
+  recoLoad(cur); return recoCardHtml(RECO[cur],((DATA[cur]||{}).age!=null&&DATA[cur].age<18),RECO_OPEN);
+}
+function recoFactGo(l){
+  const m=/^sym:(.+)$/.exec(l); if(m){ symSel=m[1]; symFocus=localDay(); tab="sym"; render(); window.scrollTo(0,0); return; }
+  const t={lab:"lab",cond:"dx",med:"meds",visit:"visit"}[l]; if(t){ goTab(t); render(); window.scrollTo(0,0); }
+}
+document.addEventListener("click",e=>{
+  const T=e.target.closest&&e.target.closest("[data-recowhy],[data-recono],[data-recofact],[data-recoref]"); if(!T) return;
+  const S=RECO[cur];
+  if(T.dataset.recowhy){ RECO_OPEN[T.dataset.recowhy]=!RECO_OPEN[T.dataset.recowhy]; recoPaint(cur); return; }
+  if(T.dataset.recofact){ recoFactGo(T.dataset.recofact); return; }
+  if(T.dataset.recoref){ if(S&&!S.busy){ S.force=true; S.state=S.state==="error"?"loading":S.state; recoLoad(cur); } return; }
+  if(T.dataset.recono&&S){ const key=T.dataset.recono, p=cur, was=S.items||[];
+    S.items=was.filter(i=>i.key!==key); recoPaint(p);
+    mkApi("reco_dismiss",{person:p,key}).catch(()=>{ S.items=was; recoPaint(p); toast("Не сохранилось, нажмите ещё раз"); }); }
+});
 const RZREC_K="mk_rzrec_hide";
 const rzrecHidden=()=>{ try{ return JSON.parse(localStorage.getItem(RZREC_K)||"{}")||{}; }catch(e){ return {}; } };
 // визит к рекомендованному врачу: форма «Предстоящий визит» уже заполнена причиной из разбора
@@ -4408,7 +4468,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 06:25";   // подставляется при публикации
+const BUILD="26.10 09:59";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6879,8 +6939,50 @@ function measSummaryFor(d,today){
   const mk=f=>f?{measured_on:f.d,weight_kg:+f.v}:null;
   return Object.assign({},S,{last:Object.assign({},S.last,{weight:{last:mk(l),prev:mk(pv)}})});
 }
+// ── Микро-график (Денис 26.10.2026): 64×24, линия без осей, последняя точка кружком, едва заметная зона нормы; меньше двух точек — ничего
+function sparkMini(pts,o){
+  const P=(pts||[]).map(Number).filter(v=>isFinite(v)); if(P.length<2) return "";
+  o=o||{}; const lo=o.lo!=null&&isFinite(+o.lo)?+o.lo:null, hi=o.hi!=null&&isFinite(+o.hi)?+o.hi:null, W=64, H=24, pad=3;
+  let mn=Math.min(...P), mx=Math.max(...P); if(lo!=null) mn=Math.min(mn,lo); if(hi!=null) mx=Math.max(mx,hi);
+  const y=v=>mx===mn?H/2:H-pad-(v-mn)/(mx-mn)*(H-2*pad), x=i=>pad+i*(W-2*pad)/(P.length-1);
+  const y1=hi!=null?y(hi):0, y2=lo!=null?y(lo):H;
+  const band=(lo!=null||hi!=null)?`<rect class="sm__band" x="0" y="${y1.toFixed(1)}" width="${W}" height="${Math.max(0,y2-y1).toFixed(1)}"/>`:"";
+  return `<svg class="sm" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${band}<path class="sm__l" d="${P.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1)).join(" ")}"/><circle class="sm__d" cx="${x(P.length-1).toFixed(1)}" cy="${y(P[P.length-1]).toFixed(1)}" r="2.5"/></svg>`;
+}
+// ряд замера [{d:"ГГГГ-ММ-ДД", v}] (по возрастанию) → числа за последние days дней; меньше двух точек — пусто
+function measSeriesPts(rows,today,days){
+  const from=new Date(Date.parse(today+"T12:00:00Z")-days*864e5).toISOString().slice(0,10);
+  const L=(rows||[]).filter(r=>r&&r.d>from&&r.d<=today&&isFinite(+r.v)).map(r=>+r.v); return L.length>=2?L:[];
+}
+// «−0,4 кг за месяц»: первая и последняя точка за последние 35 дней; без оценок
+function measMonthText(rows,today,unit){
+  const from=new Date(Date.parse(today+"T12:00:00Z")-35*864e5).toISOString().slice(0,10);
+  const L=(rows||[]).filter(r=>r&&r.d>=from&&r.d<=today&&isFinite(+r.v)); if(L.length<2) return "";
+  const dv=Math.round((+L[L.length-1].v-+L[0].v)*10)/10; if(dv===0) return "без изменений за месяц";
+  return (dv>0?"+":"−")+String(Math.abs(dv).toFixed(1)).replace(".",",")+(unit?" "+unit:"")+" за месяц";
+}
+// строки полного графика за период: 1m — 30 дней, 3m — 91, 1y — 365, all — все; asc — [{day,value}] по возрастанию
+function measRangeRows(asc,range,today){
+  const n={"1m":30,"3m":91,"1y":365}[range]; if(!n) return asc.slice();
+  const from=new Date(Date.parse(today+"T12:00:00Z")-n*864e5).toISOString().slice(0,10); return asc.filter(r=>r.day>from);
+}
+// ряды плитки «Замеры»: вес (замеры тела + вес из «Питания»), давление (верхнее), остальные — из metric_list; грузятся один раз на человека
+const MSER={}, MSERL={};
+function measSerAll(p,S){
+  if(!window.__MK_KEY||!S||typeof S!=="object") return {};
+  const out={}, keys=Object.keys(S.last||{}).filter(k=>S.last[k]&&S.last[k].last&&!k.startsWith("custom:"));
+  const load=(k,fn)=>{ const id=p+":"+k; if(MSERL[id]) return; MSERL[id]=1; fn().then(rows=>{ MSER[id]=rows; if(typeof tab!=="undefined"&&tab==="home"&&cur===p) render(); }).catch(()=>{ MSER[id]=MSER[id]||[]; }); };
+  for(const k of keys){
+    const id=p+":"+k;
+    if(k==="weight"){ load(k,async()=>(await mkApi("body_list",{person:p})).rows.filter(r=>r.weight_kg!=null).map(r=>({d:r.measured_on,v:+r.weight_kg})));
+      out[k]=nutMerge([...(MSER[id]||[]),...((DATA[p]&&DATA[p].nutrition)?nutLS("weight",[],p).filter(f=>f&&f.d&&f.v).map(f=>({d:f.d,v:+f.v})):[])]); }
+    else if(k==="bp"){ bpLoad(); out[k]=(BPS[p]||[]).slice().reverse().map(r=>({d:dzDayOf(r.measured_at),v:+r.sys})); }
+    else { load(k,async()=>(await mkApi("metric_list",{person:p,metric:k})).rows.slice().reverse().map(r=>({d:dzDayOf(r.measured_at),v:+r.value}))); out[k]=MSER[id]||[]; }
+  }
+  return out;
+}
 // S — ответ measures_summary ({last:{weight,bp,height,…:{last,prev}}}); → {rows (на виду ≤4), rest, more}. Вес и давление первые, остальные по свежести; давление старше 90 дней и остальное старше 365 — не показываем
-function measTile(S,today,hidden){
+function measTile(S,today,hidden,ser){
   const MEAS_MON=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"], L=(S&&S.last)||{}, H=hidden||[], out=[], fmt=n=>String(n).replace(".",","), tdn=new Date(today+"T12:00:00");
   const age=day=>Math.round((tdn-new Date(day+"T12:00:00"))/864e5);
   const when=day=>{ const a=age(day); if(a<=0) return "сегодня"; if(a===1) return "вчера"; return +day.slice(8,10)+" "+MEAS_MON[+day.slice(5,7)-1]; };
@@ -6888,12 +6990,12 @@ function measTile(S,today,hidden){
   for(const key of Object.keys(L)){
     const e=L[key]; if(!e||!e.last) continue;
     if(key==="weight"){ if(H.includes("weight")) continue; const day=e.last.measured_on; if(!day||age(day)>365||e.last.weight_kg==null) continue;
-      out.push({key,name:"Вес",value:fmt(+e.last.weight_kg),unit:"кг",delta:e.prev&&e.prev.weight_kg!=null?delta(+e.last.weight_kg,+e.prev.weight_kg):"",when:when(day),day,sub:"",urgent:false}); }
+      out.push({key,name:"Вес",value:fmt(+e.last.weight_kg),unit:"кг",delta:measMonthText((ser||{}).weight,today,"кг")||(e.prev&&e.prev.weight_kg!=null?delta(+e.last.weight_kg,+e.prev.weight_kg):""),when:when(day),day,sub:"",urgent:false,spark:sparkMini(measSeriesPts((ser||{}).weight,today,90))}); }
     else if(key==="bp"){ if(H.includes("bp")) continue; const day=dzDayOf(e.last.measured_at); if(age(day)>90) continue;
-      out.push({key,name:"Давление",value:e.last.sys+"/"+e.last.dia,unit:"",delta:"",when:when(day),day,sub:e.last.pulse?"пульс "+e.last.pulse:"",urgent:!!bpClass(e.last.sys,e.last.dia).urgent}); }
+      out.push({key,name:"Давление",value:e.last.sys+"/"+e.last.dia,unit:"",delta:"",when:when(day),day,sub:e.last.pulse?"пульс "+e.last.pulse:"",urgent:!!bpClass(e.last.sys,e.last.dia).urgent,spark:sparkMini(measSeriesPts((ser||{}).bp,today,90),{lo:90,hi:140})}); }
     else { if(H.includes(key)) continue; const r=e.last, day=dzDayOf(r.measured_at); if(age(day)>365) continue;
       const D=key.startsWith("custom:")?null:measDef(key), name=D?D[1]:(r.label||key.slice(7)), unit=D?D[2]:(r.unit||"");
-      out.push({key,name,value:fmt(+r.value),unit,delta:e.prev?delta(+r.value,+e.prev.value):"",when:when(day),day,sub:"",urgent:false,label:D?"":(r.label||""),metric:D?key:"custom"}); }
+      out.push({key,name,value:fmt(+r.value),unit,delta:measMonthText((ser||{})[key],today,unit)||(e.prev?delta(+r.value,+e.prev.value):""),when:when(day),day,sub:"",urgent:false,label:D?"":(r.label||""),metric:D?key:"custom",spark:key.startsWith("custom:")?"":sparkMini(measSeriesPts((ser||{})[key],today,90))}); }
   }
   const rank=r=>r.key==="weight"?0:r.key==="bp"?1:2;
   out.sort((a,b)=>rank(a)-rank(b)||(rank(a)===2?String(b.day).localeCompare(String(a.day)):0));
@@ -6905,9 +7007,10 @@ function measTileHtml(S,today,o){
   if(S==="err") return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><p class="muted" style="margin:0">Замеры не загрузились. Обновите страницу</p></div>`;
   if(S===1) return `<div class="card meastile" aria-busy="true"><div class="meashead"><h2>Замеры</h2></div><div class="meas-skel"></div><div class="meas-skel"></div></div>`;
   if(!S||typeof S!=="object") return "";
-  const T=measTile(S,today,o.hidden); if(!T.rows.length) return "";
-  const row=r=>`<button type="button" class="measrow" data-measopen="${esc(r.metric||r.key)}"${r.label?` data-measlab="${esc(r.label)}"`:""}${r.unit?` data-measun="${esc(r.unit)}"`:""}${r.key==="weight"&&o.nutrition?` data-measnut="1"`:""}>
-      <span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span>${r.delta?`<span class="measrow__d">${esc(r.delta)}</span>`:""}<span class="measrow__w muted">${esc(r.when)}</span></button>
+  const T=measTile(S,today,o.hidden,o.ser); if(!T.rows.length&&(o.hidden||[]).length) return "";   // всё скрыто человеком — плитки нет
+  if(!T.rows.length) return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><button type="button" class="linkbtn meastile__add" data-measadd="1">Добавить замер</button></div>`;
+  const row=r=>`<button type="button" class="measrow" data-measopen="${esc(r.metric||r.key)}"${r.label?` data-measlab="${esc(r.label)}"`:""}${r.unit?` data-measun="${esc(r.unit)}"`:""}>
+      <span class="measrow__l"><span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span><span class="measrow__d">${r.delta?esc(r.delta)+" · ":""}${esc(r.when)}</span></span>${r.spark||""}</button>
     ${r.urgent?`<div class="note meas-urgent">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}`;
   return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2><button type="button" class="measplus" data-measadd="1" aria-label="Добавить замер">+</button></div>
     ${T.rows.map(row).join("")}${T.more?`<details class="meas-more"><summary>Ещё ${T.more}</summary>${T.rest.map(row).join("")}</details>`:""}</div>`;
@@ -6917,6 +7020,8 @@ function homeOrderMerge(ids){
   const out=[]; for(const x of ids||[]){ const y=(x==="body"||x==="bp")?"meas":x; if(!out.includes(y)) out.push(y); } return out;
 }
 // история замера: график от двух точек и список с удалением
+let MHIST=null, MRANGE=(()=>{ try{ return localStorage.getItem("mk_meas_range")||"3m"; }catch(e){ return "3m"; } })();
+const MRANGES=[["1m","Месяц"],["3m","3 мес"],["1y","Год"],["all","Всё"]];
 async function measHistory(key,label,unit){
   const D=measDef(key); if(!D) return; if(key==="bp"){ bpHistory(); return; }
   const who=cur, nm=key==="custom"?label:D[1], un=key==="custom"?unit:D[2];
@@ -6924,15 +7029,31 @@ async function measHistory(key,label,unit){
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h3 style="margin:0 0 6px;font-size:18px">${esc(nm)} — история, ${esc(DATA[who].short)}</h3><div class="muted" id="measHist">Загружаю…</div></div>`;
   let rows;
   try{
-    if(key==="weight"){ const j=await mkApi("body_list",{person:who}); rows=(j.rows||[]).filter(r=>r.weight_kg!=null).map(r=>({id:null,day:r.measured_on,value:+r.weight_kg,at:r.measured_on+"T12:00:00",note:""})).reverse(); }
+    if(key==="weight"){ const j=await mkApi("body_list",{person:who}); rows=(j.rows||[]).filter(r=>r.weight_kg!=null).map(r=>({id:null,day:r.measured_on,value:+r.weight_kg,at:r.measured_on+"T12:00:00",note:""}));
+      if(DATA[who]&&DATA[who].nutrition) nutLS("weight",[],who).filter(f=>f&&f.d&&f.v&&!rows.some(r=>r.day===f.d)).forEach(f=>rows.push({id:null,day:f.d,value:+f.v,at:f.d+"T12:00:00",note:""}));
+      rows.sort((a,b)=>b.day.localeCompare(a.day)); }
     else { const j=await mkApi("metric_list",{person:who,metric:key,label:key==="custom"?label:undefined}); rows=(j.rows||[]).map(r=>({id:r.id,day:dzDayOf(r.measured_at),value:+r.value,at:r.measured_at,note:r.note||""})); }
   }catch(e){ const h=document.getElementById("measHist"); if(h) h.textContent="Не получилось загрузить — нет связи."; return; }
-  const asc=rows.slice().reverse(), fmt=n=>String(n).replace(".",","), h=document.getElementById("measHist"); if(!h) return;
-  const delta=asc.length>1?measDelta(un,{value:asc[asc.length-2].value,at:asc[asc.length-2].at},{value:asc[asc.length-1].value,at:asc[asc.length-1].at}):"";
-  h.className=""; h.innerHTML=`${asc.length>1?`${chart({name:nm,unit:un,pts:asc.map(r=>[ru(r.day),r.value])})}${delta?`<div class="muted" style="font-size:13px">${esc(delta)}</div>`:""}`:`<div class="muted">График появится после двух замеров</div>`}
+  MHIST={key,label,unit,nm,un,who,rows}; measHistoryBody();
+}
+// содержимое окна истории: период, график с точками, изменение, цель (у веса, если задана), таблица с удалением
+function measHistoryBody(){
+  const H=MHIST, h=document.getElementById("measHist"); if(!H||!h) return;
+  const {key,label,unit,nm,un,rows}=H, fmt=n=>String(n).replace(".",","), today=localDay();
+  const all=rows.slice().reverse(), asc=measRangeRows(all,MRANGE,today);
+  const delta=asc.length>1?measDelta(un,{value:asc[0].value,at:asc[0].at},{value:asc[asc.length-1].value,at:asc[asc.length-1].at}):"";
+  const goal=key==="weight"&&H.who==="denis"&&typeof NUT_GOAL!=="undefined"&&DATA[H.who]&&DATA[H.who].nutrition?NUT_GOAL:null, lastV=all.length?all[all.length-1].value:null;
+  h.className=""; h.innerHTML=`<div class="ptabs mrange" role="group" aria-label="Период">${MRANGES.map(([k,t])=>`<button type="button" data-mrange="${k}" class="${k===MRANGE?"on":""}" aria-pressed="${k===MRANGE}">${t}</button>`).join("")}</div>
+    ${asc.length>1?`${chart({name:nm,unit:un,pts:asc.map(r=>[ru(r.day),r.value])})}${delta?`<div class="muted" style="font-size:13px">${esc(delta)}</div>`:""}`:`<div class="muted" style="margin:8px 0">${all.length>1?"За этот период замеров меньше двух — выберите период длиннее":"График появится после двух замеров"}</div>`}
+    ${goal!=null&&lastV!=null?`<div class="muted" style="font-size:13px;margin-top:4px">Цель ${fmt(goal)} кг · сейчас ${fmt(lastV)} кг${lastV>goal?` · осталось ${fmt(Math.round((lastV-goal)*10)/10)} кг`:""}</div>`:""}
+    ${key==="weight"&&DATA[H.who]&&DATA[H.who].nutrition?`<button type="button" class="linkbtn" data-measnut="1" style="min-height:44px">Вес в «Питании» — план и форма записи →</button>`:""}
     ${rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>${esc(nm)}</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr><td>${ru(r.day)}${r.note?`<div class="muted" style="font-size:12px">${esc(r.note)}</div>`:""}</td><td><b>${fmt(r.value)}</b> ${esc(un)}</td>
       <td>${r.id?`<button type="button" class="linkbtn" data-measdel="${r.id}" data-measkey="${key}" data-measlab="${esc(label||"")}" data-measun="${esc(unit||"")}" aria-label="Удалить замер" style="min-width:44px;min-height:44px">Удалить</button>`:""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="muted">Записей пока нет</div>`}`;
 }
+document.addEventListener("click",e=>{
+  const r=e.target.closest&&e.target.closest("[data-mrange]"); if(r){ MRANGE=r.dataset.mrange; try{ localStorage.setItem("mk_meas_range",MRANGE); }catch(x){} measHistoryBody(); return; }
+  if(e.target.closest&&e.target.closest("[data-measnut]")&&MHIST&&document.getElementById("measHist")){ closeModal(); tab="nutr"; nutSub="weight"; render(); window.scrollTo({top:0}); }
+});
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("[data-measkey]");
   if(t&&document.getElementById("measBox")&&!t.dataset.measdel){ if(t.dataset.measkey==="bp"){ closeModal(); bpForm(); return; }
@@ -8977,7 +9098,7 @@ function homeAssemble(html,saved,key,defaults,hidden){
 // ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
 // Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
 const LAYOUT_OLD={diary:"track",body:"meas",bp:"meas"}, LAYOUT_PAGE={track:["diary","track"],meas:["meas"]};
-const LAYOUT_NAMES={todo:"План здоровья",track:"Слежу",meas:"Замеры",watch:"Ключевые показатели",changes:"Что изменилось",now:"Сейчас",hp:"Профиль здоровья",kpi:"Карточка здоровья",reg:"Регулярные визиты",rzrec:"Советы по разборам",system:"Система",plan:"План на ближайшее",signal:"Пора к врачу"};
+const LAYOUT_NAMES={todo:"План здоровья",track:"Слежу",meas:"Замеры",watch:"Ключевые показатели",changes:"Что изменилось",now:"Сейчас",hp:"Профиль здоровья",kpi:"Карточка здоровья",reg:"Регулярные визиты",rzrec:"Советы по разборам",reco:"На ближайшие две недели",system:"Система",plan:"План на ближайшее",signal:"Пора к врачу"};
 const layoutCat=id=>LAYOUT_OLD[id]||id;
 let LAYOUT={}, LAYOUTLOADED={};
 try{ LAYOUT=JSON.parse(localStorage.getItem("mk_layout")||"{}")||{}; }catch(e){ LAYOUT={}; }
@@ -13216,7 +13337,7 @@ function render(){
     m.innerHTML=homeAssemble(`
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2></div>
     <div class="lsetrow"><button type="button" class="linkbtn lset" data-layout="1">Настроить главную</button></div>
-    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition})}
+    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today))})}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
       ${signalHtml(signalsNow())}
@@ -13225,6 +13346,8 @@ function render(){
         return `${HP.list.length?`<div class="muted plan-sum">${esc(planSummary(todoV,today))}</div><div class="plan-list">${HP.list.map(x=>planRow(x,today)).join("")}</div>`:`<div class="muted">Срочных дел нет</div>`}
         ${HP.hiddenNoDate?`<button type="button" class="linkbtn plan-more" data-t="todo" style="min-height:44px">Ещё ${HP.hiddenNoDate} без срока</button>`:""}
         <button class="btn btn-secondary btn-block" style="margin-top:10px" data-t="todo">Весь план (${HP.total}) →</button></div>`; })()}
+
+    <!--B:reco-->${recoHome()}
 
     <!--B:track-->${homeTrackHtml(today)}
 
@@ -13238,8 +13361,7 @@ function render(){
       
       ${watchRows.length?`<div class="watchgrid">${watchRows.map(x=>`<div class="watchtile" data-favopen="${esc(x.name)}">
         <div class="watchtile__n"><span>${esc(x.name)}${indBtn(x.name)}</span><span class="watchtile__star">${favStar(cur,x.name)}</span></div>
-        <div class="watchtile__v" style="color:${statusColor(x.st)}">${esc(x.v)}</div>
-        ${sparkSvg(x.pts,x.trend.dir)}
+        <div class="watchtile__row"><div class="watchtile__v" style="color:${statusColor(x.st)}">${esc(x.v)}</div>${sparkMini(x.pts)}</div>
         <div class="muted watchtile__s">${x.prev?`было ${esc(x.prev)} · `:""}${esc(x.trend.word)}</div></div>`).join("")}</div>`
       :`<div class="muted">Пока ничего не выбрано.</div>
         ${sug.length?`<div style="margin-top:8px">Выше или ниже нормы: ${sug.map(k=>`<span class="tag2 eplink" data-favopen="${esc(k)}">${esc(k)}</span>`).join(" ")}</div>`:""}`}</div>
@@ -13253,7 +13375,7 @@ function render(){
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
       :(HB.hiddenCount?`<div class="muted" style="margin:8px 4px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:"")}
-    <!--B:reg-->${regCard(d,plans,today)}`,LP.order||homeOrderMerge(homeOrderLoad().map(x=>x==="diary"?"track":x)),undefined,{track:"todo"},LP.hidden);
+    <!--B:reg-->${regCard(d,plans,today)}`,LP.order||homeOrderMerge(homeOrderLoad().map(x=>x==="diary"?"track":x)),undefined,{track:"todo",reco:"todo"},LP.hidden);
   }
 
   else if(tab==="layout"){ layoutLoad(cur); m.innerHTML=layoutScreenHtml(d); }   // «Настроить главную» (ТЗ-053 блок 1)
