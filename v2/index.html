@@ -2967,7 +2967,7 @@ function rowMedsTimed(r){
   return out;
 }
 function tlSymText(name,rows){
-  if(symKey(name)==="температура"){ const T=tempReadings(rows); if(T.length) return T.map(r=>tempVal(r)+(symTimeOf(r)?` (${symTimeOf(r)})`:"")).join(", "); }
+  if(symKey(name)==="температура"){ const T=tempReadings(rows); if(T.length) return T.map(r=>{ const inn=[symTimeOf(r),String(r.f||"").trim().slice(0,40)].filter(Boolean).join(", "); return tempVal(r)+(inn?` (${inn})`:""); }).join(", "); }
   const iv=rows.map(r=>r.i).filter(v=>v!=null&&v!==""); if(iv.length) return Math.max(...iv)+"/10";
   const v=rows.find(r=>r.v!=null&&r.v!==""); return v?String(v.v).replace(".",",")+(v.u?" "+v.u:""):"";
 }
@@ -3016,7 +3016,7 @@ function tlIllItem(e){
     ${e.meds?`<div class="tl-meta">💊 Принято: ${esc(e.meds)}</div>`:""}</div></div>`;
 }
 function tlTempItem(e){
-  const T=tempReadings(e.rows,true), line=T.map(r=>(symTimeOf(r)?symTimeOf(r)+" — ":"")+tempVal(r)+(rowMedsTimed(r).length?` (дал ${esc(rowMedsTimed(r).map(x=>x.replace(/\s+\d{1,2}:\d\d$/,"")).join(", "))})`:"")).join(" · ");
+  const T=tempReadings(e.rows,true), line=T.map(r=>(symTimeOf(r)?symTimeOf(r)+" — ":"")+tempVal(r)+(rowMedsTimed(r).length?` (дал ${esc(rowMedsTimed(r).map(x=>x.replace(/\s+\d{1,2}:\d\d$/,"")).join(", "))})`:(r.f?` (${esc(String(r.f).trim().slice(0,40))})`:""))).join(" · ");
   return `<div class="tl-item tl-item--nodate"><div class="tl-ic tl-ic--sym">${icon(TL_ICON.sym)}</div><div>
     <div class="tl-title is-link" data-illsymopen="Температура" role="button" tabindex="0">Температура</div>
     <div class="tl-meta"><span class="tag">симптом</span></div><div class="tl-meta tl-symrow">${line}</div></div></div>`;
@@ -4384,7 +4384,6 @@ function openRec(i,showSer){
     const sub=(t,b)=>b?`<h4 class="sdet-h">${t}</h4>${b}`:"";
     const S=normScale(r.v,r.n,r.st), det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm],["Добавлено",M.details.from]].filter(x=>x[1]);
     const about=(indicatorParts(r.title).length?`<button type="button" class="linkbtn labinfo" data-ind="${esc(r.title)}" data-dir="${labDir(r.v,r.n)}">Что это за показатель</button>`:"")
-      +(normScaleHtml(S)?`<div class="lr-sc">${normScaleHtml(S)}</div><div class="muted" style="font-size:13px">${esc(S.caption)}</div>`:"")
       +(det.length?`<div class="sdet">${det.map(([k,v])=>{ const m=studyRowModel({title:k,text:v}); return m.long?`<div class="srow"><b>${esc(m.name)}</b><div>${esc(m.value)}</div></div>`:`<div class="srow"><b>${esc(m.name)}</b> — ${esc(m.value)}</div>`; }).join("")}</div>`:"");
     const dynRows=card?card.rows:[], dyn=LF.histN>1&&dynRows.length>1?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th></tr></thead><tbody>${dynRows.map(x=>`<tr${x.d===r.d?' style="background:var(--accentbg)"':''}><td class="muted">${ru(x.d)}</td><td><b>${esc(String(x.v).replace(".",","))}</b>${x.u?" "+esc(x.u):""}</td><td class="muted">${esc(x.norm||"—")}</td></tr>`).join("")}</tbody></table></div>`:"";
     const conseq=adv&&adv.consequence?`<p style="margin:4px 0">${esc((adv.level==="edge"?(adv.dir==="high"?"Если выйдет за верхнюю границу нормы: ":"Если выйдет за нижнюю границу нормы: "):(adv.dir==="high"?"Если выше нормы: ":"Если ниже нормы: "))+adv.consequence)}</p>`:"";
@@ -4398,8 +4397,9 @@ function openRec(i,showSer){
     const meaning=adv&&adv.state?adv.state:labMeaning(LF);
     cardHtml=shell(`<h3 style="margin:0 0 2px;font-size:18px;padding-right:44px">${esc(r.title)}</h3><div class="muted" style="margin-bottom:6px">${ru(r.d)}</div>
       <div class="labown"><b style="color:${statusColor(LF.status.cls)}">${esc(LF.value)}</b><span class="status status-${LF.status.cls}">${esc(LF.status.word)}</span></div>
+      ${normScaleHtml(S)?`<div class="lr-sc lr-sc--top">${normScaleHtml(S)}</div><div class="muted lr-cap" style="font-size:13px">${esc(S.caption)}</div>`:""}
       <p class="lab-mean">${esc(meaning)}</p>
-      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(serHtml?`<div class="ind-ch">${serHtml}</div>`:"")}
+      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(serHtml?`<div class="ind-ch">${serHtml}</div>`:(LF.histN<=1&&!/Сдавался один раз/.test(meaning)?`<div class="muted lr-once" style="font-size:13px;margin:4px 0 8px">Сдавался один раз, сравнить пока не с чем</div>`:""))}
       ${labAdvHtml(r,idOf(r))}
       ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,
         legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return rzHtml(tp); })()}
@@ -4774,7 +4774,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="27.10 16:30";   // подставляется при публикации
+const BUILD="27.10 17:03";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -15279,6 +15279,15 @@ document.getElementById("q").addEventListener("input",e=>{
   render();
 });
 const vEl=document.getElementById("ver"); if(vEl) vEl.textContent="сборка "+BUILD;
+// Вышла новая версия, а открыта старая (кэш браузера или приложения на телефоне): предлагаем обновить одной кнопкой (Денис 27.10.2026: «всё ещё нет болезни» — открыта была старая страница)
+function buildStampOf(txt){ const t=String(txt||""), i=t.indexOf("mk-"); if(i<0) return ""; const j=t.indexOf(String.fromCharCode(34),i); return j<0?"":t.slice(i+3,j); }
+async function buildCheck(){
+  try{ if(BUILD==="dev"||!/^https?:/.test(location.protocol)||/^(localhost|127\.)/.test(location.hostname)) return;
+    const r=await fetch("/v2/sw.js?"+Date.now(),{cache:"no-store"}); if(!r.ok) return; const st=buildStampOf(await r.text());
+    if(st&&st!==BUILD) toast("Вышла новая версия страницы","Обновить",async()=>{ try{ for(const g of await navigator.serviceWorker.getRegistrations()) await g.unregister(); for(const k of await caches.keys()) await caches.delete(k); }catch(e){} location.reload(); },600000);
+  }catch(e){}
+}
+setTimeout(buildCheck,4000);
 ovApply();
 
 // ── Замок на карточку Дениса. Остальные открыты. Код запоминается на устройстве.
