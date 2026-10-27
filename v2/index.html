@@ -2737,13 +2737,16 @@ function histBsHtml(P,today){
   const isAct=({ep})=>!ep.d2||ep.d2>=dayShift(today,-30), actI=[],pastI=[]; G.illnesses.forEach((g,i)=>(isAct(g)?actI:pastI).push(ills[i]));
   const trash=(ovLoad().epDel||[]).filter(x=>x.who===cur);
   const illHtml=actI.join("")+(pastI.length?`<details class="hpast"><summary>Прошлые болезни (${pastI.length})</summary>${pastI.join("")}</details>`:"")+(trash.length?`<details class="hpast"><summary>Корзина болезней (${trash.length})</summary>${trash.map(x=>`<div class="lrow"><span class="lrow__n">${esc(x.dx||"Болезнь")} <span class="muted">${ru(x.d1)}</span></span><button type="button" class="linkbtn" data-eprestore="${esc(x.id)}" style="min-height:44px">Вернуть</button></div>`).join("")}</details>`:"");
-  const freeRows=G.free.map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
+  const FREE=5, ONG=symOngoingNow(P,today), ongKeys=new Set(ONG.map(x=>x.key));
+  const freeRows=G.free.filter(n=>!ongKeys.has(symKey(n))).map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
     return `<div class="hfree" data-sym="${esc(n)}"><b>${esc(n)}</b><span class="muted">${k?`${k} ${plural(k,"раз","раза","раз")} за 30 дней`:"давно"} · ${L[0]?dd2(L[0].d):""}</span></div>`; });
   const free=freeRows.slice(0,FREE).join("")+(freeRows.length>FREE?`<div class="hmore" hidden>${freeRows.slice(FREE).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё без болезни: ${freeRows.length-FREE} ▸</button>`:"");
-  if(!illHtml&&!free) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
+  if(!illHtml&&!free&&!ONG.length) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
   return `<div class="card"><div class="watchhead"><h2>Болезни и симптомы</h2><button class="btn btn-secondary" id="newEp" style="min-height:44px;font-size:14px;white-space:nowrap;padding:0 14px">+ Болезнь</button></div>
-    ${illHtml||'<p class="muted" style="margin:0">Болезней пока нет.</p>'}
-    ${G.free.length?`<h3 class="hfree__h">Без болезни <span class="muted">— ${G.free.length}</span> <button type="button" class="linkbtn" data-illselopen="" style="min-height:44px;margin-left:8px">Выбрать</button></h3>${free}`:""}</div>`;
+    ${(actI.length+ONG.length)?`<div class="muted" style="margin:0 0 6px">Идёт сейчас: ${actI.length+ONG.length}</div>`:""}
+    ${illHtml||(ONG.length?"":'<p class="muted" style="margin:0">Болезней пока нет.</p>')}
+    ${ONG.length?`<h3 class="hfree__h">Идёт сейчас <span class="muted">— ${ONG.length}</span></h3>${symOngoingRowsHtml(ONG,5)}`:""}
+    ${freeRows.length?`<h3 class="hfree__h">Без болезни <span class="muted">— ${freeRows.length}</span> <button type="button" class="linkbtn" data-illselopen="" style="min-height:44px;margin-left:8px">Выбрать</button></h3>${free}`:""}</div>`;
 }
 // полоса Медкарты и переключатель «Истории»
 function cardStripHtml(){
@@ -4688,7 +4691,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="26.10 21:38";   // подставляется при публикации
+const BUILD="27.10 10:36";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -9741,9 +9744,48 @@ function illLabel(ep,today){
     span:days>60?`с ${MONTHS[+m-1]} ${y}`:`идёт ${days}-й день`, named};
 }
 // какие части главной показать; hidden — id болезней, скрытых с главной
+// ── Симптомы, которые идут сейчас (Денис 26.10.2026): в «Сейчас» и в «Болезнях и симптомах» не только болезни ──
+// запись за последние 3 дня или открытый период; не входит в идущую болезнь (linked — ключи симптомов внутри болезней); «Закончился» (dismissed: «человек|ключ» → дата) скрывает до новой записи
+function symOngoing(log,periods,who,today,o){
+  o=o||{}; const linked=o.linked||new Set(), dis=o.dismissed||{}, by=new Map();
+  for(const x of log||[]){ if(!x||!x.n||!x.d||x.d>today) continue; const k=symKey(x.n); if(!by.has(k)) by.set(k,{name:x.n,rows:[]}); by.get(k).rows.push(x); }
+  const out=[];
+  for(const [k,g] of by){
+    if(linked.has(k)) continue;
+    const rows=g.rows.slice().sort((a,b)=>b.d.localeCompare(a.d)), last=rows[0], days=new Set(rows.map(r=>r.d));
+    const open=(periods||[]).find(p=>p&&p.person===who&&symKey(p.symptom)===k&&!p.ended_on);
+    if(!open&&last.d<perDaysShift(today,-3)) continue;                       // давно не записывали — не идёт
+    const ended=dis[who+"|"+k]; if(ended&&last.d<=ended&&!open) continue;     // человек отметил «Закончился», новых записей нет
+    let start=last.d; for(;;){ const prev=[1,2].map(n=>perDaysShift(start,-n)).find(d=>days.has(d)); if(!prev) break; start=prev; }
+    if(open&&open.started_on<start) start=open.started_on;
+    const n=Math.round((Date.parse(today+"T12:00:00Z")-Date.parse(start+"T12:00:00Z"))/864e5)+1, withVal=rows.find(r=>r.d===last.d&&r.v!=null&&r.v!=="");
+    out.push({key:k,name:g.name,start,day:n,i:last.i==null||last.i===""?null:Number(last.i),v:withVal?withVal.v:null,u:withVal?(withVal.u||""):"",open:!!open,last:last.d});
+  }
+  return out.sort((a,b)=>b.last.localeCompare(a.last)||a.name.localeCompare(b.name));
+}
+function symOngoingLabel(x){ const val=x.v!=null?`${String(x.v).replace(".",",")}${x.u?" "+x.u:""}`:(x.i!=null?`${x.i}/10`:""); return `идёт ${x.day}-й день${val?" · "+val:""}`; }
+function symEndedLoad(){ try{ return JSON.parse(localStorage.getItem("mk_symend")||"{}")||{}; }catch(e){ return {}; } }
+// симптомы текущего человека, которые идут и не входят в идущую болезнь
+function symOngoingNow(d,today){
+  const S=d.sym||{}, linked=new Set();
+  for(const e of (S.ep||[]).filter(e=>!e.d2)){ try{ (epLinksFinal(d,e,today,illLinksCur()).sym||[]).forEach(x=>linked.add(symKey(x.n))); }catch(x){} }
+  return symOngoing(S.log,PERIODS,cur,today,{linked,dismissed:symEndedLoad()});
+}
+function symOngoingRowsHtml(list,max){
+  const M=max||5, row=x=>`<div class="ill-banner sym-now" data-sym="${esc(x.name)}"><span class="ill-banner__dot"></span><div><b>${esc(x.name)}</b><br><span>${esc(symOngoingLabel(x))}</span></div><span class="go">Открыть →</span><div class="ill-banner__row"><button type="button" class="btn btn-secondary ill-banner__off" data-symend="${esc(x.name)}" title="Закончился — убрать из «Сейчас»">Закончился</button></div></div>`;
+  return list.slice(0,M).map(row).join("")+(list.length>M?`<details class="hpast"><summary>Ещё ${list.length-M}</summary>${list.slice(M).map(row).join("")}</details>`:"");
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest&&e.target.closest("[data-symend]"); if(!b) return; e.stopPropagation();
+  const name=b.dataset.symend, k=symKey(name), today=localDay();
+  try{ const o=symEndedLoad(); o[cur+"|"+k]=today; localStorage.setItem("mk_symend",JSON.stringify(o)); }catch(x){}
+  const open=(PERIODS||[]).filter(p=>p.person===cur&&symKey(p.symptom)===k&&!p.ended_on);
+  if(open.length&&window.__MK_KEY){ try{ for(const p of open) await mkApi("period_end",{id:p.id,end:today}); const j=await mkApi("period_list"); PERIODS=j.rows||[]; periodsSave(); }catch(x){} }
+  render(); toast(`${esc(name)}: отмечено «закончился»`);
+},true);
 function homeBlocks(d,today,o){
   const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2), shown=eps.filter(e=>!(o.hidden||[]).includes(e.id));
-  const now=shown.length||medsSplit(d.meds).length||upcomingVisits(d,o.plans,today).length;
+  const now=shown.length||(o.ongoing||0)||medsSplit(d.meds).length||upcomingVisits(d,o.plans,today).length;
   return {blocks:["todo","watch",...((o.changes||[]).length?["changes"]:[]),...(now?["now"]:[])],hiddenCount:eps.length-shown.length};
 }
 // границы нормы из строки «110-140», «от 30», «до 5,2», «20–45 %», «Hb от 110», «менее 50,0», «норма до 12» (ТЗ-059 блок 2).
@@ -13853,7 +13895,7 @@ function render(){
     const plans=PLANS?PLANS.filter(x=>x.person===cur):[], hidden=homeHidden(cur);
     const keys=(FAV[cur]||[]), rows=measRows(cur), watchRows=favRows(rows,keys);
     const chg=(typeof changed==="function"?changed(d,6):[]).filter(x=>x.cls!=="ok").slice(0,3);
-    const HB=homeBlocks(d,today,{plans,hidden,changes:chg}), has=k=>HB.blocks.includes(k);
+    const ONG=symOngoingNow(d,today), HB=homeBlocks(d,today,{plans,hidden,changes:chg,ongoing:ONG.length}), has=k=>HB.blocks.includes(k);
     const todoV=planView(todo.filter(x=>!x.self),today).active;
     const eps=((d.sym||{}).ep||[]).filter(e=>!e.d2&&!hidden.includes(e.id));
     const visits=upcomingVisits(d,plans,today), meds=medsSplit(d.meds);
@@ -13896,6 +13938,7 @@ function render(){
     <!--B:now-->${has("now")?`<div class="card"><h2>Сейчас</h2>
       ${eps.map(e=>{ const L=illLabel(e,today); return `<div class="ill-banner" data-epcard="${esc(e.id)}"><span class="ill-banner__dot"></span>
         <div><b>${esc(illnessTitleFor(d,e,today))}</b><br><span>${esc(L.span)}</span></div><span class="go">Открыть →</span><div class="ill-banner__row"><button type="button" class="btn btn-secondary ill-banner__off" data-epdismiss="${esc(e.id)}" title="Болезнь больше не актуальна — убрать из «Сейчас»">Не актуальна</button></div></div>`; }).join("")}
+      ${symOngoingRowsHtml(ONG,5)}
       ${medsNowHtml(d,today)}
       ${visits.length?`<div style="margin-top:8px"><b>Визиты:</b> ${visits.map(v=>`${ru(v.date)} · ${esc(v.src==="plan"?specName(v.title):v.title)}${v.src==="plan"?` · <span class="eplink" role="button" tabindex="0" data-planopen="${esc(v.plan)}">Подготовиться →</span>`:""}`).join("; ")}</div>`:""}
       ${HB.hiddenCount?`<div class="muted" style="margin-top:8px">Скрыто с главной: ${HB.hiddenCount} · <span class="eplink" data-homeshow="1">Показать</span></div>`:""}</div>`
