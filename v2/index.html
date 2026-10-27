@@ -4774,7 +4774,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="27.10 17:29";   // подставляется при публикации
+const BUILD="27.10 19:06";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -13850,16 +13850,52 @@ const MED_AT={morning:"утром",day:"днём",evening:"вечером"};
 function whenDay(kind,today,custom){ return kind==="yesterday"?dayShift(today,-1):kind==="before"?dayShift(today,-2):kind==="date"?(custom||today):today; }
 function whenLabel(day,today){ return day===today?"сегодня":day===dayShift(today,-1)?"вчера":day===dayShift(today,-2)?"позавчера":ru(day); }
 // лекарства человека для выбора: принимаемые сейчас и принятые за последние 30 дней («Лекарства»)
+// ── Справочник «симптом → допустимые группы препаратов» (Денис 27.10.2026: к головной боли предложили цинковую пасту). Группа лекарства — по названию ──
+const MED_GROUP_RE=[
+  ["analg",/парацетамол|ибупрофен|нурофен|панадол|эффералган|цефекон|калпол|ибуфен|анальгин|кетанов|кеторол|нимесулид|найз|аспирин|ацетилсалицил|пенталгин|спазмалгон|солпадеин|мигренол|цитрамон|ибуклин|пиралгин|триптан|суматриптан|ризатриптан|золмитриптан|нурофен|нимегезик/],
+  ["fever",/парацетамол|ибупрофен|нурофен|панадол|эффералган|цефекон|калпол|ибуфен|аспирин|ацетилсалицил|нимесулид|найз/],
+  ["cough",/амброксол|лазолван|амбробене|бромгексин|ацц|ацетилцистеин|флуимуцил|мукалтин|синекод|бутамират|пульмикорт|будесонид|беродуал|ингаляц|эреспал|гербион|проспан|карбоцистеин|флюдитек|стодаль|коделак|сироп от кашл|амоксиклав|азитромицин|сумамед/],
+  ["nose",/називин|нафтизин|отривин|ксилометазолин|оксиметазолин|аква\s?марис|аквамарис|салин|физраствор|долфин|дезринит|назонекс|мометазон|африн|снуп|тизин|риностоп|назол|физиомер|хьюмер|пиносол/],
+  ["throat",/тантум|гексорал|стрепсилс|мирамистин|граммидин|лизобакт|ингалипт|фарингосепт|октенисепт|ларипронт|хлорофиллипт|йокс|септолете|лисобакт|анти-?ангин|строфантин/],
+  ["skin",/мазь|крем|паста|эмолент|эмульсия|лосьон|тридерм|цинков|бепантен|пантенол|локоид|адвантан|элоком|клотримазол|кетоконазол|судокрем|атодерм|липикар|топикрем|унна|гидрокортизон|акридерм|тридерм|скин-кап|радевит/],
+  ["gi",/смекта|энтеросгель|активированн\S* уголь|полисорб|мезим|креон|панкреатин|эспумизан|линекс|хилак|имодиум|регидрон|лактулоз|дюфалак|омепразол|эзомепразол|де-?нол|маалокс|фосфалюгель|аллохол|урсосан|эссенциале|пробиотик|бифиформ|нормобакт|лоперамид/],
+  ["allergy",/зиртек|цетиризин|супрастин|лоратадин|кларитин|эриус|фенистил|зодак|дезлоратадин|левоцетиризин|ксизал|тавегил/],
+];
+function medGroupsOf(name){
+  const n=String(name||"").toLowerCase().replace(/ё/g,"е"), out=[];
+  for(const [g,re] of MED_GROUP_RE) if(re.test(n)) out.push(g);
+  return out;
+}
+// symptom → группы препаратов, которые к нему подходят; симптома нет в справочнике — null (тогда только то, что уже давали при нём)
+function symMedAllowed(sym){
+  const n=String(sym||"").toLowerCase().replace(/ё/g,"е");
+  if(/голов|мигрен/.test(n)) return ["analg"];
+  if(/температур|жар|лихорад/.test(n)) return ["fever"];
+  if(/кашел/.test(n)) return ["cough"];
+  if(/насморк|заложен|нос\b|сопл/.test(n)) return ["nose","allergy"];
+  if(/горл|першен|ангин/.test(n)) return ["throat"];
+  if(/сып|зуд|кож|дерматит|экзем|псориаз|покраснен|шелуш|аллерги|крапивн/.test(n)) return ["skin","allergy"];
+  if(/живот|тошнот|рвот|диаре|понос|стул|изжог|запор|вздути|желуд|кишеч/.test(n)) return ["gi"];
+  if(/боль|болит|зуб|ухо|спин|сустав|мышц/.test(n)) return ["analg"];
+  return null;
+}
+function medFitsSymptom(medName,sym){
+  const A=symMedAllowed(sym); if(!A) return false;
+  return medGroupsOf(medName).some(g=>A.includes(g));
+}
 function medChoices(d,today,symName){
   const from=dayShift(today,-30), g=medStatusGroups(d,"",today), out=[], seen=new Set();
   const add=(r,on)=>{ const k=medKeyOf(r.name); if(!k||seen.has(k)||medIsFragment(r.name)) return; seen.add(k); out.push({k,n:r.name,on}); };
   g.on.forEach(r=>add(r,true));                                                       // принимаются сейчас
   g.done.filter(r=>r.state==="off"&&r.end&&r.end>=from).forEach(r=>add(r,false));     // принимались за последние 30 дней; назначенные, отказы и схемы не предлагаются
-  if(symName){   // сначала то, что уже давали при этом симптоме: остальное — через «Другое»
-    const used=new Set(); for(const x of ((d.sym||{}).log||[]).filter(x=>symNorm(x.n)===symNorm(symName))) String(x.m||"").split(/;|,\s*/).forEach(n=>{ const k=medKeyOf(n); if(k) used.add(k); });
-    const rel=out.filter(c=>used.has(c.k)); if(rel.length) return rel.slice(0,6);
-  }
-  return out;
+  if(!symName) return out;
+  // с симптомом: (1) то, что уже давали при этом симптоме (из истории), (2) принимаемое, чья группа подходит к симптому по справочнику; мазь при головной боли не предлагается, «Другое» остаётся
+  const used=new Set(), usedName={};
+  for(const x of ((d.sym||{}).log||[]).filter(x=>symNorm(x.n)===symNorm(symName))) String(x.m||"").split(/;|,\s*/).forEach(n=>{ const nm=n.trim().replace(/^(затем|и)\s+/i,""), k=medKeyOf(nm); if(k&&!medIsFragment(nm)){ used.add(k); usedName[k]=usedName[k]||nm.replace(/\s+[\d(].*$/,"").trim()||nm; } });
+  const hist=out.filter(c=>used.has(c.k)), rest=out.filter(c=>!used.has(c.k)&&medFitsSymptom(c.n,symName));
+  for(const k of used) if(!out.some(c=>c.k===k)) hist.push({k,n:usedName[k],on:false});   // давали при этом симптоме, но в списках лекарств нет
+  const sane=c=>{ const gr=medGroupsOf(c.n); return !gr.length||!symMedAllowed(symName)||medFitsSymptom(c.n,symName); };   // из истории не берём лекарство известной группы, которая к симптому не подходит (мазь, капли в нос при головной боли)
+  return [...hist.filter(sane),...rest].slice(0,8);
 }
 // «Нурофен (вечером), Парацетамол»; старое текстовое значение читается как «другое» — названия через запятую
 function medsList(attrs,med){
