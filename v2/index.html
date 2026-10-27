@@ -1863,6 +1863,8 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .thandle{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin-left:-8px;color:var(--muted);font-size:22px;cursor:grab;touch-action:none;user-select:none}.tlist .lrow--tile{position:relative;background:var(--card)}.lrow--tile.tdrag{z-index:3;box-shadow:var(--shadow-lg,0 6px 20px rgba(0,0,0,.2));opacity:.95}.lrow--tile.tdrop{box-shadow:0 -3px 0 0 var(--accent)}.lrow--tile.tdrop-end{box-shadow:0 3px 0 0 var(--accent)}.tmenu{display:inline-block;position:relative}.tmenu>summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}.tmenu>summary::-webkit-details-marker{display:none}.tmenu[open]>.btn{display:block;min-height:44px;margin:2px 0}.tmenu[open]{flex-basis:100%}
 .tlist .lrow--tile{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;min-height:52px;padding:0;border-top:1px solid var(--line)}.tlist .lrow--tile .lrow__n{flex:1 1 0;min-width:0;text-align:left}.tlist .tmenu{border:0;background:none;padding:0;margin:0;box-shadow:none;border-radius:0;flex:0 0 auto}.tlist .tmenu[open]{order:9;flex:1 1 100%;display:flex;gap:8px;padding:0 0 8px 0;align-items:center}.tlist .tmenu[open]>.btn{flex:1}
 .form-actions .epmore{border:0;background:none;padding:0;margin:0;box-shadow:none;border-radius:0;flex:0 0 auto}.form-actions .epmore[open]{flex:1 1 100%}.form-actions .epmore[open]>.btn{display:block;margin-top:6px;min-height:44px;color:var(--bad)}
+.illrow{display:flex;align-items:center;gap:4px;border-top:1px solid var(--line);min-height:56px}.illrow:first-of-type{border-top:0}.illrow__b{flex:1;min-width:0;padding:8px 0;cursor:pointer}.illrow__t{font-size:var(--fs-body)}.illrow__go{color:var(--muted);font-size:20px}.illrow__x{flex:none;min-width:44px;min-height:44px;border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer}
+.illrow__b{display:block}.illrow__b>div{display:block}
 </style>
 </head>
 <body>
@@ -2736,13 +2738,14 @@ function histBsHtml(P,today){
       </div></details>`; });
   const isAct=({ep})=>!ep.d2||ep.d2>=dayShift(today,-30), actI=[],pastI=[]; G.illnesses.forEach((g,i)=>(isAct(g)?actI:pastI).push(ills[i]));
   const trash=(ovLoad().epDel||[]).filter(x=>x.who===cur);
-  const illHtml=actI.join("")+(pastI.length?`<details class="hpast"><summary>Прошлые болезни (${pastI.length})</summary>${pastI.join("")}</details>`:"")+(trash.length?`<details class="hpast"><summary>Корзина болезней (${trash.length})</summary>${trash.map(x=>`<div class="lrow"><span class="lrow__n">${esc(x.dx||"Болезнь")} <span class="muted">${ru(x.d1)}</span></span><button type="button" class="linkbtn" data-eprestore="${esc(x.id)}" style="min-height:44px">Вернуть</button></div>`).join("")}</details>`:"");
+  const illHtml=actI.join("")+(pastI.length?`<details class="hpast"><summary>Прошлые болезни (${pastI.length})</summary>${pastI.join("")}</details>`:"")+(trash.length?`<details class="hpast"><summary>Корзина болезней (${trash.length})</summary>${trash.map(x=>`<div class="lrow"><span class="lrow__n">${esc(x.dx||"Болезнь")} <span class="muted">${ru(x.d1)}${x.into?" · объединена":""}</span></span><button type="button" class="linkbtn" data-eprestore="${esc(x.id)}" style="min-height:44px">Вернуть</button></div>`).join("")}</details>`:"");
   const FREE=5, ONG=symOngoingNow(P,today), ongKeys=new Set(ONG.map(x=>x.key));
   const freeRows=G.free.filter(n=>!ongKeys.has(symKey(n))).map(n=>{ const L=log.filter(x=>x.n===n).sort((a,b)=>b.d.localeCompare(a.d)), k=L.filter(x=>x.d>=d30).length;
     return `<div class="hfree" data-sym="${esc(n)}"><b>${esc(n)}</b><span class="muted">${k?`${k} ${plural(k,"раз","раза","раз")} за 30 дней`:"давно"} · ${L[0]?dd2(L[0].d):""}</span></div>`; });
   const free=freeRows.slice(0,FREE).join("")+(freeRows.length>FREE?`<div class="hmore" hidden>${freeRows.slice(FREE).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Ещё без болезни: ${freeRows.length-FREE} ▸</button>`:"");
   if(!illHtml&&!free&&!ONG.length) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
   return `<div class="card"><div class="watchhead"><h2>Болезни и симптомы</h2><button class="btn btn-secondary" id="newEp" style="min-height:44px;font-size:14px;white-space:nowrap;padding:0 14px">+ Болезнь</button></div>
+    ${epMergeBannerHtml(P,today)}
     ${(actI.length+ONG.length)?`<div class="muted" style="margin:0 0 6px">Идёт сейчас: ${actI.length+ONG.length}</div>`:""}
     ${illHtml||(ONG.length?"":'<p class="muted" style="margin:0">Болезней пока нет.</p>')}
     ${ONG.length?`<h3 class="hfree__h">Идёт сейчас <span class="muted">— ${ONG.length}</span></h3>${symOngoingRowsHtml(ONG,5)}`:""}
@@ -4691,7 +4694,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="27.10 11:01";   // подставляется при публикации
+const BUILD="27.10 11:13";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6601,7 +6604,7 @@ function illLoad(force){
 function epStartPick(first,d1,id){ if(!first||first===d1) return null; if(first>d1&&!/-new\d+$/.test(String(id))) return null; return first; }
 function epStartFix(epId){
   const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(e=>e.id===epId); if(!ep) return;
-  const L=epLinksFinal(d,ep,localDay(),illLinksCur()), first=(L.sym||[]).map(x=>x.d).filter(Boolean).sort()[0];
+  const L=epLinksFinal(d,ep,localDay(),illLinksCur()), first=illSymRows(L.sym||[],localDay()).map(x=>x.first).filter(Boolean).sort()[0];   // начало последнего эпизода каждого симптома, а не вся его история
   if(!epStartPick(first,ep.d1,ep.id)) return;
   const ts=Date.now(), rec={dx:ep.dx,d1:first,d2:ep.d2||"",sym:ep.sym||"",t:ep.t||"",ab:ep.ab?1:0}, o=ovLoad();
   o.epEdits=[...(o.epEdits||[]),{who:cur,id:ep.id,rec,ts}]; ovSave(o); ovApply();
@@ -6705,9 +6708,9 @@ document.addEventListener("click",async e=>{
   const t=e.target.closest&&e.target.closest("[data-illlink],[data-illpick],[data-illadd],[data-illadd2],[data-illmore],[data-illrename],[data-illrnok],[data-illrnclear],[data-illfollow]"); if(!t) return;
   const D=DATA[cur];
   if(t.dataset.illlink){ const ep=((D.sym||{}).ep||[]).find(x=>x.id===t.dataset.illlink); if(!ep) return;
-    const name=t.dataset.illsym, st=t.dataset.illstate, r=await illSet(ep.id,ep.dx||illnessTitleFor(D,ep,localDay()),[{symptom:name,state:st}]); if(!r.ok) return;
+    const name=t.dataset.illsym, st=t.dataset.illstate, kind=t.dataset.illkind||"symptom", r=await illSet(ep.id,ep.dx||illnessTitleFor(D,ep,localDay()),[{kind,symptom:name,state:st}]); if(!r.ok) return;
     if(t.dataset.illclose) closeModal(); render(); if(modal.classList.contains("on")&&!t.dataset.illclose) epCard(ep.id);
-    toast(st==="rejected"?"Связь убрана":"Связано","Вернуть",()=>{ illSet(ep.id,ep.dx||"",[{symptom:name,state:"clear"}]).then(()=>{ render(); }); }); return; }
+    toast(st==="rejected"?"Убрано из болезни":"Связано","Вернуть",()=>{ illSet(ep.id,ep.dx||"",[{kind,symptom:name,state:"clear"}]).then(()=>{ render(); if(modal.classList.contains("on")) epCard(ep.id); }); }); return; }
   if(t.dataset.illpick){ illPickEp(t.dataset.illpick); return; }
   if(t.dataset.illadd){ illPickSym(t.dataset.illadd,false); return; }
   if(t.dataset.illmore){ illPickSym(t.dataset.illmore,true); return; }
@@ -7710,6 +7713,76 @@ function epMedsEmptyText(){ return "В записях лекарств нет"; 
 // ── Мягкое удаление болезни (Денис 26.10.2026): болезнь скрывается, симптомы, приёмы и лекарства остаются, связь снимается; можно вернуть. Запись в реестре на Маке не трогается ──
 function epsWithoutDeleted(eps,del,who){ const ids=new Set((del||[]).filter(x=>x.who===who).map(x=>x.id)); return ids.size?(eps||[]).filter(e=>!ids.has(e.id)):(eps||[]); }
 function epDelEntry(who,ep,n,ts){ return {who,id:ep.id,dx:ep.dx||"",d1:ep.d1||"",d2:ep.d2||"",n:n||0,ts:ts||Date.now()}; }
+// «×» у лекарства: убирается из этой болезни на этом устройстве (лекарство и запись остаются); «Вернуть» в тосте
+document.addEventListener("click",e=>{
+  const so=e.target.closest&&e.target.closest("[data-illsymopen]"); if(so){ closeModal(); symSel=so.dataset.illsymopen; symFocus=null; medSel=null; tab="sym"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
+  const mx=e.target.closest&&e.target.closest("[data-epmedx]"); if(mx){ const o=ovLoad(), ent={who:cur,ep:mx.dataset.epmedx,key:mx.dataset.epmedk}; o.epMedOut=[...(o.epMedOut||[]).filter(x=>!(x.who===ent.who&&x.ep===ent.ep&&x.key===ent.key)),ent]; ovSave(o); epCard(ent.ep);
+    toast("Убрано из болезни","Вернуть",()=>{ const o2=ovLoad(); o2.epMedOut=(o2.epMedOut||[]).filter(x=>!(x.who===ent.who&&x.ep===ent.ep&&x.key===ent.key)); ovSave(o2); epCard(ent.ep); }); return; }
+  const vo=e.target.closest&&e.target.closest("[data-vpickopen]"); if(vo){ vpickOpen(vo.dataset.vpickopen); return; }
+  const vy=e.target.closest&&e.target.closest("[data-vsugyes]"); if(vy){ vsugAdd(vy.dataset.vsugyes); return; }
+  const vs=e.target.closest&&e.target.closest("[data-vpicksave]"); if(vs){ vpickSave(vs.dataset.vpicksave); return; }
+  if(e.target.closest&&e.target.closest("[data-vnew]")){ closeModal(); visitHub(); return; }
+  const mo=e.target.closest&&e.target.closest("[data-epmergeopen]"); if(mo){ epMergeOpen(mo.dataset.epmergeopen); return; }
+  const mg=e.target.closest&&e.target.closest("[data-epmergego]"); if(mg){ epMergeGo(mg.dataset.epmergego); return; }
+  const my=e.target.closest&&e.target.closest("[data-epmergeyes]"); if(my){ const [a,b]=my.dataset.epmergeyes.split("+"); epMergeRun(a,b,""); return; }
+  const mn=e.target.closest&&e.target.closest("[data-epmergeno]"); if(mn){ try{ const o=JSON.parse(localStorage.getItem("mk_epmerge_no")||"{}")||{}; o[mn.dataset.epmergeno]=1; localStorage.setItem("mk_epmerge_no",JSON.stringify(o)); }catch(x){} render(); return; }
+});
+function vpickOpen(epId){
+  const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
+  const today=localDay(), L=epLinksFinal(d,ep,today,illLinksCur()), have=new Set(L.visits.map(visitKey)), C=illVisitCandidates(d,ep,today,have);
+  modal.className="modal on"; modal.dataset.vpick=epId;
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Приёмы болезни «${esc(ep.dx||"")}»</h2>
+    ${C.length?C.map((c,i)=>{ const v=illVisitLine(c.r); return `<label class="lrow"><span class="lrow__n">${esc(v.who)} ${IL_DM(v.d)}${v.res?` <span class="muted">· ${esc(v.res)}</span>`:""}</span><span class="lsw"><input type="checkbox" role="switch" data-vpk="${esc(c.key)}"${c.on?" checked":""} aria-label="${esc(v.who+" "+IL_DM(v.d))}"><span class="lsw__t"></span></span></label>`; }).join(""):`<div class="muted">Приёмов за этот период нет.</div>`}
+    <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-vpicksave="${esc(epId)}" style="min-height:44px">Сохранить</button><button type="button" class="btn btn-secondary" data-vnew="1" style="min-height:44px">Новый визит</button></div></div>`;
+}
+async function vpickSave(epId){
+  const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return; const today=localDay();
+  const L=epLinksFinal(d,ep,today,illLinksCur()), had=new Set(L.visits.map(visitKey)), items=[];
+  modal.querySelectorAll("[data-vpk]").forEach(c=>{ const k=c.dataset.vpk, on=c.checked; if(on&&!had.has(k)) items.push({kind:"visit",symptom:k,state:"linked"}); if(!on&&had.has(k)) items.push({kind:"visit",symptom:k,state:"rejected"}); });
+  if(items.length){ const r=await illSet(ep.id,ep.dx||"",items); if(!r.ok) return; }
+  closeModal(); render(); epCard(epId);
+}
+async function vsugAdd(epId){
+  const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return; const today=localDay();
+  const L=epLinksFinal(d,ep,today,illLinksCur()), have=new Set(L.visits.map(visitKey));
+  const items=illVisitCandidates(d,ep,today,have).filter(c=>!c.on&&illVisitNearSym(c.r.d,L.sym,ep,today)).map(c=>({kind:"visit",symptom:c.key,state:"linked"}));
+  if(items.length){ const r=await illSet(ep.id,ep.dx||"",items); if(!r.ok) return; } render(); epCard(epId);
+}
+// объединение болезней
+function epMergeOpen(epId){
+  const d=DATA[cur], eps=((d.sym||{}).ep||[]), ep=eps.find(e=>e.id===epId); if(!ep) return;
+  const others=eps.filter(e=>e.id!==epId&&e.dx);
+  modal.className="modal on"; modal.dataset.mergeA=epId;
+  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Объединить «${esc(ep.dx)}» с…</h2>
+    ${others.length?`<div class="fld">${others.map((e,i)=>`<label class="lrow" style="gap:8px"><input type="radio" name="mergeB" value="${esc(e.id)}"${i?"":" checked"}> <span class="lrow__n">${esc(e.dx)} <span class="muted">${ru(e.d1)}${e.d2?" — "+ru(e.d2):" — идёт"}</span></span></label>`).join("")}</div>
+      <div class="fld"><label for="mergeName" class="flab">Название</label><input id="mergeName" class="fin" maxlength="60" value="${esc(ep.dx)}"></div>
+      <div class="muted" style="font-size:13px">Останется одна болезнь: начало — самое раннее, конец — самый поздний; симптомы, приёмы и лекарства обеих. Вторая скроется как «объединена», её можно вернуть.</div>
+      <div class="row" style="margin-top:10px"><button type="button" class="btn btn-primary" data-epmergego="${esc(epId)}" style="min-height:44px">Объединить</button><button type="button" class="btn btn-secondary" data-close style="min-height:44px">Отмена</button></div>`:`<div class="muted">Других болезней у этого человека нет.</div>`}</div>`;
+}
+function epMergeGo(aId){ const r=modal.querySelector('input[name="mergeB"]:checked'); if(!r) return; epMergeRun(aId,r.value,(document.getElementById("mergeName")||{}).value||""); }
+async function epMergeRun(aId,bId,name){
+  const d=DATA[cur], eps=((d.sym||{}).ep||[]), a=eps.find(e=>e.id===aId), b=eps.find(e=>e.id===bId); if(!a||!b) return; const today=localDay();
+  const plan=epMergePlan(a,b,name), keep=eps.find(e=>e.id===plan.keep), drop=eps.find(e=>e.id===plan.drop);
+  const Lk=epLinksFinal(d,keep,today,illLinksCur()), Ld=epLinksFinal(d,drop,today,illLinksCur()), have=new Set(Lk.sym.map(x=>symKey(x.n))), hv=new Set(Lk.visits.map(visitKey)), items=[];
+  [...new Set(Ld.sym.map(x=>x.n))].forEach(n=>{ if(!have.has(symKey(n))) items.push({symptom:n,state:"linked"}); });
+  Ld.visits.forEach(r=>{ if(!hv.has(visitKey(r))) items.push({kind:"visit",symptom:visitKey(r),state:"linked"}); });
+  const ts=Date.now(), o=ovLoad();
+  const rx=[...(keep.rx||[])]; for(const r of (drop.rx||[])) if(r.m&&!rx.some(x=>epMedKeyOf(x.m)===epMedKeyOf(r.m))) rx.push(r);
+  if(rx.length!==(keep.rx||[]).length){ o.rxSet=o.rxSet||{}; o.rxSet[cur+"|"+keep.id]={list:rx,ts}; }
+  o.epEdits=[...(o.epEdits||[]),{who:cur,id:keep.id,rec:plan.rec,ts}];
+  o.epDel=[...(o.epDel||[]).filter(x=>!(x.who===cur&&x.id===drop.id)),{...epDelEntry(cur,drop,Ld.sym.length+Ld.visits.length,ts),into:keep.id}];
+  ovSave(o); ovApply();
+  if(items.length){ await illSet(keep.id,plan.rec.dx,items); }
+  try{ inboxSend(EDITS,[today,d.short,keep.id,keep.d1,"Болезнь целиком",JSON.stringify({id:keep.id,ts}),JSON.stringify({...plan.rec,ts}),"нет"]); }catch(x){}
+  closeModal(); render();
+  const fresh=((DATA[cur].sym||{}).ep||[]).find(x=>x.d1===plan.rec.d1&&x.dx===plan.rec.dx)||keep;
+  toast(`Болезни объединены: «${esc(plan.rec.dx)}» с ${ru(plan.rec.d1)}`,"Вернуть",()=>{ const o2=ovLoad(); o2.epDel=(o2.epDel||[]).filter(x=>!(x.who===cur&&x.id===drop.id)); o2.epEdits=(o2.epEdits||[]).filter(x=>x.ts!==ts); if(o2.rxSet) delete o2.rxSet[cur+"|"+keep.id]; ovSave(o2); ovApply(); render(); });
+}
+function epMergeBannerHtml(P,today){
+  let no={}; try{ no=JSON.parse(localStorage.getItem("mk_epmerge_no")||"{}")||{}; }catch(e){}
+  const c=epMergeCandidates(((P.sym||{}).ep||[]),today,no)[0]; if(!c) return "";
+  return `<div class="note epmerge" style="margin:0 0 10px"><div>У ${esc(P.short||"человека")} две болезни «${esc(c.a.dx)}» (${ru(c.a.d1)} и ${ru(c.b.d1)}) — объединить в одну?</div><div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-epmergeyes="${esc(c.a.id)}+${esc(c.b.id)}" style="min-height:44px">Объединить</button><button type="button" class="btn btn-secondary" data-epmergeno="${esc(c.key)}" style="min-height:44px">Это разные</button></div></div>`;
+}
 function epDeleteAsk(epId){
   const d=DATA[cur], ep=((d.sym||{}).ep||[]).find(e=>e.id===epId); if(!ep) return;
   const L=epLinksFinal(d,ep,localDay(),illLinksCur()), n=(L.sym||[]).length+(L.visits||[]).length;
@@ -7722,6 +7795,60 @@ function epDeleteDo(epId,n){
 }
 function epRestore(who,epId){ const o=ovLoad(); o.epDel=(o.epDel||[]).filter(x=>!(x.who===who&&x.id===epId)); ovSave(o); ovApply(); render(); toast("Болезнь возвращена"); }
 // карточка болезни: сроки, симптомы, приёмы, лекарства — с переходами (ТЗ-004 блоки 5, 11)
+// ── Карточка болезни: симптомы, приёмы, лекарства с цифрами и сроками; «×» вместо «Убрать из болезни»; объединение болезней (Денис 27.10.2026) ──
+const IL_DM=d=>String(d).slice(8,10)+"."+String(d).slice(5,7);
+function illDaysBetween(a,b){ return Math.round((Date.parse(b+"T12:00:00Z")-Date.parse(a+"T12:00:00Z"))/864e5); }
+// строка симптома: «Кашель · 5/10 · идёт 7-й день» (у температуры значение); не идёт — «3 дня · с 20.10 по 22.10»
+function illSymRows(rows,today){
+  const by=new Map(); for(const x of rows||[]){ if(!x||!x.n||!x.d) continue; const k=symKey(x.n); if(!by.has(k)) by.set(k,{name:x.n,rows:[]}); by.get(k).rows.push(x); }
+  return [...by.values()].map(g=>{
+    const rows=g.rows.slice().sort((a,b)=>b.d.localeCompare(a.d)), last=rows[0], days=new Set(rows.map(r=>r.d)), first=rows[rows.length-1].d;
+    let start=last.d; for(;;){ const prev=[1,2].map(n=>perDaysShift(start,-n)).find(d=>days.has(d)); if(!prev) break; start=prev; }
+    const going=last.d>=perDaysShift(today,-3), n=illDaysBetween(start,today)+1, span=illDaysBetween(start,last.d)+1;   // последний эпизод подряд, а не вся история симптома
+    const wv=rows.find(r=>r.d===last.d&&r.v!=null&&r.v!==""), val=wv?`${String(wv.v).replace(".",",")}${wv.u?" "+wv.u:""}`:(last.i!=null&&last.i!==""?`${last.i}/10`:"");
+    const state=going?`идёт ${n}-й день`:`${span} ${plural(span,"день","дня","дней")} · с ${IL_DM(start)} по ${IL_DM(last.d)}`;
+    return {key:symKey(g.name),name:g.name,last:last.d,first:start,value:val,state,going,line:[g.name,val,state].filter(Boolean).join(" · ")};
+  }).sort((a,b)=>b.last.localeCompare(a.last));
+}
+// лекарства болезни со сроками: источник — отметки начала и окончания (med_plan), запись о лекарстве и назначение
+function epMedRows(list,dMeds,planOf,today){
+  const w1=n=>String(n||"").toLowerCase().replace(/ё/g,"е").split(/[^a-zа-я0-9]+/).filter(Boolean)[0]||"", isoOk=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||""));
+  return (list||[]).map(m=>{
+    const dm=(dMeds||[]).find(x=>w1(x.n)===w1(m.n))||{}, pl=planOf(m.n)||{};
+    const start=[pl.started_on,dm.from,dm.visit&&dm.visit.d].find(isoOk)||"", stop=[pl.stop_on,dm.stopped,dm.to].find(isoOk)||"", how=String(dm.how||m.t||"").replace(/назначил[^:]*:?\s*/i,"");
+    const dur=+((/(\d+)\s*(?:дн|дня|дней)/.exec(how)||[])[1]||0), brief=how.length>60?how.slice(0,58).replace(/[\s,.;·—-]+$/,"")+"…":how;
+    let state="", prog="";
+    if(start&&stop){ const n=illDaysBetween(start,stop)+1; state=(stop<today&&dur&&n<dur)?`прекращено ${IL_DM(stop)}`:`с ${IL_DM(start)} по ${IL_DM(stop)} · ${n} ${plural(n,"день","дня","дней")}`; }
+    else if(stop){ state=`прекращено ${IL_DM(stop)}`; }
+    else if(start){ const day=illDaysBetween(start,today)+1; state=`принимаем с ${IL_DM(start)} · ${day}-й день`; if(dur){ prog=day<=dur?`${day} из ${dur}`:`курс ${dur} дн. прошёл`; } }
+    return {name:m.n,brief,state,prog,key:w1(m.n)};
+  });
+}
+// две болезни с одним названием и близкими периодами (разрыв не больше 7 дней) — предложить объединить; no — отклонённые пары
+function epMergeCandidates(eps,today,no){
+  const L=(eps||[]).filter(e=>e&&e.dx&&e.d1&&!/не установлен/i.test(e.dx)&&(e.d2||today)>=perDaysShift(today,-60)), out=[];   // только недавние: старые болезни не трогаем
+  for(let i=0;i<L.length;i++) for(let j=i+1;j<L.length;j++){
+    const a=L[i], b=L[j]; if(!sameIll(a.dx,b.dx)) continue;
+    const [x,y]=a.d1<=b.d1?[a,b]:[b,a], xEnd=x.d2||today, gap=illDaysBetween(xEnd,y.d1);
+    const key=[a.id,b.id].sort().join("+"); if(gap>7||(no||{})[key]) continue;
+    out.push({a:x,b:y,key});
+  }
+  return out;
+}
+// план объединения: остаётся более ранняя; начало — раннее, конец — позднее (или «идёт»); название — введённое или первой
+function epMergePlan(a,b,name){
+  const [k,o]=a.d1<=b.d1?[a,b]:[b,a];
+  return {keep:k.id,drop:o.id,rec:{dx:String(name||"").trim()||k.dx,d1:k.d1<o.d1?k.d1:o.d1,d2:(!k.d2||!o.d2)?"":(k.d2>o.d2?k.d2:o.d2),sym:k.sym||o.sym||"",t:k.t||o.t||"",ab:(k.ab||o.ab)?1:0}};
+}
+function epMedKeyOf(n){ return String(n||"").toLowerCase().replace(/ё/g,"е").split(/[^a-zа-я0-9]+/).filter(Boolean)[0]||""; }
+// приём предлагается, если он в период болезни и рядом (±2 дня) с записью её симптома
+function illVisitNearSym(d,symRows,ep,today){ if(d<perDaysShift(ep.d1,-1)||d>perDaysShift(ep.d2||today,1)) return false; return (symRows||[]).some(x=>x&&x.d&&Math.abs(illDaysBetween(x.d,d))<=2); }
+function illVisitLine(r){ const w=r.who||String(r.title||"").split(":")[0]||"Приём", res=String(r.res||r.rx||"").replace(/\s+/g," ").slice(0,70); return {who:w,d:r.d,res}; }
+// приёмы человека, которые можно добавить в болезнь: в её период (±3 дня) и последние 30 дней
+function illVisitCandidates(P,ep,today,linkedKeys){
+  const from=perDaysShift(ep.d1,-3), to=perDaysShift(ep.d2||today,3), recent=perDaysShift(today,-30);
+  return (P.rec||[]).filter(r=>r.t==="visit"&&r.d&&((r.d>=from&&r.d<=to)||r.d>=recent)).sort((a,b)=>b.d.localeCompare(a.d)).map(r=>({r,key:visitKey(r),on:(linkedKeys||new Set()).has(visitKey(r))}));
+}
 function epCard(epId){
   const d=DATA[cur], S=d.sym||{}, ep=(S.ep||[]).find(x=>x.id===epId); if(!ep) return;
   illRelink(ep);
@@ -7744,16 +7871,21 @@ function epCard(epId){
         <span class="status status-${sp.open?"warn":"none"}">${sp.open?"Идёт":"Закончилась"}</span></div>
       ${sp.open?`<button type="button" class="btn btn-secondary ill-follow" data-illfollow="${esc(ep.id)}" aria-pressed="${!!trk}" style="min-height:44px;margin:8px 0 0">${trk?"Перестать следить":"Следить на главной"}</button>`:`<div class="muted" style="margin-top:6px">Слежение выключено: болезнь закончилась</div>`}
       <div class="ill__sec">Симптомы — ${symNames.length} <button type="button" class="linkbtn" data-illadd="${esc(ep.id)}" style="min-height:44px;font-weight:600">+ Симптом</button></div>
-      ${symNames.length?`<div class="ill__chips">${symNames.map(n=>`<span class="illsym"><span class="chip" data-sym="${esc(n)}" style="cursor:pointer">${esc(n)}</span><button type="button" class="linkbtn illsym__x" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="rejected" style="min-height:44px">Убрать из болезни</button></span>`).join("")}</div>`:`<div class="muted">К болезни пока ничего не добавлено. Нажмите «+ Симптом»</div>`}
+      ${symNames.length?illSymRows(L.sym,today).map(x=>`<div class="illrow"><div class="illrow__b" data-illsymopen="${esc(x.name)}" role="button" tabindex="0"><div class="illrow__t">${esc(x.line)}</div><div class="muted">последняя запись ${IL_DM(x.last)}</div></div><span class="illrow__go" aria-hidden="true">›</span><button type="button" class="illrow__x" data-illlink="${esc(ep.id)}" data-illsym="${esc(x.name)}" data-illstate="rejected" aria-label="Убрать из болезни: ${esc(x.name)}">×</button></div>`).join(""):`<div class="muted">К болезни пока ничего не добавлено. Нажмите «+ Симптом»</div>`}
       ${L.maybe.length?`<div class="muted" style="margin-top:8px;font-size:13px">Возможно, относится</div><div class="ill__chips">${[...new Set(L.maybe.map(x=>x.n))].slice(0,6).map(n=>`<span class="chip chip--maybe">${esc(n)} <button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="linked" style="min-height:44px;min-width:44px">Связать</button><button type="button" class="linkbtn" data-illlink="${esc(ep.id)}" data-illsym="${esc(n)}" data-illstate="rejected" style="min-height:44px;min-width:44px" aria-label="Не связано">Нет</button></span>`).join("")}</div>`:""}
       ${(()=>{ const rz=razbLoad(()=>{ if(modal.classList.contains("on")) epCard(epId); }), R=rz.rows.filter(r=>symNames.some(n=>r.topic===symTopic(cur,n)));
         return R.length?sec("Разборы — "+R.length,R.map(r=>`<div class="plancard" data-rzopen="${esc(r.topic)}"><div><b>${esc(rzLabel(r.topic))}</b> <span class="muted">· ${ru(String(r.created_at).slice(0,10))}</span><div class="muted" style="font-size:13px">${esc(r.first||"")}</div></div><span class="muted">→</span></div>`).join("")):""; })()}
-      ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)); return sec("Приёмы — "+V.length+(V.length>5?" (последние 5)":""),V.length?V.slice(0,5).map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-${r.st==="ok"?"ok":"bad"}" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.title)}</div></div></div>`).join(""):`<div class="muted">—</div>`); })()}
+      ${(()=>{ const V=L.visits.slice().sort((x,y)=>y.d.localeCompare(x.d)), rej=new Set(illLinksCur().filter(l=>l.ep_id===ep.id&&l.kind==="visit"&&l.state==="rejected").map(l=>l.symptom_key)), have=new Set(V.map(visitKey)), sug=illVisitCandidates(d,ep,today,have).filter(c=>!c.on&&!rej.has(c.key)&&illVisitNearSym(c.r.d,L.sym,ep,today));
+        return `<div class="ill__sec">Приёмы — ${V.length} <button type="button" class="linkbtn" data-vpickopen="${esc(ep.id)}" style="min-height:44px;font-weight:600">+ Приём</button></div>`
+        +(sug.length?`<div class="note" style="margin:0 0 8px">${esc(sug.map(c=>{ const v=illVisitLine(c.r); return v.who+" "+IL_DM(v.d); }).join(", "))} — добавить в болезнь? <button type="button" class="linkbtn" data-vpickopen="${esc(ep.id)}" style="min-height:44px">Выбрать</button></div>`:"")
+        +(V.length?V.slice(0,5).map(r=>{ const v=illVisitLine(r); return `<div class="illrow"><div class="illrow__b" data-rec="${idOf(r)}" role="button" tabindex="0"><div class="illrow__t">${esc(v.who)} · ${ru(v.d)}</div>${v.res?`<div class="muted">${esc(v.res)}</div>`:""}</div><span class="illrow__go" aria-hidden="true">›</span><button type="button" class="illrow__x" data-illlink="${esc(ep.id)}" data-illsym="${esc(visitKey(r))}" data-illkind="visit" data-illstate="rejected" aria-label="Убрать приём из болезни">×</button></div>`; }).join(""):`<div class="muted">Приёмов пока нет. Нажмите «+ Приём»</div>`); })()}
       ${(()=>{ const EV=eventsFor(cur).filter(v=>v.ep_id===ep.id); return EV.length?sec("События — "+EV.length,eventsBlock(EV)):""; })()}
-      ${sec("Чем лечили",courses.join("")+(others.length?others.map(m=>`<div class="course" data-med="${esc(m.n)}" style="cursor:pointer"><b>${esc(m.n)}</b><span></span><span class="course__meta">${esc(m.t||"")}</span><span></span></div>`).join(""):"")||`<div class="muted">${epMedsEmptyText()}</div>`)}
+      ${(()=>{ const out=new Set((ovLoad().epMedOut||[]).filter(x=>x.who===cur&&x.ep===ep.id).map(x=>x.key)), all=[...(ep.rx||[]).filter(r=>r.m).map(r=>({n:r.m,t:rxText([r],today).slice(String(r.m).length).trim()})),...others].filter(m=>!out.has(epMedKeyOf(m.n)));
+        const rows=epMedRows(all,d.meds,n=>medPlanOf(cur,n),today);
+        return sec("Принимали",rows.length?rows.map(m=>`<div class="illrow"><div class="illrow__b" data-med="${esc(m.name)}" role="button" tabindex="0"><div class="illrow__t"><b>${esc(m.name)}</b>${m.brief?` <span class="muted">${esc(m.brief)}</span>`:""}</div><div class="muted">${esc(m.state)}${m.prog?` · <b>${esc(m.prog)}</b>`:""}</div></div><span class="illrow__go" aria-hidden="true">›</span><button type="button" class="illrow__x" data-epmedx="${esc(ep.id)}" data-epmedk="${esc(m.key)}" data-epmedn="${esc(m.name)}" aria-label="Убрать из болезни: ${esc(m.name)}">×</button></div>`).join(""):`<div class="muted">${epMedsEmptyText()}</div>`); })()}
       ${ep.t?sec("Как протекало",`<div>${esc(ep.t)}</div>`):""}
       ${sp.open?`<label class="row" style="margin:12px 0 0;gap:8px;align-items:center"><input type="checkbox" id="epHome"${homeHidden(cur).includes(ep.id)?"":" checked"}> Показывать на главной</label><div class="muted" style="font-size:12px">Болезнь останется в Ленте и в Болезнях</div>`:""}
-      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button><details class="epmore"><summary aria-label="Ещё">⋯</summary><button type="button" class="btn btn-secondary" data-epdel="${esc(ep.id)}">Удалить болезнь</button></details></div>
+      <div class="form-actions">${sp.open?`<button class="btn btn-primary" id="epClose">Закрыть болезнь — выздоровел сегодня</button>`:""}<button class="btn btn-secondary" id="epPlan">＋ Запланировать приём</button><button class="btn btn-secondary editep" data-ep="${esc(ep.id)}">✎ Править</button><details class="epmore"><summary aria-label="Ещё">⋯</summary><button type="button" class="btn btn-secondary" data-epmergeopen="${esc(ep.id)}">Объединить с…</button><button type="button" class="btn btn-secondary" data-epdel="${esc(ep.id)}">Удалить болезнь</button></details></div>
     </div></div>`;
   const pl=document.getElementById("epPlan"); if(pl) pl.onclick=()=>{ planOpen(null); planEdit.purpose=ep.dx||""; planEdit.specialty=planSpecFor(ep.dx); planDraw(); };
   const eh=document.getElementById("epHome"); if(eh) eh.onchange=()=>homeHideSet(cur,ep.id,!eh.checked);
