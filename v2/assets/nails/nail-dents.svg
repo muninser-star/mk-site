@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Вмятины">
+<defs><linearGradient id="skin" x1="0" y1="0" x2="1" y2=".6"><stop stop-color="#f6c5ad"/><stop offset=".45" stop-color="#eaa98d"/><stop offset="1" stop-color="#d99077"/></linearGradient><linearGradient id="nail" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#f7d4c7"/><stop offset=".42" stop-color="#e5b0a5"/><stop offset="1" stop-color="#d9958d"/></linearGradient><linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ffffff" stop-opacity=".72"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>
+<path d="M20 96V45C20 17 31 8 48 8S76 17 76 45V96Z" fill="url(#skin)" stroke="#c7856e" stroke-width="1.2"/>
+<path d="M24 90q9-5 17 0m14 0q9-5 17 0M27 94q8-3 15 0m13 0q8-3 14 0" fill="none" stroke="#fff0df" stroke-width="1.15" opacity=".6"/>
+<path d="M29 43C29 24 35 15 48 15S67 24 67 43V72Q67 82 48 83Q29 82 29 72Z" fill="url(#nail)" stroke="#aa756d" stroke-width="1.65"/>
+<path d="M32 39C32 25 36 19 43 18Q39 36 39 73Q34 71 32 65Z" fill="url(#shine)" opacity=".75"/>
+<path d="M59 22Q64 29 64 44V67" stroke="#fff3e9" stroke-width="1.7" opacity=".65" fill="none"/>
+<ellipse cx="39" cy="35" rx="4" ry="2.5" fill="#b78078" opacity=".52"/><path d="M36 34q4 -4.5 6 0" stroke="#ffe5d7" stroke-width="1.25" fill="none"/><ellipse cx="52" cy="42" rx="4.2" ry="2.7" fill="#b78078" opacity=".52"/><path d="M48.8 41q4.2 -4.7 6.4 0" stroke="#ffe5d7" stroke-width="1.25" fill="none"/><ellipse cx="44" cy="53" rx="3.6" ry="2.4" fill="#b78078" opacity=".52"/><path d="M41.4 52q3.6 -4.4 5.2 0" stroke="#ffe5d7" stroke-width="1.25" fill="none"/><ellipse cx="55" cy="61" rx="3.4" ry="2.3" fill="#b78078" opacity=".52"/><path d="M52.6 60q3.4 -4.3 4.8 0" stroke="#ffe5d7" stroke-width="1.25" fill="none"/><ellipse cx="37" cy="67" rx="2.8" ry="2.0" fill="#b78078" opacity=".52"/><path d="M35.2 66q2.8 -4.0 3.5999999999999996 0" stroke="#ffe5d7" stroke-width="1.25" fill="none"/>
+<path d="M28 76Q47 88 68 76" stroke="#a96d60" stroke-width="2.1" fill="none" opacity=".68"/>
+<path d="M29 79Q47 91 67 79" stroke="#ffdfc7" stroke-width="1.65" fill="none"/>
+</svg>

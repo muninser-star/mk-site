@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Горизонтальные бороздки">
+<defs><linearGradient id="skin" x1="0" y1="0" x2="1" y2=".6"><stop stop-color="#f6c5ad"/><stop offset=".45" stop-color="#eaa98d"/><stop offset="1" stop-color="#d99077"/></linearGradient><linearGradient id="nail" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#f7d4c7"/><stop offset=".42" stop-color="#e5b0a5"/><stop offset="1" stop-color="#d9958d"/></linearGradient><linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ffffff" stop-opacity=".72"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>
+<path d="M20 96V45C20 17 31 8 48 8S76 17 76 45V96Z" fill="url(#skin)" stroke="#c7856e" stroke-width="1.2"/>
+<path d="M24 90q9-5 17 0m14 0q9-5 17 0M27 94q8-3 15 0m13 0q8-3 14 0" fill="none" stroke="#fff0df" stroke-width="1.15" opacity=".6"/>
+<path d="M29 43C29 24 35 15 48 15S67 24 67 43V72Q67 82 48 83Q29 82 29 72Z" fill="url(#nail)" stroke="#aa756d" stroke-width="1.65"/>
+<path d="M32 39C32 25 36 19 43 18Q39 36 39 73Q34 71 32 65Z" fill="url(#shine)" opacity=".75"/>
+<path d="M59 22Q64 29 64 44V67" stroke="#fff3e9" stroke-width="1.7" opacity=".65" fill="none"/>
+<path d="M34 37 Q47 33 61 37" fill="none" stroke="#ae7771" stroke-width="2.1" opacity=".77"/><path d="M35 39.5 Q47 35.5 60 39.5" fill="none" stroke="#ffe5d8" stroke-width="1.2"/><path d="M34 49 Q47 45 61 49" fill="none" stroke="#ae7771" stroke-width="2.1" opacity=".77"/><path d="M35 51.5 Q47 47.5 60 51.5" fill="none" stroke="#ffe5d8" stroke-width="1.2"/><path d="M34 61 Q47 57 61 61" fill="none" stroke="#ae7771" stroke-width="2.1" opacity=".77"/><path d="M35 63.5 Q47 59.5 60 63.5" fill="none" stroke="#ffe5d8" stroke-width="1.2"/>
+<path d="M28 76Q47 88 68 76" stroke="#a96d60" stroke-width="2.1" fill="none" opacity=".68"/>
+<path d="M29 79Q47 91 67 79" stroke="#ffdfc7" stroke-width="1.65" fill="none"/>
+</svg>
