@@ -5156,7 +5156,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="01.11 22:18 · UX2";   // подставляется при публикации
+const BUILD="01.11 22:43 · UX2";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -13715,13 +13715,18 @@ const GI_ART=["data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmc
 const GI_VIEW={person:null,rows:{},days:7,loading:false,error:'',supported:false,truncated:false,episode:null,seq:0};
 function giNavHtml(){return '<section class="card gi-nav"><h2>Дневник ЖКТ</h2><p class="muted">Стул и самочувствие по дням — для вас и врача.</p><button type="button" class="btn btn-secondary" data-gi-open>Открыть дневник ЖКТ</button></section>';}
 function giGuard(person){return !!DATA[person]&&cur===person&&!lockNeeded(person);}
+async function giRouteExisting(fallback,day){
+ const p=cur;if(!giGuard(p))return;
+ try{const cap=await mkApi('gi_capabilities',{person:p});if(!giGuard(p))return;if(cap.version===1){GI_VIEW.supported=true;return giOpen(null,day);}}catch(e){/* The deployed legacy service still supports its original form. */}
+ if(giGuard(p))return fallback();
+}
 function giErrorText(e){const s=String(e&&e.message||e||'');return /bad_request|unsupported|not_supported|404/.test(s)?'Эта версия сервера пока не поддерживает новый дневник ЖКТ. Запись не сохранена.':/revision_conflict/.test(s)?'Запись уже изменена на другом устройстве. Введённое сохранено в форме; обновите дневник и сверьте изменения.':/idempotency_conflict/.test(s)?'Предыдущая отправка уже сохранена с другими полями. Откройте дневник и проверьте запись.':/deleted_retry|not_found/.test(s)?'Запись удалена или больше недоступна. Введённое осталось в форме.':'Не удалось сохранить. Проверьте связь и повторите. Введённое осталось в форме.';}
 function giDraw(){
  const p=GI_VIEW.person;if(!giGuard(p))return;
  const mo=document.getElementById('modal'),model=giLedger(GI_VIEW.rows[p]||[],p,GI_VIEW.days,localDay());
  const summary=model.items.length?`<div class="gi-summary"><b>${model.days} ${plural(model.days,'день','дня','дней')} с записями</b><p class="muted">Дни без записей не означают отсутствие симптомов.</p><div>${model.distribution.map((v,i)=>`<span>Тип ${i+1}: ${v}</span>`).join(' · ')}</div>${Object.keys(model.frequency).length?`<p>${Object.entries(model.frequency).map(([code,n])=>esc((giCodes().find(s=>s.code===code)||{label:code}).label)+': '+n).join(' · ')}</p>`:''}</div>`:'';
  let last='';const rows=model.items.map(r=>{const day=r.data.date!==last?`<h3>${esc(ru(r.data.date))}</h3>`:'';last=r.data.date;return day+`<article class="gi-record"><time>${esc(r.data.time)}</time><div><p>${esc(giSummaryText(r.data))}</p>${r.reason?`<p class="muted">Связано с: ${esc(r.reason)}</p>`:''}${r.can_edit?`<div class="row"><button type="button" class="btn btn-secondary" data-gi-edit="${r.id}">Изменить</button><button type="button" class="btn btn-secondary" data-gi-delete="${r.id}">Удалить</button></div>`:'<p class="muted">Запись другого автора — доступна для чтения.</p>'}</div></article>`;}).join('');
- mo.innerHTML=`<div class="mbox dz-form gi-page" role="dialog" aria-modal="true" aria-labelledby="giTitle"><button type="button" class="mclose" data-close aria-label="Закрыть">${icon('close')}</button><h2 id="giTitle">Дневник ЖКТ · ${esc(DATA[p].short||'')}</h2><div class="row"><button type="button" class="btn btn-primary" data-gi-new${GI_VIEW.supported?'':' disabled'}>＋ Записать</button><button type="button" class="btn btn-secondary" data-gi-reload>Обновить</button></div><div class="gi-period" role="group" aria-label="Период">${[7,30,0].map(n=>`<button type="button" class="btn btn-secondary" data-gi-period="${n}" aria-pressed="${GI_VIEW.days===n}">${n?n+' дней':'Показать всё'}</button>`).join('')}</div>${GI_VIEW.loading?'<p role="status">Загружаем записи…</p>':''}${GI_VIEW.error?`<p role="alert" class="gi-error">${esc(GI_VIEW.error)}</p>`:''}${GI_VIEW.truncated?'<p class="muted">Показаны первые 1000 записей. Для полного экспорта выберите меньший период.</p>':''}${summary}${rows||(!GI_VIEW.loading&&!GI_VIEW.error?'<p class="muted">Пока нет записей. Отметьте стул или самочувствие — это займёт несколько секунд.</p>':'')}<p class="muted">Ранее записанные симптомы остаются в разделе «Болезни и симптомы».</p><details><summary>Сводка для врача</summary><textarea class="gi-doctor" readonly aria-label="Сводка для врача">${esc(giDoctorText(model,DATA[p].short||''))}</textarea><div class="row"><button type="button" class="btn btn-secondary" data-gi-copy>Скопировать</button><button type="button" class="btn btn-secondary" data-gi-print>Распечатать</button></div></details></div>`;
+ mo.innerHTML=`<div class="mbox dz-form gi-page" role="dialog" aria-modal="true" aria-labelledby="giTitle"><button type="button" class="mclose" data-close aria-label="Закрыть">${icon('close')}</button><h2 id="giTitle">Дневник ЖКТ · ${esc(DATA[p].short||'')}</h2><div class="row"><button type="button" class="btn btn-primary" data-gi-new${GI_VIEW.supported?'':' disabled'}>＋ Записать</button><button type="button" class="btn btn-secondary" data-gi-reload>Обновить</button></div><div class="gi-period" role="group" aria-label="Период">${[7,30,0].map(n=>`<button type="button" class="btn btn-secondary" data-gi-period="${n}" aria-pressed="${GI_VIEW.days===n}">${n?n+' дней':'Показать всё'}</button>`).join('')}</div>${GI_VIEW.loading?'<p role="status">Загружаем записи…</p>':''}${GI_VIEW.error?`<p role="alert" class="gi-error">${esc(GI_VIEW.error)}</p>`:''}${GI_VIEW.truncated?'<p class="muted">Показаны первые 1000 записей. Для полного экспорта выберите меньший период.</p>':''}${summary}${rows||(!GI_VIEW.loading&&!GI_VIEW.error?'<p class="muted">Пока нет записей. Отметьте стул или самочувствие — это займёт несколько секунд.</p>':'')}${!GI_VIEW.supported?'<button type="button" class="btn btn-secondary" data-gi-legacy>Записать симптомы прежним способом</button>':''}<p class="muted">Ранее записанные симптомы остаются в разделе «Болезни и симптомы».</p><details><summary>Сводка для врача</summary><textarea class="gi-doctor" readonly aria-label="Сводка для врача">${esc(giDoctorText(model,DATA[p].short||''))}</textarea><div class="row"><button type="button" class="btn btn-secondary" data-gi-copy>Скопировать</button><button type="button" class="btn btn-secondary" data-gi-print>Распечатать</button></div></details></div>`;
  mo.classList.add('on');giBindDialog(mo);mo.querySelector('[data-gi-new]:not([disabled]),[data-gi-reload]')?.focus();
 }
 async function giLoad(){
@@ -13792,9 +13797,10 @@ function giBindDialog(mo){
  mo.addEventListener('keydown',e=>{if(!mo.querySelector('.gi-page,.gi-form'))return;if(e.key!=='Tab')return;const all=[...mo.querySelectorAll('button:not([disabled]),input,select,textarea,summary')].filter(x=>x.getClientRects().length);if(!all.length)return;const first=all[0],last=all[all.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 }
 document.addEventListener('click',e=>{
- const b=e.target.closest&&e.target.closest('[data-gi-open],[data-gi-new],[data-gi-reload],[data-gi-period],[data-gi-edit],[data-gi-delete],[data-gi-copy],[data-gi-print]');if(!b)return;
+ const b=e.target.closest&&e.target.closest('[data-gi-open],[data-gi-legacy],[data-gi-new],[data-gi-reload],[data-gi-period],[data-gi-edit],[data-gi-delete],[data-gi-copy],[data-gi-print]');if(!b)return;
  if(b.hasAttribute('data-gi-open')){giOpen(b.dataset.giEpisode||null);return;}
  if(!giGuard(GI_VIEW.person))return;
+ if(b.hasAttribute('data-gi-legacy')){GI_VIEW.seq++;const def=diaryCatalog().find(d=>d.id==='gi');if(def)dzSymptomForm(def,localDay(),localDay(),true);return;}
  if(b.hasAttribute('data-gi-reload')){giLoad();return;}
  if(b.hasAttribute('data-gi-period')){GI_VIEW.days=Number(b.dataset.giPeriod);giLoad();return;}
  if(b.hasAttribute('data-gi-new')){giForm(null);return;}
@@ -14230,8 +14236,8 @@ function dzMeasureForm(def,day,today){
     catch(e){ b.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
   };
 }
-function dzSymptomForm(def,day,today){
-  if(def.id==="gi"){giOpen(null,day);return;}
+function dzSymptomForm(def,day,today,legacy){
+  if(def.id==="gi"&&!legacy){giRouteExisting(()=>dzSymptomForm(def,day,today,true),day);return;}
   let sel=[], trig=[];
   const tiles=[{n:"ok",t:"Всё в порядке",icon:"smile"},...dzGeneralSymptoms(def).map(s=>({n:s.n,t:s.n,icon:s.icon})),{n:"Другое",t:"Другое",icon:"other"}];
   const box=dzModalOpen(`<h3 class="dz-form__t">Симптомы</h3><h4 class="dz-sub">Что беспокоит</h4>
@@ -15021,7 +15027,7 @@ function dzDayBind(m){
   if(pv) pv.onclick=()=>go(-1); if(nx) nx.onclick=()=>go(1); if(bk) bk.onclick=()=>{ DZ.hist=null; render(); window.scrollTo(0,0); };
   m.querySelectorAll("[data-dz-how]").forEach(b=>b.onclick=dzIntro);
   m.querySelectorAll("[data-dz-hide]").forEach(b=>b.onclick=()=>{ const h=dzHideLoad(); h[b.dataset.dzHide]=today; dzHideSave(h); render(); });
-  m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ if(b.dataset.dzHist==="gi"){giOpen();return;} DZ.hist=b.dataset.dzHist; render(); window.scrollTo(0,0); });
+  m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ const old=()=>{DZ.hist=b.dataset.dzHist;render();window.scrollTo(0,0);};if(b.dataset.dzHist==="gi"){giRouteExisting(old);return;}old(); });
   m.querySelectorAll("[data-dz-meas]").forEach(b=>b.onclick=()=>dzMeasureForm(def(b.dataset.dzMeas),day(),today));
   m.querySelectorAll("[data-dz-sym]").forEach(b=>b.onclick=()=>dzSymptomForm(def(b.dataset.dzSym),day(),today));
   const entryOf=id=>((DZ.data[cur]||{}).entries||[]).find(e=>e.id===id);
