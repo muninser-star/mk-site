@@ -629,6 +629,19 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .sym-disclosure__body{padding:0 0 14px}.sym-disclosure__body h3{font-size:13px;margin:0 0 6px}.sym-disclosure__body ul{margin:0;padding-left:20px;line-height:1.6;overflow-wrap:anywhere}
 .sym-disclosure__open{min-height:44px;margin-top:8px;text-align:left}.sym-disclosures__note{font-size:12px;line-height:1.5;margin:12px 0 0}
 .sym-disclosure>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sym-disclosure__calendar.heat-row{display:block;min-width:0;max-width:100%;padding:0;margin:0 0 14px}
+.sym-disclosure__dates,.sym-disclosure__legend{font-size:12px;line-height:1.5;margin:0 0 8px;overflow-wrap:anywhere}
+.sym-disclosure__legend{margin:8px 0 0}
+.sym-disclosure__calendar .sym-disclosure__grid{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));min-width:0;max-width:100%;gap:4px;padding:2px 0}
+.sym-disclosure__grid i[role="button"]{display:grid;place-items:center;min-width:0;aspect-ratio:1;height:auto;border-radius:4px;font:500 11px/1 var(--font);color:var(--text-primary,var(--ink))}
+.sym-disclosure__grid i[data-l="1"],.sym-disclosure__grid i[data-l="2"]{color:#202a35}
+.sym-disclosure__grid i[data-l="3"]{color:white}.sym-disclosure__grid i[data-l="4"]{background:var(--accentbg,#dbf0ff);color:var(--text-accent,var(--accent))}
+.sym-disclosure__grid i[data-period="1"]{outline:1px dashed var(--text-secondary,var(--muted));outline-offset:-3px}
+.sym-disclosure__grid i[role="button"]:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.sym-disclosure__grid i:hover::after{content:none}
+@media(max-width:1000px){.sym-disclosure__calendar .sym-disclosure__grid{grid-template-columns:repeat(15,minmax(0,1fr))}}
+@media(max-width:600px){.sym-disclosure__calendar .sym-disclosure__grid{grid-template-columns:repeat(10,minmax(0,1fr))}}
+@media(max-width:360px){.sym-disclosure__calendar .sym-disclosure__grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
 
 /* «Месяц» — полоса из 30 дней (ТЗ-010 блок 8) */
 .heat-row.mrow2{grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:8px 24px;align-items:start}.mrow2__med{line-height:1.5;overflow-wrap:anywhere}.mrow2 .heat-row__lab{line-height:1.5}.mrow2 .sym-month-stats{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px}.mrow2 .sym-month-average{font-weight:500}@media(max-width:600px){.heat-row.mrow2{grid-template-columns:minmax(0,1fr);gap:6px}.mrow2__med{grid-column:1/-1}}
@@ -3077,7 +3090,7 @@ function symptomDisclosureModel(S,today,periods,person){
     if(p.ended_on&&(!good(p.ended_on)||p.ended_on<p.started_on)) continue;
     const g=group(p.symptom), to=p.ended_on&&p.ended_on<today?p.ended_on:today;
     if(!g.periods.some(x=>x.from===p.started_on&&x.to===to&&x.ongoing===!p.ended_on))
-      g.periods.push({id:p.id,from:p.started_on,to,ongoing:!p.ended_on,kind:"period"});
+      g.periods.push({id:p.id,from:p.started_on,to,ongoing:!p.ended_on,kind:"period",i:p.intensity});
   }
   for(const r of ((S&&S.log)||[])){
     if(!r||!key(r.n)||!good(r.d)||r.d>today||(r.person&&r.person!==person)) continue;
@@ -3094,8 +3107,25 @@ function symptomDisclosureModel(S,today,periods,person){
     for(const r of coverage){ const last=merged[merged.length-1]; if(last&&r.from<=dayShift(last.to,1)){if(r.to>last.to)last.to=r.to;}else merged.push({from:r.from,to:r.to}); }
     const days=merged.reduce((sum,r)=>sum+Math.round((Date.parse(r.to)-Date.parse(r.from))/864e5)+1,0);
     const open=g.periods.filter(p=>p.ongoing).sort((a,b)=>b.from.localeCompare(a.from))[0];
-    return {key:g.key,n:g.n,last:ranges.length?ranges[0].to:"",days,ranges,ongoing:!!open,ongoingFrom:open?open.from:""};
+    return {key:g.key,n:g.n,last:ranges.length?ranges[0].to:"",days,ranges,rows:g.rows,periods:g.periods,ongoing:!!open,ongoingFrom:open?open.from:""};
   }).filter(g=>g.last).sort((a,b)=>b.last.localeCompare(a.last)||a.n.localeCompare(b.n,"ru"));
+}
+function symptomDisclosureCalendar(r,today){
+  // Older symptoms show the month ending with their last record, rather than
+  // thirty empty squares for the current month. The displayed dates are explicit.
+  const to=r.last<dayShift(today,-29)?r.last:today, from=dayShift(to,-29),rank={ok:1,warn:2,bad:3};
+  const cells=Array.from({length:30},(_,i)=>{
+    const d=dayShift(from,i),rows=r.rows.filter(x=>x.d===d),observed=rows.filter(x=>!x.per),periods=r.periods.filter(p=>p.from<=d&&p.to>=d);
+    const period=!!periods.length||rows.some(x=>x.per),known=[...rows,...periods].filter(x=>(x.i!=null&&Number.isFinite(Number(x.i)))||(x.v!=null&&x.v!==""&&x.u==="°C"));
+    const level=known.reduce((max,x)=>Math.max(max,rank[sevLevel(x)]||0),0)||(rows.length||period?4:0);
+    const detail=observed.length?`записей: ${observed.length}`:period?"указан период":"нет записи";
+    return {d,level,period:period&&!observed.length,label:ru(d)+" · "+r.n+" · "+detail+(level===4?" · оценка не указана":level?" · "+["","терпимо","мешает","сильно"][level]:"")};
+  });
+  return {from,to,cells};
+}
+function symptomDisclosureCalendarHtml(r,today){
+  const m=symptomDisclosureCalendar(r,today),selected=typeof symDay!=="undefined"&&symDay&&symDay.n===r.n?symDay.d:null;
+  return `<div class="heat-row sym-disclosure__calendar" data-sym="${esc(r.n)}"><p class="muted sym-disclosure__dates">${ru(m.from)} — ${ru(m.to)} · нажмите на день</p><div class="heat heat--sm sym-disclosure__grid" role="group" aria-label="Дни симптома: ${esc(r.n)}">${m.cells.map(x=>`<i role="button" tabindex="0" data-dt="${x.d}" data-l="${x.level}"${x.period?' data-period="1"':""} class="${x.d===selected?"daysel":""}" aria-pressed="${x.d===selected}" title="${esc(x.label)}" aria-label="${esc(x.label)}">${x.d.slice(8)}</i>`).join("")}</div><div class="legend sym-disclosure__legend"><span><i style="background:var(--surface-2)"></i>нет записи</span><span><i style="background:var(--accentbg,#dbf0ff)"></i>без оценки</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span><span><i style="outline:1px dashed currentColor;outline-offset:-2px"></i>период</span></div></div>`;
 }
 function symptomDisclosureHtml(S,today,periods,person,filtered){
   const rows=symptomDisclosureModel(S,today,periods,person), scope=filtered?String(((S&&S.ep)||[])[0]?.id||"filtered"):"all";
@@ -3103,7 +3133,8 @@ function symptomDisclosureHtml(S,today,periods,person,filtered){
     <p class="muted sym-disclosures__intro">Сначала недавние. Раскройте симптом, чтобы увидеть, когда его отмечали.</p>
     ${rows.length?rows.map(r=>{const k=person+"|"+scope+"|"+r.key,red=((S&&S.cat)||[]).some(c=>String(c.n||"").trim().toLowerCase().replace(/ё/g,"е")===r.key&&c.red);
       const label=r.ongoing?"Период продолжается · с "+ru(r.ongoingFrom):"Последнее наблюдение: "+ru(r.last);
-      return `<details class="sym-disclosure" data-sym-disclosure="${esc(k)}"${SYM_DISCLOSURES[k]?" open":""}><summary><span class="sym-disclosure__name"><b>${esc(r.n)}</b>${red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</span><span class="muted sym-disclosure__last">${esc(label)} · ${r.days} ${plural(r.days,"день","дня","дней")} с записями</span></summary><div class="sym-disclosure__body"><h3>Когда отмечали</h3><ul>${r.ranges.map(x=>`<li>${x.kind==="period"?"Указанный период: ":"Дни с записями: "}${ru(x.from)}${x.ongoing?" · окончание не указано":x.to!==x.from?" — "+ru(x.to):""}${x.kind==="observed"&&x.days>1?` · ${x.days} ${plural(x.days,"день","дня","дней")}`:""}</li>`).join("")}</ul><button type="button" class="linkbtn sym-disclosure__open" data-symfull="${esc(r.n)}" aria-label="Подробнее о симптоме: ${esc(r.n)}">Подробнее о симптоме →</button></div></details>`;
+      const selected=typeof symDay!=="undefined"&&symDay&&symDay.n===r.n;
+      return `<details class="sym-disclosure" data-sym-disclosure="${esc(k)}"${SYM_DISCLOSURES[k]?" open":""}><summary><span class="sym-disclosure__name"><b>${esc(r.n)}</b>${red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</span><span class="muted sym-disclosure__last">${esc(label)} · ${r.days} ${plural(r.days,"день","дня","дней")} с записями</span></summary><div class="sym-disclosure__body">${symptomDisclosureCalendarHtml(r,today)}${selected?symDayPanel(S,r.n,symDay.d,today):""}<h3>Когда отмечали</h3><ul>${r.ranges.map(x=>`<li>${x.kind==="period"?"Указанный период: ":"Дни с записями: "}${ru(x.from)}${x.ongoing?" · окончание не указано":x.to!==x.from?" — "+ru(x.to):""}${x.kind==="observed"&&x.days>1?` · ${x.days} ${plural(x.days,"день","дня","дней")}`:""}</li>`).join("")}</ul><button type="button" class="linkbtn sym-disclosure__open" data-symfull="${esc(r.n)}" aria-label="Подробнее о симптоме: ${esc(r.n)}">Подробнее о симптоме →</button></div></details>`;
     }).join(""):`<p class="muted">${filtered?"Для этой болезни связанных записей симптомов нет.":"Записей симптомов пока нет. Добавьте первую запись."}</p>`}
     ${rows.length?'<p class="muted sym-disclosures__note">Промежутки без записей не означают отсутствие симптома.</p>':""}</section>`;
 }
@@ -5342,7 +5373,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 12:34 · AI3";   // подставляется при публикации
+const BUILD="02.11 13:43 · SYM4";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
