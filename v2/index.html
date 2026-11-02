@@ -3354,7 +3354,7 @@ function bpTimelineHay(e){
 function tlBpItem(e){
   const r=e.r,pulse=r.pulse!=null&&r.pulse!==""&&Number.isFinite(Number(r.pulse))?` · пульс ${esc(r.pulse)} уд/мин`:"";
   return `<div class="tl-item tl-item--nodate tl-bp"><div class="tl-ic">${icon(TL_ICON.meas)}</div><div>
-    <div class="tl-title"><button type="button" class="linkbtn tl-bp__open" data-bpread="${esc(r.id)}" data-bpperson="${esc(e.person)}" aria-label="Открыть замер давления: ${esc(ru(e.d))} ${bpTimelineClock(r.measured_at)}">${hl(e.t)}</button></div>
+    <div class="tl-title"><button type="button" class="linkbtn tl-bp__open" data-bpread="${esc(r.id)}" data-bpperson="${esc(e.person)}" aria-label="Открыть замер давления: ${esc(r.sys)}/${esc(r.dia)} мм рт. ст. · ${esc(ru(e.d))} ${bpTimelineClock(r.measured_at)}">${hl(e.t)}</button></div>
     <div class="tl-meta"><span class="tag tag--gray">замер давления</span> <time datetime="${esc(r.measured_at)}">${bpTimelineClock(r.measured_at)}</time>${pulse}</div>
     ${r.note?`<div class="tl-meta">${esc(r.note)}</div>`:""}</div></div>`;
 }
