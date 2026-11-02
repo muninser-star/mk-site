@@ -353,9 +353,13 @@ tr.row{cursor:pointer} tr.row:hover td{background:var(--accentbg)}
 .fp-list{margin:10px 0;max-height:52vh;overflow:auto}.fp-row{display:flex;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer}
 .fp-row input{width:20px;height:20px;flex:none}.fp-row b{display:block}.fp-row .muted{font-size:12.5px}
 .heat--sm i.daysel{outline:2px solid var(--ink,#111);outline-offset:-1px}
-/* ТЗ-041: доступные дни; полоса прокручивается внутри карточки, не страница. */
-.mrow2>*{min-width:0}.mrow2>.heat--sm{min-width:0;max-width:100%;grid-template-columns:repeat(30,44px);overflow-x:auto;touch-action:pan-x;padding:3px}
-.mrow2>.heat--sm i[role="button"]{height:44px;min-width:44px;display:block}
+/* ТЗ-041: все 30 дней видны; адаптивные ряды без горизонтальной прокрутки. */
+.mrow2>*{min-width:0}.mrow2>.heat--sm{grid-column:1/-1;min-width:0;max-width:100%;grid-template-columns:repeat(30,minmax(0,1fr));gap:3px;touch-action:pan-y;padding:2px 0}
+.mrow2>.heat--sm i[role="button"]{height:28px;min-width:0;display:grid;place-items:center;font:500 11px/1 var(--font);color:var(--text-primary,var(--ink))}
+.mrow2>.heat--sm i[data-l="1"],.mrow2>.heat--sm i[data-l="2"],.mrow2>.heat--sm i[data-l="3"]{color:#202a35}
+.mrow2>.heat--sm i:hover::after{content:none}
+@media(max-width:1000px){.mrow2>.heat--sm{grid-template-columns:repeat(15,minmax(0,1fr))}.mrow2>.heat--sm i[role="button"]{height:32px}}
+@media(max-width:600px){.mrow2>.heat--sm{grid-template-columns:repeat(10,minmax(0,1fr))}.mrow2>.heat--sm i[role="button"]{height:36px}}
 .mrow2>.heat--sm i[role="button"]:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 
 .daypanel{margin:2px 0 14px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--surface-2,#f4f6f8)}
@@ -610,7 +614,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   .card:hover,.hero-card:hover,.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover,.who button:hover{transform:none!important}
 }
 /* «Месяц» — полоса из 30 дней (ТЗ-010 блок 8) */
-.heat-row.mrow2{grid-template-columns:130px 150px 1fr}.mrow2__med{line-height:1.35}@media(max-width:700px){.heat-row.mrow2{grid-template-columns:110px 1fr}.mrow2__med{grid-column:1/-1;order:3}}
+.heat-row.mrow2{grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:8px 24px;align-items:start}.mrow2__med{line-height:1.5;overflow-wrap:anywhere}.mrow2 .heat-row__lab{line-height:1.5}.mrow2 .sym-month-stats{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px}.mrow2 .sym-month-average{font-weight:500}@media(max-width:600px){.heat-row.mrow2{grid-template-columns:minmax(0,1fr);gap:6px}.mrow2__med{grid-column:1/-1}}
 .mrow2{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.mrow2:first-of-type{border-top:0}
 .mrow2-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-bottom:8px}
 .mcells{display:grid;grid-template-columns:repeat(30,1fr);gap:2px}
@@ -1094,6 +1098,12 @@ body.sv-lock{overflow:hidden}
 .tbl-cards td.c0{display:block;font-size:15px;padding-bottom:4px} .tbl-cards td.c0::before{content:none} .tbl-cards td:empty{display:none} .tbl-cards td[data-l=""]{display:block} .tbl-cards td[data-l=""]::before{content:none}
 .tbl-cards td.hm{display:none}
  .tbl th{padding:8px 8px} .tbl td{padding:10px 8px;overflow-wrap:anywhere} .tbl-stack td{padding:0} .tbl .hm{display:none} .tbl .nvm{display:block} .tbl .status{white-space:nowrap} .tbl td .tag{white-space:normal} }
+/* Чекапы: название и объяснение шире компактного статуса, в том числе на телефоне. */
+.tbl.chk-table{table-layout:fixed;width:100%}
+.tbl.chk-table th,.tbl.chk-table td{min-width:0;vertical-align:top;white-space:normal;overflow-wrap:break-word;word-break:normal}
+.tbl.chk-table .status{height:auto;min-height:24px;max-width:100%;box-sizing:border-box;padding:4px 7px;white-space:normal;overflow-wrap:anywhere;line-height:16px;align-items:flex-start}
+.tbl.chk-table .status::before{flex:none;margin-top:5px}
+@media(max-width:560px){.tbl.chk-table th,.tbl.chk-table td{padding:10px 6px}.tbl.chk-table .status{padding:3px 5px;font-size:11px;gap:4px}}
 .tl-month { margin: 0 0 4px; padding-bottom: 8px; border-bottom: 1px solid var(--surface-2); font: 600 12px/16px var(--font); text-transform: uppercase; letter-spacing: .07em; color: var(--text-secondary); }
 .tl-group + .tl-group { margin-top: 20px; }
 .tl-item { display: grid; grid-template-columns: 52px 32px 1fr; gap: 12px; padding: 12px 0; align-items: start; }
@@ -3583,7 +3593,7 @@ function labfReset(){ LABF.only=false; LABF.q=""; LABF.dates=3; LABF.moreSys=fal
 function labPool(type){ const q=LABF.q.trim(), list=DATA[cur].rec.filter(r=>r.t===type&&(q?labQHit(r,q):matches(r))); list.sort((a,b)=>b.d.localeCompare(a.d)); return q?list:labFilterApply(list,LABF); }
 function labTopHtml(){
   const n=labFilterCount(LABF,sysFilter), act=labFilterSummary(LABF,sysFilter?sysName(sysFilter):"");
-  return `<div class="labtop"><div class="fld labtop-q"><input id="labQ" type="search" placeholder="Найти показатель…" aria-label="Найти показатель" value="${esc(LABF.q)}" autocomplete="off"></div>
+  return `<div class="labtop">
     <button type="button" class="btn btn-secondary labtop-b" id="labFbtn" aria-haspopup="dialog">Фильтры${n?` · ${n}`:""}</button><button type="button" class="btn btn-primary labtop-b" id="recAdd">+ Добавить</button>
     ${act&&!LABF.q.trim()?`<div class="labact"><span>${esc(act)}</span><button type="button" class="linkbtn" data-labreset="1">Сбросить</button></div>`:""}</div>`;
 }
@@ -3649,7 +3659,6 @@ document.addEventListener("click",e=>{
   if(c.dataset.labdates!=null){ LABF.dates+=3; labBodyPaint(); return; }
   if(c.dataset.labadd!=null){ if(typeof labForm==="function") labForm(); return; }
 });
-document.addEventListener("input",e=>{ const q=e.target&&e.target.id==="labQ"?e.target:null; if(!q) return; LABF.q=q.value; pgShown.instr=10; labBodyPaint(); const a=document.querySelector(".labact"); if(a) a.hidden=!!LABF.q.trim(); });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){ const m=document.getElementById("labFm"); if(m&&m.classList.contains("on")){ e.preventDefault(); labFmClose(); } return; }
   if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("lr1")&&e.target.getAttribute("role")==="button"){ e.preventDefault(); e.target.click(); }
@@ -4097,7 +4106,7 @@ function chkListHtml(){
     <div class="card"><h2>Все чекапы</h2>${r.all.filter(c=>!fitIds.has(c.id)).map(one).join("")||`<div class="muted">Остальных нет</div>`}</div>`;
 }
 function chkTableHtml(items){
-  const g=(title,L)=>L.length?`<h3 class="labsec">${title}</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Что</th><th>Зачем</th><th>Статус</th></tr></thead><tbody>${L.map(i=>`<tr><td><b>${esc(i.title)}</b>${i.prep?`<div class="muted" style="font-size:12.5px">${esc(i.prep)}</div>`:""}</td><td class="muted">${esc(i.why)}</td><td>${chkTag(i)}${i.note?`<div class="muted" style="font-size:12.5px;margin-top:3px">${esc(i.note)}</div>`:""}</td></tr>`).join("")}</tbody></table></div>`:"";
+  const g=(title,L)=>L.length?`<h3 class="labsec">${title}</h3><div class="tbl-wrap"><table class="tbl chk-table"><colgroup><col style="width:40%"><col style="width:34%"><col style="width:26%"></colgroup><thead><tr><th>Что</th><th>Зачем</th><th>Статус</th></tr></thead><tbody>${L.map(i=>`<tr><td><b>${esc(i.title)}</b>${i.prep?`<div class="muted" style="font-size:12.5px">${esc(i.prep)}</div>`:""}</td><td class="muted">${esc(i.why)}</td><td>${chkTag(i)}${i.note?`<div class="muted" style="font-size:12.5px;margin-top:3px">${esc(i.note)}</div>`:""}</td></tr>`).join("")}</tbody></table></div>`:"";
   return g("Основные",items.filter(i=>i.priority==="core"))+g("По назначению или показаниям",items.filter(i=>i.priority!=="core"));
 }
 function chkPrint(title,items,sub){
@@ -5156,7 +5165,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="01.11 22:43 · UX2";   // подставляется при публикации
+const BUILD="02.11 00:05 · FIX";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -5322,12 +5331,18 @@ function kpiHwFresh(t,p,age){
   t.sub=`см / кг · ${fresh}${isFinite(bmi)?`, ИМТ ${nz(bmi.toFixed(1))}`:""}${useW&&useH?"":" (часть — по паспорту)"}`;
   return t;
 }
+// Карточки старого формата могут не иметь auto; запись человека не меняется.
+function pressureTile(tiles){
+  const rows=Array.isArray(tiles)?tiles:[];
+  return rows.find(k=>k&&k.auto==="bp")||rows.find(k=>k&&k.lab==="Давление");
+}
 function kpiLive(d){
   const out=(d.kpi||[]).map(k=>Object.assign({},k));
   const nz=v=>String(v).replace(".",",");
   const F=nutLS("weight",[]); let last=F[F.length-1]; const first=F[0], lw=lastMeasure(cur,"weight"), lh=lastMeasure(cur,"height");
   if(lw&&(!last||lw.d>last.d)) last={v:lw.v,d:lw.d};   // замер из единого источника свежее — берём его
-  const hw=out.find(k=>k.auto==="hw"), bmi=out.find(k=>k.auto==="bmi"), bp=out.find(k=>k.auto==="bp");
+  const hw=out.find(k=>k.auto==="hw"), bmi=out.find(k=>k.auto==="bmi"), bp=pressureTile(out);
+  if(bp&&window.__MK_KEY&&typeof bpLoad==="function") bpLoad();
   if(hw&&lh) hw.hcm=lh.v;
   if(typeof mzLoad==="function"&&typeof MZD!=="undefined"&&window.__MK_KEY&&MZD[cur]===undefined) mzLoad();   // замеры грузятся один раз, плитка обновится сама
   const hwp=out.find(k=>k.lab==="Рост / вес"&&!k.auto); if(hwp) kpiHwFresh(hwp,cur,d.age);
@@ -10502,7 +10517,7 @@ function quickAccessNavigate(id){
   render();window.scrollTo({top:0});
   if(item.id==="studies"){labFoldApply("instr",true,false);document.querySelector('[data-lfs="instr"]')?.scrollIntoView({block:"start"});}
   if(item.anchor)document.getElementById(item.anchor)?.scrollIntoView({block:"start"});
-  if(item.id==="dynamics")document.getElementById("labQ")?.focus();
+  if(item.id==="dynamics")document.getElementById("q")?.focus();
   return true;
 }
 function quickAccessClick(e){
@@ -15340,11 +15355,11 @@ function render(){
           <div class="muted" style="margin:-4px 0 10px">${lastDaysText(today,30)} · выберите день, чтобы посмотреть записи</div>
           ${M.length?M.map(r=>`<div class="heat-row mrow2" data-sym="${esc(r.n)}" style="cursor:pointer">
             <div class="heat-row__lab"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
-              <div class="muted" style="font-size:12px">${r.days} ${plural(r.days,"день","дня","дней")} с записями из 30${r.avg!=null?` · <span class="status status-${r.avg>=7?"bad":r.avg>=4?"warn":"ok"}" style="height:auto;padding:0 6px">средняя оценка ${String(r.avg).replace(".",",")} из 10 по записям</span>`:""}</div>
+              <div class="muted sym-month-stats"><span>${r.days} ${plural(r.days,"день","дня","дней")} с записями из 30</span>${r.avg!=null?`<span class="sym-month-average">Средняя оценка: ${String(r.avg).replace(".",",")} из 10 по записям</span>`:""}</div>
               <div style="font-size:12px"><span class="muted">Последняя запись: ${ru(r.last)}</span></div>
 </div>
             <div class="mrow2__med" style="font-size:13px">${(()=>{const mm=medsOf((byName[r.n]||[]).filter(x=>x.d>=d30&&x.d<=today)).map(x=>x.name); return mm.length?"<span class='muted'>Указано в записях этого периода: </span>"+medLinks(mm):"<span class='muted'>Лекарства в записях не указаны</span>";})()}</div>
-            <div class="heat heat--sm">${r.cells.map((c,k)=>`<i role="button" tabindex="0" aria-label="${esc(r.n)} · ${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}" data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}" data-dt="${dayShift(today,k-29)}"${symDay&&symDay.n===r.n&&symDay.d===dayShift(today,k-29)?' class="daysel"':""} data-tip="${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}"></i>`).join("")}</div></div>${symDay&&symDay.n===r.n?symDayPanel(S,r.n,symDay.d,today):""}`).join("")+`<div class="legend"><span class="muted">Каждая клетка — день:</span><span><i style="background:var(--surface-2)"></i>нет записи</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней записей о симптомах нет</div>`}
+            <div class="heat heat--sm">${r.cells.map((c,k)=>`<i role="button" tabindex="0" aria-label="${esc(r.n)} · ${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}" data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}" data-dt="${dayShift(today,k-29)}"${symDay&&symDay.n===r.n&&symDay.d===dayShift(today,k-29)?' class="daysel"':""} title="${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}">${dayShift(today,k-29).slice(-2)}</i>`).join("")}</div></div>${symDay&&symDay.n===r.n?symDayPanel(S,r.n,symDay.d,today):""}`).join("")+`<div class="legend"><span class="muted">Каждая клетка — день:</span><span><i style="background:var(--surface-2)"></i>нет записи</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней записей о симптомах нет</div>`}
           <div style="margin-top:12px"><a href="#" id="symAllLink" class="medlink" style="font-weight:600">${symAllOpen?"Скрыть историю ▴":`Все симптомы — ${seen.length}, вся история ▾`}</a></div>
           </div>`;
       }
