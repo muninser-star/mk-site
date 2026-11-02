@@ -615,6 +615,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .card:hover,.hero-card:hover,.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover,.who button:hover{transform:none!important}
 }
+.tl-bp__open{margin:0;text-align:left;text-decoration:none;font-weight:600;overflow-wrap:anywhere;min-height:32px}.tl-bp__open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.bp-reading__note{white-space:pre-wrap;overflow-wrap:anywhere}
 /* Unified symptom disclosures: one recent-first list, no duplicate graph/list. */
 .sym-disclosures__head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .sym-disclosures__head h2{margin:0}.sym-disclosures__head .btn{min-height:44px}
@@ -2820,6 +2821,7 @@ function searchIn(k){
   const R={
     rec:d.rec.filter(r=>hit(recHay(r,k))),
     med:medicineSearchRows(d,k,k===cur),
+    bp:bpTimelineEvents(BPS[k]||[],k).filter(e=>hit(bpTimelineHay(e))),
     dx :d.diagnoses.filter(x=>hit([x.n,x.c,x.y,x.s,sn(x.sys)].join(" "))),
     ep :((d.sym||{}).ep||[]).filter(e=>hit([e.dx,e.sym,e.t,e.d1,ru(e.d1)].join(" "))),   // болезни (ТЗ-004 блок 6)
     rs :(d.resolved||[]).filter(x=>hit([x.n,x.y,x.s].join(" "))),
@@ -2830,7 +2832,7 @@ function searchIn(k){
     nev:(d.never||[]).filter(n=>hit(n)),
     kpi:kpiLive(d).filter(x=>hit([x.lab,x.val,x.sub||""].join(" ")))
   };
-  R.total=R.med.length+R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
+  R.total=R.bp.length+R.med.length+R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
   return R;
 }
 // последние n значений того же показателя ДО указанной даты
@@ -3333,8 +3335,46 @@ function vacEvents(d){
   return out.map(e=>({d:e.d,k:"vac",t:"Прививка: "+e.r.v+(e.dose?" · "+e.dose:""),sys:null,st:"",r:e.r}))
     .filter(e=>!query||matches({title:e.t,res:e.r.note||"",d:e.d}));
 }
+// BP_FEED_V1: read-only projection of the selected person's bp_readings.
+function bpTimelineEvents(rows,person){
+  const seen=new Set(),out=[];
+  for(const r of rows||[]){
+    if(!r||r.person!==person||r.id==null||String(r.id)===""||!Number.isFinite(Date.parse(r.measured_at))||!Number.isFinite(Number(r.sys))||!Number.isFinite(Number(r.dia))||Number(r.sys)<=0||Number(r.dia)<=0)continue;
+    const key=String(r.id);if(seen.has(key))continue;seen.add(key);
+    out.push({d:dzDayOf(r.measured_at),at:Date.parse(r.measured_at),k:"bp",t:`Давление: ${r.sys}/${r.dia} мм рт. ст.`,sys:null,st:"",person,r});
+  }
+  return out.sort((a,b)=>b.at-a.at||String(b.r.id).localeCompare(String(a.r.id),undefined,{numeric:true}));
+}
+function bpTimelineClock(iso){
+  const t=new Date(iso);return String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0");
+}
+function bpTimelineHay(e){
+  return [e.t,"артериальное АД",e.d,ru(e.d),bpTimelineClock(e.r.measured_at),e.r.pulse!=null?"пульс "+e.r.pulse:"",e.r.note||""].join(" ");
+}
+function tlBpItem(e){
+  const r=e.r,pulse=r.pulse!=null&&r.pulse!==""&&Number.isFinite(Number(r.pulse))?` · пульс ${esc(r.pulse)} уд/мин`:"";
+  return `<div class="tl-item tl-item--nodate tl-bp"><div class="tl-ic">${icon(TL_ICON.meas)}</div><div>
+    <div class="tl-title"><button type="button" class="linkbtn tl-bp__open" data-bpread="${esc(r.id)}" data-bpperson="${esc(e.person)}" aria-label="Открыть замер давления: ${esc(ru(e.d))} ${bpTimelineClock(r.measured_at)}">${hl(e.t)}</button></div>
+    <div class="tl-meta"><span class="tag tag--gray">замер давления</span> <time datetime="${esc(r.measured_at)}">${bpTimelineClock(r.measured_at)}</time>${pulse}</div>
+    ${r.note?`<div class="tl-meta">${esc(r.note)}</div>`:""}</div></div>`;
+}
+function bpReadingOpen(id,person){
+  if(person!==cur)return false;
+  const e=bpTimelineEvents(BPS[person]||[],person).find(e=>String(e.r.id)===String(id));if(!e)return false;
+  const r=e.r,pulse=r.pulse!=null&&r.pulse!==""&&Number.isFinite(Number(r.pulse))?`<p>Пульс: <b>${esc(r.pulse)} уд/мин</b></p>`:"";
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox" role="dialog" aria-modal="true" aria-label="Замер давления"><button type="button" class="mclose" data-close aria-label="Закрыть">✕</button>
+    <h2>Замер давления — ${esc((DATA[person]||{}).short||person)}</h2><p class="muted"><time datetime="${esc(r.measured_at)}">${ru(e.d)} ${bpTimelineClock(r.measured_at)}</time></p>
+    <p class="bp-big">${esc(r.sys)}/${esc(r.dia)} <span class="muted" style="font-size:14px">мм рт. ст.</span></p>${pulse}
+    ${r.note?`<h3>Заметка к замеру</h3><p class="bp-reading__note">${esc(r.note)}</p>`:""}
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-secondary" data-bphist="1">История давления</button><button type="button" class="btn btn-primary" data-bpadd="1">Добавить замер</button></div></div>`;
+  modal.querySelector("[data-close]")?.focus();return true;
+}
+
 function tlEvents(d){
   const out=vacEvents(d);
+  const person=medPersonOf(d);
+  if(person) out.push(...bpTimelineEvents(BPS[person]||[],person).filter(e=>!query||hit(bpTimelineHay(e))));
   (d.rec||[]).filter(matches).forEach(r=>out.push({d:r.d,k:r.t,t:r.title,sys:r.sys,st:r.st,r,id:idOf(r)}));
   ((d.sym||{}).log||[]).forEach(r=>{ if(!query||matches({title:r.n,res:r.f||"",d:r.d}))
     out.push({d:r.d,k:"sym",t:r.n,sys:r.sys,st:r.pend?"warn":(r.i>=5?"warn":""),r}) });
@@ -3436,6 +3476,7 @@ function tlTempItem(e){
 }
 // одна строка события (Лента, карточка симптома): значок, название, тип, подробности, правка
 function tlItem(e){
+  if(e.k==="bp") return tlBpItem(e);
   if(e.k==="illday") return tlIllItem(e);
   if(e.k==="tempday") return tlTempItem(e);
   const icCls=k=>k==="visit"?" tl-ic--visit":(k==="med"||k==="medend")?" tl-ic--med":k==="sym"?" tl-ic--sym":"";
@@ -3451,6 +3492,7 @@ function tlItem(e){
       ${lines.map(x=>`<div class="tl-meta">${x}</div>`).join("")}</div></div>`;
 }
 function timeline(d){
+  bpLoad();   // also load when the feed is opened directly, before visiting Home
   const all=tlKindFilter(tlEvents(d),tlKind), dup=(typeof symDupBanner==="function"&&typeof cur!=="undefined"&&(tlKind==="all"||tlKind==="sym"))?symDupBanner(cur,null):"";
   if(dup&&all.length) return dup+timelineBody(all);
   return timelineBody(all);
@@ -5373,7 +5415,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 13:43 · SYM4";   // подставляется при публикации
+const BUILD="02.11 14:33 · BP5";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -7981,6 +8023,8 @@ function bpHistory(){
       <td>${r.pulse||"—"}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">✕</button></td></tr>`; }).join("")}</tbody></table></div></div>`;
 }
 document.addEventListener("click",e=>{
+  const reading=e.target.closest&&e.target.closest("[data-bpread]");
+  if(reading){ bpReadingOpen(reading.dataset.bpread,reading.dataset.bpperson); return; }
   if(e.target.closest&&e.target.closest("[data-bpadd]")){ bpForm(); return; }
   if(e.target.closest&&e.target.closest("[data-bphist]")){ bpHistory(); return; }
   if(e.target.closest&&e.target.closest("[data-measadd]")){ measForm(); return; }
@@ -16070,6 +16114,7 @@ function render(){
         <div class="kpis">
           ${tile("Записей",S.rec.length,"s-rec")}
           ${tile("Лекарств",S.med.length,"s-med")}
+          ${tile("Замеров давления",S.bp.length,"s-rec")}
           ${tile("Диагнозов",S.dx.length,"s-dx")}
           ${tile("Разрешившихся",S.rs.length,"s-rs")}
           ${tile("В планах",S.at.length,"s-at")}
