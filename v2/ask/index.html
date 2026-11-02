@@ -250,6 +250,7 @@ function card(h, hi) {
          ${h.sources.length ? (() => { const sp = splitSources(h.answer, h.sources);
            return `<div class="srcs">${sp.cited.length ? `<div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники — нажмите, чтобы раскрыть</div>${sp.cited.map(srcHtml).join("")}` : ""}
            ${sp.rest.length ? `<details class="more-src"><summary class="muted" style="font-size:12.5px;cursor:pointer">${sp.cited.length ? "Ещё найдено" : "Что искал"}: ${sp.rest.length}</summary>${sp.rest.map(srcHtml).join("")}</details>` : ""}</div>`; })() : ""}`}
+    ${h.answer&&!h.error?`<div class="muted" style="font-size:12px;margin:12px 0">Сохранённый ответ${h.at?" от "+esc(ru(String(h.at).slice(0,10))):""}. Новые записи не учитываются автоматически.</div><button class="linkq" data-refresh="${hi}"${busy?" disabled":""}>Обновить по текущим записям</button>`:""}
     ${fu}
     ${fixUi}
     </div></div>`;
@@ -267,6 +268,7 @@ function paint() {
   out.onclick = async e => {
     if (e.target.id === "histretry") { loadHistory(); return; }
     if (e.target.id === "histmore") { showAll = true; paint(); return; }
+    const refresh=e.target.closest("[data-refresh]"); if(refresh){ const h=hist[+refresh.dataset.refresh]; if(h) ask(h.q,h,true); return; }
     const fg = e.target.closest("[data-fugo]"); if (fg) { followUp(+fg.dataset.fugo); return; }
     const tg = e.target.closest("[data-toggle]");
     if (tg && tg.closest(".card.closed")) { hist[+tg.dataset.toggle].open = true; paint(); return; }
@@ -290,7 +292,7 @@ function followUp(hi) {
   const ta = document.querySelector(`[data-fuq="${hi}"]`), q = (ta && ta.value || "").trim();
   if (q) ask(q, hist[hi]);
 }
-async function ask(q, parent) {
+async function ask(q, parent, refresh = false) {
   if (!q || busy) return;
   if (!parent) tellPerson();
   busy = q;
@@ -299,9 +301,9 @@ async function ask(q, parent) {
   const who = parent ? parent.person : person;
   const item = { uid: newUid(), parent: parent ? parent.uid : null, q, person: who, open: true, at: new Date().toISOString() };
   // уточнение: врач видит предыдущие вопросы и ответы, а поиск по медкнижке идёт по вопросу вместе с прежним
-  const history = parent ? askChain(hist, hist.indexOf(parent)) : [];
-  try { const r = await api("ask", { question: q, person: who || null, mode: "doctor", general: true, search: parent ? parent.q + " " + q : q, prefer_kind: ["razbor", "passport"], ...(history.length ? { history } : {}), ...(parent && parent.id ? { parent_id: parent.id } : {}) });
-    Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data }); }
+  const history = parent && !refresh ? askChain(hist, hist.indexOf(parent)) : [];
+  try { const r = await api("ask", { question: q, person: who || null, mode: "doctor", general: true, search: parent && !refresh ? parent.q + " " + q : q, prefer_kind: ["razbor", "passport"], ...(history.length ? { history } : {}), ...(parent && parent.id ? { parent_id: parent.id } : {}) });
+    Object.assign(item, { id: r.log_id, answer: r.answer, sources: r.sources || [], no_data: !!r.no_data, context_version:r.context_version||null, context_as_of:r.context_as_of||null }); }
   catch (e) { item.error = e.message; }
   busy = false; fixOpen = null;
   if (who === person || parent) { if (parent) hist.splice(hist.indexOf(parent) + 1, 0, item); else hist.unshift(item); }   // уточнение — сразу под вопросом, к которому относится

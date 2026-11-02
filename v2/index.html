@@ -143,6 +143,7 @@ summary .sum-cnt{font-weight:500;text-transform:none;letter-spacing:0;font-size:
 .medchip.go{cursor:pointer}
 .medchip.go:hover{border-color:var(--accent);color:var(--accent)}
 .medlink{color:var(--accent);cursor:pointer;border-bottom:1px dashed currentColor}
+.medicine-search__row{padding:12px 0;border-bottom:1px solid var(--line)}.medicine-search__row:last-of-type{border-bottom:0}.medicine-search__row .medlink{font-size:15px;font-weight:600}.medicine-search__row .muted{margin-top:4px;font-size:13px;line-height:1.5}
 .medlink:hover{border-bottom-style:solid}
 .addsym{border:1px solid var(--line);background:var(--card);color:var(--accent);border-radius:6px;
   width:22px;height:22px;line-height:1;font-size:15px;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:-3px;padding:0}
@@ -614,6 +615,21 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .card:hover,.hero-card:hover,.kpi:hover,.mt:hover,.chg:hover,.soonitem:hover,.who button:hover{transform:none!important}
 }
+/* Unified symptom disclosures: one recent-first list, no duplicate graph/list. */
+.sym-disclosures__head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sym-disclosures__head h2{margin:0}.sym-disclosures__head .btn{min-height:44px}
+.sym-disclosures__intro{margin:10px 0 12px;font-size:13px;line-height:1.5}
+.sym-disclosure{border-top:1px solid var(--line)}
+.sym-disclosure>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:4px 8px;min-height:44px;padding:12px 0}
+.sym-disclosure>summary::-webkit-details-marker{display:none}
+.sym-disclosure>summary::after{content:"▾";grid-column:2;grid-row:1/3;align-self:center;justify-self:center;color:var(--text-accent,var(--accent))}
+.sym-disclosure[open]>summary::after{transform:rotate(180deg)}
+.sym-disclosure__name,.sym-disclosure__last{grid-column:1;min-width:0;overflow-wrap:anywhere}
+.sym-disclosure__name{font-size:15px;line-height:1.45}.sym-disclosure__last{font-size:12.5px;line-height:1.5}
+.sym-disclosure__body{padding:0 0 14px}.sym-disclosure__body h3{font-size:13px;margin:0 0 6px}.sym-disclosure__body ul{margin:0;padding-left:20px;line-height:1.6;overflow-wrap:anywhere}
+.sym-disclosure__open{min-height:44px;margin-top:8px;text-align:left}.sym-disclosures__note{font-size:12px;line-height:1.5;margin:12px 0 0}
+.sym-disclosure>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
 /* «Месяц» — полоса из 30 дней (ТЗ-010 блок 8) */
 .heat-row.mrow2{grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:8px 24px;align-items:start}.mrow2__med{line-height:1.5;overflow-wrap:anywhere}.mrow2 .heat-row__lab{line-height:1.5}.mrow2 .sym-month-stats{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px}.mrow2 .sym-month-average{font-weight:500}@media(max-width:600px){.heat-row.mrow2{grid-template-columns:minmax(0,1fr);gap:6px}.mrow2__med{grid-column:1/-1}}
 .mrow2{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.mrow2:first-of-type{border-top:0}
@@ -2395,7 +2411,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 <header class="app-header">
   <span class="app-title"><img class="app-logo" src="data:image/png;base64,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" alt="" width="28" height="24">Медкнижка</span>
   <div class="who-wrap" id="whoWrap"><button id="whoBtn" type="button" aria-haspopup="true" aria-expanded="false"></button><div class="seg" id="who"></div></div>
-  <input id="q" type="search" placeholder="Поиск: показатель, значение, врач, дата, диагноз…">
+  <input id="q" type="search" placeholder="Поиск: показатель, лекарство, врач, дата, диагноз…">
   <button id="addBtn" type="button" aria-label="Добавить"><span><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></span><b>Добавить</b></button>
   <button class="icon-btn icon-btn--round" id="searchBtn" type="button" aria-label="Поиск" title="Поиск"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
   <div class="pop-anchor">
@@ -2690,6 +2706,97 @@ function matches(r){
   return hit(recHay(r));
 }
 // поиск по всему разделу человека: записи, диагнозы, планы, системы, ряды, родня
+/* MEDICINE_ENTITIES_V1: one medicine route for search, prescriptions and recorded use. */
+function medicineEntityKey(value){
+  const n=String(value||'').normalize('NFKC').toLowerCase().replace(/ё/g,'е').trim().replace(/^(?:затем|и)\s+/i,'').replace(/\s+/g,' ');
+  // A dose with an explicit unit is metadata. Bare numbers and qualifying words
+  // remain part of the name: Vitamin C/D3 and Omega 3/6 are different entities.
+  const key=n.replace(/\s+\d+(?:[.,]\d+)?\s*(?:мкг|мг|г|мл|л|ме|ед|%)(?=\s|$|[;/(])[^]*$/i,'').trim();
+  // Exact composition alias already present in the book. Do not strip arbitrary
+  // parenthetical qualifiers: they can distinguish a formulation or variant.
+  return key==='тотема (железа глюконат + марганец + медь)'?'тотема':key;
+}
+function medicineNamesMatch(a,b){
+  const key=medicineEntityKey(a);return !!key&&key===medicineEntityKey(b);
+}
+function medicineLogNames(row){
+  const out=[],seen=new Set(),add=value=>{
+    const n=String(value||'').trim().replace(/^(?:затем|и)\s+/i,'');
+    const k=medicineEntityKey(n);if(!k||seen.has(k)||medIsFragment(n)||medIsScheme(n))return;
+    seen.add(k);out.push(n);
+  };
+  const attrs=row&&row.attrs&&typeof row.attrs==='object'?row.attrs:{};
+  for(const m of Array.isArray(attrs.meds)?attrs.meds:[])if(m&&typeof m==='object')add(m.n||m.name);
+  String(row&&(row.m||row.med)||'').split(/;|,\s*(?=[A-Za-zА-Яа-яЁё])/).forEach(add);
+  return out;
+}
+function medicineLogHits(rows,name,person){
+  const key=medicineEntityKey(name);
+  return (rows||[]).filter(r=>r&&(!r.person||!person||r.person===person)&&medicineLogNames(r).some(n=>medicineEntityKey(n)===key)).slice().sort((a,b)=>String(b.d||b.occurred_on||'').localeCompare(String(a.d||a.occurred_on||'')));
+}
+function medicineLogContext(row,name){
+  const key=medicineEntityKey(name),attrs=row&&row.attrs||{};
+  const detail=(Array.isArray(attrs.meds)?attrs.meds:[]).find(m=>m&&medicineEntityKey(m.n||m.name)===key);
+  return [row.n||row.symptom?`Симптом: ${row.n||row.symptom}`:'',row.p||row.reason?`Повод: ${row.p||row.reason}`:'',row.f||row.feeling?`Самочувствие по записи: ${row.f||row.feeling}`:'',detail&&detail.h?`Отметка о действии: ${detail.h}`:row.h?`Отметка о действии: ${row.h}`:''].filter(Boolean).join(' · ');
+}
+function medicineVisitNames(record,knownNames){
+  if(!record||record.t!=='visit')return [];
+  const data=record.data||{},texts=[data.rx,record.rx],fullTexts=[],out=[],seen=new Set();
+  for(const row of record.full||[]){
+    if(!Array.isArray(row)||!/назнач|лекарств|лечение/i.test(String(row[0]||'')))continue;
+    const heading=String(row[0]||'').match(/^назначено\s*:\s*(.+)$/i);
+    if(heading)fullTexts.push(heading[1]);
+    const value=row.slice(1).join(' ');
+    if(/назначено на этом при[её]ме/i.test(String(row[0])))for(const part of value.split(';')){const m=part.trim().match(/^💊\s*(.+)$/);if(m)texts.push(m[1]);}
+    else fullTexts.push(value);
+  }
+  for(const text of texts)for(const item of rxMedsParse(text)){
+    const n=String(item.name||'').replace(/^назначено\s*:\s*/i,'').trim(),key=medicineEntityKey(n);
+    if(!key||seen.has(key)||medIsFragment(n)||medIsScheme(n))continue;
+    seen.add(key);out.push({name:n,more:(item.more||[]).slice()});
+  }
+  // Legacy free-text fields may contain procedures as well as drugs. Only link
+  // a name already known from structured medicines or the curated reference.
+  const refs=typeof MEDREF!=='undefined'&&MEDREF?Object.keys(MEDREF):[],norm=s=>String(s).toLowerCase().replace(/ё/g,'е');
+  for(const n of [...(knownNames||[]),...refs]){
+    const key=medicineEntityKey(n);if(!key||seen.has(key)||medIsFragment(n)||medIsScheme(n))continue;
+    const token=norm(key).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),re=new RegExp('(^|[^a-zа-я0-9])'+token+'($|[^a-zа-я0-9])','i');
+    const source=fullTexts.find(t=>re.test(norm(t)));if(source){seen.add(key);out.push({name:String(n),more:[source]});}
+  }
+  return out;
+}
+function medicineVisitPrescriptions(d,name,person){
+  const key=medicineEntityKey(name);
+  return ((d&&d.rec)||[]).filter(r=>r&&r.t==='visit'&&(!r.person||!person||r.person===person)).flatMap(record=>medicineVisitNames(record,[name]).filter(m=>medicineEntityKey(m.name)===key).map(m=>({record,name:m.name,how:m.more.join(' · ')}))).sort((a,b)=>String(b.record.d||'').localeCompare(String(a.record.d||'')));
+}
+function medicineEntityRows(d,person,includeReferences){
+  const map=new Map(),labels={med:'запись лекарства',episode:'назначение при болезни',visit:'упоминание в назначениях приёма',log:'журнал симптомов',reference:'справочник'};
+  const add=(name,kind,sourceId,context)=>{
+    name=String(name||'').trim();const key=medicineEntityKey(name);
+    if(!key||medIsFragment(name)||medIsScheme(name))return;
+    let r=map.get(key);if(!r){r={key,name,aliases:[],sources:[],logCount:0,contexts:[],_logs:new Set()};map.set(key,r);}
+    if(!r.aliases.includes(name))r.aliases.push(name);
+    if(!r.aliases.includes(key))r.aliases.push(key);
+    if(!r.sources.includes(kind))r.sources.push(kind);
+    if(kind==='log'&&!r._logs.has(sourceId)){r._logs.add(sourceId);r.logCount++;}
+    if(context&&!r.contexts.includes(String(context)))r.contexts.push(String(context));
+  };
+  for(const [i,m]of ((d&&d.meds)||[]).entries())if(m&&(!m.person||!person||m.person===person))add(m.n,'med',i,[m.how,m.why].filter(Boolean).join(' '));
+  for(const ep of ((d&&d.sym)||{}).ep||[])if(ep&&(!ep.person||!person||ep.person===person))for(const [i,r]of (ep.rx||[]).entries())if(r)add(r.m,'episode',String(ep.id||'')+'|'+i,[ep.dx,r.how,r.dose,r.s].filter(Boolean).join(' '));
+  for(const [i,row]of (((d&&d.sym)||{}).log||[]).entries())if(row&&(!row.person||!person||row.person===person))for(const n of medicineLogNames(row))add(n,'log',row.id||i,medicineLogContext(row,n));
+  for(const r of (d&&d.rec)||[])if(r&&(!r.person||!person||r.person===person))for(const m of medicineVisitNames(r,[...map.values()].flatMap(x=>[x.name,...x.aliases])))add(m.name,'visit',r.entry||r.d,[r.who,r.d,(r.data||{}).dx,m.more.join(' ')].filter(Boolean).join(' '));
+  const refs=typeof MEDREF!=='undefined'&&MEDREF&&typeof MEDREF==='object'?MEDREF:{};
+  if(includeReferences)for(const name of Object.keys(refs))add(name,'reference',name,'');
+  return [...map.values()].map(r=>{const ref=Object.entries(refs).find(([name])=>medicineEntityKey(name)===r.key),info=ref&&ref[1]||{};return {key:r.key,name:r.name,aliases:r.aliases,sources:r.sources,logCount:r.logCount,contexts:r.contexts,description:[info.c,info.t].filter(Boolean).join(' '),sourceText:r.sources.filter(x=>x!=='reference').map(x=>labels[x]).join(', ')||'Справочник; применения у этого человека не записано'};}).sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+}
+function medicineSearchRows(d,person,includeReferences){
+  return medicineEntityRows(d,person,includeReferences).filter(r=>hit([r.name,...r.aliases,r.description,...r.contexts].join(' ')));
+}
+function medicineSearchHtml(rows){
+  if(!rows||!rows.length)return '';
+  return `<section class="card medicine-search" id="s-med"><h2>Лекарства - ${rows.length}</h2>${rows.map(r=>`<div class="medicine-search__row"><button type="button" class="linkbtn medlink" data-medname="${esc(r.name)}">${esc(r.name)}</button><div class="muted">${esc(r.sourceText)}${r.logCount?` · записей в журнале: ${r.logCount}`:''}</div></div>`).join('')}<p class="muted">Откройте лекарство, чтобы посмотреть справку, назначения и случаи применения. Назначение не подтверждает приём.</p></section>`;
+}
+
 function searchIn(k){
   const d=DATA[k],sn=(x)=>x?sysNameIn(k,x):"";
   const at=d.attention.map(a=>{
@@ -2699,6 +2806,7 @@ function searchIn(k){
   }).filter(x=>x.ok);
   const R={
     rec:d.rec.filter(r=>hit(recHay(r,k))),
+    med:medicineSearchRows(d,k,k===cur),
     dx :d.diagnoses.filter(x=>hit([x.n,x.c,x.y,x.s,sn(x.sys)].join(" "))),
     ep :((d.sym||{}).ep||[]).filter(e=>hit([e.dx,e.sym,e.t,e.d1,ru(e.d1)].join(" "))),   // болезни (ТЗ-004 блок 6)
     rs :(d.resolved||[]).filter(x=>hit([x.n,x.y,x.s].join(" "))),
@@ -2709,7 +2817,7 @@ function searchIn(k){
     nev:(d.never||[]).filter(n=>hit(n)),
     kpi:kpiLive(d).filter(x=>hit([x.lab,x.val,x.sub||""].join(" ")))
   };
-  R.total=R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
+  R.total=R.med.length+R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
   return R;
 }
 // последние n значений того же показателя ДО указанной даты
@@ -2928,7 +3036,8 @@ function histGroups(P,today,resolver){
   const free=[]; log.forEach(x=>{ if(x&&x.n&&!seen.has(x.n)&&!free.includes(x.n)) free.push(x.n); });
   return {illnesses,free};
 }
-function histBsHtml(P,today){
+function histBsHtml(P,today,options){
+  const illnessOnly=!!(options&&options.illnessOnly);
   const G=histGroups(P,today), log=((P.sym||{}).log)||[], d30=dayShift(today,-29);
   const symLink=n=>`<span class="medlink" data-sym="${esc(n)}">${esc(n)}</span>`;
   const ills=G.illnesses.map(({ep,syms,rows,meds,visits})=>{
@@ -2949,13 +3058,57 @@ function histBsHtml(P,today){
     return `<div class="hfree" data-sym="${esc(n)}"><b>${esc(n)}</b><span class="muted">${k?`${k} ${plural(k,"день","дня","дней")} с записями за 30 дней`:"за 30 дней записей нет"} · ${L[0]?dd2(L[0].d):""}</span></div>`; });
   const free=freeRows.slice(0,FREE).join("")+(freeRows.length>FREE?`<div class="hmore" hidden>${freeRows.slice(FREE).join("")}</div><button type="button" class="linkbtn" data-hmore="1">Показать ещё ${freeRows.length-FREE} ▸</button>`:"");
   if(!illHtml&&!free&&!ONG.length) return `<div class="card"><h2>Болезни и симптомы</h2><p class="muted" style="margin:0 0 10px">Здесь появятся болезни и симптомы. Добавьте первую болезнь.</p><button class="btn btn-primary" id="newEp">+ Болезнь</button></div>`;
-  return `<div class="card"><div class="watchhead"><h2>Болезни и симптомы</h2><button class="btn btn-secondary" id="newEp" style="min-height:44px;font-size:14px;white-space:nowrap;padding:0 14px">+ Болезнь</button></div>
+  return `<div class="card"><div class="watchhead"><h2>${illnessOnly?"Болезни":"Болезни и симптомы"}</h2><button class="btn btn-secondary" id="newEp" style="min-height:44px;font-size:14px;white-space:nowrap;padding:0 14px">+ Болезнь</button></div>
     ${epMergeBannerHtml(P,today)}
     ${actI.length?`<div class="muted" style="margin:0 0 6px">Текущие заболевания: ${actI.length}</div>`:""}
     ${illHtml||(ONG.length?"":'<p class="muted" style="margin:0">Болезней пока нет.</p>')}
-    ${ONG.length?`<h3 class="hfree__h">Симптомы с текущими записями <span class="muted">— ${ONG.length}</span></h3>${symOngoingRowsHtml(ONG,5)}`:""}
-    ${freeRows.length?`<h3 class="hfree__h">Симптомы без привязки к болезни <span class="muted">(${freeRows.length})</span> <button type="button" class="linkbtn" data-illselopen="" style="min-height:44px;margin-left:8px">Привязать к болезни</button></h3>${free}`:""}</div>`;
+    ${!illnessOnly&&ONG.length?`<h3 class="hfree__h">Симптомы с текущими записями <span class="muted">— ${ONG.length}</span></h3>${symOngoingRowsHtml(ONG,5)}`:""}
+    ${!illnessOnly&&freeRows.length?`<h3 class="hfree__h">Симптомы без привязки к болезни <span class="muted">(${freeRows.length})</span> <button type="button" class="linkbtn" data-illselopen="" style="min-height:44px;margin-left:8px">Привязать к болезни</button></h3>${free}`:""}</div>`;
 }
+// Unified symptom overview: recorded days and explicitly saved periods, never inferred gaps.
+const SYM_DISCLOSURES={};
+function symptomDisclosureModel(S,today,periods,person){
+  const good=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))&&Number.isFinite(Date.parse(v+"T12:00:00Z"))&&new Date(v+"T12:00:00Z").toISOString().slice(0,10)===v;
+  const key=n=>String(n||"").trim().toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ");
+  const by=new Map();
+  const group=n=>{ const k=key(n); if(!by.has(k)) by.set(k,{key:k,n:String(n).trim(),rows:[],periods:[]}); return by.get(k); };
+  for(const p of (periods||[])){
+    if(!p||p.person!==person||!key(p.symptom)||!good(p.started_on)||p.started_on>today) continue;
+    if(p.ended_on&&(!good(p.ended_on)||p.ended_on<p.started_on)) continue;
+    const g=group(p.symptom), to=p.ended_on&&p.ended_on<today?p.ended_on:today;
+    if(!g.periods.some(x=>x.from===p.started_on&&x.to===to&&x.ongoing===!p.ended_on))
+      g.periods.push({id:p.id,from:p.started_on,to,ongoing:!p.ended_on,kind:"period"});
+  }
+  for(const r of ((S&&S.log)||[])){
+    if(!r||!key(r.n)||!good(r.d)||r.d>today||(r.person&&r.person!==person)) continue;
+    group(r.n).rows.push(r);
+  }
+  return [...by.values()].map(g=>{
+    // periodEntries adds synthetic days for a saved range. The explicit range itself is shown once.
+    const points=[...new Set(g.rows.filter(r=>!g.periods.some(p=>r.d>=p.from&&r.d<=p.to)).map(r=>r.d))].sort();
+    const runs=[];
+    for(const d of points){ const last=runs[runs.length-1]; if(last&&dayShift(last.to,1)===d){last.to=d;last.days++;}else runs.push({from:d,to:d,days:1,kind:"observed",ongoing:false}); }
+    const ranges=[...g.periods.map(p=>({...p,days:Math.round((Date.parse(p.to)-Date.parse(p.from))/864e5)+1})),...runs]
+      .sort((a,b)=>b.to.localeCompare(a.to)||b.from.localeCompare(a.from));
+    const coverage=ranges.slice().sort((a,b)=>a.from.localeCompare(b.from)||a.to.localeCompare(b.to)), merged=[];
+    for(const r of coverage){ const last=merged[merged.length-1]; if(last&&r.from<=dayShift(last.to,1)){if(r.to>last.to)last.to=r.to;}else merged.push({from:r.from,to:r.to}); }
+    const days=merged.reduce((sum,r)=>sum+Math.round((Date.parse(r.to)-Date.parse(r.from))/864e5)+1,0);
+    const open=g.periods.filter(p=>p.ongoing).sort((a,b)=>b.from.localeCompare(a.from))[0];
+    return {key:g.key,n:g.n,last:ranges.length?ranges[0].to:"",days,ranges,ongoing:!!open,ongoingFrom:open?open.from:""};
+  }).filter(g=>g.last).sort((a,b)=>b.last.localeCompare(a.last)||a.n.localeCompare(b.n,"ru"));
+}
+function symptomDisclosureHtml(S,today,periods,person,filtered){
+  const rows=symptomDisclosureModel(S,today,periods,person), scope=filtered?String(((S&&S.ep)||[])[0]?.id||"filtered"):"all";
+  return `<section class="card sym-disclosures" aria-labelledby="symptomDisclosureTitle"><div class="sym-disclosures__head"><h2 id="symptomDisclosureTitle">Симптомы${rows.length?` <span class="muted">· ${rows.length}</span>`:""}</h2><button type="button" class="btn btn-primary" id="newSym">+ Запись</button></div>
+    <p class="muted sym-disclosures__intro">Сначала недавние. Раскройте симптом, чтобы увидеть, когда его отмечали.</p>
+    ${rows.length?rows.map(r=>{const k=person+"|"+scope+"|"+r.key,red=((S&&S.cat)||[]).some(c=>String(c.n||"").trim().toLowerCase().replace(/ё/g,"е")===r.key&&c.red);
+      const label=r.ongoing?"Период продолжается · с "+ru(r.ongoingFrom):"Последнее наблюдение: "+ru(r.last);
+      return `<details class="sym-disclosure" data-sym-disclosure="${esc(k)}"${SYM_DISCLOSURES[k]?" open":""}><summary><span class="sym-disclosure__name"><b>${esc(r.n)}</b>${red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</span><span class="muted sym-disclosure__last">${esc(label)} · ${r.days} ${plural(r.days,"день","дня","дней")} с записями</span></summary><div class="sym-disclosure__body"><h3>Когда отмечали</h3><ul>${r.ranges.map(x=>`<li>${x.kind==="period"?"Указанный период: ":"Дни с записями: "}${ru(x.from)}${x.ongoing?" · окончание не указано":x.to!==x.from?" — "+ru(x.to):""}${x.kind==="observed"&&x.days>1?` · ${x.days} ${plural(x.days,"день","дня","дней")}`:""}</li>`).join("")}</ul><button type="button" class="linkbtn sym-disclosure__open" data-symfull="${esc(r.n)}" aria-label="Подробнее о симптоме: ${esc(r.n)}">Подробнее о симптоме →</button></div></details>`;
+    }).join(""):`<p class="muted">${filtered?"Для этой болезни связанных записей симптомов нет.":"Записей симптомов пока нет. Добавьте первую запись."}</p>`}
+    ${rows.length?'<p class="muted sym-disclosures__note">Промежутки без записей не означают отсутствие симптома.</p>':""}</section>`;
+}
+document.addEventListener("toggle",e=>{const dt=e.target;if(dt&&dt.classList&&dt.classList.contains("sym-disclosure")&&dt.dataset.symDisclosure)SYM_DISCLOSURES[dt.dataset.symDisclosure]=dt.open;},true);
+
 // полоса Медкарты и переключатель «Истории»
 function cardStripHtml(){
   const on=cardSecOf(tab);
@@ -4615,11 +4768,33 @@ function visitCardModel(record, episode, permissions) {
     originalsExternal:true
   };
 }
+// Pure renderer: escape all source text, link only explicit known medicine names.
+function visitCardMedicineHtml(value,medicines){
+  const text=visitCardText(value),entries=[];
+  for(const item of Array.isArray(medicines)?medicines:[]){
+    const name=typeof item==='string'?item:String(item&&item.name||'');if(!name)continue;
+    const aliases=typeof item==='string'?[name]:[name,...(Array.isArray(item.aliases)?item.aliases:[])];
+    for(const alias of aliases){const n=String(alias||'').trim();if(n.length>=3&&!entries.some(e=>e.alias.toLowerCase()===n.toLowerCase()))entries.push({alias:n,name});}
+  }
+  if(!entries.length)return visitCardEscape(text).replace(/\r\n|\r|\n/g,'<br>');
+  entries.sort((a,b)=>b.alias.length-a.alias.length);
+  const norm=s=>String(s).toLowerCase().replace(/ё/g,'е'),escaped=s=>String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/[её]/gi,'[её]');
+  const re=new RegExp('(^|[^a-zа-яё0-9])('+entries.map(e=>escaped(e.alias)).join('|')+')(?=$|[^a-zа-яё0-9])','gi');
+  let out='',last=0,m;
+  while((m=re.exec(text))){const start=m.index+m[1].length,end=start+m[2].length,entry=entries.find(e=>norm(e.alias)===norm(m[2]));
+    out+=visitCardEscape(text.slice(last,start));
+    out+=`<button type="button" class="linkbtn medlink" data-medname="${visitCardEscape(entry.name)}">${visitCardEscape(text.slice(start,end))}</button>`;
+    last=end;
+  }
+  return (out+visitCardEscape(text.slice(last))).replace(/\r\n|\r|\n/g,'<br>');
+}
+
 function renderVisitCard(model, options) {
   const m=model, o=options||{}, e=visitCardEscape;
   const text=t=>e(t).replace(/\r\n|\r|\n/g,'<br>');
-  const section=s=>`<section class="visit-card__section"><h4>${e(s.label)}</h4><div>${text(s.text)}</div>${s.key==='rx'?'<p class="muted">Назначение из записи. Факт приёма не подтверждается этой карточкой.</p>':''}</section>`;
-  const original=m.details.full.map(row=>Array.isArray(row)?`<div><b>${e(row[0])}</b><div>${text(row.slice(1).join(' '))}</div></div>`:`<div>${text(row)}</div>`).join('');
+  const medtext=t=>visitCardMedicineHtml(t,o.medicines||[]);
+  const section=s=>`<section class="visit-card__section"><h4>${e(s.label)}</h4><div>${s.key==='rx'?medtext(s.text):text(s.text)}</div>${s.key==='rx'?'<p class="muted">Назначение из записи. Факт приёма не подтверждается этой карточкой.</p>':''}</section>`;
+  const original=m.details.full.map(row=>{if(!Array.isArray(row))return `<div>${text(row)}</div>`;const rx=/назнач|лечени|лекарств/i.test(String(row[0]||''));return `<div><b>${rx?medtext(row[0]):e(row[0])}</b><div>${rx?medtext(row.slice(1).join(' ')):text(row.slice(1).join(' '))}</div></div>`;}).join('');
   const episode=m.episode?`<button type="button" class="btn btn-secondary" data-epcard="${e(m.episode.id)}">${e(m.episode.title)}</button>${m.episode.start?` <span class="muted">с ${e(visitCardDate(m.episode.start))}</span>`:''}`:e(m.episodeText||'Не связано с болезнью');
   const files=!o.externalAttachments&&m.files.length?`<section class="visit-card__section"><h4>Исходные документы</h4>${m.files.map((file,i)=>`<button type="button" class="btn btn-secondary" data-origfile="${e(file)}">Открыть документ${m.files.length>1?' '+(i+1):''}</button>`).join('')}</section>`:'';
   // source remains accessible even when files exist; it is an independent original.
@@ -4797,7 +4972,7 @@ function openRec(i,showSer){
   if(r.t==="visit"){
     const ep=r.ep?((D.sym||{}).ep||[]).find(e=>e.id===r.ep):null;
     const model=visitCardModel(r,ep,{editable:recEditable(r)});
-    let visitHtml=renderVisitCard(model,{externalAttachments:true,externalPlanning:true});
+    let visitHtml=renderVisitCard(model,{externalAttachments:true,externalPlanning:true,medicines:typeof medicineEntityRows==="function"?medicineEntityRows(D,cur,true):[]});
     if(model.editable){
       const choices=epChoices((D.sym||{}).ep,r.d,localDay());
       // Do not drop the selected episode even if the usual choice filter excludes it.
@@ -5029,7 +5204,7 @@ function medsOf(list){
 }
 function medLinks(names,tail){
   if(!names.length) return "—";
-  return names.map(n=>`<span class="medlink" data-med="${esc(n)}">${esc(n)}</span>`).join(", ")+(tail||"");
+  return names.map(n=>`<button type="button" class="linkbtn medlink" data-med="${esc(n)}">${esc(n)}</button>`).join(", ")+(tail||"");
 }
 function medChips(list){
   const M=medsOf(list);
@@ -5167,7 +5342,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 00:18 · FIX";   // подставляется при публикации
+const BUILD="02.11 12:34 · AI3";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6283,17 +6458,26 @@ function symDoctorsCard(d,name,cat){
     ${V.length?`<details class="sd-visits"><summary>Говорили на приёмах — ${V.length}</summary>${V.map(r=>`<div class="tl-item is-link" data-rec="${idOf(r)}" style="padding:6px 0;display:flex;gap:12px;align-items:center"><span class="status status-none" style="white-space:nowrap;flex:none">${ru(r.d)}</span><div style="min-width:0"><div class="tl-title">${esc(r.who||r.title)}</div></div></div>`).join("")}</details>`:""}</div>`;
 }
 // «Что говорил семейный врач»: ответ по записям (паспорт, разборы), строго по найденному; сохраняется на устройстве, обновляется кнопкой
+// Сохранённые ответы - снимки на дату, не автоматически обновляемое состояние.
+const AI_FACTS_CONTEXT_VERSION="current-facts-v1";
+function aiAnswerStamp(row){
+  const raw=String(row&&(row.created_at||row.at)||""), day=/^\d{4}-\d{2}-\d{2}/.test(raw)?raw.slice(0,10):"";
+  return day?`Сохранённый ответ от ${ru(day)}`:"Сохранённый ответ (дата не сохранена)";
+}
+function aiSavedNotice(row){
+  return `<div class="muted ai-saved-notice" style="font-size:12px;margin:4px 0 8px">${esc(aiAnswerStamp(row))}. Новые записи не учитываются автоматически.</div>`;
+}
 const symAiKey=(p,n)=>"mk_symai_"+p+"_"+String(n).toLowerCase().replace(/\s+/g,"_");
 const symAiGet=(p,n)=>{ try{ return JSON.parse(localStorage.getItem(symAiKey(p,n))||"null"); }catch(e){ return null; } };
 function symAiCard(name){
   const c=symAiGet(cur,name), busy=window.__symAiBusy===symAiKey(cur,name);
   const ch=SYMCHAT[symTopic(cur,name)]; if(ch&&ch.open) return "";   // диалог открыт — он уже содержит разбор, одна карточка
   return `<div class="card"><h2>Разбор семейного ИИ-врача</h2>
-    ${c?`<div class="muted" style="font-size:12px;margin-bottom:6px">По записям медкнижки на ${ru(c.at)}. Версия, не диагноз — решает врач</div>
+    ${c?`${aiSavedNotice(c)}${c.context_version!==AI_FACTS_CONTEXT_VERSION?'<div class="note" style="margin:8px 0">В этом ответе могли не учитываться новые замеры и симптомы. Обновите его по текущим записям.</div>':''}<div class="muted" style="font-size:12px;margin-bottom:6px">Версия, не диагноз — решает врач</div>
       <div style="font-size:15px;line-height:1.5">${mdLite(c.answer)}</div>
       ${(c.sources||[]).length?`<div class="muted" style="font-size:12px;margin-top:8px">Источники: ${c.sources.map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}`
     :`<div class="muted">${busy?'<span class="spin"></span>Читаю записи… это до 20 секунд':"Что может быть причиной, с какой вероятностью и кто из врачей смотрел — по тому, что записано в медкнижке."}</div>`}
-    <button class="btn btn-secondary" data-symai="${esc(name)}" ${busy?"disabled":""} style="margin-top:10px">${busy?'<span class="spin"></span>':""}${busy?"Идёт разбор…":(c?"Обновить разбор":"Показать разбор семейного ИИ-врача")}</button>
+    <button class="btn btn-secondary" data-symai="${esc(name)}" ${busy?"disabled":""} style="margin-top:10px">${busy?'<span class="spin"></span>':""}${busy?"Идёт разбор…":(c?"Обновить по текущим записям":"Показать разбор семейного ИИ-врача")}</button>
     <button class="btn btn-secondary" data-chatopen="${esc(name)}" style="margin-top:10px">Задать вопрос врачу</button></div>`;
 }
 // ── Диалог с ИИ-консультантом из карточки симптома: разбор — первая реплика, дальше ваши вопросы; всё сохраняется в базе (ask_log, topic) ──
@@ -6333,8 +6517,8 @@ function symChatCard(name){
   const base=symAiGet(cur,name);
   return `<div class="card" id="symChat"><h2>Разбор семейного ИИ-врача</h2>
     <div class="muted" style="font-size:12px;margin-bottom:8px">Семейный ИИ-врач разбирает по вашим записям и общей практике. Рецептурные препараты и дозировки детям не назначает. Не заменяет приём. Разговор сохраняется</div>
-    ${base?`<div class="chatm chatm--a"><div class="muted" style="font-size:11.5px">Разбор из записей</div>${mdLite(base.answer)}</div>`:""}
-    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>${rzTodosHtml(r,topic)}`:""}`).join("")}
+    ${base?`<div class="chatm chatm--a">${aiSavedNotice(base)}${mdLite(base.answer)}</div>`:""}
+    ${c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${aiSavedNotice(r)}${mdLite(r.answer)}${(r.sources||[]).length?`<div class="muted" style="font-size:11.5px;margin-top:6px">Записи: ${r.sources.slice(0,4).map(x=>esc(x.title)+(x.doc_date?" ("+ru(x.doc_date)+")":"")).join(" · ")}</div>`:""}</div>${rzTodosHtml(r,topic)}`:""}`).join("")}
     ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает ситуацию… это до минуты</div>`:""}
     ${!c.rows.length&&!c.busy?`<button class="btn btn-primary" data-chatsend="${esc(name)}" data-chatfull="1" style="margin:6px 0">Разобрать ситуацию целиком</button>`:""}
     <div class="chatbox"><textarea id="chatIn" rows="3" placeholder="Задайте вопрос врачу. Enter — отправить, Shift+Enter — новая строка" ${c.busy?"disabled":""}></textarea>
@@ -6347,7 +6531,7 @@ async function symChatSend(name,full){
   c.busy=true; c.rows.push({question:q,answer:"",sources:[]}); render();
   const base=symAiGet(who0,name), hist=[...(base?[{q:"Разбор: "+name,a:base.answer}]:[]),...c.rows.slice(0,-1).filter(r=>r.answer).map(r=>({q:r.question,a:r.answer}))].slice(-3);
   try{ const j=await mkApi("ask",{mode:"doctor",question:`Про симптом «${name}» у ${DATA[who0].short}: ${q}`,search:name+" "+q.slice(0,120),person:who0,topic,history:hist,prefer_kind:["razbor","passport"]});
-    const last=c.rows[c.rows.length-1]; last.answer=j.answer||"В медкнижке этого нет."; last.id=j.log_id; last.todos=j.todos||[]; last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
+    const last=c.rows[c.rows.length-1]; last.created_at=j.created_at||new Date().toISOString(); last.answer=j.answer||"В медкнижке этого нет."; last.id=j.log_id; last.todos=j.todos||[]; last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
   catch(e){ c.rows.pop(); toast("Врач не ответил, попробуйте ещё раз"); }
   c.busy=false; render();
 }
@@ -6385,11 +6569,13 @@ function rzHtml(topic){
   const cfg=c.cfg||{};
   // пока диалог не начат — одна кнопка (Денис, 20.10.2026); поле вопроса и подпись появляются после нажатия
   if(!c.rows.length&&!c.busy) return `<div class="rzb rzb--btn" data-rzb="${esc(topic)}">${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 4px">${esc(rzFirst().label)}</button><div class="muted rz-hint" style="font-size:13px;margin:0 0 8px">${esc(rzFirst().hint)}</div></div>`;
-  const msgs=c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${mdLite(r.answer)}${rzSrc(r)}</div>${rzTodosHtml(r,topic)}`:""}`).join("");
+  const msgs=c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${aiSavedNotice(r)}${mdLite(r.answer)}${rzSrc(r)}</div>${rzTodosHtml(r,topic)}`:""}`).join("");
+  const refresh=c.rows.some(r=>r.answer)?`<button type="button" class="btn btn-secondary" data-rzrefresh="${esc(topic)}" ${c.busy?"disabled":""} style="margin:8px 0">Обновить по текущим записям</button>`:"";
   return `<div class="rzb${cfg.bare?"":" card"}" data-rzb="${esc(topic)}">${cfg.bare?"":`<h3 style="font-size:15px;margin:0 0 6px">Семейный ИИ-врач</h3>`}
     ${msgs}
     ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает… это до минуты</div>`:""}
     ${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}
+    ${refresh}
     <div class="chatbox"><textarea data-rzin="${esc(topic)}" rows="2" placeholder="Задайте вопрос врачу. Enter — отправить" ${c.busy?"disabled":""}></textarea>
       <button type="button" class="btn btn-primary" data-rzsend="${esc(topic)}" ${c.busy?"disabled":""}>Спросить</button></div>
     <div class="muted" style="font-size:12px;margin-top:6px">Семейный ИИ-врач разбирает по вашим записям и общей практике, не заменяет приём. Разговор сохраняется в «Разборах».</div></div>`;
@@ -6411,6 +6597,16 @@ function rzPaint(topic){
   document.querySelectorAll(".rzb").forEach(el=>{ if(el.dataset.rzb!==topic) return;
     const t=document.createElement("div"); t.innerHTML=rzHtml(topic); if(t.firstElementChild) el.replaceWith(t.firstElementChild); });
 }
+// Повторная генерация по прежней теме добавляет новый ответ и сохраняет историю.
+function rzRefreshQuestion(c){
+  const cfg=c&&c.cfg||{}, first=(c&&c.rows||[]).find(r=>r&&String(r.question||"").trim());
+  const question=String(cfg.defaultQ||first&&first.question||"Разбери ситуацию").trim();
+  return ("Обнови этот разбор по текущим записям: "+question).slice(0,500);
+}
+function rzRefresh(topic){
+  const c=RZB[topic];if(!c||c.busy)return;
+  return rzSend(topic,rzRefreshQuestion(c));
+}
 async function rzSend(topic,q){
   const c=RZB[topic]; if(!c||c.busy) return;
   if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
@@ -6418,7 +6614,7 @@ async function rzSend(topic,q){
   c.busy=true; c.err=""; c.rows.push({question:qq,answer:"",sources:[]}); rzPaint(topic);
   const hist=c.rows.slice(0,-1).filter(r=>r.answer).map(r=>({q:r.question,a:r.answer})).slice(-3);
   try{ const j=await mkApi("ask",{...cfg.payload,topic,history:hist,prefer_kind:["razbor","passport"],...(q||cfg.sendDefault?{question:qq}:{})});
-    const last=c.rows[c.rows.length-1]; last.id=j.log_id; last.answer=j.answer||"В медкнижке этого нет."; last.todos=j.todos||[];
+    const last=c.rows[c.rows.length-1]; last.created_at=j.created_at||new Date().toISOString(); last.id=j.log_id; last.answer=j.answer||"В медкнижке этого нет."; last.todos=j.todos||[];
     last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
   catch(e){ c.rows.pop(); c.err="Не получилось — нет связи. Попробовать ещё раз."; }
   c.busy=false; rzPaint(topic);
@@ -6433,6 +6629,7 @@ async function rzAdd(rowId,topic){
   RZB[topic]?rzPaint(topic):render();
 }
 document.addEventListener("click",e=>{
+  const rf=e.target.closest&&e.target.closest("[data-rzrefresh]"); if(rf){ rzRefresh(rf.dataset.rzrefresh); return; }
   const g=e.target.closest&&e.target.closest("[data-rzgo]"); if(g){ rzSend(g.dataset.rzgo,""); return; }
   const sd=e.target.closest&&e.target.closest("[data-rzsend]"); if(sd){ const tp=sd.dataset.rzsend, ta=[...document.querySelectorAll("[data-rzin]")].find(x=>x.dataset.rzin===tp), q=(ta&&ta.value||"").trim(); if(q) rzSend(tp,q); return; }
   const ad=e.target.closest&&e.target.closest("[data-rzadd]"); if(ad){ rzAdd(ad.dataset.rzadd,ad.dataset.rztopic); return; }
@@ -8894,15 +9091,15 @@ function medAutoVariant(p){
 function medCardModel(d,name,today,fullName,refx,person){
   const key=medKeyOf(name), full=iso=>iso.split("-").reverse().join(".");
   const who=person||medPersonOf(d)||(typeof cur!=="undefined"?cur:null), plan=medPlanOf(who,name);
-  const matches=(d.meds||[]).filter(x=>medKeyOf(x.n)===key), exact=matches.filter(x=>String(x.n).toLowerCase()===String(name).toLowerCase());
+  const matches=(d.meds||[]).filter(x=>typeof medicineNamesMatch==="function"?medicineNamesMatch(x.n,name):medKeyOf(x.n)===key), exact=matches.filter(x=>String(x.n).toLowerCase()===String(name).toLowerCase());
   const candidates=(exact.length?exact:matches).slice().sort((a,b)=>String(b.from||"").localeCompare(String(a.from||"")));
   const context=[...(d.meds||[]),...((d.sym&&d.sym.ep)||[]).flatMap(e=>(e.rx||[]).filter(r=>r.m).map(r=>({n:r.m,from:r.from||"",to:r.to||"",how:r.how||r.dose||r.s||""})))];
   const confirmed=candidates.filter(x=>medStatusFor(x,today,who,context).state==="on");
   let m=(confirmed.length===1?confirmed[0]:candidates[0])||null;
   const log=((d.sym||{}).log||[]), eps=((d.sym||{}).ep||[]);
-  const hits=log.filter(x=>x.m&&String(x.m).split(/,\s+/).some(t=>medKeyOf(t.trim().replace(/^(затем|и)\s+/i,""))===key))
+  const hits=typeof medicineLogHits==="function"?medicineLogHits(log,name,who):log.filter(x=>x.m&&String(x.m).split(/,\s+/).some(t=>medKeyOf(t.trim().replace(/^(затем|и)\s+/i,""))===key))
     .sort((a,b)=>b.d.localeCompare(a.d));
-  const epRx=[]; eps.forEach(e=>(e.rx||[]).forEach(r=>{ if(medKeyOf(r.m)===key) epRx.push({ep:e,r}); }));
+  const epRx=[]; eps.forEach(e=>(e.rx||[]).forEach(r=>{ if(typeof medicineNamesMatch==="function"?medicineNamesMatch(r.m,name):medKeyOf(r.m)===key) epRx.push({ep:e,r}); }));
   if(!m&&epRx.length){ const source=epRx[0], r=source.r; m={n:r.m,from:r.from||"",to:r.to||"",how:r.how||r.dose||r.s||"",ep:source.ep.id}; }
   const m0=m;
   const status=m?medStatusFor(m,today,who,context):medCourseStatus(m,null,null,today);
@@ -8912,10 +9109,11 @@ function medCardModel(d,name,today,fullName,refx,person){
   if(m&&plan&&plan.stop_on&&status.confirmedStart) m=Object.assign({},m,{to:plan.stop_on});
   const courses=[];
   for(const source of (matches.length?matches:(m?[m]:[]))){ const start=source===m&&status.confirmedFrom?status.confirmedFrom:medStart(source), st=start?full(start):(source.after?`после ${full(source.after)} (точная дата не известна)`:"дата начала не известна");
-    courses.push({kind:"meds",text:`${source.n||name}: ${st}${source.to?" — "+full(source.to):" — дата окончания не указана"}`,how:source.how||""}); }
+    courses.push({kind:"meds",text:`${source.n||name}: ${st}${source.to?" — "+full(source.to):" — дата окончания не указана"}`,how:[source.how,source.why].filter(Boolean).join(" · ")}); }
   medSchemes(plan).forEach(x=>courses.push({kind:"scheme",text:full(x.on),how:"схема: "+x.text}));
   epRx.forEach(({ep,r})=>courses.push({kind:"ep",text:`${r.from?full(r.from):"без даты"}${r.to?" — "+full(r.to):" — дата окончания не указана"}`,how:r.how||"",ep:ep.id,dx:ep.dx}));
-  hits.forEach(x=>courses.push({kind:"log",text:full(x.d),how:`${x.n}${x.h?" · "+x.h:""}`}));
+  hits.forEach(x=>courses.push({kind:"log",text:full(x.d),how:typeof medicineLogContext==="function"?medicineLogContext(x,name):`${x.n}${x.h?" · "+x.h:""}`}));
+  if(typeof medicineVisitPrescriptions==="function")for(const v of medicineVisitPrescriptions(d,name,who)){const r=v.record;courses.push({kind:"visit",text:`${r.d?full(r.d):"Дата не указана"} · Приём: ${r.who||r.title||"врач"}`,how:[v.how,(r.data||{}).dx||r.epDx||""].filter(Boolean).join(" · "),visit:typeof idOf==="function"?idOf(r):null});}
   const conflict=(m&&since&&epRx.length&&!(plan&&plan.started_on))?(()=>{ const r=epRx.find(z=>z.r.from&&z.r.from!==since); return r?{ep:r.r.from,meds:since}:null; })():null;
   const ref=typeof MEDREF!=="undefined"&&Object.keys(MEDREF).some(k=>medKeyOf(k)===key);
   // линейка (ТЗ-046): выбор человека главнее; иначе вариант, названный в самом названии; иначе «Уточните вариант»
@@ -8940,7 +9138,7 @@ async function medOpen(name){
   modal.innerHTML=`<div class="mbox medicine-dialog medicine-loading" role="dialog" aria-modal="true" aria-label="Карточка лекарства"><button type="button" class="mclose" data-close aria-label="Закрыть">×</button><h2>${esc(name)}</h2><p class="muted" aria-live="polite">Открываем карточку…</p></div>`;
   await medLineAsk(name); if(!current()) return;
   if(!modal.classList.contains("on")||!modal.querySelector(".medicine-loading")) return;
-  const d=DATA[person], today=localDay(), M0=medCardModel(d,name,today), m=M0.record||(d.meds||[]).find(x=>medKeyOf(x.n)===medKeyOf(name));
+  const d=DATA[person], today=localDay(), M0=medCardModel(d,name,today), m=M0.record||(d.meds||[]).find(x=>typeof medicineNamesMatch==="function"?medicineNamesMatch(x.n,name):medKeyOf(x.n)===medKeyOf(name));
   const vr=m&&m.visit&&m.visit.entry?(window.__entries||[]).find(e=>e.id===m.visit.entry):null, MN=medFullName(M0.name,vr&&vr.data&&vr.data.rx);
   const M=MN!==M0.name?medCardModel(d,name,today,MN):M0, MT=M.byPlan?M.label:MN;
   const ep=m&&m.ep?((d.sym||{}).ep||[]).find(e=>e.id===m.ep):null;
@@ -15346,44 +15544,8 @@ function render(){
       const intro="";
 
       let body="";
-      if(!S.log.length){
-        body=`<div class="card"><p style="margin:0">${diaryModel.active?"Для этой болезни связанных записей симптомов нет.":"Журнал симптомов пока пуст. Ниже — за чем стоит следить: список собран из активных диагнозов."}</p></div>`;
-      }
-      else { let monthHtml="",listHtml="";
-      {
-        const M=monthRows(S.log,today,n=>(catOf(n)||{}).red);
-        monthHtml=`<div class="card"><h2>Дневник симптомов
-          <button class="btn btn-primary" id="newSym" style="float:right;min-height:44px;font-size:13px">+ Запись</button></h2>
-          <div class="muted" style="margin:-4px 0 10px">${lastDaysText(today,30)} · выберите день, чтобы посмотреть записи</div>
-          ${M.length?M.map(r=>`<div class="heat-row mrow2" data-sym="${esc(r.n)}" style="cursor:pointer">
-            <div class="heat-row__lab"><b>${esc(r.n)}</b>${r.red?' <span class="red-dot">▲</span>':""}
-              <div class="muted sym-month-stats"><span>${r.days} ${plural(r.days,"день","дня","дней")} с записями из 30</span>${r.avg!=null?`<span class="sym-month-average">Средняя оценка: ${String(r.avg).replace(".",",")} из 10 по записям</span>`:""}</div>
-              <div style="font-size:12px"><span class="muted">Последняя запись: ${ru(r.last)}</span></div>
-</div>
-            <div class="mrow2__med" style="font-size:13px">${(()=>{const mm=medsOf((byName[r.n]||[]).filter(x=>x.d>=d30&&x.d<=today)).map(x=>x.name); return mm.length?"<span class='muted'>Указано в записях этого периода: </span>"+medLinks(mm):"<span class='muted'>Лекарства в записях не указаны</span>";})()}</div>
-            <div class="heat heat--sm">${r.cells.map((c,k)=>`<i role="button" tabindex="0" aria-label="${esc(r.n)} · ${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}" data-l="${c==="bad"?3:c==="warn"?2:c==="ok"?1:0}" data-dt="${dayShift(today,k-29)}"${symDay&&symDay.n===r.n&&symDay.d===dayShift(today,k-29)?' class="daysel"':""} title="${ru(dayShift(today,k-29))} · ${c==="bad"?"сильно":c==="warn"?"мешает":c==="ok"?"терпимо":"нет записи"}">${dayShift(today,k-29).slice(-2)}</i>`).join("")}</div></div>${symDay&&symDay.n===r.n?symDayPanel(S,r.n,symDay.d,today):""}`).join("")+`<div class="legend"><span class="muted">Каждая клетка — день:</span><span><i style="background:var(--surface-2)"></i>нет записи</span><span><i style="background:#ffd9b8"></i>терпимо</span><span><i style="background:#ff9c5c"></i>мешает</span><span><i style="background:var(--negative)"></i>сильно</span></div>`:`<div class="muted">За последние 30 дней записей о симптомах нет</div>`}
-          <div style="margin-top:12px"><a href="#" id="symAllLink" class="medlink" style="font-weight:600">${symAllOpen?"Скрыть историю ▴":`Все симптомы — ${seen.length}, вся история ▾`}</a></div>
-          </div>`;
-      }
-      {
-        const rows=seen.map(n=>{
-          const L=byName[n], c=catOf(n);
-          const meds=medsOf([L[0]]).map(x=>x.name);   // только последний случай, вся история — в карточке
-          return `<tr class="symlink" data-sym="${esc(n)}">
-            <td><b>${esc(n)}</b>${c.red?' <span class="red-dot">▲</span>':""}${isRising(L,today)?' <span class="pill" style="background:var(--bad)">↑ участился</span>':""}
-              <div class="muted" style="font-size:12px">${esc((organOf(c.sys)||{}).name||"")}</div></td>
-            <td style="text-align:center"><b>${L.length}</b></td>
-            <td class="muted">${L[0].d.split("-").reverse().join(".")}<br><span style="font-size:12px">${lastAgo(L[0].d,today)}</span></td>
-            <td class="muted">${meds.length?medLinks(meds):"<span class='muted'>не лечил</span>"}</td>
-            <td style="color:var(--accent);font-weight:600">→</td></tr>`;
-        }).join("");
-        listHtml=`<div class="card" id="symAllCard"${symAllOpen?"":" hidden"}><h2>Все симптомы <span class="muted" style="text-transform:none">— ${seen.length}</span></h2>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th style="text-align:center">записей</th><th>последний раз</th><th>чем лечил</th><th></th></tr></thead>
-            <tbody>${rows}</tbody></table></div></div>`;
-      }
-      body="<!--B:month-->"+monthHtml+listHtml;
-      }
-      body=episodeDiaryFilterHtml(diaryModel)+(diaryModel.active?"":"<!--B:ills-->"+histBsHtml(d,today))+body;
+      body="<!--B:month-->"+symptomDisclosureHtml(S,today,diaryModel.active?[]:PERIODS,cur,diaryModel.active);
+      body=episodeDiaryFilterHtml(diaryModel)+(diaryModel.active?"":"<!--B:ills-->"+histBsHtml(d,today,{illnessOnly:true}))+body;
 
       const watch=never.length?`<div class="card"><h2>Пока не отмечалось <span class="muted" style="text-transform:none">— ${never.length}</span> <span class="hint" tabindex="0" title="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу." aria-label="Собрано из активных диагнозов. ▲ — симптом, при котором едут к врачу сразу.">?</span></h2>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Симптом</th><th>Откуда</th><th>Зачем следить</th></tr></thead><tbody>
@@ -15873,9 +16035,10 @@ function render(){
       <div class="kpi__lab">${lab}</div><div class="kpi__val">${n}</div></div>`;
     m.innerHTML=`
       ${query?indicatorBlock():""}
-      ${query?`<div class="card"><h2>Найдено по запросу «${esc(query)}» — ${S.total} <span class="hint" tabindex="0" title="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу." aria-label="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу.">?</span></h2>
+      ${query?`<div class="card"><h2>Найдено по запросу «${esc(query)}» — ${S.total} <span class="hint" tabindex="0" title="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в лекарствах, истории их применения, диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу." aria-label="Ищет в любом месте записи: в названии, в результате, в значении, в норме, во враче, в дате, а также в лекарствах, истории их применения, диагнозах, планах, обоснованиях и семейном анамнезе. Нажмите цифру — прокрутит к разделу.">?</span></h2>
         <div class="kpis">
           ${tile("Записей",S.rec.length,"s-rec")}
+          ${tile("Лекарств",S.med.length,"s-med")}
           ${tile("Диагнозов",S.dx.length,"s-dx")}
           ${tile("Разрешившихся",S.rs.length,"s-rs")}
           ${tile("В планах",S.at.length,"s-at")}
@@ -15890,6 +16053,7 @@ function render(){
         ${others.length?`<div class="note" style="margin-top:12px">Это же слово есть у других:
           ${others.map(x=>`<span class="tag" data-w="${x.k}" style="cursor:pointer;font-size:13px;padding:4px 10px">${DATA[x.k].short} — ${x.n} →</span>`).join(" ")}</div>`:""}
       </div>`:""}
+      ${query?medicineSearchHtml(S.med):""}
       <div class="card" id="s-rec">
         ${tab==="lab"&&!query?"":`<h2>${tab==="all"?"Лента событий":(query?"Записи":TABS.find(t=>t[0]===tab)[1])}${sysFilter?" · "+esc(sysName(sysFilter)):""} <span class="muted" style="text-transform:none">— ${tab==="all"&&!sysFilter?(tlKind==="cal"?"по дням":tlKindFilter(tlEvents(d),tlKind).length):list.length+list2.length}</span>${!query&&["visit","lab","instr"].includes(tab)?`<button class="btn btn-primary" id="recAdd" style="float:right;height:32px;font-size:13px">+ Добавить</button>`:""}</h2>`}
         ${tab==="visit"&&!query?`<div class="fld" style="margin:0 0 10px"><input id="visitQ" type="search" placeholder="Врач или болезнь" value="${esc(visitQ)}" autocomplete="off"></div>
@@ -16096,7 +16260,7 @@ document.addEventListener("click",e=>{
     if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
     window.__symAiBusy=symAiKey(who0,nm); render();
     const q=`Что может быть причиной симптома «${nm}» у ${DATA[who0].short}: какие версии обсуждали, с какой вероятностью, кто из врачей смотрел и что назначил? Отвечай только по записям, с датами. Если версии пересматривали — покажи по датам, как менялась вероятность каждой. Если вероятностей в записях нет — так и скажи.`;
-    mkApi("ask",{question:q,search:nm,person:who0,quiet:true,prefer_kind:["razbor","passport"]}).then(j=>{ try{ localStorage.setItem(symAiKey(who0,nm),JSON.stringify({answer:j.answer||"В медкнижке по этому симптому разбора пока нет.",sources:(j.sources||[]).slice(0,6).map(x=>({title:x.title,doc_date:x.doc_date})),at:localDay()})); }catch(e2){} })
+    mkApi("ask",{question:q,search:nm,person:who0,quiet:true,prefer_kind:["razbor","passport"]}).then(j=>{ try{ localStorage.setItem(symAiKey(who0,nm),JSON.stringify({answer:j.answer||"В медкнижке по этому симптому разбора пока нет.",sources:(j.sources||[]).slice(0,6).map(x=>({title:x.title,doc_date:x.doc_date})),at:localDay(),context_version:j.context_version||null,context_as_of:j.context_as_of||null})); }catch(e2){} })
       .catch(()=>toast("Не получилось, попробуйте ещё раз")).finally(()=>{ window.__symAiBusy=null; render(); }); return; }
   if(wzAct(e)) return;
   const evo=e.target.closest("[data-evopen]"); if(evo){ e.stopPropagation(); const v=EVENTS.find(x=>x.id===evo.dataset.evopen); if(v) eventForm(v); return; }
@@ -16187,7 +16351,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 document.getElementById("q").addEventListener("input",e=>{
   tlReset(); const was=query; query=e.target.value.trim();
   if(query&&!was) window.__preSearch={tab,symView};
-  if(query){sysFilter=null;tab="all";}   // поиск всегда по всему архиву
+  if(query){sysFilter=null;tab="all";symSel=null;medSel=null;insSel=null;taskIdx=null;}   // поиск всегда по всему архиву, включая лекарства
   else if(was&&window.__preSearch){ tab=window.__preSearch.tab; symView=window.__preSearch.symView; window.__preSearch=null; }
   render();
 });
