@@ -1988,6 +1988,58 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .gi-page,.gi-form{overflow-wrap:anywhere}.gi-page h2,.gi-form h2{font-size:20px;margin:0 36px 16px 0}.gi-page .btn,.gi-form .btn,.gi-page summary,.gi-form summary{min-height:44px;min-width:44px}.gi-period{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.gi-period [aria-pressed="true"]{background:var(--primary);color:var(--on-accent)}.gi-summary{padding:12px;background:var(--seg);border-radius:var(--radius);margin:16px 0}.gi-record{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}.gi-record p{white-space:pre-wrap;margin:0 0 8px}.gi-error{color:var(--bad)}.gi-doctor{width:100%;min-height:180px;box-sizing:border-box}.gi-when{display:grid;grid-template-columns:1fr 1fr;gap:12px}.gi-form label{display:flex;flex-direction:column;gap:6px;margin:10px 0}.gi-form input,.gi-form textarea,.gi-form select{box-sizing:border-box;width:100%;min-width:0;min-height:44px}.gi-bristol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.gi-bristol button{position:relative;min-height:118px;border:2px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);padding:8px;text-align:left;font:inherit}.gi-bristol img{display:block;width:100%;max-width:160px;height:70px;margin:auto}.gi-bristol [aria-pressed="true"]{border-color:var(--primary);background:var(--accentbg)}.gi-check{position:absolute;right:8px;top:4px;color:var(--primary)}.gi-symptoms>div{border-bottom:1px solid var(--line)}.gi-symptoms label:first-child{flex-direction:row;align-items:center;min-height:44px}.gi-symptoms input[type="checkbox"]{width:22px;height:22px;min-height:22px;flex:none}.gi-symptoms .gi-severity{margin-left:30px}.gi-form [hidden]{display:none!important}.gi-form-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.gi-page :focus-visible,.gi-form :focus-visible{outline:2px solid var(--primary);outline-offset:2px}.gi-page .row{flex-wrap:wrap}@media(max-width:600px){.mbox.gi-page{width:100%;max-width:100%;min-height:100dvh;max-height:100dvh;margin:0;border-radius:0;padding-bottom:calc(24px + env(safe-area-inset-bottom))}.gi-form .gi-when{gap:8px}}
 /* /GI_STYLE_V1 */
 
+/* SYMPTOM_DETAIL_UX6: compact primary task, optional context and settings. */
+.sym-detail{max-width:100%;min-width:0}
+.sym-detail__main{padding:20px}
+.sym-detail__head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sym-detail__head h2{margin:0;overflow-wrap:anywhere}
+.sym-detail__head .btn{min-height:44px;flex-shrink:0}
+.sym-detail__date{margin:16px 0 8px;color:var(--muted);font-size:13px}
+.sym-detail__record{padding:10px 0;border-top:1px solid var(--line)}
+.sym-detail__record-head,.sym-detail__values{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+.sym-detail__record-head{justify-content:space-between}
+.sym-detail__values time{font-size:16px;font-weight:600}
+.sym-detail__note,.sym-detail__meds{margin:6px 0 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.sym-detail details.sym-detail__record-menu{position:relative;flex:none;margin:0 0 0 auto;padding:0;border:0;background:transparent;border-radius:0}
+.sym-detail__record-menu>summary{cursor:pointer;list-style:none;min-height:44px;min-width:44px;display:grid;place-items:center;border-radius:10px;color:var(--muted);font-size:20px}
+.sym-detail__record-menu>summary::-webkit-details-marker{display:none}
+.sym-detail__record-menu[open]>summary{background:var(--surface-2)}
+.sym-detail__record-menu>div{position:absolute;right:0;top:100%;z-index:3;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 16px #0002;padding:6px;min-width:150px}
+.sym-detail__record-menu .linkbtn{display:block;width:100%;min-height:44px;text-align:left;padding:8px}
+.sym-detail details.sym-detail__fold{border:0;border-top:1px solid var(--line);min-width:0;padding:0;margin:0;background:transparent;border-radius:0;box-shadow:none}
+.sym-detail details.sym-detail__fold:first-child{border-top:0}
+.sym-detail__fold>summary{min-height:54px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;font-weight:600;overflow-wrap:anywhere;padding:10px 0}
+.sym-detail__fold>summary::after{content:'⌄';color:var(--muted);flex:none;font-size:20px}
+.sym-detail__fold[open]>summary::after{transform:rotate(180deg)}
+.sym-detail__fold>summary::-webkit-details-marker{display:none}
+.sym-detail__fold-body{padding:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.sym-detail__sections{padding:0 20px}
+.sym-detail__main>details.sym-detail__fold{margin-top:8px}
+.sym-detail__fold-body>.card{padding:12px 0;margin:0;border:0;border-radius:0;box-shadow:none;background:transparent}
+.sym-detail__fold-body>.card+.card{border-top:1px solid var(--line)}
+.sym-detail__fold-body .tbl-wrap{max-width:100%}
+.sym-detail__record-details{margin-top:8px}
+.sym-detail__record-details>summary,.sym-detail .sym-more>summary{cursor:pointer;min-height:40px;align-content:center;color:var(--accent)}
+.sym-detail__record-details dl{margin:8px 0;font-size:13px}
+.sym-detail__record-details dl>div{display:grid;grid-template-columns:minmax(90px,1fr) 2fr;gap:8px;padding:5px 0}
+.sym-detail__record-details dt{color:var(--muted)}
+.sym-detail__record-details dd{margin:0;white-space:pre-wrap}
+.sym-detail__days{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;max-width:680px}
+.sym-detail__days button{border:1px solid transparent;min-width:0;min-height:36px;padding:4px 0;border-radius:5px;background:var(--surface-2);color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
+.sym-detail__days [data-l='1']{background:#ffd9b8;color:#222}
+.sym-detail__days [data-l='2']{background:#ff9c5c;color:#222}
+.sym-detail__days [data-l='3']{background:var(--negative);color:white}
+.sym-detail__days [data-l='4']{background:var(--accentbg,#dbf0ff);color:var(--ink)}
+.sym-detail__days [data-period]{border:1px dashed currentColor}
+.sym-detail__days [aria-pressed='true']{outline:2px solid var(--accent);outline-offset:1px}
+.sym-detail__calendar p{font-size:12px;margin:0 0 8px}
+.sym-detail__calendar .sym-detail__calendar-hint{margin:10px 0;color:var(--muted)}
+.sym-detail__relation{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:8px 0}
+.sym-detail__ongoing{font-size:13px;margin:10px 0;color:var(--muted)}
+.sym-detail__alert{padding:10px;border-radius:10px;background:var(--badbg);color:var(--bad);margin:12px 0}
+.sym-detail summary:focus-visible,.sym-detail button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:480px){.sym-detail__main{padding:16px}.sym-detail__sections{padding:0 16px}.sym-detail__head{align-items:flex-start}.sym-detail__head .btn{font-size:13px;padding:10px 12px}.sym-detail__days{gap:3px}.sym-detail__days button{min-height:30px}.sym-detail__fold-body .perbox{display:block}.sym-detail__fold-body .row{flex-wrap:wrap}}
+
 </style>
 </head>
 <body>
@@ -5415,7 +5467,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 14:33 · BP5";   // подставляется при публикации
+const BUILD="02.11 17:15 · UX6";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -14372,7 +14424,7 @@ function dzLoadData(force){
   if(!window.__MK_KEY) return; const p=cur;
   if(DZ.dataBusy===p||(DZ.data[p]&&!force)) return; DZ.dataBusy=p; DZ.dataErr=false;
   Promise.all([mkApi("diary_entry_list",{person:p}),mkApi("symptoms_list",{person:p})]).then(([a,b])=>{
-    DZ.data[p]={entries:a.rows||[],all:b.rows||[],sym:(b.rows||[]).filter(r=>r.diary),heads:(b.rows||[]).filter(r=>r.symptom==="Головная боль"&&r.med).map(r=>r.med)}; DZ.dataBusy=null; if((tab==="dz"||tab==="home")&&cur===p) render();
+    DZ.data[p]={entries:a.rows||[],all:b.rows||[],sym:(b.rows||[]).filter(r=>r.diary),heads:(b.rows||[]).filter(r=>r.symptom==="Головная боль"&&r.med).map(r=>r.med)}; DZ.dataBusy=null; if((tab==="dz"||tab==="home"||(tab==="sym"&&symSel))&&cur===p) render();
   }).catch(()=>{ DZ.dataBusy=null; DZ.dataErr=true; if(tab==="dz") render(); });
 }
 const dzHM=iso=>{ const x=new Date(iso); return String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0"); };
@@ -15338,6 +15390,64 @@ function dzDayBind(m){
   });
 }
 
+// SYMPTOM_DETAIL_UX6: compact read-only view; existing edit/save handlers remain authoritative.
+const SYM_DETAIL_FOLDS={};
+function symDetailFold(name,id,title,body,forceOpen){
+  const key=cur+"|"+symKey(name)+"|"+id;
+  return `<details class="sym-detail__fold" data-sym-detail-fold="${esc(key)}"${forceOpen||SYM_DETAIL_FOLDS[key]?" open":""}><summary>${esc(title)}</summary><div class="sym-detail__fold-body">${body}</div></details>`;
+}
+function symDetailModel(S,name,focus,today,periods,person){
+  const allRows=((S&&S.log)||[]).filter(x=>sameSym(x.n,name)&&(!x.person||x.person===person)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))||String(b.at||"").localeCompare(String(a.at||"")));
+  const rows=allRows.filter(x=>!x.per),m=symptomDisclosureModel({log:allRows},today,periods,person).find(r=>sameSym(r.n,name))||null;
+  const validFocus=/^\d{4}-\d{2}-\d{2}$/.test(String(focus||""))&&focus<=today&&Number.isFinite(Date.parse(focus+"T12:00:00Z"))&&new Date(focus+"T12:00:00Z").toISOString().slice(0,10)===focus;
+  const day=validFocus?focus:rows[0]?.d||m?.last||today;
+  return {day,selected:validFocus,rows:rows.filter(x=>x.d===day),rest:rows.filter(x=>x.d!==day),model:m,periods:(periods||[]).filter(x=>x.person===person&&sameSym(x.symptom,name)).slice().sort((a,b)=>String(b.started_on).localeCompare(String(a.started_on)))};
+}
+function symDetailRecordHtml(x,canonical){
+  if(x._gi||x.attrs?.gi)return logLines([x],[]);
+  const row=canonical||{attrs:x.attrs||{},intensity:x.i,value_num:x.v,med:x.m,feeling:x.f,triggers:x.triggers};
+  const age=typeof dzAgeOn==="function"?dzAgeOn(hdBirth(),localDay()):null,def=symptomFields(x.n,age,null);
+  const extras=symptomDetailsView(row,def).filter(v=>!['intensity','temp','dose','note',def.measure.key].includes(v.key));
+  const w=sevOf(x),time=symTimeOf(x),key=encodeURIComponent(JSON.stringify(recKey(x))),note=String(x.f||""),long=note.length>180;
+  return `<article class="sym-detail__record"><div class="sym-detail__record-head"><div class="sym-detail__values">${time?`<time datetime="${esc(x.at)}">${esc(time)}</time>`:'<span class="muted">Запись</span>'}${w.t?`<span class="pill" style="background:${w.c}">${esc(w.t)}</span>`:'<span class="muted">без оценки</span>'}${x.aid||x.edited?'<span class="pend" title="Изменено в книжке, ещё не в медкарте">●</span>':""}</div><details class="sym-detail__record-menu"><summary aria-label="Действия с записью">⋯</summary><div><button type="button" class="linkbtn editrec" data-rk="${esc(key)}">Изменить</button><button type="button" class="linkbtn delrec" data-rk="${esc(key)}">Удалить</button></div></details></div>
+    ${note&&!long?`<p class="sym-detail__note">${esc(note)}</p>`:""}${x.m?`<p class="sym-detail__meds"><span class="muted">Лекарства:</span> ${medLinks(String(x.m).split(/,\s+/).filter(Boolean))}${x.h?` · ${esc(x.h)}`:""}</p>`:""}
+    ${long||extras.length?`<details class="sym-detail__record-details"><summary>Детали записи</summary>${long?`<p class="sym-detail__note">${esc(note)}</p>`:""}${extras.length?`<dl>${extras.map(v=>`<div><dt>${esc(v.label)}</dt><dd>${esc(v.value)}</dd></div>`).join("")}</dl>`:""}</details>`:""}</article>`;
+}
+function symDetailPeriodHtml(p,today){
+  return `<div class="sym-detail__period">${perCardHtml(p,today)}${p.intensity!=null?`<p class="muted">Оценка за период: ${esc(p.intensity)}/10</p>`:""}${p.feeling?`<p class="sym-detail__note">${esc(p.feeling)}</p>`:""}${p.med?`<p class="sym-detail__meds">Лекарства: ${medLinks(String(p.med).split(/,\s+/).filter(Boolean))}</p>`:""}${p.reason?`<p class="muted">Болезнь: ${esc(p.reason)}</p>`:""}</div>`;
+}
+function symDetailCalendarHtml(r,today,selected){
+  const m=symptomDisclosureCalendar(r,today);
+  return `<div class="sym-detail__calendar"><p class="muted">${ru(m.from)} — ${ru(m.to)} · выберите день</p><div class="sym-detail__days" role="group" aria-label="Дни симптома: ${esc(r.n)}">${m.cells.map(x=>`<button type="button" data-sym-detail-day="${x.d}" data-sym-detail-name="${esc(r.n)}" data-l="${x.level}"${x.period?' data-period="1"':""} aria-pressed="${x.d===selected}" aria-label="${esc(x.label)}" title="${esc(x.label)}">${x.d.slice(8)}</button>`).join("")}</div><p class="muted sym-detail__calendar-hint">Цвет — сила симптома, серый — нет записи, пунктир — период.</p></div>`;
+}
+function symDetailHtml(d,S,name,focus,today,filtered){
+  const M=symDetailModel(S,name,focus,today,PERIODS,cur),c=((S&&S.cat)||[]).find(x=>sameSym(x.n,name))||{};
+  if(window.__MK_KEY&&!DZ.data[cur]&&!DZ.dataErr)dzLoadData();
+  const canonical=(DZ.data[cur]&&DZ.data[cur].all)||[],sameDay=symAlso(tlEvents(d),M.day,name),near=eventsFor(cur).filter(v=>sameSym(v.symptom,name));
+  const I=symDayInfo(S,PERIODS,cur,name,M.day,today,e=>symLinkHidden(cur,name,e.id));
+  const ongoing=M.periods.filter(p=>!p.ended_on),dxs=dxSort((d.diagnoses||[]).filter(x=>x.sys===c.sys));
+  const dayLabel=M.selected?'Выбранный день':M.rows.length?'Последняя запись':'День наблюдения';
+  const dayRows=M.rows.map(x=>symDetailRecordHtml(x,x.id!=null?canonical.find(r=>String(r.id)===String(x.id)&&(!r.person||r.person===cur)):null)).join("");
+  const ranges=M.model?M.model.ranges.map(x=>`<li>${x.kind==='period'?'Указанный период: ':'Дни с записями: '}${ru(x.from)}${x.ongoing?' · окончание не указано':x.to!==x.from?' — '+ru(x.to):''}</li>`).join(""):"";
+  const history=M.model?`${symDetailCalendarHtml(M.model,today,M.day)}${M.periods.length?`<h3>Периоды</h3>${M.periods.map(x=>symDetailPeriodHtml(x,today)).join("")}`:""}${ranges?`<details class="sym-more"><summary>Все даты</summary><ul>${ranges}</ul></details>`:""}${M.rest.length?`<h3>Предыдущие записи</h3>${logLines(M.rest,S.ep)}`:""}${symKey(name)!=='температура'&&M.model.rows.length?`<details class="sym-more"><summary>Динамика по месяцам</summary>${freqChart(M.model.rows,Math.min(60,Math.max(12,(+today.slice(0,4)-+M.model.rows[M.model.rows.length-1].d.slice(0,4))*12+(+today.slice(5,7)-+M.model.rows[M.model.rows.length-1].d.slice(5,7))+1)))}${trendVerdict(M.model.rows,today)}</details>`:""}`:'<p class="muted">Записей пока нет.</p>';
+  const meds=medChips([...M.rows,...M.rest]),groups=byPovod([...M.rows,...M.rest]);
+  const links=`${symIllHtml(name)}${groups.length?`<details class="sym-more"><summary>Связи по записям</summary>${groups.map(g=>`<div class="sym-detail__relation"><b>${esc(g.p||'Без указанной болезни')}</b><span class="muted">${g.list.length} ${plural(g.list.length,'запись','записи','записей')}</span></div>`).join("")}</details>`:""}${dxs.length?`<details class="sym-more"><summary>Диагнозы по этой системе · ${dxs.length}</summary>${dxs.map(x=>`<p class="dxrow" data-sys="${esc(x.sys||'')}"><b>${esc(x.n)}</b> <span class="muted">${esc(x.c||'')} · ${esc(x.s||'')}</span></p>`).join("")}</details>`:""}<h3>Лекарства по записям</h3>${meds}${I.eps.length||I.hiddenEps.length?`<details class="sym-more"><summary>Связи выбранного дня</summary>${symDayEpsHtml(I,name)}</details>`:""}`;
+  const topic=symTopic(cur,name),chat=SYMCHAT[topic],aiOpen=!!(chat&&chat.open)||window.__symAiBusy===symAiKey(cur,name);
+  const care=symDoctorsCard(d,name,c)+symAiCard(name)+symChatCard(name)+symRazbCard(name);
+  const settings=symTrackCard(name)+(c.why?`<h3>О наблюдении</h3><p>${esc(c.why)}</p>`:(!window.__MK_KEY?'<p class="muted">Настройки доступны после входа.</p>':''));
+  const context=sameDay.length||near.length? symDetailFold(name,'context',`В этот день и рядом · ${sameDay.length+near.filter(x=>x.occurred_on!==M.day).length}`,`${sameDay.length?`<h3>В этот день · ${sameDay.length}</h3>${sameDay.map(tlItem).join("")}`:""}${near.filter(x=>x.occurred_on!==M.day).length?`<h3>Связанные события</h3>${eventsBlock(near.filter(x=>x.occurred_on!==M.day))}`:""}`):"";
+  return `<div class="sym-detail" data-sym-detail="${esc(name)}"><button type="button" class="back" data-sym="">${filtered?'← К дневнику болезни':'← Ко всем симптомам'}</button><section class="card sym-detail__main" aria-labelledby="symDetailTitle"><div class="sym-detail__head"><h2 id="symDetailTitle">${esc(name)}${c.red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</h2><button type="button" class="btn btn-primary" data-symep="${esc(name)}" data-symday="${today}">Записать сегодня</button></div>
+    ${c.red?'<p class="sym-detail__alert">При появлении — к врачу сразу, не дожидаясь записи.</p>':""}${signalHtml(signalsNow().filter(x=>symKey(x.name)===symKey(name)))}${ongoing.length?`<p class="sym-detail__ongoing">Период продолжается с ${ru(ongoing.slice().sort((a,b)=>a.started_on.localeCompare(b.started_on))[0].started_on)}</p>`:""}
+    <div class="sym-detail__date">${dayLabel} · <b>${ru(M.day)}</b></div>${dayRows||'<p class="muted">В этот день записей нет.</p>'}${symMergeBanner(cur,M.day)}${symDupBanner(cur,M.day)}${context}</section>
+    <section class="card sym-detail__sections" aria-label="Дополнительные сведения о симптоме">${symDetailFold(name,'history','История и периоды'+(M.model?' · '+human(M.model.days):''),history)}${symDetailFold(name,'links','Болезни и лекарства',links)}${symDetailFold(name,'care','Врачи и ИИ',care,aiOpen)}${symDetailFold(name,'settings','Настройки наблюдения',settings+symPeriodMergeBanner(cur,name))}</section></div>`;
+}
+document.addEventListener('toggle',e=>{const el=e.target;if(el&&el.matches&&el.matches('[data-sym-detail-fold]'))SYM_DETAIL_FOLDS[el.dataset.symDetailFold]=el.open;},true);
+function symDetailChooseDay(name,day){
+  if(tab!=="sym"||!symSel||!sameSym(name,symSel)||!/^\d{4}-\d{2}-\d{2}$/.test(day)||day>localDay())return false;
+  symFocus=day;symDay=null;return true;
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sym-detail-day]');if(!b)return;if(symDetailChooseDay(b.dataset.symDetailName,b.dataset.symDetailDay)){render();const main=document.querySelector('.sym-detail__main');main?.scrollIntoView({block:'nearest'});}});
+
 function render(){
   pplLoad(); measLoad(); periodsLoad(); eventsLoad(); medplanLoad();
   Promise.resolve().then(navSync);
@@ -15560,58 +15670,7 @@ function render(){
 
     // ---------- деталь по одному симптому ----------
     else if(symSel){
-      const L=byName[symSel]||[], c=catOf(symSel);
-      const dxs=dxSort((d.diagnoses||[]).filter(x=>x.sys===c.sys));
-      const a30=symAgg(L,d30,today), a90=symAgg(L,d90,today);
-      const perHtml=(PERIODS||[]).filter(x=>x.person===cur&&symNorm(x.symptom)===symNorm(symSel)).slice(0,3).map(x=>perCardHtml(x,localDay())).join("");
-      m.innerHTML=homeAssemble(`
-      <button class="back" data-sym="">${diaryModel.active?"← К дневнику болезни":"← Ко всем симптомам"}</button>
-      ${symPeriodMergeBanner(cur,symSel)}
-      <div class="card">
-        <h2>${esc(symSel)}${c.red?' <span class="red-dot">▲</span>':""}</h2>${perHtml}${signalHtml(signalsNow().filter(x=>symKey(x.name)===symKey(symSel)))}
-        ${c.red?`<div class="pill" style="background:var(--bad);margin-bottom:8px">при появлении — к врачу сразу, не дожидаясь записи</div>`:""}
-        ${c.why?(()=>{ const w=shortWhy(c.why,140); return `<p class="sym-why">${esc(w.head)}</p>${w.rest?`<details class="sym-more"><summary>Подробнее</summary><p>${esc(w.rest)}</p></details>`:""}`; })():""}
-      </div>
-      ${(()=>{ const sp=symSplit(L,symFocus); if(!sp.day) return "";
-        const wd=WEEKDAYS[new Date(sp.day+"T12:00:00Z").getUTCDay()], also=symAlso(tlEvents(d),sp.day,symSel);
-        return `<div class="card sym-cur"><h2>${sp.cur.length>1?"Записи за день":"Запись"} · ${ru(sp.day)}, ${wd}</h2>${symMergeBanner(cur,sp.day)}${symDupBanner(cur,sp.day)}${symDayBody(S,symSel,sp.day,today)}</div>`
-          +(also.length?`<div class="card"><h2>Что ещё было в этот день <span class="muted" style="text-transform:none">— ${also.length}</span></h2>${also.map(tlItem).join("")}</div>`:""); })()}
-      ${symEpisodesHtml(symSel,symFocus||today)}
-      <!--B:track-->${symTrackCard(symSel)}
-      <!--B:doc-->${symDoctorsCard(d,symSel,c)}
-      <!--B:ai-->${symAiCard(symSel)}${symChatCard(symSel)}${symRazbCard(symSel)}
-      <!--B:events-->${(()=>{ const EV=eventsFor(cur).filter(v=>String(v.symptom||"").toLowerCase()===String(symSel).toLowerCase()); return EV.length?`<div class="card"><h2>События рядом <span class="muted" style="text-transform:none">— ${EV.length}</span></h2>${eventsBlock(EV)}</div>`:""; })()}
-      <!--B:povod--><div class="card"><h2>С какими болезнями связан <span class="hint" tabindex="0" title="По какой болезни приходил симптом. Отдельная строка — случаи, когда его просто отмечали и не лечили. Нажмите болезнь — она откроется." aria-label="По какой болезни приходил симптом">?</span></h2>
-        ${symIllHtml(symSel)}
-        <details class="sym-more"><summary>По записям</summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Болезнь</th><th style="text-align:center">раз</th><th>когда</th><th>чем лечили</th></tr></thead><tbody>
-        ${byPovod(L).map(g=>{const meds=medsOf(g.list).map(v=>v.name);
-          const ds=g.list.map(x=>x.d).sort(), per=ds[0]===ds[ds.length-1]?ru(ds[0]):ru(ds[0])+" – "+ru(ds[ds.length-1]);
-          return `<tr${g.p?"":' style="background:var(--nonebg)"'}>
-            <td>${(()=>{ const ep=g.p?((DATA[cur].sym||{}).ep||[]).filter(e=>sameIll(e.dx,g.p)).sort((x,y)=>y.d1.localeCompare(x.d1))[0]:null;
-              return ep?`<b class="eplink" data-epcard="${esc(ep.id)}">${esc(g.p)} →</b>`:`<b>${g.p?esc(g.p):"Без диагноза — отмечал, не лечил"}</b>`; })()}</td>
-            <td style="text-align:center"><b>${g.list.length}</b></td>
-            <td class="muted">${per}</td>
-            <td class="muted">${medLinks(meds)}</td></tr>`;}).join("")}
-        </tbody></table></div></details>
-        ${dxs.length?`<details class="sym-dx"><summary>Диагнозы по этой системе — ${dxs.length}</summary>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Диагноз</th><th>МКБ-10</th><th>С года</th><th>Состояние</th></tr></thead><tbody>
-          ${dxs.map(x=>`<tr class="dxrow" data-sys="${esc(x.sys||"")}"><td><b>${esc(x.n)}</b></td>
-            <td class="muted">${esc(x.c)}</td><td class="muted">${esc(x.y)}</td><td>${esc(x.s)}</td></tr>`).join("")}
-          </tbody></table></div></details>`:""}
-        <h3 style="margin-top:14px">Все препараты по этому симптому</h3>
-        ${medChips(L)}</div>
-      ${L.length&&symKey(symSel)!=="температура"?`<!--B:freq--><div class="card"><h2>Как часто возвращается <span class="hint" tabindex="0" title="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце." aria-label="Столбик — месяц, высота — сколько раз. Цвет — самое тяжёлое проявление в этом месяце.">?</span></h2>
-        ${(()=>{const f=L[L.length-1].d, now=new Date();
-          const m=(now.getFullYear()-+f.slice(0,4))*12+(now.getMonth()-(+f.slice(5,7)-1))+1;
-          return `<p class="sym-stats">${symStatsText(a30,a90)}</p>`+freqChart(L,Math.min(60,Math.max(12,m)));})()}
-        ${trendVerdict(L,today)}
-        <div class="legend">${L.some(x=>x.u==="°C")
-          ?TSCALE.map(t=>`<span><i style="background:${t[1]}"></i>${t[2]}</span>`).join("")
-          :`<span><i style="background:var(--ok)"></i>1–3 терпимо</span><span><i style="background:var(--warn)"></i>4–6 мешает</span><span><i style="background:var(--bad)"></i>7 сильно</span><span><i style="background:#7d1212"></i>8–10 очень сильно</span>`}</div></div>
-
-      ${symSplit(L,symFocus).rest.length?`<!--B:recs--><div class="card"><h2>Другие записи <span class="muted" style="text-transform:none">— ${symSplit(L,symFocus).rest.length}</span></h2>
-        ${logLines(symSplit(L,symFocus).rest,S.ep)}</div>`:""}`
-      :`<!--B:none--><div class="card"><p style="margin:0">Записей по этому симптому пока нет. Он в списке наблюдения, потому что связан с диагнозом${c.dx?`: ${esc(c.dx)}`:""}.</p></div>`}`,homeOrderLoad(SYMORDK),SYMORDK);
+      m.innerHTML=symDetailHtml(d,S,symSel,symFocus,today,diaryModel.active);
     }
 
     // ---------- обзор: четыре представления ----------
