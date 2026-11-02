@@ -1988,7 +1988,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .gi-page,.gi-form{overflow-wrap:anywhere}.gi-page h2,.gi-form h2{font-size:20px;margin:0 36px 16px 0}.gi-page .btn,.gi-form .btn,.gi-page summary,.gi-form summary{min-height:44px;min-width:44px}.gi-period{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.gi-period [aria-pressed="true"]{background:var(--primary);color:var(--on-accent)}.gi-summary{padding:12px;background:var(--seg);border-radius:var(--radius);margin:16px 0}.gi-record{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}.gi-record p{white-space:pre-wrap;margin:0 0 8px}.gi-error{color:var(--bad)}.gi-doctor{width:100%;min-height:180px;box-sizing:border-box}.gi-when{display:grid;grid-template-columns:1fr 1fr;gap:12px}.gi-form label{display:flex;flex-direction:column;gap:6px;margin:10px 0}.gi-form input,.gi-form textarea,.gi-form select{box-sizing:border-box;width:100%;min-width:0;min-height:44px}.gi-bristol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.gi-bristol button{position:relative;min-height:118px;border:2px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);padding:8px;text-align:left;font:inherit}.gi-bristol img{display:block;width:100%;max-width:160px;height:70px;margin:auto}.gi-bristol [aria-pressed="true"]{border-color:var(--primary);background:var(--accentbg)}.gi-check{position:absolute;right:8px;top:4px;color:var(--primary)}.gi-symptoms>div{border-bottom:1px solid var(--line)}.gi-symptoms label:first-child{flex-direction:row;align-items:center;min-height:44px}.gi-symptoms input[type="checkbox"]{width:22px;height:22px;min-height:22px;flex:none}.gi-symptoms .gi-severity{margin-left:30px}.gi-form [hidden]{display:none!important}.gi-form-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.gi-page :focus-visible,.gi-form :focus-visible{outline:2px solid var(--primary);outline-offset:2px}.gi-page .row{flex-wrap:wrap}@media(max-width:600px){.mbox.gi-page{width:100%;max-width:100%;min-height:100dvh;max-height:100dvh;margin:0;border-radius:0;padding-bottom:calc(24px + env(safe-area-inset-bottom))}.gi-form .gi-when{gap:8px}}
 /* /GI_STYLE_V1 */
 
-/* SYMPTOM_DETAIL_UX7: compact primary task, optional context and settings. */
+/* SYMPTOM_DETAIL_UX8: compact primary task, recent history and optional archive. */
 .sym-detail{max-width:100%;min-width:0}
 .sym-detail__main{padding:16px 20px}
 .sym-detail__head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -2047,6 +2047,9 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .sym-detail__history-entry .sym-detail__record,.sym-detail__history-entry .sym-detail__period{padding:4px 0}
 .sym-detail__period-label{margin:4px 0;color:var(--muted)}
 .sym-detail__more{min-height:44px;text-align:left}
+.sym-detail__recent>h3{font-size:14px;margin:2px 0 10px}
+.sym-detail__archive{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--field);padding:0 12px}
+.sym-detail__archive-date{font-size:12px;margin:0 0 8px}
 .sym-detail__history-entry:focus{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:480px){.sym-detail__main{padding:12px 16px}.sym-detail__sections,.sym-detail__history{padding:0 16px}}
 
@@ -3194,11 +3197,11 @@ function symptomDisclosureCalendarHtml(r,today){
 function symptomDisclosureHtml(S,today,periods,person,filtered){
   const rows=symptomDisclosureModel(S,today,periods,person), scope=filtered?String(((S&&S.ep)||[])[0]?.id||"filtered"):"all";
   return `<section class="card sym-disclosures" aria-labelledby="symptomDisclosureTitle"><div class="sym-disclosures__head"><h2 id="symptomDisclosureTitle">Симптомы${rows.length?` <span class="muted">· ${rows.length}</span>`:""}</h2><button type="button" class="btn btn-primary" id="newSym">+ Запись</button></div>
-    <p class="muted sym-disclosures__intro">Сначала недавние. Раскройте симптом, чтобы увидеть, когда его отмечали.</p>
+    <p class="muted sym-disclosures__intro">Сначала недавние. Раскройте симптом, чтобы увидеть календарь.</p>
     ${rows.length?rows.map(r=>{const k=person+"|"+scope+"|"+r.key,red=((S&&S.cat)||[]).some(c=>String(c.n||"").trim().toLowerCase().replace(/ё/g,"е")===r.key&&c.red);
       const label=r.ongoing?"Период продолжается · с "+ru(r.ongoingFrom):"Последнее наблюдение: "+ru(r.last);
       const selected=typeof symDay!=="undefined"&&symDay&&symDay.n===r.n;
-      return `<details class="sym-disclosure" data-sym-disclosure="${esc(k)}"${SYM_DISCLOSURES[k]?" open":""}><summary><span class="sym-disclosure__name"><b>${esc(r.n)}</b>${red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</span><span class="muted sym-disclosure__last">${esc(label)} · ${r.days} ${plural(r.days,"день","дня","дней")} с записями</span></summary><div class="sym-disclosure__body">${symptomDisclosureCalendarHtml(r,today)}${selected?symDayPanel(S,r.n,symDay.d,today):""}<h3>Когда отмечали</h3><ul>${r.ranges.map(x=>`<li>${x.kind==="period"?"Указанный период: ":"Дни с записями: "}${ru(x.from)}${x.ongoing?" · окончание не указано":x.to!==x.from?" — "+ru(x.to):""}${x.kind==="observed"&&x.days>1?` · ${x.days} ${plural(x.days,"день","дня","дней")}`:""}</li>`).join("")}</ul><button type="button" class="linkbtn sym-disclosure__open" data-symfull="${esc(r.n)}" aria-label="Подробнее о симптоме: ${esc(r.n)}">Подробнее о симптоме →</button></div></details>`;
+      return `<details class="sym-disclosure" data-sym-disclosure="${esc(k)}"${SYM_DISCLOSURES[k]?" open":""}><summary><span class="sym-disclosure__name"><b>${esc(r.n)}</b>${red?' <span class="red-dot" aria-label="Требует внимания">▲</span>':""}</span><span class="muted sym-disclosure__last">${esc(label)} · ${r.days} ${plural(r.days,"день","дня","дней")} с записями</span></summary><div class="sym-disclosure__body">${symptomDisclosureCalendarHtml(r,today)}${selected?symDayPanel(S,r.n,symDay.d,today):""}<button type="button" class="linkbtn sym-disclosure__open" data-symfull="${esc(r.n)}" aria-label="Подробнее о симптоме: ${esc(r.n)}">Подробнее о симптоме →</button></div></details>`;
     }).join(""):`<p class="muted">${filtered?"Для этой болезни связанных записей симптомов нет.":"Записей симптомов пока нет. Добавьте первую запись."}</p>`}
     ${rows.length?'<p class="muted sym-disclosures__note">Промежутки без записей не означают отсутствие симптома.</p>':""}</section>`;
 }
@@ -5477,7 +5480,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 20:44 · UX7";   // подставляется при публикации
+const BUILD="02.11 21:01 · UX8";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -15400,7 +15403,7 @@ function dzDayBind(m){
   });
 }
 
-// SYMPTOM_DETAIL_UX7: compact read-only view; existing edit/save handlers remain authoritative.
+// SYMPTOM_DETAIL_UX8: recent observations first, older history behind a disclosure.
 const SYM_DETAIL_FOLDS={};
 const SYM_DETAIL_LIMITS={};
 function symDetailFold(name,id,title,body,forceOpen){
@@ -15438,16 +15441,24 @@ function symDetailHistoryItems(M,today){
   return [...M.rows,...M.rest].map(row=>({kind:'record',day:row.d,at:row.at||'',row})).concat(M.periods.map(row=>({kind:'period',day:row.ended_on||today,at:'',row}))).sort((a,b)=>b.day.localeCompare(a.day)||b.at.localeCompare(a.at)||(a.kind==='record'?-1:1));
 }
 function symDetailHistoryLimit(name){return Math.max(6,Number(SYM_DETAIL_LIMITS[cur+'|'+symKey(name)])||6);}
+function symDetailHistoryGroups(M,today){
+  const from=dayShift(today,-29),items=symDetailHistoryItems(M,today);
+  // A period overlapping the window stays one original period in the recent group.
+  // It is never duplicated in the archive or cut into artificial observations.
+  return {from,to:today,recent:items.filter(x=>x.day>=from),older:items.filter(x=>x.day<from)};
+}
 function symDetailHistoryHtml(M,canonical,name,today){
-  const items=symDetailHistoryItems(M,today),limit=symDetailHistoryLimit(name);
-  return `${M.model?symDetailCalendarHtml(M.model,today,M.day):''}<div class="sym-detail__history-list">${items.slice(0,limit).map((item,i)=>`<div class="sym-detail__history-entry" tabindex="-1" data-sym-history-index="${i}">${item.kind==='period'?symDetailPeriodHtml(item.row,today):symDetailRecordHtml(item.row,item.row.id!=null?canonical.find(r=>String(r.id)===String(item.row.id)&&(!r.person||r.person===cur)):null)}</div>`).join('')}</div>${items.length>limit?`<button type="button" class="linkbtn sym-detail__more" data-sym-detail-more="${esc(name)}">Показать ещё записи · ${items.length-limit}</button>`:''}${!items.length?'<p class="muted">Записей пока нет.</p>':''}`;
+  const g=symDetailHistoryGroups(M,today),limit=symDetailHistoryLimit(name);
+  const entry=(item,i,archive)=>`<div class="sym-detail__history-entry"${archive?` tabindex="-1" data-sym-history-index="${i}"`:''}>${item.kind==='period'?symDetailPeriodHtml(item.row,today):symDetailRecordHtml(item.row,item.row.id!=null?canonical.find(r=>String(r.id)===String(item.row.id)&&(!r.person||r.person===cur)):null)}</div>`;
+  const older=`<p class="muted sym-detail__archive-date">До ${ru(g.from)}</p><div class="sym-detail__history-list" data-sym-history-archive>${g.older.slice(0,limit).map((x,i)=>entry(x,i,true)).join('')}</div>${g.older.length>limit?`<button type="button" class="linkbtn sym-detail__more" data-sym-detail-more="${esc(name)}">Показать ещё записи · ${g.older.length-limit}</button>`:''}`;
+  return `<div class="sym-detail__recent"><h3>Последние 30 дней</h3>${M.model?symDetailCalendarHtml(M.model,today,M.day):''}<div class="sym-detail__history-list" data-sym-history-recent>${g.recent.map((x,i)=>entry(x,i,false)).join('')}</div>${!g.recent.length?'<p class="muted">За последние 30 дней записей нет.</p>':''}</div>${g.older.length?`<div class="sym-detail__archive">${symDetailFold(name,'archive','Более ранние записи · '+g.older.length,older)}</div>`:''}`;
 }
 function symDetailShowMore(name){
   if(tab!=='sym'||!symSel||!sameSym(name,symSel))return false;
   SYM_DETAIL_LIMITS[cur+'|'+symKey(name)]=symDetailHistoryLimit(name)+6;return true;
 }
 function symDetailCalendarHtml(r,today,selected){
-  const m=symptomDisclosureCalendar(r,today);
+  const m=symptomDisclosureCalendar({...r,last:today},today);
   return `<div class="sym-detail__calendar"><p class="muted">${ru(m.from)} — ${ru(m.to)} · выберите день</p><div class="sym-detail__days" role="group" aria-label="Дни симптома: ${esc(r.n)}">${m.cells.map(x=>`<button type="button" data-sym-detail-day="${x.d}" data-sym-detail-name="${esc(r.n)}" data-l="${x.level}"${x.period?' data-period="1"':""} aria-pressed="${x.d===selected}" aria-label="${esc(x.label)}" title="${esc(x.label)}">${x.d.slice(8)}</button>`).join("")}</div><p class="muted sym-detail__calendar-hint">Цвет — сила симптома, серый — нет записи, пунктир — период.</p></div>`;
 }
 function symDetailHtml(d,S,name,focus,today,filtered){
