@@ -1982,7 +1982,93 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 @media(max-width:319px){.sv__tiles--nails{grid-template-columns:1fr}}
 
 /* BODY_PROFILE_STYLES_V1 */
-.bm-screen{overflow-wrap:anywhere}.bm-screen input,.bm-screen select,.bm-screen button,.bm-screen summary{min-height:44px}.bm-screen :focus-visible{outline:2px solid var(--primary);outline-offset:2px}.bm-controls{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}.bm-controls label{display:flex;flex-direction:column;flex:1;min-width:130px}.bm-field{margin:16px 0;padding:12px;background:var(--field);border-radius:var(--radius)}.bm-field label{display:block;margin-bottom:4px}.bm-field input{width:100%;box-sizing:border-box}.bm-field details{margin:6px 0}.bm-history{list-style:none;padding:0}.bm-history li{padding:12px 0;border-bottom:1px solid var(--line)}.bm-chart{width:100%;max-height:200px;fill:var(--primary);background:var(--field);border-radius:var(--radius)}.bm-scheme{display:block;width:100%;max-width:300px;margin:12px auto;height:auto}.bm-screen textarea{width:100%;box-sizing:border-box;min-height:80px}.bm-screen details p{line-height:1.5}@media(max-width:600px){.mbox.bm-screen{width:100%;max-width:100%;max-height:100dvh;box-sizing:border-box;margin:0;border-radius:0}.bm-screen .mclose{position:sticky;top:0;float:right;background:var(--card)}}
+.meastile .meashead{gap:6px 16px;flex-wrap:wrap}
+.meas-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meas-actions .btn,.bm-screen .btn{min-height:44px;height:auto;padding-block:8px}
+.meas-actions .btn{font-size:14px}.meas-actions .btn-primary,.bm-screen .btn-primary{background:var(--primary-hover);color:var(--on-accent)}
+.meas-actions .ic{width:16px;height:16px}
+.meastile .measgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:2px 18px}
+.meastile .measgrid .measrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-width:0;min-height:54px;gap:8px;padding:8px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;text-align:left}
+.meastile .measgrid .measrow:hover{background:var(--field)}
+.meastile .measgrid .measrow__l{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
+.meastile .measgrid .measrow__l .measrow__n,.meastile .measgrid .measrow__l .measrow__v{font-size:14px}
+.meastile .measgrid .measrow__l .measrow__d{grid-column:1/-1;font-size:12px;overflow-wrap:anywhere}
+.meastile .measgrid .measrow .sm{width:42px;height:18px;align-self:center;margin:0}
+.meastile .meas-skel{height:20px}
+.meastile .meas-more{margin-top:8px}
+.bm-screen{overflow-wrap:anywhere}
+.bm-screen h2,.bm-screen h3,.bm-screen p{margin:0}
+.bm-screen :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.bm-screen .mclose{display:grid;place-items:center;min-height:44px;min-width:44px;padding:0}
+.bm-heading{padding-right:44px;margin-bottom:16px}
+.bm-heading h2{font-size:21px;line-height:1.2}
+.bm-heading p{font-size:14px;margin-top:4px}
+.bm-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:14px}
+.bm-screen :is(input,select,textarea){box-sizing:border-box;min-width:0;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:inherit}
+.bm-screen label{font-size:14px;font-weight:500}
+.bm-controls{display:flex;gap:10px 12px;flex-wrap:wrap}
+.bm-controls label{display:grid;gap:4px}
+.bm-chart{display:block;width:100%;max-height:176px;fill:var(--primary);background:var(--field);border-radius:12px;margin-top:8px}
+.bm-summary{margin-top:12px!important}
+.bm-chart-note{font-size:13px;margin-top:6px!important}
+.bm-history-title{margin-top:18px!important}
+.bm-history{list-style:none;padding:0;margin:4px 0 0}
+.bm-history li{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--line)}
+.bm-history .row{gap:8px}
+.bm-history li:last-child{border-bottom:0}
+.bm-empty{background:var(--field);padding:14px;border-radius:12px}
+.bm-empty p{margin-top:5px}
+.bm-screen .bm-status{margin:8px 0 14px}
+.mbox.bm-form{display:flex;flex-direction:column;max-width:600px;max-height:min(90dvh,790px);padding:0;overflow:hidden}
+.bm-form .bm-heading{margin:0;padding:18px 68px 12px 22px;border-bottom:1px solid var(--line)}
+.bm-form form{display:flex;flex-direction:column;min-height:0}
+.bm-form-body{padding:14px 22px 16px;overflow:auto;overscroll-behavior:contain}
+.bm-datetime{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);max-width:287px}.bm-datetime label{min-width:0}.bm-datetime :is(input[type=date],input[type=time]){width:100%;min-width:0;color-scheme:light}:root[data-theme=dark] .bm-datetime input{color-scheme:dark}@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .bm-datetime input{color-scheme:dark}}
+.bm-section{padding-top:12px;margin-top:14px;border-top:1px solid var(--line)}
+.bm-section h3{font-size:15px;line-height:1.3;margin-bottom:8px}
+.bm-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px}
+.bm-field{min-width:0}
+.bm-field>label{display:block;margin-bottom:4px}
+.bm-value{position:relative;width:min(100%,104px)}
+.bm-value input{width:100%;padding-right:32px;font-variant-numeric:tabular-nums}
+.bm-value span{position:absolute;right:9px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);font-size:13px}
+.bm-field select{display:block;min-height:44px;margin-top:4px;font-size:13px;max-width:100%}
+.bm-screen .er:empty,.bm-screen [role=alert]:empty{display:none}
+.bm-screen .er,.bm-screen [role=alert]{color:var(--text-negative,var(--danger));font-size:13px}
+.bm-field .er{display:block;margin-top:4px}
+.bm-screen [aria-invalid=true]{border-color:var(--text-negative,var(--danger))}
+.bm-footer{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 22px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.bm-footer [role=alert]{flex-basis:100%}
+.bm-disclosure{margin:6px 0 0;padding:0;border:0;background:none}
+.bm-disclosure>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:600;color:var(--text-accent,var(--accent))}
+.bm-disclosure textarea{display:block;width:100%;min-height:72px}
+.bm-guide{display:grid;grid-template-columns:minmax(128px,166px) minmax(0,1fr);align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--field)}
+.bm-guide svg{display:block;width:100%;max-height:214px}
+.bm-guide-copy{display:grid;gap:8px;min-width:0}
+.bm-guide-nav{display:flex;flex-wrap:wrap;gap:4px}
+.bm-guide-nav button{min-height:44px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;color:var(--ink);background:var(--card);font:inherit;font-size:13px;cursor:pointer}
+.bm-guide-nav button[aria-pressed=true]{color:var(--primary-hover);background:var(--accentbg);border-color:var(--primary);font-weight:600}
+.bm-guide-copy p{font-size:14px;line-height:1.4}
+.bm-guide-copy select{min-height:44px;margin-left:4px;font-size:13px}
+.bm-person-shape{fill:var(--seg);stroke:var(--muted);stroke-width:1.15;stroke-linejoin:round}
+.bm-person-detail{fill:none;stroke:var(--muted);stroke-width:.85;stroke-linecap:round;opacity:.6}
+.bm-tape{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:2 2;opacity:.55}
+.bm-tape.is-selected{stroke:var(--primary);stroke-width:2.6;stroke-dasharray:none;opacity:1}
+@media(max-width:600px){
+  .mbox.bm-screen{width:100%;max-width:100%;max-height:100dvh;box-sizing:border-box;margin:0;border-radius:16px}
+  .meastile .meashead h2{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}
+  .meastile .measgrid .measrow{min-height:44px;padding-block:4px}
+  .meas-actions{display:grid;grid-template-columns:auto auto}
+  .meas-actions .btn{padding-inline:8px;font-size:13px}
+  .meas-actions .ic{width:14px;height:14px}
+  .bm-form .bm-heading{padding:14px 62px 10px 16px}
+  .bm-form-body,.bm-footer{padding-inline:16px}
+  .bm-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bm-guide{grid-template-columns:100px minmax(0,1fr);gap:8px;padding:8px}
+  .bm-guide-nav button{padding-inline:6px}
+}
+@media(max-width:350px){.bm-guide{grid-template-columns:1fr}.bm-guide svg{max-height:145px}.bm-footer .btn{font-size:13px;padding-inline:10px}}
+/* /BODY_PROFILE_STYLES_V1 */
 
 /* GI_STYLE_V1 */
 .gi-page,.gi-form{overflow-wrap:anywhere}.gi-page h2,.gi-form h2{font-size:20px;margin:0 36px 16px 0}.gi-page .btn,.gi-form .btn,.gi-page summary,.gi-form summary{min-height:44px;min-width:44px}.gi-period{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.gi-period [aria-pressed="true"]{background:var(--primary);color:var(--on-accent)}.gi-summary{padding:12px;background:var(--seg);border-radius:var(--radius);margin:16px 0}.gi-record{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}.gi-record p{white-space:pre-wrap;margin:0 0 8px}.gi-error{color:var(--bad)}.gi-doctor{width:100%;min-height:180px;box-sizing:border-box}.gi-when{display:grid;grid-template-columns:1fr 1fr;gap:12px}.gi-form label{display:flex;flex-direction:column;gap:6px;margin:10px 0}.gi-form input,.gi-form textarea,.gi-form select{box-sizing:border-box;width:100%;min-width:0;min-height:44px}.gi-bristol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.gi-bristol button{position:relative;min-height:118px;border:2px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);padding:8px;text-align:left;font:inherit}.gi-bristol img{display:block;width:100%;max-width:160px;height:70px;margin:auto}.gi-bristol [aria-pressed="true"]{border-color:var(--primary);background:var(--accentbg)}.gi-check{position:absolute;right:8px;top:4px;color:var(--primary)}.gi-symptoms>div{border-bottom:1px solid var(--line)}.gi-symptoms label:first-child{flex-direction:row;align-items:center;min-height:44px}.gi-symptoms input[type="checkbox"]{width:22px;height:22px;min-height:22px;flex:none}.gi-symptoms .gi-severity{margin-left:30px}.gi-form [hidden]{display:none!important}.gi-form-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.gi-page :focus-visible,.gi-form :focus-visible{outline:2px solid var(--primary);outline-offset:2px}.gi-page .row{flex-wrap:wrap}@media(max-width:600px){.mbox.gi-page{width:100%;max-width:100%;min-height:100dvh;max-height:100dvh;margin:0;border-radius:0;padding-bottom:calc(24px + env(safe-area-inset-bottom))}.gi-form .gi-when{gap:8px}}
@@ -5480,7 +5566,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="02.11 21:01 · UX8";   // подставляется при публикации
+const BUILD="08.11 11:48 · замеры";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8161,41 +8247,231 @@ function bmGraph(points,unit){
  const dots=points.map((p,i)=>{const x=span?50+(times[i]-first)*500/span:300,y=max===min?80:130-(p.value-min)*100/den;return `<circle cx="${x}" cy="${y}" r="5"><title>${esc(ru(p.day))}${p.at?' '+esc(bmLocal(p.at).slice(11)):''}: ${esc(p.value)} ${esc(unit)}</title></circle>`;}).join('');
  return `<svg class="bm-chart" viewBox="0 0 600 180" role="img" aria-label="Измерения по датам; значения перечислены в истории"><g fill="currentColor" font-size="12"><text x="4" y="30">${esc(max)}</text><text x="4" y="134">${esc(min)}</text><text x="50" y="168">${esc(ru(points[0].day))}</text><text x="550" y="168" text-anchor="end">${esc(ru(points.at(-1).day))}</text></g>${dots}</svg><p class="muted">Отмечены только фактические замеры. Пропуски не заменяются нулями.</p>`;
 }
-const BM={person:null,rows:[],available:false,error:'',key:'weight',side:'right',range:'all',request:0};
-async function bmOpen(){
- const person=cur;if(!DATA[person]||lockNeeded(person))return;BM.person=person;BM.error='';BM.rows=[];BM.available=false;BM.request++;const request=BM.request;
- modal.className='modal on';modal.innerHTML='<div class="mbox bm-screen" role="dialog" aria-modal="true" aria-label="Вес и замеры тела"><button class="mclose" data-close aria-label="Закрыть">×</button><h2>Вес и замеры тела</h2><p>Загружаем записи…</p></div>';
- if(!window.__MK_KEY){BM.error='Нужен вход по ссылке с кодом.';bmDraw();return;}
- try{
-  let capability;try{capability=await mkApi('body_profile_capabilities',{});}catch(e){if(!/bad_request|unknown_action/.test(String(e.message)))throw e;capability={version:0};}
-  let result;if(capability.version===1){result=await mkApi('body_profile_list',{person});}else{
-   const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);result={rows:w.rows,heights:h.rows};}
-  if(cur!==person||BM.person!==person||BM.request!==request||!document.querySelector('.bm-screen'))return;
-  BM.available=capability.version===1;BM.rows=bmProject(result.rows,result.heights,person);bmDraw();
- }catch(e){if(cur!==person||BM.request!==request||!document.querySelector('.bm-screen'))return;BM.error='Не удалось загрузить замеры. Повторите попытку.';bmDraw();}
+const BM={person:null,rows:[],available:false,error:'',key:'weight',side:'right',range:'all',request:0,add:false};
+function bmHeading(title){
+  return `<header class="bm-heading"><h2 id="bmTitle" tabindex="-1">${title}</h2><p class="muted">${esc(DATA[cur].short)}</p></header>`;
 }
-function bmDraw(){
- if(cur!==BM.person||lockNeeded(cur))return;const f=bmFields().find(f=>f.key===BM.key)||bmFields()[0],p=bmSeries(BM.rows,f.key,BM.side,BM.range,localDay());
- const list=BM.rows.map(r=>`<li><b>${esc(ru(r.day))}</b>${r.at?' · '+esc(bmLocal(r.at).slice(11)):' · время не указано'}<div>${bmFields().filter(f=>r.values[f.key]!=null).map(f=>`${esc(f.name)}: ${esc(r.values[f.key])} ${f.unit}${f.side?' ('+(r.sides[f.key]==='left'?'левая':'правая')+')':''}`).join(' · ')}</div>${r.note?`<p>${esc(r.note)}</p>`:''}${r.editable&&BM.available?`<button class="btn btn-secondary" data-bm-edit="${esc(r.id)}">Изменить</button> <button class="btn btn-secondary" data-bm-delete="${esc(r.id)}">Удалить</button>`:'<span class="muted">Историческая запись из существующего раздела</span>'}</li>`).join('');
- modal.innerHTML=`<div class="mbox bm-screen" role="dialog" aria-modal="true" aria-labelledby="bmTitle"><button class="mclose" data-close aria-label="Закрыть">×</button><h2 id="bmTitle">Вес и замеры тела</h2><p>${esc(DATA[cur].short)}</p>${BM.error?`<p role="alert">${esc(BM.error)}</p><button class="btn btn-secondary" data-bm-open>Повторить</button>`:''}${!BM.available?'<p class="muted">История доступна. Добавление, изменение и удаление будут доступны после обновления сервиса.</p>':''}<button class="btn btn-primary" data-bm-new${BM.available?'':' disabled'}>${BM.rows.length?'Добавить замер':'Добавить первый замер'}</button> <button class="btn btn-secondary" data-bm-how>Как измерять правильно</button>${!BM.rows.length&&!BM.error?'<h3>Наблюдайте изменения тела со временем</h3><p>Вес и окружности помогают заметить изменения, которые не всегда видны по одному показателю. Измеряйте в похожих условиях и сравнивайте записи за несколько недель.</p>':''}<div class="bm-controls"><label>Показатель <select data-bm-key>${bmFields().map(x=>`<option value="${x.key}"${x.key===f.key?' selected':''}>${x.name}</option>`).join('')}</select></label>${f.side?`<label>Сторона <select data-bm-side><option value="right"${BM.side==='right'?' selected':''}>Правая</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option></select></label>`:''}<label>Период <select data-bm-range>${[['1','1 месяц'],['3','3 месяца'],['6','6 месяцев'],['12','12 месяцев'],['all','Всё время']].map(([v,t])=>`<option value="${v}"${BM.range===v?' selected':''}>${t}</option>`).join('')}</select></label></div>${p.length?`<p><b>${esc(p.at(-1).value)} ${f.unit}</b> · ${esc(ru(p.at(-1).day))}${bmDelta(p)?' · изменение '+esc(bmDelta(p))+' '+f.unit:''}</p>`:''}${bmGraph(p,f.unit)}<h3>История</h3><ul class="bm-history">${list||'<li>Записей нет</li>'}</ul></div>`;
+function bmClose(){
+  return `<button type="button" class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>`;
 }
-function bmHow(){modal.innerHTML=`<div class="mbox bm-screen" role="dialog" aria-modal="true" aria-label="Как измерять"><button class="mclose" data-bm-back aria-label="Назад">×</button><h2>Замеры помогают увидеть динамику</h2><p>Вес меняется не только из-за состава тела: на него влияют вода, питание и время суток. Окружности дополняют картину и помогают сравнивать изменения со временем. Отдельное измерение редко о чём-то говорит — полезнее смотреть на последовательность записей.</p><p>Используйте мягкую сантиметровую ленту. Измеряйте в одинаковых условиях, стоя ровно, не перетягивая ленту. Записывайте фактическое значение, не округляя до целых сантиметров.</p>${bmFields().map(f=>`<details><summary>${f.name}</summary><p>${f.help}</p></details>`).join('')}<p>Для медицинских исследований врач может попросить измерять по другой методике. В таком случае следуйте его инструкции и отмечайте способ в заметке.</p><button class="btn btn-secondary" data-bm-back>К истории</button></div>`;}
+function bmScreen(content,kind=''){
+  modal.className='modal on';
+  modal.innerHTML=`<div class="mbox bm-screen ${kind}" role="dialog" aria-modal="true" aria-labelledby="bmTitle">${content}</div>`;
+}
+function bmFocus(){
+  modal.querySelector('#bmTitle')?.focus({preventScroll:true});
+}
+async function bmOpen(add=false){
+  const person=cur;
+  if(!DATA[person]||lockNeeded(person))return;
+  if(BM.person!==person)Object.assign(BM,{key:'weight',side:'right',range:'all'});
+  Object.assign(BM,{person,error:'',rows:[],available:false,add});
+  const request=++BM.request;
+  bmScreen(bmClose()+bmHeading('Вес и замеры тела')+'<p role="status">Загружаем замеры…</p>');
+  bmFocus();
+  const active=()=>cur===person&&BM.person===person&&BM.request===request&&modal.classList.contains('on')&&modal.querySelector('.bm-screen');
+  if(!window.__MK_KEY){BM.error='Для замеров войдите в медкнижку.';bmDraw();return;}
+  try{
+    let capability;
+    try{capability=await mkApi('body_profile_capabilities',{});}
+    catch(e){if(!/bad_request|unknown_action/.test(String(e.message)))throw e;capability={version:0};}
+    if(!active())return;
+    let result;
+    if(capability.version===1){result=await mkApi('body_profile_list',{person});}
+    else if(add){measForm();return;}
+    else {
+      const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
+      result={rows:w.rows,heights:h.rows};
+    }
+    if(!active())return;
+    BM.available=capability.version===1;
+    BM.rows=bmProject(result.rows,result.heights,person);
+    if(add&&BM.available)bmForm();
+    else bmDraw();
+  }catch(e){
+    if(!active())return;
+    BM.error='Не удалось загрузить замеры. Попробуйте ещё раз.';
+    bmDraw();
+  }
+}
+function bmDraw(restore){
+  if(cur!==BM.person||lockNeeded(cur))return;
+  const fields=bmFields(), f=fields.find(f=>f.key===BM.key)||fields[0];
+  const points=bmSeries(BM.rows,f.key,BM.side,BM.range,localDay()), latest=points.at(-1);
+  const list=BM.rows.map(r=>`<li>
+    <b>${esc(ru(r.day))}${r.at?' · '+esc(bmLocal(r.at).slice(11)):''}</b>
+    <div>${fields.filter(f=>r.values[f.key]!=null).map(f=>`${f.name} ${esc(String(r.values[f.key]).replace('.',','))} ${f.unit}${f.side?' ('+(r.sides[f.key]==='left'?'левая':'правая')+')':''}`).join(' · ')}</div>
+    ${r.note?`<p>${esc(r.note)}</p>`:''}
+    ${r.editable&&BM.available?`<div class="row"><button class="btn btn-secondary" data-bm-edit="${esc(r.id)}">Изменить</button><button class="btn btn-ghost" data-bm-delete="${esc(r.id)}">Удалить</button></div>`:'<span class="muted">Из прежних записей</span>'}
+  </li>`).join('');
+  const toolbar=`<div class="bm-toolbar">
+    ${BM.available?'<button class="btn btn-primary" data-bm-new>Добавить замер</button>':''}
+    ${BM.error?`<button class="btn btn-secondary" data-bm-open="${BM.add?'new':''}">Повторить</button>`:''}
+    <button class="btn btn-secondary" data-bm-how>Как измерять</button>
+    <button class="btn btn-ghost" data-measadd>Другие замеры</button>
+  </div>`;
+  const filters=`<div class="bm-controls">
+    <label>Показатель<select data-bm-key>${fields.map(x=>`<option value="${x.key}"${x.key===f.key?' selected':''}>${x.name}</option>`).join('')}</select></label>
+    ${f.side?`<label>Сторона<select data-bm-side><option value="right"${BM.side==='right'?' selected':''}>Правая</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option></select></label>`:''}
+    <label>Период<select data-bm-range>${[['1','1 месяц'],['3','3 месяца'],['6','6 месяцев'],['12','12 месяцев'],['all','Всё время']].map(([v,t])=>`<option value="${v}"${BM.range===v?' selected':''}>${t}</option>`).join('')}</select></label>
+  </div>`;
+  bmScreen(bmClose()+bmHeading('Вес и замеры тела')+
+    (BM.error?`<p class="bm-status" role="alert">${esc(BM.error)}</p>`:'')+toolbar+
+    (!BM.available&&!BM.error?'<p class="muted bm-status">Здесь доступна история. Для записи откройте «Другие замеры».</p>':'')+
+    (BM.rows.length?filters+
+      (latest?`<p class="bm-summary"><b>${esc(String(latest.value).replace('.',','))} ${f.unit}</b> · ${esc(ru(latest.day))}${bmDelta(points)?' · '+esc(bmDelta(points))+' '+f.unit:''}</p>`:'<p class="bm-summary muted">За этот период записей нет.</p>')+
+      (latest?bmGraph(points,f.unit):'')+`<h3 class="bm-history-title">История</h3><ul class="bm-history">${list}</ul>`:
+      BM.error?'':'<div class="bm-empty"><h3>Пока нет замеров</h3><p>Запишите вес, рост или окружность, чтобы сравнивать результаты со временем.</p></div>'));
+  if(restore)modal.querySelector('['+restore+']')?.focus({preventScroll:true});
+  else bmFocus();
+}
+
+// Front view. The person’s right arm and leg are on the viewer’s left.
+function bmFigure(variant,key,side){
+  const contours={
+    chest:[75,58,20,3],waist:[75,80,16,3],hips:[75,101,22,3.5],
+    upper_arm:[side==='left'?111:39,59,5.5,2],thigh:[side==='left'?85:65,127,8,2.5],
+    calf:[side==='left'?88:62,170,6.5,2]
+  };
+  return `<svg viewBox="18 0 114 211" aria-hidden="true" focusable="false">
+    <path class="bm-person-shape" d="M69 31 Q67 28 65 26 C62 23 61 18 62 13 C63 7 68 4 75 4
+      C82 4 87 7 88 13 C89 18 88 23 85 26 Q83 28 81 31 L81 34
+      C${variant==='male'?'89 36 98 38 105 43':variant==='female'?'88 37 94 40 101 44':'88 36 96 39 102 43'}
+      C110 48 114 60 118 76 C121 87 123 98 126 109 L129 116
+      Q130 122 127 127 Q125 130 123 128 L124 121 Q120 126 118 124 L118 115
+      C114 105 111 96 108 85 Q105 74 102 62 Q100 59 98 58
+      C99 70 93 75 92 81 C91 87 97 95 98 104 C100 117 95 132 94 144
+      Q93 151 94 158 C97 170 94 181 92 192 L92 197 Q97 201 96 204
+      Q93 207 85 205 Q82 204 82 200 L83 194 C84 181 80 173 81 163
+      Q83 151 79 141 Q77 131 75 117 Q73 131 71 141 Q67 151 69 163
+      C70 173 66 181 67 194 L68 200 Q68 204 65 205 Q57 207 54 204
+      Q53 201 58 197 L58 192 C56 181 53 170 56 158 Q57 151 56 144
+      C55 132 50 117 52 104 C53 95 59 87 58 81 C57 75 51 70 52 58
+      Q50 59 48 62 Q45 74 42 85 C39 96 36 105 32 115 L32 124
+      Q30 126 26 121 L27 128 Q25 130 23 127 Q20 122 21 116 L24 109
+      C27 98 29 87 32 76 C36 60 40 48 45 43 ${variant==='male'?'C52 38 61 36 69 34':variant==='female'?'C56 40 62 37 69 34':'C54 39 62 36 69 34'} Z"/>
+    <path class="bm-person-detail" d="M66 27 Q75 34 84 27 M62 43 Q68 41 75 45 Q82 41 88 43 M74 80h2 M57 151q4 3 8 0 M85 151q4 3 8 0"/>
+    ${Object.entries(contours).map(([k,[x,y,rx,ry]])=>`<ellipse class="bm-tape${k===key?' is-selected':''}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`).join('')}
+  </svg>`;
+}
+function bmGuide(fields,initial){
+  return `<div class="bm-guide" data-bm-guide data-initial="${initial}">
+    <div data-bm-figure></div>
+    <div class="bm-guide-copy">
+      <div class="bm-guide-nav" role="group" aria-label="Показатель">${fields.map(f=>`<button type="button" data-bm-guide-key="${f.key}" aria-pressed="false">${f.name}</button>`).join('')}</div>
+      <p data-bm-guide-copy aria-live="polite"></p>
+      <label>Схема <select data-bm-scheme><option value="neutral">Нейтральная</option><option value="female">Женская</option><option value="male">Мужская</option></select></label>
+    </div>
+  </div>`;
+}
+function bmBindGuide(box){
+  const guide=box.querySelector('[data-bm-guide]'), scheme=guide.querySelector('[data-bm-scheme]');
+  const buttons=[...guide.querySelectorAll('[data-bm-guide-key]')];
+  let key=guide.dataset.initial;
+  function draw(){
+    const field=bmFields().find(f=>f.key===key), side=box.querySelector('#bmSide_'+key)?.value||'right';
+    guide.querySelector('[data-bm-figure]').innerHTML=bmFigure(scheme.value,key,side);
+    guide.querySelector('[data-bm-guide-copy]').textContent=field.help;
+    buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.bmGuideKey===key)));
+  }
+  for(const button of buttons)button.addEventListener('click',()=>{key=button.dataset.bmGuideKey;draw();});
+  scheme.addEventListener('change',draw);
+  box.addEventListener('change',e=>{if(e.target.id==='bmSide_'+key)draw();});
+  draw();
+}
+function bmHow(){
+  bmScreen(bmClose()+bmHeading('Как измерять')+
+    '<p class="muted bm-status">Измеряйте в похожих условиях. Держите ленту горизонтально и не перетягивайте её.</p>'+
+    bmGuide(bmFields(),'waist')+'<div class="bm-toolbar" style="margin:12px 0 0"><button class="btn btn-secondary" data-bm-back>К истории</button></div>');
+  bmBindGuide(modal.querySelector('.bm-screen'));
+  bmFocus();
+}
 function bmForm(row){
- if(!BM.available||cur!==BM.person||lockNeeded(cur))return;const person=cur,revision=row&&row.revision||null,now=bmLocal(new Date()),day=row?row.day:now.slice(0,10),time=row&&row.at?bmLocal(row.at).slice(11):now.slice(11);let token=null,last='';
- modal.innerHTML=`<div class="mbox bm-screen bm-form" role="dialog" aria-modal="true" aria-label="Добавить замер"><button class="mclose" data-bm-back aria-label="Назад">×</button><h2>${row?'Изменить замер':'Добавить замер'}</h2><p class="muted">Одна объединённая запись на дату. Пустые поля не меняют ранее сохранённые значения; жир и вода сохраняются. Для другой даты добавьте новый замер.</p><div class="bm-controls"><label>Дата <input id="bmDay" type="date" value="${day}"${row?' disabled':''}></label><label>Время <input id="bmTime" type="time" value="${time}"></label></div><p id="bmErr_when" class="er" role="alert"></p>${bmFields().map((f,i)=>`${i===0?'<h3>Вес и рост</h3>':i===2?'<h3>Окружности тела</h3>':''}<div class="bm-field"><label for="bm_${f.key}">${f.name}, ${f.unit}</label><input id="bm_${f.key}" inputmode="decimal" autocomplete="off" value="${row&&row.values[f.key]!=null?esc(row.values[f.key]):''}" aria-describedby="bmErr_${f.key}">${f.side?`<label>Сторона <select id="bmSide_${f.key}"><option value="right">Правая</option><option value="left"${row&&row.sides[f.key]==='left'?' selected':''}>Левая</option></select></label>`:''}<details><summary>Как измерять ${f.name.toLowerCase()}</summary><p>${f.help}</p></details><span id="bmErr_${f.key}" class="er" role="alert"></span></div>`).join('')}<label>Схема <select id="bmScheme"><option value="">Выберите схему</option><option value="female">Женская</option><option value="male">Мужская</option></select></label><div id="bmSchemeImage"></div><label for="bmNote">Заметка</label><textarea id="bmNote" maxlength="500">${esc(row&&row.note||'')}</textarea><p id="bmErr_note" class="er" role="alert"></p><p id="bmErr_values" class="er" role="alert"></p><p id="bmSaveError" role="alert"></p><button class="btn btn-primary" id="bmSave">Сохранить замер</button> <button class="btn btn-secondary" data-bm-back>Отмена</button></div>`;
- const box=document.querySelector('.bm-form');const scheme=box.querySelector('#bmScheme');scheme.onchange=()=>{box.querySelector('#bmSchemeImage').innerHTML=['male','female'].includes(scheme.value)?`<details open><summary>Схема · нажмите, чтобы свернуть</summary><a href="/v2/assets/body/body-${scheme.value}.svg" target="_blank" rel="noopener"><img class="bm-scheme" src="/v2/assets/body/body-${scheme.value}.svg" alt="Схема зон измерения; инструкции доступны выше. Нажмите для увеличения"></a></details>`:'';};
- box.querySelector('#bmSave').onclick=async()=>{
-  if(cur!==person||BM.person!==person||lockNeeded(person))return;const values={},sides={};for(const f of bmFields()){values[f.key]=box.querySelector('#bm_'+f.key).value;if(f.side)sides[f.key]=box.querySelector('#bmSide_'+f.key).value;}
-  const result=bmValidate({day:box.querySelector('#bmDay').value,time:box.querySelector('#bmTime').value,values,sides,note:box.querySelector('#bmNote').value});box.querySelectorAll('.er').forEach(el=>el.textContent='');
-  if(!result.ok){for(const [k,v] of Object.entries(result.errors)){const el=box.querySelector('#bmErr_'+k);if(el)el.textContent=v;}return;}
-  const existing=BM.rows.find(r=>r.day===result.day&&r.editable);if(!row&&existing){box.querySelector('#bmSaveError').textContent='За эту дату есть запись. Вернитесь в историю и нажмите «Изменить».';return;}
-  const fingerprint=JSON.stringify(result);if(fingerprint!==last){token=crypto.randomUUID();last=fingerprint;}const button=box.querySelector('#bmSave');button.disabled=true;box.querySelector('#bmSaveError').textContent='';
-  try{await mkApi('body_profile_save',{person,...result,request_id:token,expected_revision:revision});
-   if(cur!==person||BM.person!==person||!box.isConnected)return;bmRefreshCaches(person,result.day);
-   // Read canonical data again; never append a second browser-local weight record.
-   toast('Замер сохранён');bmOpen();
-  }catch(e){button.disabled=false;box.querySelector('#bmSaveError').textContent=String(e.message).includes('deleted_retry')?'Эта отправка относится к удалённой записи. Вернитесь в историю и добавьте новый замер.':String(e.message).includes('revision_conflict')?'Запись изменилась. Вернитесь в историю и откройте её заново.':'Не удалось сохранить. Данные остались в форме. Повторите попытку.';}
- };
+  if(!BM.available||cur!==BM.person||lockNeeded(cur))return;
+  const person=cur,revision=row?.revision||null,now=bmLocal(new Date());
+  const day=row?.day||now.slice(0,10),time=row?.at?bmLocal(row.at).slice(11):now.slice(11),fields=bmFields();
+  let token=null,last='';
+  const field=f=>`<div class="bm-field"><label for="bm_${f.key}">${f.name}</label>
+    <div class="bm-value"><input id="bm_${f.key}" inputmode="decimal" autocomplete="off"
+      value="${row?.values[f.key]!=null?esc(String(row.values[f.key]).replace('.',',')):''}"
+      aria-label="${f.name}, ${f.unit}" aria-describedby="bmErr_${f.key}"><span aria-hidden="true">${f.unit}</span></div>
+    ${f.side?`<select id="bmSide_${f.key}" aria-label="${f.name}: сторона"><option value="right">Правая</option><option value="left"${row?.sides[f.key]==='left'?' selected':''}>Левая</option></select>`:''}
+    <span id="bmErr_${f.key}" class="er" role="alert"></span>
+  </div>`;
+  bmScreen(bmClose()+bmHeading(row?'Изменить замер':'Добавить замер')+`<form id="bmEditForm" novalidate>
+    <div class="bm-form-body">
+      <div class="bm-controls bm-datetime">
+        <label>Дата<input id="bmDay" type="date" value="${day}" max="${now.slice(0,10)}"${row?' disabled':''} aria-describedby="bmErr_when"></label>
+        <label>Время<input id="bmTime" type="time" value="${time}" aria-describedby="bmErr_when"></label>
+      </div>
+      <p id="bmErr_when" class="er" role="alert"></p>
+      <section class="bm-section" aria-labelledby="bmMainFields"><h3 id="bmMainFields">Вес и рост</h3>
+        <div class="bm-fields">${fields.slice(0,2).map(field).join('')}</div>
+      </section>
+      <section class="bm-section" aria-labelledby="bmTapeFields"><h3 id="bmTapeFields">Окружности тела</h3>
+        <div class="bm-fields">${fields.slice(2).map(field).join('')}</div>
+      </section>
+      <details class="bm-disclosure"><summary>Схема и подсказки</summary>${bmGuide(fields,'waist')}</details>
+      <details class="bm-disclosure"${row?.note?' open':''}><summary>Заметка</summary>
+        <textarea id="bmNote" aria-label="Заметка" aria-describedby="bmErr_note" maxlength="500">${esc(row?.note||'')}</textarea>
+        <p id="bmErr_note" class="er" role="alert"></p>
+      </details>
+      <p class="muted bm-chart-note">Заполните измеренные показатели. Пустые поля сохранят прежние значения за эту дату.</p>
+    </div>
+    <footer class="bm-footer">
+      <p id="bmErr_values" class="er" role="alert"></p>
+      <p id="bmSaveError" role="alert"></p>
+      <button class="btn btn-primary" type="submit" id="bmSave">Сохранить замер</button>
+      ${row?'<button type="button" class="btn btn-ghost" data-bm-back>Отмена</button>':'<button type="button" class="btn btn-ghost" data-measadd>Другие замеры</button>'}
+    </footer>
+  </form>`,'bm-form');
+  const box=modal.querySelector('.bm-form');
+  bmBindGuide(box);
+  bmFocus();
+  const button=box.querySelector('#bmSave'),saveError=box.querySelector('#bmSaveError');
+  box.querySelector('form').onsubmit=async e=>{
+    e.preventDefault();
+    if(button.disabled||cur!==person||BM.person!==person||lockNeeded(person))return;
+    const values={},sides={};
+    for(const f of fields){
+      values[f.key]=box.querySelector('#bm_'+f.key).value;
+      if(f.side)sides[f.key]=box.querySelector('#bmSide_'+f.key).value;
+    }
+    const result=bmValidate({day:box.querySelector('#bmDay').value,time:box.querySelector('#bmTime').value,values,sides,note:box.querySelector('#bmNote').value});
+    box.querySelectorAll('.er').forEach(el=>el.textContent='');
+    box.querySelectorAll('[aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));
+    saveError.textContent='';
+    if(!result.ok){
+      let first;
+      for(const [k,v] of Object.entries(result.errors)){
+        const el=box.querySelector('#bmErr_'+k);
+        if(el)el.textContent=v;
+        const input=box.querySelector(k==='when'?'#bmDay:not(:disabled),#bmTime':k==='note'?'#bmNote':k==='values'?'#bm_weight':'#bm_'+k);
+        if(input){input.setAttribute('aria-invalid','true');first??=input;}
+      }
+      first?.focus();
+      return;
+    }
+    const existing=BM.rows.find(r=>r.day===result.day&&r.editable);
+    if(!row&&existing){
+      saveError.innerHTML='За эту дату уже есть замер. <button type="button" class="btn btn-ghost" data-bm-back>К истории</button>';
+      return;
+    }
+    const fingerprint=JSON.stringify(result);
+    if(fingerprint!==last){token=crypto.randomUUID();last=fingerprint;}
+    button.disabled=true;button.textContent='Сохраняем…';
+    try{
+      await mkApi('body_profile_save',{person,...result,request_id:token,expected_revision:revision});
+      bmRefreshCaches(person,result.day);
+      if(cur!==person||BM.person!==person||!box.isConnected||!modal.classList.contains('on'))return;
+      if(tab==='home'||tab==='hp')render();
+      toast('Замер сохранён');
+      bmOpen();
+    }catch(e){
+      button.disabled=false;button.textContent='Сохранить замер';
+      saveError.textContent=String(e.message).includes('deleted_retry')?'Эта отправка относится к удалённой записи. Вернитесь в историю и добавьте новый замер.':String(e.message).includes('revision_conflict')?'Запись изменилась. Вернитесь в историю и откройте её заново.':'Не удалось сохранить. Данные остались в форме. Повторите попытку.';
+    }
+  };
 }
 function bmRefreshCaches(person,day){
  MZD[person]=0;for(const key of ['weight','height']){delete MSER[person+':'+key];delete MSERL[person+':'+key];}
@@ -8209,9 +8485,15 @@ async function bmDelete(row){
  catch(e){if(cur===person){BM.error=String(e.message).includes('revision_conflict')?'Запись изменилась. Обновите историю перед удалением.':'Не удалось удалить замер. Повторите попытку.';bmDraw();}}
 }
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-bm-open],[data-bm-new],[data-bm-back],[data-bm-how],[data-bm-edit],[data-bm-delete]');if(!b)return;
- if(b.hasAttribute('data-bm-open'))return bmOpen();if(cur!==BM.person)return;if(b.hasAttribute('data-bm-new'))return bmForm(null);if(b.hasAttribute('data-bm-back'))return bmDraw();if(b.hasAttribute('data-bm-how'))return bmHow();const row=BM.rows.find(r=>r.id===(b.dataset.bmEdit||b.dataset.bmDelete));if(b.hasAttribute('data-bm-edit'))return bmForm(row);if(row)bmDelete(row);
+ if(b.hasAttribute('data-bm-open'))return bmOpen(b.dataset.bmOpen==='new');if(cur!==BM.person)return;if(b.hasAttribute('data-bm-new'))return bmForm(null);if(b.hasAttribute('data-bm-back'))return bmDraw();if(b.hasAttribute('data-bm-how'))return bmHow();const row=BM.rows.find(r=>r.id===(b.dataset.bmEdit||b.dataset.bmDelete));if(b.hasAttribute('data-bm-edit')&&row)return bmForm(row);if(row)bmDelete(row);
 });
-document.addEventListener('change',e=>{if(cur!==BM.person)return;if(e.target.hasAttribute('data-bm-key'))BM.key=e.target.value;else if(e.target.hasAttribute('data-bm-side'))BM.side=e.target.value;else if(e.target.hasAttribute('data-bm-range'))BM.range=e.target.value;else return;bmDraw();});
+document.addEventListener('change',e=>{
+  if(cur!==BM.person)return;
+  for(const prop of ['key','side','range']){
+    const attr='data-bm-'+prop;
+    if(e.target.hasAttribute(attr)){BM[prop]=e.target.value;bmDraw(attr);return;}
+  }
+});
 /* /BODY_PROFILE_CLIENT_V1 */
 
 function measDef(k){ return MEAS_DEF.find(x=>x[0]===k); }
@@ -8369,15 +8651,20 @@ function measTile(S,today,hidden,ser,order,temp){
 // state: объект сводки · 1 — грузится · "err" — не загрузилось. o: {hidden, nutrition}. Нет замеров — пусто (плитка не просит данные)
 function measTileHtml(S,today,o){
   o=o||{};
-  if(S==="err") return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><p class="muted" style="margin:0">Замеры не загрузились. Обновите страницу</p></div>`;
-  if(S===1) return `<div class="card meastile" aria-busy="true"><div class="meashead"><h2>Замеры</h2></div><div class="meas-skel"></div><div class="meas-skel"></div></div>`;
+  const heading=`<div class="meashead"><h2>Замеры</h2><div class="meas-actions">
+    <button type="button" class="btn btn-primary" data-bm-open="new"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Добавить замер</button>
+    <button type="button" class="btn btn-secondary" data-bm-open>Вес и окружности</button>
+  </div></div>`;
+  if(S==="err") return `<div class="card meastile">${heading}<p class="muted bm-status">Замеры не загрузились. Обновите страницу.</p></div>`;
+  if(S===1) return `<div class="card meastile">${heading}<div class="meas-skel" role="status" aria-label="Загружаем последние замеры"></div></div>`;
   if(!S||typeof S!=="object") return "";
-  const T=measTile(S,today,o.hidden,o.ser,o.order,o.temp); if(!T.rows.length&&(o.hidden||[]).length) return "";   // всё скрыто человеком — плитки нет
-  if(!T.rows.length) return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2></div><button type="button" class="linkbtn meastile__add" data-measadd="1">Добавить замер</button></div>`;
+  const T=measTile(S,today,o.hidden,o.ser,o.order,o.temp);
+  if(!T.rows.length&&(o.hidden||[]).length) return "";
+  if(!T.rows.length) return `<div class="card meastile">${heading}</div>`;
   const row=r=>`<button type="button" class="measrow" data-measopen="${esc(r.metric||r.key)}"${r.label?` data-measlab="${esc(r.label)}"`:""}${r.unit?` data-measun="${esc(r.unit)}"`:""}>
       <span class="measrow__l"><span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span><span class="measrow__d">${r.delta?esc(r.delta)+" · ":""}${esc(r.when)}</span></span>${r.spark||""}</button>
     ${r.urgent?`<div class="note meas-urgent">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}`;
-  return `<div class="card meastile"><div class="meashead"><h2>Замеры</h2><button type="button" class="measplus" data-measadd="1" aria-label="Добавить замер">+</button></div>
+  return `<div class="card meastile">${heading}
     <div class="measgrid">${T.rows.map(row).join("")}</div>${T.more?`<details class="meas-more"><summary>Ещё ${T.more}</summary><div class="measgrid">${T.rest.map(row).join("")}</div></details>`:""}</div>`;
 }
 // сохранённый порядок блоков: старые body и bp сворачиваются в meas на месте первого из них
@@ -9582,7 +9869,7 @@ function addItems(d){
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из задачи плана (ТЗ-058)
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
-    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>bmOpen(true)],
     ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Задача",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
@@ -16354,7 +16641,7 @@ document.addEventListener("click",e=>{
     if(f&&f.dataset.f)toSys(f.dataset.f);
     return;
   }
-  if(e.target===modal){ if(navBackdropCloses({down:window.__bdDown!==false,form:!!modal.querySelector(".dz-form,.addform")})) closeModal(); return }
+  if(e.target===modal){ if(navBackdropCloses({down:window.__bdDown!==false,form:!!modal.querySelector(".dz-form,.addform,.bm-form")})) closeModal(); return }
 
   const mc=e.target.closest("[data-meal]");
   if(mc){ const [a,b]=mc.dataset.meal.split(":").map(Number); mealEdit(a,b); return }
