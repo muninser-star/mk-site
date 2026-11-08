@@ -1987,13 +1987,27 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .meas-actions .btn,.bm-screen .btn{min-height:44px;height:auto;padding-block:8px}
 .meas-actions .btn{font-size:14px}.meas-actions .btn-primary,.bm-screen .btn-primary{background:var(--primary-hover);color:var(--on-accent)}
 .meas-actions .ic{width:16px;height:16px}
-.meastile .measgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:2px 18px}
-.meastile .measgrid .measrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-width:0;min-height:54px;gap:8px;padding:8px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;text-align:left}
-.meastile .measgrid .measrow:hover{background:var(--field)}
-.meastile .measgrid .measrow__l{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
-.meastile .measgrid .measrow__l .measrow__n,.meastile .measgrid .measrow__l .measrow__v{font-size:14px}
-.meastile .measgrid .measrow__l .measrow__d{grid-column:1/-1;font-size:12px;overflow-wrap:anywhere}
-.meastile .measgrid .measrow .sm{width:42px;height:18px;align-self:center;margin:0}
+.meastile .measgrid{grid-template-columns:repeat(auto-fill,minmax(116px,136px));justify-content:start;gap:8px;margin-top:8px}
+.meastile .measgrid .measrow{box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;aspect-ratio:1;min-width:0;min-height:0;width:100%;padding:9px;gap:3px;border:1px solid var(--line);border-radius:12px;background:var(--field);text-align:left}
+.meastile .measgrid .measrow:hover{background:var(--seg)}
+.meastile .measgrid .measrow__l{display:grid;gap:3px;width:100%;min-width:0;overflow-wrap:anywhere}
+.meastile .measgrid .measrow__n{font-size:13px;line-height:1.15;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.meastile .measgrid .measrow__v{font-size:14px;line-height:1.15}
+.meastile .measgrid .measrow__v b{font-size:18px;white-space:nowrap}
+.meastile .measgrid .measrow__v .muted{display:block;font-size:12px}
+.meastile .measgrid .measrow__l .measrow__d{font-size:12px;line-height:1.15}
+.meastile .measgrid .measrow .sm{width:40px;height:15px;align-self:flex-end;margin:0}
+.bm-chart-note.bm-side-note{margin:0 0 8px!important}
+.bm-screen .mrange,.measure-history .mrange{display:flex;flex-wrap:wrap;gap:4px}
+.bm-controls+.mrange{margin-top:10px}
+.meas-save[hidden]{display:none}
+.bp-history-head{margin-bottom:10px}
+.bp-history .chart+.muted{margin-top:10px}
+.measure-chart .chart__date{font-size:12px}
+.measure-chart .chart__pt{animation:none;opacity:1}
+.measure-chart .chart__line{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
+@media(max-width:600px){.measure-chart .chart__date{font-size:16px}}
+
 .meastile .meas-skel{height:20px}
 .meastile .meas-more{margin-top:8px}
 .bm-screen{overflow-wrap:anywhere}
@@ -2057,7 +2071,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 @media(max-width:600px){
   .mbox.bm-screen{width:100%;max-width:100%;max-height:100dvh;box-sizing:border-box;margin:0;border-radius:16px}
   .meastile .meashead h2{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%)}
-  .meastile .measgrid .measrow{min-height:44px;padding-block:4px}
+  .meastile .measgrid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:272px}
   .meas-actions{display:grid;grid-template-columns:auto auto}
   .meas-actions .btn{padding-inline:8px;font-size:13px}
   .meas-actions .ic{width:14px;height:14px}
@@ -3008,7 +3022,8 @@ function recs(type){
 function chartFmt(v){ return (Math.round(v*1000)/1000).toString().replace(".",","); }
 function chartIso(label){ const m=String(label||"").match(/^(\d{2})\.(\d{2})\.(\d{4})$/); return m?`${m[3]}-${m[2]}-${m[1]}`:""; }
 function chartModel(s){
-  const W=620,H=190,P={l:44,r:14,t:14,b:26};
+  const narrow=s.measurement&&typeof innerWidth!=="undefined"&&innerWidth<600;
+  const W=narrow?400:620,H=190,P={l:44,r:14,t:14,b:26};
   const pts0=(s.pts||[]).filter(p=>p&&isFinite(+p[1]));
   const lo=s.lo!=null&&isFinite(+s.lo)?+s.lo:null, hi=s.hi!=null&&isFinite(+s.hi)?+s.hi:null, hasNorm=lo!=null||hi!=null;
   const vals=pts0.map(p=>+p[1]); let min=Math.min(...vals),max=Math.max(...vals);
@@ -3047,25 +3062,37 @@ function chart(s){
   let g="";
   if(zone){   // зона нормы по бланку: светлый зелёный прямоугольник, границы подписаны числами
     g+=`<rect class="chart__band" x="${P.l}" y="${zone.y1}" width="${W-P.l-P.r}" height="${Math.max(0,zone.y2-zone.y1)}"/>`;
-    if(zone.hi!=null){ const y=Yv(zone.hi); g+=`<line class="chart__ref" x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}"/><text class="chart__ref-label" x="${P.l+4}" y="${y-4}" text-anchor="start">норма до ${chartFmt(zone.hi)}</text>`; }
-    if(zone.lo!=null){ const y=Yv(zone.lo); g+=`<line class="chart__ref" x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}"/><text class="chart__ref-label" x="${P.l+4}" y="${y+12}" text-anchor="start">норма от ${chartFmt(zone.lo)}</text>`; }
+    if(zone.hi!=null){ const y=Yv(zone.hi); g+=`<line class="chart__ref" x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}"/><text class="chart__ref-label" x="${P.l+4}" y="${y-4}" text-anchor="start">${s.measurement?"до":"норма до"} ${chartFmt(zone.hi)}</text>`; }
+    if(zone.lo!=null){ const y=Yv(zone.lo); g+=`<line class="chart__ref" x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}"/><text class="chart__ref-label" x="${P.l+4}" y="${y+12}" text-anchor="start">${s.measurement?"от":"норма от"} ${chartFmt(zone.lo)}</text>`; }
   }
   m.axis.forEach(v=>{g+=`<line class="chart__grid" x1="${P.l}" y1="${Yv(v)}" x2="${W-P.r}" y2="${Yv(v)}"/>
     <text class="chart__label" x="${P.l-6}" y="${Yv(v)+3}" text-anchor="end">${chartFmt(v)}</text>`});
   g+=`<path class="chart__line" pathLength="1" d="${pts.map((p,i)=>`${i?"L":"M"}${p.x},${p.y}`).join(" ")}"/>`;
   const step=pts.length>1?(W-P.l-P.r-28)/(pts.length-1):W-P.l-P.r, hw=Math.min(Math.max(step,96),130);
+  const ticks=new Set(), usedDays=new Set();
+  if(s.measurement){
+    const count=Math.min(pts.length,W<600?3:4);
+    for(let j=0;j<count;j++){
+      const i=Math.round(j*(pts.length-1)/Math.max(1,count-1)), day=pts[i].label.slice(0,10);
+      if(!usedDays.has(day)){usedDays.add(day);ticks.add(i);}
+    }
+  }
+  const longDates=pts[0].label.slice(6,10)!==pts.at(-1).label.slice(6,10);
   pts.forEach((p,i)=>{
     const tip=`${p.label}: ${chartFmt(p.v)} ${m.unit}${p.word?" — "+p.word:""}`;
     g+=p.shape==="diamond"?`<path class="chart__pt chart__pt--d bad" style="animation-delay:${(.5+i*.06).toFixed(2)}s" d="M${p.x},${p.y-7} L${p.x+7},${p.y} L${p.x},${p.y+7} L${p.x-7},${p.y} Z"><title>${esc(tip)}</title></path>`
       :`<circle class="chart__pt" style="animation-delay:${(.5+i*.06).toFixed(2)}s" cx="${p.x}" cy="${p.y}" r="5"><title>${esc(tip)}</title></circle>`;
-    g+=`<text class="chart__label" x="${p.x}" y="${p.y-11}" text-anchor="middle" style="font-weight:600;fill:var(--text-primary)">${chartFmt(p.v)}</text>
-    <text class="chart__label" x="${p.x}" y="${H-8}" text-anchor="middle">${esc(p.label.slice(3))}</text>`;
+    if(!s.measurement||pts.length<=(W<600?4:7))g+=`<text class="chart__label" x="${p.x}" y="${p.y-11}" text-anchor="middle" style="font-weight:600;fill:var(--text-primary)">${chartFmt(p.v)}</text>`;
+    if(!s.measurement||ticks.has(i)){
+      const date=s.measurement?(longDates?p.label.slice(0,6)+p.label.slice(8,10):p.label.slice(0,5)):p.label.slice(3);
+      g+=`<text class="chart__label${s.measurement?' chart__date':''}" x="${p.x}" y="${H-8}" text-anchor="middle">${esc(date)}</text>`;
+    }
   });
-  pts.forEach((p,i)=>{ const w=Math.round(hw), x0=Math.min(W-w,Math.max(0,Math.round(p.x-w/2)));   // зона нажатия не уже ~46 px на телефоне
+  pts.forEach((p,i)=>{ const w=Math.max(1,Math.round(s.measurement?step:hw)), x0=Math.min(W-w,Math.max(0,Math.round(p.x-w/2)));   // зона нажатия не уже ~46 px на телефоне
     g+=`<rect class="chart__hit" x="${x0}" y="0" width="${w}" height="${H}" role="button" tabindex="0" data-cpt="${i}" aria-label="${esc(p.label)}: ${esc(chartFmt(p.v))}${p.word?", "+p.word:""}"/>`; });
   const id=(chart.seq=(chart.seq||0)+1); (chart.reg=chart.reg||{})[id]=m; const ks=Object.keys(chart.reg); if(ks.length>80) delete chart.reg[ks[0]];
-  const legend=m.hasNorm?`<div class="chart__legend"><span><i class="lg lg--band"></i>норма по бланку</span><span><i class="lg lg--ok"></i>в норме</span><span><i class="lg lg--bad"></i>вне нормы</span></div>`:(m.lab?`<div class="chart__legend muted">Норма на бланке не указана</div>`:"");
-  return `<div class="chart" data-chid="${id}">${m.summary?`<p class="chart__sum">${esc(m.summary)}</p>`:""}<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="График: ${esc(m.name)}">${g}</svg>${legend}<div class="cpt-box"></div></div>`;
+  const legend=m.hasNorm?`<div class="chart__legend"><span><i class="lg lg--band"></i>${s.measurement?'ориентир':'норма по бланку'}</span><span><i class="lg lg--ok"></i>в норме</span><span><i class="lg lg--bad"></i>вне нормы</span></div>`:(m.lab?`<div class="chart__legend muted">Норма на бланке не указана</div>`:"");
+  return `<div class="chart${s.measurement?" measure-chart":""}" data-chid="${id}">${m.summary?`<p class="chart__sum">${esc(m.summary)}</p>`:""}<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="График: ${esc(m.name)}">${g}</svg>${legend}<div class="cpt-box"></div></div>`;
 }
 // ── ТЗ-061 блок 2: нажатие на точку — панель с измерением, нормой и переходом к анализу и оригиналу
 function chartPointInfo(m,i){
@@ -5566,7 +5593,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="08.11 11:48 · замеры";   // подставляется при публикации
+const BUILD="08.11 12:13 · замеры";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6296,13 +6323,23 @@ function mealEdit(di,mi){
 }
 // Питание без плана (у Ани): замеры веса линией, без цели и недель; та же форма записи
 function weightLite(){
-  const F=nutLS("weight",[]).filter(f=>f&&f.d&&f.v), pts=F.map(f=>[f.d.slice(8,10)+"."+f.d.slice(5,7)+"."+f.d.slice(0,4),+f.v]).slice(-24);
-  const rows=F.slice(-8).reverse();
-  return `<div class="card"><h2>Вес</h2>${pts.length>1?chart({name:"Вес",unit:"кг",pts}):`<div class="muted">График появится после двух замеров.</div>`}
+  const F=nutLS("weight",[]).filter(f=>f&&f.d&&f.v), range=nutLS("weight_lite_range","3m");
+  const filtered=measRangeRows(F.map(f=>({...f,day:f.d})),range,localDay());
+  const pts=filtered.map(f=>[ru(f.d),+f.v]), rows=filtered.slice(-8).reverse();
+  return `<div class="card"><h2>Вес</h2>${measurePeriods('data-wlite-range',range)}
+    ${pts.length>1?chart({name:"Вес",unit:"кг",pts,measurement:true}):'<p class="muted">За этот период меньше двух замеров.</p>'}
     ${rows.length?`<div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>Дата</th><th>Вес, кг</th><th>Жир, %</th><th>Вода, %</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${ru(r.d)}</td><td><b>${String(r.v).replace(".",",")}</b></td><td class="muted">${r.fat!=null?String(r.fat).replace(".",","):"—"}</td><td class="muted">${r.water!=null?String(r.water).replace(".",","):"—"}</td></tr>`).join("")}</tbody></table></div>`:""}</div>
     <div class="card">${nutForm()}</div>`;
 }
 // блок веса на главной и в «Питании»: с планом (график к цели) или без. На главной — отдельный виджет «Вес» (Денис 26.10.2026: прежний график вернуть)
+document.addEventListener("click",e=>{
+  const button=e.target.closest?.("[data-wlite-range]");
+  if(!button)return;
+  const range=button.dataset.wliteRange;
+  nutSET("weight_lite_range",range);
+  render();
+  document.querySelector(`[data-wlite-range="${range}"]`)?.focus({preventScroll:true});
+});
 function weightBlock(d){ return d.nutrition.lite?weightLite():`<div class="card">${nutChart()}</div><div class="card">${nutForm()}</div>`; }
 // виджет «Вес» на главной: прежний график и форма записи; нет записей — подсказка
 function weightHome(d){
@@ -8117,7 +8154,7 @@ function bpCard(){
     <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary" data-bpadd="1">Записать давление</button>${rows.length?`<button type="button" class="btn btn-secondary" data-bphist="1">История</button>`:""}</div>
     <div class="muted" style="font-size:12px;margin-top:8px">Ориентир, не диагноз: 130/85 и выше — повышенное, 140/90 и выше — высокое. Измеряйте сидя, после 5 минут покоя.</div></div>`;
 }
-function bpForm(){
+function bpForm(fromHistory=false){
   const now=new Date(), pad=n=>String(n).padStart(2,"0"), local=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   modal.className="modal on";
   modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
@@ -8128,7 +8165,7 @@ function bpForm(){
         <div class="fld" style="flex:1"><label for="bpPulse">Пульс</label><input id="bpPulse" inputmode="numeric" autocomplete="off" placeholder="—"></div></div>
       <div class="fld"><label for="bpAt">Когда</label><input id="bpAt" type="datetime-local" value="${local}" max="${local}"></div>
       <div class="fld"><label for="bpNote">Как измеряли (необязательно)</label><select id="bpNote"><option value="">—</option><option>в покое</option><option>после нагрузки</option><option>после лекарства</option><option>плохое самочувствие</option><option>стоя</option></select></div>
-      <div class="row"><button type="button" class="btn btn-primary" data-bpsave="1">Сохранить</button><button type="button" class="btn btn-secondary" data-close>Отмена</button></div>
+      <div class="row"><button type="button" class="btn btn-primary" data-bpsave="${fromHistory?'history':'1'}">Сохранить</button><button type="button" class="btn btn-secondary" ${fromHistory?'data-bphist':'data-close'}>Отмена</button></div>
       <div id="bpLog" class="formlog"></div></div></div>`;
   const f=document.getElementById("bpSys"); if(f) f.focus();
 }
@@ -8144,15 +8181,25 @@ function bpParse(sys,dia,pulse){
   if(String(pulse||"").trim()!==""&&P==null) return {ok:false,error:"Пульс — число."};
   return {ok:true,sys:S,dia:D,pulse:P};
 }
-async function bpSave(){
+async function bpSave(button){
+  if(button.disabled)return;
+  const fromHistory=button.dataset.bpsave==="history";
   const log=t=>{ const e=document.getElementById("bpLog"); if(e) e.innerHTML=t; };
   const v=bpParse(document.getElementById("bpSys").value,document.getElementById("bpDia").value,document.getElementById("bpPulse").value);
   if(!v.ok){ log(`<div class="er">${esc(v.error)}</div>`); return; }
   if(!window.__MK_KEY){ log(`<div class="er">Нужен вход по ссылке с кодом.</div>`); return; }
   const at=document.getElementById("bpAt").value, note=document.getElementById("bpNote").value, who=cur;
-  try{ await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:at?new Date(at).toISOString():undefined,note:note||undefined});
-    BPL[who]=0; bpLoad(true); const c=bpClass(v.sys,v.dia); closeModal(); toast(`Давление ${v.sys}/${v.dia} — ${c.word}`); }
-  catch(e){ log(`<div class="er">Не сохранилось — нет связи. Попробуйте ещё раз.</div>`); }
+  button.disabled=true;
+  try{
+    await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:at?new Date(at).toISOString():undefined,note:note||undefined});
+    BPL[who]=0; MZD[who]=0;
+    if(cur!==who)return;
+    const active=button.isConnected&&modal.classList.contains("on"), c=bpClass(v.sys,v.dia);
+    if(active&&fromHistory)bpHistory();
+    else {bpLoad(true);if(active)closeModal();}
+    mzLoad(true);
+    toast(`Давление ${v.sys}/${v.dia} — ${c.word}`);
+  }catch(e){button.disabled=false;if(button.isConnected)log('<div class="er">Не удалось сохранить. Попробуйте ещё раз.</div>');}
 }
 // плитка «Давление» в ключевых показателях: свежие замеры из приложения важнее ряда книжки
 function bpKpi(bp,rows,today){
@@ -8161,22 +8208,53 @@ function bpKpi(bp,rows,today){
   if(sm.n){ bp.val=`${sm.avgSys}/${sm.avgDia}`; bp.st=bpClass(sm.avgSys,sm.avgDia).st; bp.sub=`среднее за ${sm.days} дней по ${sm.n} замерам · последний ${L.sys}/${L.dia} от ${ru(dzDayOf(L.measured_at))}${bp.note?`. ${bp.note}`:""}`; }
   else { bp.val=`${L.sys}/${L.dia}`; bp.st=bpClass(L.sys,L.dia).st; bp.sub=`последний замер от ${ru(dzDayOf(L.measured_at))}`; }
 }
-function bpHistory(){
-  const rows=(BPS[cur]||[]).slice(0,60), today=localDay();
-  const asc=rows.slice().reverse(), mk=k=>asc.map(r=>[ru(dzDayOf(r.measured_at)),r[k]]);
-  modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h3 style="margin:0 0 6px;font-size:18px">Давление — история, ${esc(DATA[cur].short)}</h3>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">Ориентир, не диагноз: 130/85 и выше — повышенное, 140/90 и выше — высокое. Измеряйте сидя, после 5 минут покоя.</div>
-    ${asc.length>1?`<div class="muted" style="font-size:13px">Верхнее</div>${chart({name:"Верхнее",unit:"мм рт. ст.",pts:mk("sys"),lo:90,hi:140})}<div class="muted" style="font-size:13px">Нижнее</div>${chart({name:"Нижнее",unit:"мм рт. ст.",pts:mk("dia"),lo:60,hi:90})}`:""}
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
-    ${rows.map(r=>{ const c=bpClass(r.sys,r.dia); return `<tr><td>${esc(bpWhen(r.measured_at,today))}${r.note?`<div class="muted" style="font-size:12px">${esc(r.note)}</div>`:""}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted" style="font-size:12px">${c.word}</span></td>
-      <td>${r.pulse||"—"}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">✕</button></td></tr>`; }).join("")}</tbody></table></div></div>`;
+let BP_RANGE="1m";
+async function bpHistory(){
+  const person=cur;
+  bmScreen(bmClose()+bmHeading('История давления')+`<div class="bm-toolbar bp-history-head">
+    <button type="button" class="btn btn-primary" data-bpadd="history">Добавить</button>
+    <button type="button" class="btn btn-ghost" data-bm-open>История всех замеров</button>
+    </div><p class="muted bm-status bm-chart-note">Ориентир, не диагноз: 130/85 и выше — повышенное, 140/90 и выше — высокое. Измеряйте сидя, после 5 минут покоя.</p><div class="muted bp-history" id="bpHistoryBody" role="status">Загружаем замеры…</div>`);
+  bmFocus();
+  const body=modal.querySelector('#bpHistoryBody');
+  const active=()=>cur===person&&body.isConnected&&modal.classList.contains('on');
+  try{
+    const result=await mkApi('bp_list',{person});
+    if(!active())return;
+    BPS[person]=result.rows||[];
+    body.classList.remove('muted');
+    body.removeAttribute('role');
+    bpHistoryBody(body);
+  }catch(e){
+    if(active())body.innerHTML='Не удалось загрузить давление. <button type="button" class="btn btn-secondary" data-bphist>Повторить</button>';
+  }
 }
+function bpHistoryBody(body){
+  const today=localDay(), all=(BPS[cur]||[]).map(r=>({...r,day:dzDayOf(r.measured_at)}));
+  const rows=measRangeRows(all,BP_RANGE,today);
+  const mk=k=>rows.slice().reverse().filter(r=>r[k]!=null).map(r=>[`${ru(r.day)} ${bmLocal(r.measured_at).slice(11)}`,r[k],{iso:r.day}]);
+  const graphs=[['sys','Верхнее',90,140],['dia','Нижнее',60,90]].map(([k,name,lo,hi])=>
+    `<div class="muted">${name}</div>${chart({name,unit:'мм рт. ст.',pts:mk(k),lo,hi,measurement:true,nosum:true})}`).join('');
+  body.innerHTML=measurePeriods('data-bprange',BP_RANGE)+
+    (rows.length>1?graphs:'<p class="muted">За этот период меньше двух замеров.</p>')+
+    (rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
+    ${rows.map(r=>{const c=bpClass(r.sys,r.dia);return `<tr><td>${esc(bpWhen(r.measured_at,today))}${r.note?`<div class="muted">${esc(r.note)}</div>`:''}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted">${c.word}</span></td>
+      <td>${r.pulse||'—'}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">×</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="muted">Записей за выбранный период нет.</p>');
+}
+
 document.addEventListener("click",e=>{
   const reading=e.target.closest&&e.target.closest("[data-bpread]");
   if(reading){ bpReadingOpen(reading.dataset.bpread,reading.dataset.bpperson); return; }
-  if(e.target.closest&&e.target.closest("[data-bpadd]")){ bpForm(); return; }
+  const add=e.target.closest?.("[data-bpadd]");
+  if(add){bpForm(add.dataset.bpadd==="history");return;}
+  const range=e.target.closest?.("[data-bprange]");
+  if(range){
+    BP_RANGE=range.dataset.bprange;
+    const body=range.closest("#bpHistoryBody");
+    bpHistoryBody(body);
+    body.querySelector(`[data-bprange="${BP_RANGE}"]`)?.focus({preventScroll:true});
+    return;
+  }
   if(e.target.closest&&e.target.closest("[data-bphist]")){ bpHistory(); return; }
   if(e.target.closest&&e.target.closest("[data-measadd]")){ measForm(); return; }
   if(e.target.closest&&e.target.closest("[data-vacadd]")){ vacForm(); return; }
@@ -8185,8 +8263,8 @@ document.addEventListener("click",e=>{
   if(mo){ const k=mo.dataset.measopen;
     if(mo.dataset.measnut){ tab="nutr"; nutSub="weight"; render(); window.scrollTo({top:0}); return; }
     if(k==="temp"){ symSel="Температура"; symFocus=null; medSel=null; tab="sym"; sysFilter=null; render(); window.scrollTo({top:0}); return; }   // температура — симптом: графика нет
-    if(k==="bp") bpLoad(); measHistory(k,mo.dataset.measlab,mo.dataset.measun); return; }
-  if(e.target.closest&&e.target.closest("[data-bpsave]")){ bpSave(); return; }
+    measHistory(k,mo.dataset.measlab,mo.dataset.measun); return; }
+  const save=e.target.closest?.("[data-bpsave]"); if(save){bpSave(save);return;}
   const d=e.target.closest&&e.target.closest("[data-bpdel]");
   if(d){ if(!confirm("Удалить этот замер?")) return; const who=cur;
     mkApi("bp_delete",{id:+d.dataset.bpdel}).then(()=>{ BPL[who]=0; bpLoad(true); closeModal(); toast("Замер удалён"); }).catch(()=>toast("Не получилось удалить — нет связи")); }
@@ -8235,7 +8313,7 @@ function bmProject(bodyRows,heightRows,person){
 }
 function bmComparable(row,key,side){return row&&row.values&&row.values[key]!=null&&(!['upper_arm','thigh','calf'].includes(key)||row.sides[key]===side);}
 function bmSeries(rows,key,side,range,today){
- const days={1:30,3:91,6:183,12:366}[range],base=Date.parse(today+'T12:00:00Z'),from=days?new Date(base-days*864e5).toISOString().slice(0,10):'';
+ const days={"7d":7,"1m":30,"3m":91,"6m":183,"1y":366}[range],base=Date.parse(today+'T12:00:00Z'),from=days?new Date(base-days*864e5).toISOString().slice(0,10):'';
  return (rows||[]).filter(r=>r.day<=today&&(!from||r.day>from)&&bmComparable(r,key,side)).slice().sort((a,b)=>String(a.at||a.day).localeCompare(String(b.at||b.day))).map(r=>({day:r.day,at:r.at,value:+r.values[key]}));
 }
 function bmDelta(points){if(points.length<2)return '';const d=Math.round((points.at(-1).value-points.at(-2).value)*10)/10;return (d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(1).replace('.',',');}
@@ -8247,7 +8325,7 @@ function bmGraph(points,unit){
  const dots=points.map((p,i)=>{const x=span?50+(times[i]-first)*500/span:300,y=max===min?80:130-(p.value-min)*100/den;return `<circle cx="${x}" cy="${y}" r="5"><title>${esc(ru(p.day))}${p.at?' '+esc(bmLocal(p.at).slice(11)):''}: ${esc(p.value)} ${esc(unit)}</title></circle>`;}).join('');
  return `<svg class="bm-chart" viewBox="0 0 600 180" role="img" aria-label="Измерения по датам; значения перечислены в истории"><g fill="currentColor" font-size="12"><text x="4" y="30">${esc(max)}</text><text x="4" y="134">${esc(min)}</text><text x="50" y="168">${esc(ru(points[0].day))}</text><text x="550" y="168" text-anchor="end">${esc(ru(points.at(-1).day))}</text></g>${dots}</svg><p class="muted">Отмечены только фактические замеры. Пропуски не заменяются нулями.</p>`;
 }
-const BM={person:null,rows:[],available:false,error:'',key:'weight',side:'right',range:'all',request:0,add:false};
+const BM={person:null,rows:[],extra:[],custom:[],limit:40,available:false,error:'',key:'all',side:'right',range:'all',request:0,add:''};
 function bmHeading(title){
   return `<header class="bm-heading"><h2 id="bmTitle" tabindex="-1">${title}</h2><p class="muted">${esc(DATA[cur].short)}</p></header>`;
 }
@@ -8261,96 +8339,123 @@ function bmScreen(content,kind=''){
 function bmFocus(){
   modal.querySelector('#bmTitle')?.focus({preventScroll:true});
 }
-async function bmOpen(add=false){
+async function bmOpen(add=''){
   const person=cur;
   if(!DATA[person]||lockNeeded(person))return;
-  if(BM.person!==person)Object.assign(BM,{key:'weight',side:'right',range:'all'});
-  Object.assign(BM,{person,error:'',rows:[],available:false,add});
+  Object.assign(BM,{person,error:'',rows:[],extra:[],custom:[],limit:40,key:'all',side:'right',range:'all',available:false,add});
   const request=++BM.request;
-  bmScreen(bmClose()+bmHeading('Вес и замеры тела')+'<p role="status">Загружаем замеры…</p>');
+  bmScreen(bmClose()+bmHeading(add?'Добавить замер':'История замеров')+'<p role="status">Загружаем замеры…</p>');
   bmFocus();
-  const active=()=>cur===person&&BM.person===person&&BM.request===request&&modal.classList.contains('on')&&modal.querySelector('.bm-screen');
+  const active=()=>cur===person&&BM.request===request&&modal.classList.contains('on')&&modal.querySelector('.bm-screen');
   if(!window.__MK_KEY){BM.error='Для замеров войдите в медкнижку.';bmDraw();return;}
-  try{
+  async function bodyRows(){
     let capability;
     try{capability=await mkApi('body_profile_capabilities',{});}
     catch(e){if(!/bad_request|unknown_action/.test(String(e.message)))throw e;capability={version:0};}
-    if(!active())return;
-    let result;
-    if(capability.version===1){result=await mkApi('body_profile_list',{person});}
-    else if(add){measForm();return;}
-    else {
-      const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
-      result={rows:w.rows,heights:h.rows};
-    }
-    if(!active())return;
-    BM.available=capability.version===1;
-    BM.rows=bmProject(result.rows,result.heights,person);
-    if(add&&BM.available)bmForm();
-    else bmDraw();
-  }catch(e){
-    if(!active())return;
-    BM.error='Не удалось загрузить замеры. Попробуйте ещё раз.';
-    bmDraw();
+    if(capability.version===1)return {available:true,...await mkApi('body_profile_list',{person})};
+    const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
+    return {available:false,rows:w.rows,heights:h.rows};
   }
+  const work=[bodyRows()];
+  if(!add)work.push(mkApi('metric_list',{person}),mkApi('bp_list',{person}));
+  const [body,metrics,bp]=await Promise.allSettled(work);
+  if(!active())return;
+  if(body.status==='fulfilled'){
+    BM.available=body.value.available;
+    BM.rows=bmProject(body.value.rows,body.value.heights,person);
+  }
+  if(add&&BM.available){bmForm(null,add);return;}
+  if(add&&body.status==='fulfilled'&&add!=='circ'){measForm(add);return;}
+  if(add&&body.status==='fulfilled')BM.error='Запись окружностей пока недоступна. Выберите другой тип замера.';
+  else if([body,metrics,bp].some(r=>r?.status==='rejected'))BM.error='Часть замеров не загрузилась. Попробуйте ещё раз.';
+  if(!add)bmOtherRows(person,metrics?.value?.rows||[],bp?.value?.rows||[]);
+  bmDraw();
+}
+function bmOtherRows(person,metrics,pressure){
+  const custom=new Map(), extra=[];
+  for(const r of metrics){
+    if(r.metric==='height'||r.metric==='temp'||r.value==null)continue;
+    const name=r.metric==='custom'?r.label:measDef(r.metric)?.[1];
+    if(!name)continue;
+    if(r.metric==='custom')custom.set('custom:'+name.toLowerCase(),{name,unit:r.unit||''});
+    extra.push({day:dzDayOf(r.measured_at),at:r.measured_at,text:`${name} ${chartFmt(+r.value)} ${r.unit||measDef(r.metric)?.[2]||''}`,note:r.note});
+  }
+  for(const r of pressure)extra.push({day:dzDayOf(r.measured_at),at:r.measured_at,text:`Давление ${r.sys}/${r.dia}${r.pulse?' · пульс '+r.pulse:''}`,note:r.note});
+  for(const r of DATA[person].sym?.log||[]){
+    if(r.n!=='Температура'||!r.d||r.v==null||!Number.isFinite(+r.v))continue;
+    extra.push({day:r.d,at:r.at,text:`Температура ${chartFmt(+r.v)} °C`});
+  }
+  BM.extra=extra;
+  BM.custom=[...custom];
 }
 function bmDraw(restore){
   if(cur!==BM.person||lockNeeded(cur))return;
-  const fields=bmFields(), f=fields.find(f=>f.key===BM.key)||fields[0];
-  const points=bmSeries(BM.rows,f.key,BM.side,BM.range,localDay()), latest=points.at(-1);
-  const list=BM.rows.map(r=>`<li>
+  const fields=bmFields(), f=fields.find(f=>f.key===BM.key);
+  const points=f?bmSeries(BM.rows,f.key,BM.side,BM.range,localDay()):[], latest=points.at(-1);
+  const comparable=f?BM.rows.filter(r=>bmComparable(r,f.key,BM.side)):BM.rows;
+  const records=(f?measRangeRows(comparable,BM.range,localDay()):[...comparable,...BM.extra])
+    .slice().sort((a,b)=>String(b.at||b.day).localeCompare(String(a.at||a.day)));
+  const list=records.slice(0,BM.limit).map(r=>`<li>
     <b>${esc(ru(r.day))}${r.at?' · '+esc(bmLocal(r.at).slice(11)):''}</b>
-    <div>${fields.filter(f=>r.values[f.key]!=null).map(f=>`${f.name} ${esc(String(r.values[f.key]).replace('.',','))} ${f.unit}${f.side?' ('+(r.sides[f.key]==='left'?'левая':'правая')+')':''}`).join(' · ')}</div>
+    <div>${r.values?fields.filter(f=>r.values[f.key]!=null).map(f=>`${f.name} ${chartFmt(r.values[f.key])} ${f.unit}${f.side?' ('+(r.sides[f.key]==='left'?'левая':'правая')+')':''}`).join(' · '):esc(r.text)}</div>
     ${r.note?`<p>${esc(r.note)}</p>`:''}
-    ${r.editable&&BM.available?`<div class="row"><button class="btn btn-secondary" data-bm-edit="${esc(r.id)}">Изменить</button><button class="btn btn-ghost" data-bm-delete="${esc(r.id)}">Удалить</button></div>`:'<span class="muted">Из прежних записей</span>'}
+    ${r.editable&&BM.available?`<div class="row"><button class="btn btn-secondary" data-bm-edit="${esc(r.id)}">Изменить</button><button class="btn btn-ghost" data-bm-delete="${esc(r.id)}">Удалить</button></div>`:''}
   </li>`).join('');
   const toolbar=`<div class="bm-toolbar">
-    ${BM.available?'<button class="btn btn-primary" data-bm-new>Добавить замер</button>':''}
-    ${BM.error?`<button class="btn btn-secondary" data-bm-open="${BM.add?'new':''}">Повторить</button>`:''}
+    <button class="btn btn-primary" data-measadd>Добавить замер</button>
+    ${BM.error?`<button class="btn btn-secondary" data-bm-open="${esc(BM.add)}">Повторить</button>`:''}
     <button class="btn btn-secondary" data-bm-how>Как измерять</button>
-    <button class="btn btn-ghost" data-measadd>Другие замеры</button>
   </div>`;
   const filters=`<div class="bm-controls">
-    <label>Показатель<select data-bm-key>${fields.map(x=>`<option value="${x.key}"${x.key===f.key?' selected':''}>${x.name}</option>`).join('')}</select></label>
-    ${f.side?`<label>Сторона<select data-bm-side><option value="right"${BM.side==='right'?' selected':''}>Правая</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option></select></label>`:''}
-    <label>Период<select data-bm-range>${[['1','1 месяц'],['3','3 месяца'],['6','6 месяцев'],['12','12 месяцев'],['all','Всё время']].map(([v,t])=>`<option value="${v}"${BM.range===v?' selected':''}>${t}</option>`).join('')}</select></label>
+    <label>Показатель<select data-bm-key><option value="all">Все замеры</option>
+      <optgroup label="Вес, рост и окружности">${fields.map(x=>`<option value="${x.key}"${x.key===BM.key?' selected':''}>${x.name}</option>`).join('')}</optgroup>
+      <optgroup label="Другие показатели">${MEAS_DEF.filter(x=>!['weight','height','custom'].includes(x[0])).map(([key,name])=>`<option value="${key}">${name}</option>`).join('')}
+      ${BM.custom.map(([key,v])=>`<option value="${esc(key)}">${esc(v.name)}</option>`).join('')}</optgroup></select></label>
+    ${f?.side?`<label>Сторона<select data-bm-side><option value="right"${BM.side==='right'?' selected':''}>Правая</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option></select></label>`:''}
   </div>`;
-  bmScreen(bmClose()+bmHeading('Вес и замеры тела')+
-    (BM.error?`<p class="bm-status" role="alert">${esc(BM.error)}</p>`:'')+toolbar+
-    (!BM.available&&!BM.error?'<p class="muted bm-status">Здесь доступна история. Для записи откройте «Другие замеры».</p>':'')+
-    (BM.rows.length?filters+
-      (latest?`<p class="bm-summary"><b>${esc(String(latest.value).replace('.',','))} ${f.unit}</b> · ${esc(ru(latest.day))}${bmDelta(points)?' · '+esc(bmDelta(points))+' '+f.unit:''}</p>`:'<p class="bm-summary muted">За этот период записей нет.</p>')+
-      (latest?bmGraph(points,f.unit):'')+`<h3 class="bm-history-title">История</h3><ul class="bm-history">${list}</ul>`:
-      BM.error?'':'<div class="bm-empty"><h3>Пока нет замеров</h3><p>Запишите вес, рост или окружность, чтобы сравнивать результаты со временем.</p></div>'));
-  if(restore)modal.querySelector('['+restore+']')?.focus({preventScroll:true});
+  bmScreen(bmClose()+bmHeading('История замеров')+
+    (BM.error?`<p class="bm-status" role="alert">${esc(BM.error)}</p>`:'')+toolbar+filters+
+    (f?measurePeriods('data-bm-range',BM.range)+
+      (latest?`<p class="bm-summary"><b>${chartFmt(latest.value)} ${f.unit}</b> · ${esc(ru(latest.day))}${bmDelta(points)?' · '+esc(bmDelta(points))+' '+f.unit:''}</p>`:'<p class="bm-summary muted">За этот период записей нет.</p>')+
+      (latest?bmGraph(points,f.unit):''):'')+
+    (records.length?`<h3 class="bm-history-title">Записи</h3><ul class="bm-history">${list}</ul>${records.length>BM.limit?'<button type="button" class="btn btn-secondary" data-bm-more>Показать ещё</button>':''}`:
+      '<p class="bm-status muted">Пока нет замеров.</p>'));
+  if(restore)modal.querySelector(restore)?.focus({preventScroll:true});
   else bmFocus();
 }
 
+
 // Front view. The person’s right arm and leg are on the viewer’s left.
 function bmFigure(variant,key,side){
+  const profiles={
+    neutral:{shoulder:27,chest:23,waist:17,hips:23,arm:36},
+    female:{shoulder:24,chest:22,waist:14,hips:27,arm:33},
+    male:{shoulder:34,chest:28,waist:22,hips:21,arm:43}
+  };
+  const {shoulder,chest,waist,hips,arm}=profiles[variant]||profiles.neutral;
   const contours={
-    chest:[75,58,20,3],waist:[75,80,16,3],hips:[75,101,22,3.5],
-    upper_arm:[side==='left'?111:39,59,5.5,2],thigh:[side==='left'?85:65,127,8,2.5],
+    chest:[75,58,chest-2,3],waist:[75,80,waist,3],hips:[75,101,hips-1,3.5],
+    upper_arm:[side==='left'?75+arm:75-arm,58,6,2],thigh:[side==='left'?85:65,127,8,2.5],
     calf:[side==='left'?88:62,170,6.5,2]
   };
   return `<svg viewBox="18 0 114 211" aria-hidden="true" focusable="false">
     <path class="bm-person-shape" d="M69 31 Q67 28 65 26 C62 23 61 18 62 13 C63 7 68 4 75 4
       C82 4 87 7 88 13 C89 18 88 23 85 26 Q83 28 81 31 L81 34
-      C${variant==='male'?'89 36 98 38 105 43':variant==='female'?'88 37 94 40 101 44':'88 36 96 39 102 43'}
-      C110 48 114 60 118 76 C121 87 123 98 126 109 L129 116
+      C89 36 ${71+shoulder} 38 ${75+shoulder} 43
+      C${83+shoulder} 48 ${81+arm} 60 118 76 C121 87 123 98 126 109 L129 116
       Q130 122 127 127 Q125 130 123 128 L124 121 Q120 126 118 124 L118 115
-      C114 105 111 96 108 85 Q105 74 102 62 Q100 59 98 58
-      C99 70 93 75 92 81 C91 87 97 95 98 104 C100 117 95 132 94 144
+      C114 105 111 96 108 85 Q${81+chest} 74 ${79+chest} 62 Q${77+chest} 59 ${75+chest} 58
+      C${76+chest} 70 ${76+waist} 75 ${75+waist} 81 C${74+waist} 87 ${74+hips} 95 ${75+hips} 104 C${77+hips} 117 95 132 94 144
       Q93 151 94 158 C97 170 94 181 92 192 L92 197 Q97 201 96 204
       Q93 207 85 205 Q82 204 82 200 L83 194 C84 181 80 173 81 163
       Q83 151 79 141 Q77 131 75 117 Q73 131 71 141 Q67 151 69 163
       C70 173 66 181 67 194 L68 200 Q68 204 65 205 Q57 207 54 204
       Q53 201 58 197 L58 192 C56 181 53 170 56 158 Q57 151 56 144
-      C55 132 50 117 52 104 C53 95 59 87 58 81 C57 75 51 70 52 58
-      Q50 59 48 62 Q45 74 42 85 C39 96 36 105 32 115 L32 124
+      C55 132 ${73-hips} 117 ${75-hips} 104 C${76-hips} 95 ${76-waist} 87 ${75-waist} 81
+      C${74-waist} 75 ${74-chest} 70 ${75-chest} 58 Q${73-chest} 59 ${71-chest} 62 Q${69-chest} 74 42 85 C39 96 36 105 32 115 L32 124
       Q30 126 26 121 L27 128 Q25 130 23 127 Q20 122 21 116 L24 109
-      C27 98 29 87 32 76 C36 60 40 48 45 43 ${variant==='male'?'C52 38 61 36 69 34':variant==='female'?'C56 40 62 37 69 34':'C54 39 62 36 69 34'} Z"/>
-    <path class="bm-person-detail" d="M66 27 Q75 34 84 27 M62 43 Q68 41 75 45 Q82 41 88 43 M74 80h2 M57 151q4 3 8 0 M85 151q4 3 8 0"/>
+      C27 98 29 87 32 76 C${69-arm} 60 ${67-shoulder} 48 ${75-shoulder} 43 C${79-shoulder} 38 61 36 69 34 Z"/>
+    <path class="bm-person-detail" d="M66 27 Q75 34 84 27 M62 43 Q68 41 75 45 Q82 41 88 43 ${variant==='female'?'M56 60 Q64 66 75 62 Q86 66 94 60':variant==='male'?'M53 54 Q65 59 74 56 M76 56 Q85 59 97 54':''} M74 80h2 M57 151q4 3 8 0 M85 151q4 3 8 0"/>
     ${Object.entries(contours).map(([k,[x,y,rx,ry]])=>`<ellipse class="bm-tape${k===key?' is-selected':''}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`).join('')}
   </svg>`;
 }
@@ -8386,7 +8491,7 @@ function bmHow(){
   bmBindGuide(modal.querySelector('.bm-screen'));
   bmFocus();
 }
-function bmForm(row){
+function bmForm(row,initial){
   if(!BM.available||cur!==BM.person||lockNeeded(cur))return;
   const person=cur,revision=row?.revision||null,now=bmLocal(new Date());
   const day=row?.day||now.slice(0,10),time=row?.at?bmLocal(row.at).slice(11):now.slice(11),fields=bmFields();
@@ -8395,7 +8500,7 @@ function bmForm(row){
     <div class="bm-value"><input id="bm_${f.key}" inputmode="decimal" autocomplete="off"
       value="${row?.values[f.key]!=null?esc(String(row.values[f.key]).replace('.',',')):''}"
       aria-label="${f.name}, ${f.unit}" aria-describedby="bmErr_${f.key}"><span aria-hidden="true">${f.unit}</span></div>
-    ${f.side?`<select id="bmSide_${f.key}" aria-label="${f.name}: сторона"><option value="right">Правая</option><option value="left"${row?.sides[f.key]==='left'?' selected':''}>Левая</option></select>`:''}
+    ${f.side?`<select id="bmSide_${f.key}" aria-label="${f.name}: сторона"><option value="right">${f.key==='upper_arm'?'Правая рука':'Правая нога'}</option><option value="left"${row?.sides[f.key]==='left'?' selected':''}>${f.key==='upper_arm'?'Левая рука':'Левая нога'}</option></select>`:''}
     <span id="bmErr_${f.key}" class="er" role="alert"></span>
   </div>`;
   bmScreen(bmClose()+bmHeading(row?'Изменить замер':'Добавить замер')+`<form id="bmEditForm" novalidate>
@@ -8408,7 +8513,8 @@ function bmForm(row){
       <section class="bm-section" aria-labelledby="bmMainFields"><h3 id="bmMainFields">Вес и рост</h3>
         <div class="bm-fields">${fields.slice(0,2).map(field).join('')}</div>
       </section>
-      <section class="bm-section" aria-labelledby="bmTapeFields"><h3 id="bmTapeFields">Окружности тела</h3>
+      <section class="bm-section" aria-labelledby="bmTapeFields"><h3 id="bmTapeFields" tabindex="-1">Окружности тела</h3>
+        <p class="muted bm-chart-note bm-side-note">Для плеча, бедра и икры достаточно одной стороны. Выберите ту, которую измерили. За день сохраняется одно значение для каждой зоны. В истории сравниваются замеры одной стороны.</p>
         <div class="bm-fields">${fields.slice(2).map(field).join('')}</div>
       </section>
       <details class="bm-disclosure"><summary>Схема и подсказки</summary>${bmGuide(fields,'waist')}</details>
@@ -8422,12 +8528,14 @@ function bmForm(row){
       <p id="bmErr_values" class="er" role="alert"></p>
       <p id="bmSaveError" role="alert"></p>
       <button class="btn btn-primary" type="submit" id="bmSave">Сохранить замер</button>
-      ${row?'<button type="button" class="btn btn-ghost" data-bm-back>Отмена</button>':'<button type="button" class="btn btn-ghost" data-measadd>Другие замеры</button>'}
+      ${row?'<button type="button" class="btn btn-ghost" data-bm-back>Отмена</button>':'<button type="button" class="btn btn-ghost" data-measadd>Выбрать тип замера</button>'}
     </footer>
   </form>`,'bm-form');
   const box=modal.querySelector('.bm-form');
   bmBindGuide(box);
   bmFocus();
+  if(initial==='circ')box.querySelector('#bmTapeFields').focus();
+  else if(initial)box.querySelector('#bm_'+initial)?.focus();
   const button=box.querySelector('#bmSave'),saveError=box.querySelector('#bmSaveError');
   box.querySelector('form').onsubmit=async e=>{
     e.preventDefault();
@@ -8484,16 +8592,38 @@ async function bmDelete(row){
  try{await mkApi('body_profile_delete',{person,day:row.day,expected_revision:row.revision});if(cur!==person)return;bmRefreshCaches(person,row.day);toast('Замер удалён');bmOpen();}
  catch(e){if(cur===person){BM.error=String(e.message).includes('revision_conflict')?'Запись изменилась. Обновите историю перед удалением.':'Не удалось удалить замер. Повторите попытку.';bmDraw();}}
 }
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-bm-open],[data-bm-new],[data-bm-back],[data-bm-how],[data-bm-edit],[data-bm-delete]');if(!b)return;
- if(b.hasAttribute('data-bm-open'))return bmOpen(b.dataset.bmOpen==='new');if(cur!==BM.person)return;if(b.hasAttribute('data-bm-new'))return bmForm(null);if(b.hasAttribute('data-bm-back'))return bmDraw();if(b.hasAttribute('data-bm-how'))return bmHow();const row=BM.rows.find(r=>r.id===(b.dataset.bmEdit||b.dataset.bmDelete));if(b.hasAttribute('data-bm-edit')&&row)return bmForm(row);if(row)bmDelete(row);
+document.addEventListener('click',e=>{
+  const b=e.target.closest?.('[data-bm-open],[data-bm-back],[data-bm-how],[data-bm-edit],[data-bm-delete],[data-bm-range],[data-bm-more]');
+  if(!b)return;
+  if(b.hasAttribute('data-bm-open')){bmOpen(b.dataset.bmOpen);return;}
+  if(cur!==BM.person)return;
+  if(b.hasAttribute('data-bm-back')){bmDraw();return;}
+  if(b.hasAttribute('data-bm-how')){bmHow();return;}
+  if(b.hasAttribute('data-bm-range')){
+    BM.range=b.dataset.bmRange;BM.limit=40;
+    bmDraw(`[data-bm-range="${BM.range}"]`);return;
+  }
+  if(b.hasAttribute('data-bm-more')){
+    const index=BM.limit+1;BM.limit+=40;
+    bmDraw();
+    const first=modal.querySelector(`.bm-history li:nth-child(${index})`);
+    if(first){first.tabIndex=-1;first.focus();}
+    return;
+  }
+  const row=BM.rows.find(r=>r.id===(b.dataset.bmEdit||b.dataset.bmDelete));
+  if(row){if(b.hasAttribute('data-bm-edit'))bmForm(row);else bmDelete(row);}
 });
 document.addEventListener('change',e=>{
   if(cur!==BM.person)return;
-  for(const prop of ['key','side','range']){
-    const attr='data-bm-'+prop;
-    if(e.target.hasAttribute(attr)){BM[prop]=e.target.value;bmDraw(attr);return;}
-  }
+  const target=e.target;
+  if(target.hasAttribute('data-bm-side')){BM.side=target.value;bmDraw('[data-bm-side]');return;}
+  if(!target.hasAttribute('data-bm-key'))return;
+  const key=target.value, custom=BM.custom.find(([k])=>k===key);
+  if(custom){measHistory('custom',custom[1].name,custom[1].unit);return;}
+  if(key!=='all'&&!bmFields().some(f=>f.key===key)){measHistory(key);return;}
+  BM.key=key;BM.limit=40;bmDraw('[data-bm-key]');
 });
+
 /* /BODY_PROFILE_CLIENT_V1 */
 
 function measDef(k){ return MEAS_DEF.find(x=>x[0]===k); }
@@ -8515,19 +8645,25 @@ function measDelta(unit,prev,last){
   const per=days>=45?`${Math.round(days/30.4)} мес.`:`${Math.max(1,days)} дн.`;
   return `${dv>0?"+":dv<0?"−":""}${String(Math.abs(dv).toFixed(1)).replace(".",",")} ${unit} за ${per}`;
 }
-let MEAS_SEL=(()=>{ try{ const v=localStorage.getItem("mk_meas_last")||""; return v==="temp"?"":v; }catch(e){ return ""; } })();
-function measForm(){
-  modal.className="modal on";
-  modal.innerHTML=`<div class="mbox" id="measBox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-    <h3 style="margin:0 0 6px;font-size:18px">Замер — ${esc(DATA[cur].short)}</h3><div class="addform"><div class="chips" role="group" aria-label="Что измерили">
-    ${MEAS_DEF.map(x=>x[0]==="temp"?`<button type="button" class="chip" data-meastemp="1" aria-pressed="false" title="Температура записывается как симптом с временем">${x[1]}</button>`:`<button type="button" class="chip${x[0]===MEAS_SEL?" on":""}" data-measkey="${x[0]}" aria-pressed="${x[0]===MEAS_SEL}">${x[1]}</button>`).join("")}</div>
+let MEAS_SEL="";
+function measForm(initial=""){
+  MEAS_SEL=initial;
+  const types=[...MEAS_DEF.slice(0,2),['circ','Окружности тела'],...MEAS_DEF.slice(2)];
+  bmScreen(bmClose()+bmHeading('Добавить замер')+`<div id="measBox" class="addform">
+    <div class="chips" role="group" aria-label="Что измерили">${types.map(([key,name])=>
+      key==='temp'?'<button type="button" class="chip" data-meastemp>Температура</button>':
+      `<button type="button" class="chip${key===MEAS_SEL?' on':''}" ${['weight','height','circ'].includes(key)?'data-bm-open':'data-measkey'}="${key}" aria-pressed="${key===MEAS_SEL}">${name}</button>`).join('')}</div>
     <div id="measBody"></div>
-    <div class="row"><button type="button" class="btn btn-primary" data-meassave="1">Сохранить</button><button type="button" class="linkbtn" data-close style="min-height:44px">Отмена</button></div></div></div>`;
+    <div class="row meas-save" hidden><button type="button" class="btn btn-primary" data-meassave>Сохранить</button></div>
+  </div>`);
+  bmFocus();
   measBody();
 }
+
 function measBody(){
   const b=document.getElementById("measBody"); if(!b) return;
   const D=measDef(MEAS_SEL);
+  b.parentElement.querySelector(".meas-save").hidden=!D||MEAS_SEL==="bp";
   if(!D||MEAS_SEL==="bp"){ b.innerHTML=`<div class="muted" style="margin-top:12px">Выберите, что измерили</div>`; return; }
   const now=new Date(), pad=n=>String(n).padStart(2,"0"), local=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   b.innerHTML=`${MEAS_SEL==="custom"?`<div class="row" style="gap:10px"><div class="fld" style="flex:2"><label for="measLabel">Название</label><input id="measLabel" maxlength="30" autocomplete="off" placeholder="Бёдра"></div>
@@ -8552,7 +8688,6 @@ async function measSave(){
       await mkApi("body_save",{person:who,d,weight:v.value});
       nutSET("weight",nutMerge([...nutLS("weight",[],who),{d,v:v.value}]),who); }
     else await mkApi("metric_save",{person:who,metric:v.metric,value:v.value,label:v.label,unit:v.unit,at:at.toISOString(),note:note||undefined});
-    try{ localStorage.setItem("mk_meas_last",MEAS_SEL); }catch(e){}
     MZD[who]=0; mzLoad(true);
     const D=measDef(MEAS_SEL), nm=v.label||D[1], un=v.unit||D[2], key=MEAS_SEL;
     closeModal(); toast(`${esc(nm)} ${String(v.value).replace(".",",")} ${esc(un)} сохранён`,"История",()=>measHistory(key,v.label,v.unit));
@@ -8602,7 +8737,7 @@ function measMonthText(rows,today,unit){
 }
 // строки полного графика за период: 1m — 30 дней, 3m — 91, 1y — 365, all — все; asc — [{day,value}] по возрастанию
 function measRangeRows(asc,range,today){
-  const n={"1m":30,"3m":91,"1y":365}[range]; if(!n) return asc.slice();
+  const n={"7d":7,"1m":30,"3m":91,"6m":183,"1y":365}[range]; if(!n) return asc.slice();
   const from=new Date(Date.parse(today+"T12:00:00Z")-n*864e5).toISOString().slice(0,10); return asc.filter(r=>r.day>from);
 }
 // ряды плитки «Замеры»: вес (замеры тела + вес из «Питания»), давление (верхнее), остальные — из metric_list; грузятся один раз на человека
@@ -8652,8 +8787,8 @@ function measTile(S,today,hidden,ser,order,temp){
 function measTileHtml(S,today,o){
   o=o||{};
   const heading=`<div class="meashead"><h2>Замеры</h2><div class="meas-actions">
-    <button type="button" class="btn btn-primary" data-bm-open="new"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Добавить замер</button>
-    <button type="button" class="btn btn-secondary" data-bm-open>Вес и окружности</button>
+    <button type="button" class="btn btn-primary" data-measadd><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Добавить замер</button>
+    <button type="button" class="btn btn-secondary" data-bm-open>История замеров</button>
   </div></div>`;
   if(S==="err") return `<div class="card meastile">${heading}<p class="muted bm-status">Замеры не загрузились. Обновите страницу.</p></div>`;
   if(S===1) return `<div class="card meastile">${heading}<div class="meas-skel" role="status" aria-label="Загружаем последние замеры"></div></div>`;
@@ -8673,20 +8808,26 @@ function homeOrderMerge(ids){
 }
 // история замера: график от двух точек и список с удалением
 let MHIST=null, MRANGE=(()=>{ try{ return localStorage.getItem("mk_meas_range")||"3m"; }catch(e){ return "3m"; } })();
-const MRANGES=[["1m","Месяц"],["3m","3 мес"],["1y","Год"],["all","Всё"]];
+const MRANGES=[["7d","7 дней"],["1m","Месяц"],["3m","3 мес."],["6m","6 мес."],["1y","Год"],["all","Всё"]];
+function measurePeriods(attribute,range){
+  return `<div class="ptabs mrange" role="group" aria-label="Период">${MRANGES.map(([key,label])=>
+    `<button type="button" ${attribute}="${key}" class="${key===range?'on':''}" aria-pressed="${key===range}">${label}</button>`).join('')}</div>`;
+}
 async function measHistory(key,label,unit){
   const D=measDef(key); if(!D) return; if(key==="bp"){ bpHistory(); return; }
-  if(key==="temp"){ symSel="Температура"; symFocus=null; medSel=null; tab="sym"; sysFilter=null; render(); return; }
+  if(key==="temp"){ closeModal(); symSel="Температура"; symFocus=null; medSel=null; tab="sym"; sysFilter=null; render(); window.scrollTo({top:0}); return; }
   const who=cur, nm=key==="custom"?label:D[1], un=key==="custom"?(unit||""):D[2];
   modal.className="modal on";
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h3 style="margin:0 0 6px;font-size:18px">${esc(nm)} — история, ${esc(DATA[who].short)}</h3><div class="muted" id="measHist">Загружаю…</div></div>`;
+  modal.innerHTML=`<div class="mbox measure-history"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h3 style="margin:0 0 6px;font-size:18px">${esc(nm)} — история, ${esc(DATA[who].short)}</h3><button type="button" class="btn btn-ghost" data-bm-open>История всех замеров</button><div class="muted" id="measHist">Загружаю…</div></div>`;
+  const target=modal.querySelector("#measHist");
   let rows;
   try{
     if(key==="weight"){ const j=await mkApi("body_list",{person:who}); rows=(j.rows||[]).filter(r=>r.weight_kg!=null).map(r=>({id:null,day:r.measured_on,value:+r.weight_kg,at:r.measured_on+"T12:00:00",note:""}));
       if(DATA[who]&&DATA[who].nutrition) nutLS("weight",[],who).filter(f=>f&&f.d&&f.v&&!rows.some(r=>r.day===f.d)).forEach(f=>rows.push({id:null,day:f.d,value:+f.v,at:f.d+"T12:00:00",note:""}));
       rows.sort((a,b)=>b.day.localeCompare(a.day)); }
     else { const j=await mkApi("metric_list",{person:who,metric:key,label:key==="custom"?label:undefined}); rows=(j.rows||[]).map(r=>({id:r.id,day:dzDayOf(r.measured_at),value:+r.value,at:r.measured_at,note:r.note||""})); }
-  }catch(e){ const h=document.getElementById("measHist"); if(h) h.textContent="Не получилось загрузить — нет связи."; return; }
+  }catch(e){ if(target.isConnected)target.textContent="Не получилось загрузить — нет связи."; return; }
+  if(cur!==who||!target.isConnected||!modal.classList.contains("on"))return;
   MHIST={key,label,unit,nm,un,who,rows}; measHistoryBody();
 }
 // содержимое окна истории: период, график с точками, изменение, цель (у веса, если задана), таблица с удалением
@@ -8696,15 +8837,15 @@ function measHistoryBody(){
   const all=rows.slice().reverse(), asc=measRangeRows(all,MRANGE,today);
   const delta=asc.length>1?measDelta(un,{value:asc[0].value,at:asc[0].at},{value:asc[asc.length-1].value,at:asc[asc.length-1].at}):"";
   const goal=key==="weight"&&H.who==="denis"&&typeof NUT_GOAL!=="undefined"&&DATA[H.who]&&DATA[H.who].nutrition?NUT_GOAL:null, lastV=all.length?all[all.length-1].value:null;
-  h.className=""; h.innerHTML=`<div class="ptabs mrange" role="group" aria-label="Период">${MRANGES.map(([k,t])=>`<button type="button" data-mrange="${k}" class="${k===MRANGE?"on":""}" aria-pressed="${k===MRANGE}">${t}</button>`).join("")}</div>
-    ${asc.length>1?`${chart({name:nm,unit:un,pts:asc.map(r=>[ru(r.day),r.value])})}${delta?`<div class="muted" style="font-size:13px">${esc(delta)}</div>`:""}`:`<div class="muted" style="margin:8px 0">${all.length>1?"За этот период замеров меньше двух — выберите период длиннее":"График появится после двух замеров"}</div>`}
+  h.className=""; h.innerHTML=`${measurePeriods('data-mrange',MRANGE)}
+    ${asc.length>1?`${chart({name:nm,unit:un,pts:asc.map(r=>[ru(r.day),r.value]),measurement:true})}${delta?`<div class="muted" style="font-size:13px">${esc(delta)}</div>`:""}`:`<div class="muted" style="margin:8px 0">${all.length>1?"За этот период замеров меньше двух — выберите период длиннее":"График появится после двух замеров"}</div>`}
     ${goal!=null&&lastV!=null?`<div class="muted" style="font-size:13px;margin-top:4px">Цель ${fmt(goal)} кг · сейчас ${fmt(lastV)} кг${lastV>goal?` · осталось ${fmt(Math.round((lastV-goal)*10)/10)} кг`:""}</div>`:""}
     ${key==="weight"&&DATA[H.who]&&DATA[H.who].nutrition?`<button type="button" class="linkbtn" data-measnut="1" style="min-height:44px">Вес в «Питании» — план и форма записи →</button>`:""}
     ${rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>${esc(nm)}</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr><td>${ru(r.day)}${r.note?`<div class="muted" style="font-size:12px">${esc(r.note)}</div>`:""}</td><td><b>${fmt(r.value)}</b> ${esc(un)}</td>
       <td>${r.id?`<button type="button" class="linkbtn" data-measdel="${r.id}" data-measkey="${key}" data-measlab="${esc(label||"")}" data-measun="${esc(unit||"")}" aria-label="Удалить замер" style="min-width:44px;min-height:44px">Удалить</button>`:""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="muted">Записей пока нет</div>`}`;
 }
 document.addEventListener("click",e=>{
-  const r=e.target.closest&&e.target.closest("[data-mrange]"); if(r){ MRANGE=r.dataset.mrange; try{ localStorage.setItem("mk_meas_range",MRANGE); }catch(x){} measHistoryBody(); return; }
+  const r=e.target.closest&&e.target.closest("[data-mrange]"); if(r){ MRANGE=r.dataset.mrange; try{ localStorage.setItem("mk_meas_range",MRANGE); }catch(x){} measHistoryBody(); modal.querySelector(`[data-mrange="${MRANGE}"]`)?.focus({preventScroll:true}); return; }
   if(e.target.closest&&e.target.closest("[data-measnut]")&&MHIST&&document.getElementById("measHist")){ closeModal(); tab="nutr"; nutSub="weight"; render(); window.scrollTo({top:0}); }
 });
 document.addEventListener("click",e=>{
@@ -9869,7 +10010,7 @@ function addItems(d){
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из задачи плана (ТЗ-058)
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
-    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>bmOpen(true)],
+    ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
     ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Задача",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
@@ -10864,7 +11005,7 @@ function profAboutHtml(d){
       <div class="muted">${esc(d.dob)}${d.age!=null?" · "+yrs(d.age):""}${pp&&pp.sex?" · "+(pp.sex==="m"?"мужской":"женский"):""}${a?" · "+(a.adult?"взрослый":"ребёнок"):""}</div>
       ${d.note?`<div class="muted" style="margin-top:2px">${esc(d.note)}</div>`:""}
       ${polTileHtml(cur)}
-      <div class="row" style="margin-top:10px"><button class="btn btn-secondary" id="profEdit" style="height:34px">Данные и семья</button><button type="button" class="btn btn-secondary" data-bm-open>Вес и замеры тела</button></div></div>`; }
+      <div class="row" style="margin-top:10px"><button class="btn btn-secondary" id="profEdit" style="height:34px">Данные и семья</button><button type="button" class="btn btn-secondary" data-bm-open>История замеров</button></div></div>`; }
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   polLoad();   // плитка ДМС в шапке
