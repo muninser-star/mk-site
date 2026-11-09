@@ -3739,7 +3739,9 @@ function splitOldMarks(items,maxMonths,now){
 }
 function changed(d,months){
   const out=[], kid=d.age!=null&&d.age<18;
+  const labs=new Set((d.rec||[]).filter(r=>r.t==="lab"&&r.v).map(r=>{ const p=labRecordPoint(r); return labSeriesKey(p.n,p.u); }));
   seriesOf(d).filter(x=>!x.done&&!(d.nutrition&&PROG_SER.includes(x.id))&&!(kid&&GROW_SER.includes(x.id))).forEach(x=>{
+    if(labs.has(labSeriesKey(x.name,x.unit))) return;
     const pts=(x.pts||[]).map(p=>({d:serDate(p[0]),v:p[1]})).filter(p=>p.d).sort((a,b)=>a.d<b.d?-1:1);
     if(pts.length<2) return;
     const win=pts.filter(p=>monthsAgo(p.d)<=months);
@@ -3778,18 +3780,29 @@ function serDate(x){                     // в рядах даты лежат к
 function nz1(v){ return String(Math.round(v*100)/100).replace(".",",") }
 // последнее значение по каждому лабораторному показателю, разобранное по норме из самой записи.
 // разовый анализ рядом динамики не становится — а вне нормы он от этого быть не перестаёт
-function labMarks(d){
-  const seen={}, out=[];
-  (d.rec||[]).filter(r=>r.t==="lab"&&r.v&&r.n&&r.n!=="—"&&r.n!=="")
-    .slice().sort((a,b)=>b.d.localeCompare(a.d))
-    .forEach(r=>{
-      const k=norm(r.title);
-      if(seen[k]) return;
-      seen[k]=1;
-      const mk=markVN(r.v,r.n);
-      if(mk&&mk.why==="вне нормы")
-        out.push({n:r.title,val:r.v,nrm:r.n,db:r.d,cls:"bad",ri:(d.rec||[]).indexOf(r)});
-    });
+function labMarks(d,months){
+  const rec=d.rec||[], groups=new Map(), out=[];
+  for(const r of rec){
+    if(r.t!=="lab"||!r.d||!r.v) continue;
+    const p=labRecordPoint(r), key=labSeriesKey(p.n,p.u);
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push({r,p});
+  }
+  for(const group of groups.values()){
+    group.sort((a,b)=>b.r.d.localeCompare(a.r.d)||Number(!!b.r.entry)-Number(!!a.r.entry));
+    const {r,p}=group[0], S=labStatus(r), n=labName(p.n,p.u), b=labExactValue(p.v);
+    const bad=S.key==="high"||S.key==="low"||S.key==="out";
+    const previous=group.find(x=>x.r.d<r.d&&labExactValue(x.p.v)!=null);
+    const a=previous&&b!=null?labExactValue(previous.p.v):null;
+    if(!bad&&a==null) continue;
+    const prev=previous?labStatus(previous.r).key:"", wasOut=["high","low","out"].includes(prev);
+    const state=S.key==="high"?"выше нормы":S.key==="low"?"ниже нормы":S.key==="edge"?"у границы нормы":S.key==="ok"?"в пределах нормы":"";
+    out.push({n,u:a==null?"":p.u,a,b,val:r.v,da:previous?.r.d,db:r.d,
+      aText:a==null?"":String(previous.p.v).replace(".",","),bText:String(p.v).replace(".",","),
+      dp:a==null||a===0?null:(b-a)/Math.abs(a)*100,bad,cls:bad?"bad":S.cls,state,
+      nrm:r.n?(a==null?"":"норма ")+r.n:"",good:a!=null&&wasOut&&(S.key==="ok"||S.key==="edge")?"пришёл в норму":"",
+      stale:monthsAgo(r.d)>months,ri:rec.indexOf(r)});
+  }
   return out;
 }
 function ageRu(iso){
@@ -3803,11 +3816,10 @@ function changeText(x){
   return {dir,arrow:flat||x.b===x.a?"→":up?"↑":"↓",ctx:[x.state,x.nrm].filter(Boolean).join(" · ")};
 }
 // 0 — свежее вне нормы, 1 — заметный свежий сдвиг (от 5 %), 2 — старое; 9 — незаметный сдвиг, в список не входит
-function changeRank(x){ const big=x.dp==null||Math.abs(x.dp)>=5; return x.stale?(x.cls==="bad"||big?2:9):x.cls==="bad"?0:big?1:9; }
+function changeRank(x){ const big=x.dp==null||Math.abs(x.dp)>=5; if(x.good&&!x.stale) return 1; return x.stale?(x.cls==="bad"||big?2:9):x.cls==="bad"?0:big?1:9; }
 function insightsChanged(d){
   const M=6, list=changed(d,M);
-  const serN=new Set(list.map(x=>norm(x.n)));
-  const labs0=labMarks(d).filter(x=>!serN.has(norm(x.n))).map(x=>Object.assign({},x,{stale:monthsAgo(x.db)>M}));
+  const labs0=labMarks(d,M);
   // анализы старше двух лет с главной уходят: вместо них — «Пора сдать»
   const sp=splitOldMarks(list.concat(labs0),24), dueOld=sp.due;
   const keepSet=new Set(sp.keep), labs=labs0.filter(x=>keepSet.has(x)), listK=list.filter(x=>keepSet.has(x));
@@ -3816,8 +3828,8 @@ function insightsChanged(d){
   const quiet=listK.length+labs.length-all.length, N=5, shown=insSel==="all"?all:all.slice(0,N);
   const row=x=>{ const c=x.a!=null?changeText(x):null, bad=x.cls==="bad";
     return `<div class="ins-row${x.stale?" stale":""}"${x.ri>=0?` data-rec="${x.ri}"${x.sid?` data-ser="${x.sid}"`:""} title="Открыть запись"`:""}>
-      <div><b>${esc(x.n)}</b>${indBtn(x.n)}<div class="muted">${x.a!=null?`${ru(x.da)} → ${ru(x.db)}`:ru(x.db)}${x.stale?` · ${ageRu(x.db)}`:""}${c&&c.ctx?` · ${esc(c.ctx)}`:""}${!c?` · норма ${esc(x.nrm)}`:""}</div></div>
-      <div class="ins-v">${x.a!=null?`${nz1(x.a)} → <b>${nz1(x.b)}</b> <span class="muted" style="display:inline;margin:0">${esc(x.u||"")}</span>`:`<b>${esc(x.val)}</b>`}</div>
+      <div><b>${esc(x.n)}</b>${indBtn(x.n)}<div class="muted">${x.a!=null?`${ru(x.da)} → ${ru(x.db)}`:ru(x.db)}${x.stale?` · ${ageRu(x.db)}`:""}${c&&c.ctx?` · ${esc(c.ctx)}`:""}${!c&&x.nrm?` · норма ${esc(x.nrm)}`:""}</div></div>
+      <div class="ins-v">${x.a!=null?`${x.aText||nz1(x.a)} → <b>${x.bText||nz1(x.b)}</b> <span class="muted" style="display:inline;margin:0">${esc(x.u||"")}</span>`:`<b>${esc(x.val)}</b>`}</div>
       <div class="ins-d neu${x.good?" good":""}">${c?`${c.arrow} ${esc(c.dir)}`:""}${x.good?`<div class="ins-good">${esc(x.good)}</div>`:""}${bad?`<div class="ins-flag">${esc(devDir(x)||"вне нормы")}</div>`:(x.state==="в пределах нормы"&&!x.good?`<div class="ins-flag ins-flag--ok">в норме</div>`:"")}</div>
     </div>`; };
   const dueHtml=dueOld.length?`<div class="ins-due"><b>Давно нет новых данных</b>
@@ -3883,7 +3895,8 @@ function labItems(list){
 // ═══ ТЗ-070: анализы — упрощение (блоки 4, 1, 3). Один вид строки, три секции, фильтры в меню ═══
 // Слова статуса одни в списке, карточке и графике. Слово берётся из записи (st) и положения значения; «Нет нормы» ≠ «В норме».
 function labStatus(r){
-  r=r||{}; const S=normScale(r.v,r.n,r.st), w=S.word, qual=normValue(r.v)==null&&String(r.v==null?"":r.v).trim()!=="";
+  r=r||{};
+  const S=normScale(r.v,r.n,r.st), w=S.word, qual=normValue(r.v)==null&&String(r.v==null?"":r.v).trim()!=="";
   let key,word;
   if(w==="Выше"){ key="high"; word="Выше"; }
   else if(w==="Ниже"){ key="low"; word="Ниже"; }
@@ -3913,7 +3926,7 @@ function labInstrRowModel(r){ const w=r.st==="ok"?["В норме","ok"]:(r.st==
 function labCutoff(today,months){ const m=String(today||"").match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return ""; const d=new Date(Date.UTC(+m[1],+m[2]-1-(months||12),+m[3])); return d.toISOString().slice(0,10); }
 function labAttention(recs,today,max,unitOf){
   max=max||5; unitOf=unitOf||(()=>""); const last={};
-  (recs||[]).forEach(r=>{ if(!r||r.t!=="lab"||labIsPanel(r)) return; const k=labBare(r.title); if(!last[k]||String(r.d)>String(last[k].d)) last[k]=r; });
+  (recs||[]).forEach(r=>{ if(!r||r.t!=="lab"||labIsPanel(r)) return; const p=labRecordPoint(r), k=labSeriesKey(p.n,p.u); if(!last[k]||r.d>last[k].d||(r.d===last[k].d&&r.entry&&!last[k].entry)) last[k]=r; });
   const cut=labCutoff(today,12), L=Object.values(last), fresh=L.filter(r=>String(r.d)>=cut);
   const hot=fresh.map(r=>labRowModel(r,unitOf(r.title))).filter(x=>x.attention)
     .sort((a,b)=>String(b.rec.d).localeCompare(String(a.rec.d))||labSev(b)-labSev(a)||a.title.localeCompare(b.title,"ru"));
@@ -4078,9 +4091,9 @@ document.addEventListener("keydown",e=>{
 // ── ТЗ-070 блок 2: карточка показателя. Одна функция фактов; все тексты карточки строятся только из неё
 function labCountText(n,one,few,many){ return `${n} ${plural(n,one,few,many)}`; }
 function labFacts(r,rows,o){
-  o=o||{}; const S=labStatus(r), cap=normCaption(r.n), nr=cap.kind==="scale"?normRange(r.n):null, cur=normValue(r.v), unit=String(o.unit||"").trim();
+  o=o||{}; const S=labStatus(r), cap=normCaption(r.n), nr=cap.kind==="scale"?normRange(r.n):null, cur=labExactValue(r.v), unit=String(o.unit||"").trim();
   const sorted=(rows||[]).filter(x=>x&&x.d).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d)));
-  const prev=sorted.find(x=>String(x.d)<String(r.d)&&normValue(x.v)!=null)||null, pv=prev?normValue(prev.v):null;
+  const prev=cur==null?null:sorted.find(x=>String(x.d)<String(r.d)&&labExactValue(x.v)!=null)||null, pv=prev?labExactValue(prev.v):null;
   const dec=x=>{ const m=String(x).replace(",",".").match(/\.(\d+)/); return m?m[1].length:0; };
   let delta=null; if(cur!=null&&pv!=null){ const k=Math.min(3,Math.max(dec(r.v),dec(prev.v))), abs=Math.abs(cur-pv);
     delta={dir:cur>pv?"up":cur<pv?"down":"same",abs:abs.toFixed(k).replace(".",","),pct:pv?Math.round(abs/Math.abs(pv)*100):null}; }
@@ -4092,11 +4105,10 @@ function labFacts(r,rows,o){
 }
 // одна фраза «что это значит»: норма, затем изменение к прошлой сдаче (одно число); положение — только словами записи
 function labMeaning(f){
-  if(f.normKind==="none") return "Нормы на бланке нет, статус не определён.";
-  const s1=(f.normKind==="scale"?"Норма "+f.normText.replace(/^норма\s*/i,""):"Норма: "+f.normText.replace(/^норма:\s*/i,""))+".";
+  const s1=f.normKind==="none"?"Нормы на бланке нет, статус не определён.":(f.normKind==="scale"?"Норма "+f.normText.replace(/^норма\s*/i,""):"Норма: "+f.normText.replace(/^норма:\s*/i,""))+".";
   if(!f.prev) return s1+" Сдавался один раз, сравнить пока не с чем.";
   if(!f.delta) return s1;
-  const rd=d=>String(d).split("-").reverse().join("."), u=f.unit?" "+f.unit:"";
+  const rd=d=>String(d).split("-").reverse().join("."), u=f.unit==="%"?" п. п.":f.unit?" "+f.unit:"";
   let s=f.delta.dir==="same"?`Без изменений с ${rd(f.prev.d)} (${String(f.prev.v).replace(".",",")})`
     :`${f.delta.dir==="up"?"Выше":"Ниже"}, чем ${rd(f.prev.d)} (${String(f.prev.v).replace(".",",")}), на ${f.delta.abs}${u}${f.delta.pct!=null?` (${f.delta.pct} %)`:""}`;
   const k=f.status.key;
@@ -4168,7 +4180,7 @@ function tableRows(list,opt){
 function num(x){ return parseFloat(String(x).replace(",", ".")); }
 function markVN(v,n){
   if(v==null||n==null||n==="") return null;
-  const val=num(String(v).replace(/^\s*\d{1,2}\.\d{2}(?:\.\d{2,4})?\s*(?:[:,—–-]\s*)?/,"").match(/-?\d+[.,]?\d*/)?.[0]);
+  const val=num(String(v).replace(/^\s*\d{1,2}\.\d{2}(?:\.\d{2,4})?\s*[:,—–-]\s*/,"").match(/-?\d+[.,]?\d*/)?.[0]);
   if(isNaN(val)) return null;
   const t=String(n); let lo=null,hi=null;
   const nr=normRange(t); if(nr){ hi=nr.hi; lo=nr.upper?null:nr.lo; }   // ТЗ-059: общий разбор норм
@@ -4724,9 +4736,12 @@ function labPartsOf(v,n){
 }
 // более ранние значения того же показателя (по названию без скобок), по возрастанию даты
 function labHistFor(rec,r){
-  const key=labBare(r.title);
-  return (rec||[]).filter(x=>x!==r&&x.d&&r.d&&x.d<r.d&&labBare(x.title)===key&&isFinite(parseFloat(String(x.v||"").replace(",","."))))
-    .sort((a,b)=>a.d<b.d?-1:1).map(x=>({v:x.v,d:x.d}));
+  const p=labRecordPoint(r), key=labSeriesKey(p.n,p.u);
+  return (rec||[]).filter(x=>{
+    if(x.t&&x.t!=="lab"||!x.d||!r.d||x.d>=r.d) return false;
+    const q=labRecordPoint(x);
+    return labSeriesKey(q.n,q.u)===key&&labExactValue(q.v)!=null;
+  }).sort((a,b)=>a.d.localeCompare(b.d)).map(x=>({v:x.v,d:x.d}));
 }
 function LAB_NUM(v){ return parseFloat(String(v==null?"":v).replace(/\s/g,"").replace(",",".")); }
 function LAB_RU(v){ return String(v).replace(".",","); }
@@ -5171,18 +5186,18 @@ function openRec(i,showSer){
     ${sameDay.map(x=>`<tr class="row is-link" data-rec="${idOf(x)}"><td><b>${esc(x.title)}</b>${x.full?' <span class="tag">заключение целиком</span>':''}</td>
       <td class="muted" style="white-space:nowrap">${TYPE[x.t]}</td><td class="muted">${esc(x.res||x.v||"—")}</td>
       <td><span class="status status-${x.st}">${ST[x.st]}</span></td></tr>`).join("")}</tbody></table></div>`:"";
-  const serHtml=ser.length?ser.map(sr=>`${sr.unit?`<div class="muted" style="font-size:13px">${esc(sr.unit)}</div>`:""}${chart(sr)}`).join(""):"";
   const shell=inner=>`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>${inner}</div>`;
   const head=(st,sub)=>`<div class="status status-${st||"none"}" style="margin-bottom:8px">${recBadge(Object.assign({},r,{st}))}</div>
     <h3 style="margin:0 0 4px;font-size:18px">${esc(r.title)}${r.t==="lab"?indBtn(r.title):""}</h3><div class="muted" style="margin-bottom:10px">${ru(r.d)}${r.who&&r.t!=="lab"?" · "+esc(r.who):""}</div>`;   // лаборатория в шапке анализа не нужна (Денис, 18.10.2026): она в «Подробнее»
   let cardHtml=null;
   if(r.t==="lab"){            // ТЗ-070 блок 2: число и статус → что значит → график → что делать → ИИ-врач → «Подробнее»
-    const M=labCardModel(D,r), MR=measRows(cur), cards=indicatorCards(r.title,MR), card=cards.find(x=>indicatorMatch(r.title,x.name)===3)||cards[0]||null;
+    const M=labCardModel(D,r), MR=measRows(cur), point=labRecordPoint(r), card=indicatorCards(r.title,MR,point.u)[0]||null;
     const SD=labSameSdacha(D,r), LF=labFacts(r,card?card.rows:[],{unit:card?card.unit:"",panelN:SD.n}), adv=labAdviceFor(r,indicatorParts(r.title),personFacts(cur),labHistFor(D.rec,r));
-    const chartHtml=indChartFor(r.title,MR,{nosum:true}), row=p=>labRowHtml(p,{sel:p.rec===r,graph:indSeriesCount(MR,p.title)>=2,from:{i:idOf(r),d:r.d}});
+    const chartHtml=card?indCardChart({...card,nosum:true}):"", row=p=>labRowHtml(p,{sel:p.rec===r,graph:indSeriesCount(MR,p.title)>=2,from:{i:idOf(r),d:r.d}});
     const sub=(t,b)=>b?`<h4 class="sdet-h">${t}</h4>${b}`:"";
     const S=normScale(r.v,r.n,r.st), det=[["Лаборатория",M.details.place],["Нормы лаборатории",M.details.norm],["Добавлено",M.details.from]].filter(x=>x[1]);
-    const about=(indicatorParts(r.title).length?`<button type="button" class="linkbtn labinfo" data-ind="${esc(r.title)}" data-dir="${labDir(r.v,r.n)}">Что это за показатель</button>`:"")
+    const info=indicatorParts(r.title)[0];
+    const about=(info?`<button type="button" class="linkbtn labinfo" data-ind="${esc(r.title)}" data-dir="${labDir(r.v,r.n)}">Что это за показатель</button>`:"")
       +(det.length?`<div class="sdet">${det.map(([k,v])=>{ const m=studyRowModel({title:k,text:v}); return m.long?`<div class="srow"><b>${esc(m.name)}</b><div>${esc(m.value)}</div></div>`:`<div class="srow"><b>${esc(m.name)}</b> — ${esc(m.value)}</div>`; }).join("")}</div>`:"");
     const dynRows=card?card.rows:[], dyn=LF.histN>1&&dynRows.length>1?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th></tr></thead><tbody>${dynRows.map(x=>`<tr${x.d===r.d?' style="background:var(--accentbg)"':''}><td class="muted">${ru(x.d)}</td><td><b>${esc(String(x.v).replace(".",","))}</b>${x.u?" "+esc(x.u):""}</td><td class="muted">${esc(x.norm||"—")}</td></tr>`).join("")}</tbody></table></div>`:"";
     const conseq=adv&&adv.consequence?`<p style="margin:4px 0">${esc((adv.level==="edge"?(adv.dir==="high"?"Если выйдет за верхнюю границу нормы: ":"Если выйдет за нижнюю границу нормы: "):(adv.dir==="high"?"Если выше нормы: ":"Если ниже нормы: "))+adv.consequence)}</p>`:"";
@@ -5191,14 +5206,15 @@ function openRec(i,showSer){
     const more=sub("О показателе",about)+sub("К чему это может привести",conseq)+sub(`Динамика — ${labCountText(LF.histN,"значение","значения","значений")}`,dyn)
       +sub(`Эта же сдача${SD.group?": "+esc(SD.group):""} — ${esc(SD.summary)}`,thisHtml)+sub("Заключение",(r.full&&r.full.length)?fullRows(r.full):"")+sub("Комментарий",M.verdict?`<p style="margin:4px 0">${esc(M.verdict)}</p>`:"")
       +sub(`В этот же день — ещё ${sameDay.length+SD.other.length}`,dayOther)
-      +(M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка.</div>`:"")
+      +(LF.histN<=1&&M.baseline?`<div class="note" style="background:var(--nonebg);color:var(--muted);margin-top:8px">«${esc(r.title)}» сдавался один раз — ${ru(r.d)}. Сравнивать не с чем: это базовая точка.</div>`:"")
       +`<div id="rlinks" data-d="${esc(r.d)}" data-p="${esc(cur)}">${recLinksHtml(r,cur)}</div>${recGoAll(r)}${origHtml}${filesHtml}`;   // оригиналы — в самом конце (Денис, 04.10.2026)
     const meaning=adv&&adv.state?adv.state:labMeaning(LF);
     cardHtml=shell(`<h3 style="margin:0 0 2px;font-size:18px;padding-right:44px">${esc(r.title)}</h3><div class="muted" style="margin-bottom:6px">${ru(r.d)}</div>
       <div class="labown"><b style="color:${statusColor(LF.status.cls)}">${esc(LF.value)}</b><span class="status status-${LF.status.cls}">${esc(LF.status.word)}</span></div>
       ${normScaleHtml(S)?`<div class="lr-sc lr-sc--top">${normScaleHtml(S)}</div><div class="muted lr-cap" style="font-size:13px">${esc(S.caption)}</div>`:""}
       <p class="lab-mean">${esc(meaning)}</p>
-      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(serHtml?`<div class="ind-ch">${serHtml}</div>`:(LF.histN<=1&&!/Сдавался один раз/.test(meaning)?`<div class="muted lr-once" style="font-size:13px;margin:4px 0 8px">Сдавался один раз, сравнить пока не с чем</div>`:""))}
+      ${info&&info.what?`<p class="muted">${esc(info.what)}</p>`:""}
+      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(LF.histN<=1&&!/Сдавался один раз/.test(meaning)?`<div class="muted lr-once" style="font-size:13px;margin:4px 0 8px">Пока нет сопоставимых прошлых значений</div>`:"")}
       ${labAdvHtml(r,idOf(r))}
       ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,
         legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return rzHtml(tp); })()}
@@ -5599,7 +5615,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="08.11 12:29 · замеры";   // подставляется при публикации
+const BUILD="09.11 14:42 · анализы";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -10064,6 +10080,56 @@ function normEdge(value,norm){
   return null;
 }
 // система показателя для анализа с сайта: сначала как у тех же показателей в книжке семьи (known: название без скобок → система), потом по названию
+function labUnit(unit){
+  const u=String(unit||"").normalize("NFKC").toLowerCase().replace(/\s+/g,"").replace(/μ/g,"µ");
+  if(/^(?:[xх×*]?10(?:\^|\*)?3\/(?:u|µ|мк)[lл]|[xх×*]?10\^?9\/[lл])$/.test(u)) return "10^9/l";
+  if(/^(?:f\/[lл]|[lл]\/[lл])$/.test(u)) return "l/l";
+  return u;
+}
+// Ручная лейкоформула и палочкоядерные идут отдельными рядами.
+function labName(name,unit){
+  const raw=String(name||"").trim(), n=raw.toLowerCase().replace(/ё/g,"е"), u=labUnit(unit);
+  if(/^(?:h\s*c\s*t(?:\s*\(гематокрит\))?|гематокрит(?:\s*\(h\s*c\s*t\))?)$/.test(n)) return "Гематокрит";
+  if(/^ферритин(?:\s*\((?:в крови|сыворотка)\))?$/.test(n)) return "Ферритин";
+  if(/^(?:hgb|hb|гемоглобин(?:\s*\((?:hgb|hb)\))?)$/.test(n)) return "Гемоглобин";
+  const neu=/^n\s*e\s*u(?:t)?(?=$|[\s(#%])/.test(n), lym=/^l\s*y\s*m(?:ph)?(?=$|[\s(#%])/.test(n);
+  if(/палочкоядер|микроскоп|ручн/.test(n)||(!neu&&/сегментоядер/.test(n))) return raw;
+  const neutName=/^нейтрофилы(?: (?:относительные|абсолютные))?(?:\s*\(%\)|\s*%)?$/.test(n);
+  const lymphName=/^лимфоциты(?: (?:относительные|абсолютные))?(?:\s*\(%\)|\s*%)?$/.test(n);
+  const base=neu||neutName?"Нейтрофилы":lym||lymphName?"Лимфоциты":"";
+  if(!base) return raw;
+  if(u==="%"&&/#/.test(n)||u==="10^9/l"&&/%/.test(n)) return raw;
+  if(u==="%") return base+" относительные";
+  if(u==="10^9/l") return base+" абсолютные";
+  if(/абсолютн|#/.test(n)) return base+" абсолютные";
+  if(/относительн|%/.test(n)) return base+" относительные";
+  return raw;
+}
+function labSeriesKey(name,unit){
+  return labName(name,unit).toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ")+"|"+labUnit(unit);
+}
+function labRecordPoint(r){
+  const m=String(r.v??"").trim().match(/^([<>≤≥]?\s*-?\d+(?:[.,]\d+)?)\s*(.*)$/);
+  return {d:r.d,n:r.title,v:m?m[1]:r.v,u:r.unit||(m?m[2]:""),norm:r.n||""};
+}
+function labExactValue(v){
+  return /^\s*[<>≤≥]/.test(String(v??""))?null:normValue(v);
+}
+function labSaveItem(it){
+  const input=String(it.name||"").trim(), original=String(it.raw||input).trim(), unit=String(it.unit||"").trim();
+  const fromOriginal=labName(original,unit);
+  const name=it.raw?fromOriginal:labName(input,unit);
+  const raw=it.raw||(name!==input?input:""), value=String(it.value??"").trim(), norm=String(it.norm||"").trim();
+  return {...it,name,value,unit,norm,flag:flagByNorm(value,norm),...(raw?{raw}:{})};
+}
+function labMatchText(it,rows,date){
+  const x=labSaveItem(it), key=labSeriesKey(x.name,x.unit);
+  const prev=rows.filter(r=>(!date||r.d<date)&&labSeriesKey(r.n,r.u)===key&&labExactValue(r.v)!=null)
+    .sort((a,b)=>b.d.localeCompare(a.d))[0];
+  if(prev) return "В истории: "+ru(prev.d)+" · "+prev.v+(prev.u?" "+prev.u:"");
+  return x.name&&x.value?"Нет сопоставимого замера в истории":"";
+}
+
 function labBare(t){ return String(t||"").toLowerCase().replace(/ё/g,"е").replace(/\s*\(.*?\)\s*/g," ").replace(/\s+/g," ").trim(); }
 function labSysFor(name,known){
   const b=labBare(name); if(known&&known[b]) return known[b];
@@ -10099,8 +10165,9 @@ function entriesInto(D,rows){
     (P.series||[]).forEach(s=>{ if(!s._base) s._base=(s.pts||[]).slice(); s.pts=s._base.slice(); }); }
   // точка анализа с сайта — сразу в ряд «Динамики» с тем же названием (без скобок, без регистра); дата уже есть — не трогаем
   const bare=t=>String(t||"").toLowerCase().replace(/ё/g,"е").replace(/\s*\(.*?\)\s*/g," ").trim();
-  const addPt=(P,d,it)=>{ const v=parseFloat(String(it.value||"").replace(",",".")); if(!isFinite(v)||!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
-    const s=(P.series||[]).find(s=>bare(s.name)===bare(it.name)); if(!s) return;
+  const addPt=(P,d,it)=>{ const v=labExactValue(it.value); if(v==null||!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+    const match=(P.series||[]).filter(s=>it.unit?labSeriesKey(s.name,s.unit)===labSeriesKey(it.name,it.unit):bare(s.name)===bare(it.name));
+    if(match.length!==1) return; const [s]=match;
     const dd=d.split("-").reverse().join("."), key=x=>x.split(".").reverse().join("");
     if(s.pts.some(p=>p[0]===dd)) return;
     s.pts=[...s.pts,[dd,v]].sort((a,b)=>key(a[0]).localeCompare(key(b[0]))); };
@@ -10149,9 +10216,10 @@ function entriesInto(D,rows){
     }
     if(e.kind==="lab"&&Array.isArray(x.items)){
       const ST2={"выше":"bad","ниже":"bad","норма":"ok"};
-      for(const it of x.items) addPt(P,x.d||"",it);
-      for(const it of x.items) (P.rec=P.rec||[]).push({t:"lab",d:x.d||String(e.created_at).slice(0,10),title:it.name,who:x.lab||"",place:x.lab||"",
-        sys:it.sys||labSysFor(it.name,known),st:it.flag==="норма"&&normEdge(it.value,it.norm)?"warn":(ST2[it.flag]||""),v:[it.value,it.unit].filter(Boolean).join(" "),n:it.norm||"",
+      const items=x.items.map(labSaveItem);
+      for(const it of items) addPt(P,x.d||"",it);
+      for(const it of items) (P.rec=P.rec||[]).push({t:"lab",d:x.d||String(e.created_at).slice(0,10),title:it.name,who:x.lab||"",place:x.lab||"",
+        sys:it.sys||labSysFor(it.name,known),st:it.flag==="норма"&&normEdge(it.value,it.norm)?"warn":(ST2[it.flag]||""),v:[it.value,it.unit].filter(Boolean).join(" "),unit:it.unit,n:it.norm||"",
         res:it.raw?`на бланке: ${it.raw}`:"",from,full:[],files:e.files||[],entry:e.id});
       continue;
     }
@@ -10215,18 +10283,18 @@ function indicatorMatch(q,name){
   return [...qq].every(x=>bs.has(x)||is.has(x))?1:0;
 }
 // карточки показателей для запроса: строки {d, n, v, u, norm} → [{name, unit, rows (новые сверху), dyn (от старых, до 8)}]
-function indicatorCards(q,rows){
-  const noBr=x=>String(x||"").replace(/\([^)]*\)/g," ");
+function indicatorCards(q,rows,unit){
+  const wanted=unit==null?null:labSeriesKey(q,unit);
   const groups={};
   for(const r of rows||[]){ if(!r||!r.n||!r.d) continue;
-    const key=[...indStems(noBr(r.n))].sort().join(" ")||String(r.n).toLowerCase();
+    const key=labSeriesKey(r.n,r.u); if(wanted!==null&&key!==wanted) continue;
     (groups[key]=groups[key]||[]).push(r); }
-  const num=v=>{ const x=parseFloat(String(v??"").replace(",",".").replace(/\s/g,"")); return isFinite(x)?x:null; };
+  const num=labExactValue;
   const cards=[];
   for(const g of Object.values(groups)){
     const names={}; g.forEach(r=>{ names[r.n]=(names[r.n]||0)+1; });
-    const name=Object.keys(names).sort((a,b)=>names[b]-names[a]||b.length-a.length)[0];
-    const score=Math.max(...Object.keys(names).map(n=>indicatorMatch(q,n)));
+    const name=labName(Object.keys(names).sort((a,b)=>names[b]-names[a]||b.length-a.length)[0],g[0].u);
+    const score=wanted!==null||labSeriesKey(q,g[0].u)===labSeriesKey(name,g[0].u)?3:Math.max(indicatorMatch(q,name),...Object.keys(names).map(n=>indicatorMatch(q,n)));
     if(!score) continue;
     // одна дата и одно значение — одна строка; из дублей берём ту, где есть единица и норма числами
     const byKey={}, normOk=x=>/\d/.test(String(x||""));
@@ -10235,15 +10303,21 @@ function indicatorCards(q,rows){
       if(!o) byKey[k]=row; else { if(!o.u&&row.u) o.u=row.u; if(!o.norm&&row.norm) o.norm=row.norm; } });
     const list=Object.values(byKey).sort((a,b)=>b.d.localeCompare(a.d)).map(r=>Object.assign(r,{flag:flagByNorm(r.v,r.norm)}));
     const unit=(list.find(r=>num(r.v)!=null&&r.u)||list.find(r=>num(r.v)!=null)||list[0]||{}).u||"";
-    const dyn=list.filter(r=>num(r.v)!=null&&(!r.u||r.u===unit)).slice(0,8).reverse().map(r=>({d:r.d,v:num(r.v),flag:r.flag}));
+    const dyn=list.filter(r=>num(r.v)!=null).slice(0,8).reverse().map(r=>({d:r.d,v:num(r.v),flag:r.flag}));
     cards.push({name,unit,score,rows:list,dyn});
   }
   return cards.sort((a,b)=>b.score-a.score||b.rows.length-a.rows.length).slice(0,4);
 }
 // блок 4: запись книжки за дату строки показателя — сам показатель или анализ, внутри которого он есть; нет — -1
-function recForMeasurement(rec,d,name){
+function recForMeasurement(rec,d,name,unit){
   const noBr=x=>String(x||"").replace(/\([^)]*\)/g," ").trim().toLowerCase();
   const day=(rec||[]).map((r,i)=>[r,i]).filter(([r])=>r.d===d&&(r.t==="lab"||r.t==="instr"));
+  if(unit!=null){
+    const key=labSeriesKey(name,unit);
+    const match=day.find(([r])=>{ const p=labRecordPoint(r); return r.t==="lab"&&labSeriesKey(p.n,p.u)===key; });
+    if(match) return match[1];
+    return -1;
+  }
   const exact=day.find(([r])=>indicatorMatch(name,r.title)===3); if(exact) return exact[1];
   const inside=day.find(([r])=>[r.res,r.v,(r.full||[]).map(f=>Array.isArray(f)?f.join(" "):f).join(" ")].join(" ").toLowerCase().includes(noBr(name)));
   if(inside) return inside[1];
@@ -10253,8 +10327,7 @@ function recForMeasurement(rec,d,name){
 function measRows(k){
   const d=DATA[k]||{}, out=[];
   (window.__MEAS||[]).filter(m=>m.person===k).forEach(m=>out.push({d:m.m_date,n:m.indicator,v:m.value_num??m.value_text,u:m.unit||"",norm:m.norm||""}));
-  (d.rec||[]).filter(r=>r.t==="lab"&&r.v).forEach(r=>{ const m=String(r.v).match(/^\s*([<>]?\s*-?[\d.,]+)\s*(.*)$/);
-    if(m) out.push({d:r.d,n:r.title,v:m[1].trim(),u:m[2].trim(),norm:r.n||""}); });
+  (d.rec||[]).filter(r=>r.t==="lab"&&r.v).forEach(r=>out.push(labRecordPoint(r)));
   (d.series||[]).forEach(s=>(s.pts||[]).forEach(p=>{ const [dd,mm,yy]=String(p[0]).split(".");
     if(yy) out.push({d:`${yy}-${mm}-${dd}`,n:s.name,v:p[1],u:s.unit||"",norm:s.norm?s.norm.join("-"):""}); }));
   return out;
@@ -11715,7 +11788,7 @@ function indIndex(){
 }
 function indicatorInfo(name){
   const ix=indIndex(), raw=String(name||"").trim();
-  for(const v of [raw,raw.replace(/\s*\([^)]*\)\s*$/,""),raw.split(",")[0]]){ const r=ix.get(indKey(v)); if(r) return r; }
+  for(const v of [raw,labName(raw,"%"),raw.replace(/\s*\([^)]*\)\s*$/,""),raw.split(",")[0]]){ const r=ix.get(indKey(v)); if(r) return r; }
   return null;
 }
 function indicatorParts(name){
@@ -13312,7 +13385,7 @@ function measLoad(){
 function indCardChart(c){
   const pts=c.dyn.map(x=>{ let extra={iso:x.d,unit:c.unit};   // связь точки с записью и оригиналом (ТЗ-061 блок 2); нет данных страницы — точка остаётся значением ряда
     try{ const D=DATA[cur]||{}, row=c.rows.find(r=>r.d===x.d)||{}, o=recOriginals(D,{d:x.d});
-      extra={iso:x.d,rec:recForMeasurement(D.rec||[],x.d,c.name),unit:c.unit,norm:row.norm||"",orig:o?{name:o.list[0],href:o.disk?diskLink(o.disk,o.list[0]):""}:null}; }catch(e){}
+      extra={iso:x.d,rec:recForMeasurement(D.rec||[],x.d,c.name,c.unit),unit:c.unit,norm:row.norm||"",orig:o?{name:o.list[0],href:o.disk?diskLink(o.disk,o.list[0]):""}:null}; }catch(e){}
     return [ru(x.d),x.v,extra]; });
   if(pts.length<2) return "";
   const nr=(c.rows.map(r=>normRange(r.norm)).find(Boolean))||null;   // зона — из нормы последней записи, где она есть (ТЗ-061)
@@ -13339,7 +13412,7 @@ function indicatorBlock(){
       <div class="muted ind-sum">${esc(sum)}</div>
       ${ch?`<div class="ind-ch">${ch}</div>`:""}
       <div class="tbl-wrap"><table class="tbl tbl ind-t"><thead><tr><th>Дата</th><th>Значение</th><th>Норма</th><th></th></tr></thead><tbody>
-      ${c.rows.map(r=>{ const i=recForMeasurement(d.rec,r.d,c.name);
+      ${c.rows.map(r=>{ const i=recForMeasurement(d.rec,r.d,c.name,c.unit);
         return `<tr class="${tone(r.flag)==="bad"?"ind-out":""}${i>=0?" row":""}"${i>=0?` data-rec="${i}"`:""}><td style="white-space:nowrap">${ru(r.d)}</td>
         <td><b>${esc(fmt(r.v))}</b> <span class="muted">${esc(r.u&&r.u!==c.unit?r.u:"")}</span>${r.flag&&r.flag!=="норма"?` <span class="status status-bad">${r.flag}</span>`:""}</td>
         <td class="muted">${esc(r.norm||"—")}</td><td class="muted">${i>=0?"→":""}</td></tr>`; }).join("")}
@@ -13508,15 +13581,17 @@ function labForm(){
       <div id="labStat" class="formlog"></div><div id="labReview"></div></div></div>`;
   const stat=(t,c)=>{ document.getElementById("labStat").innerHTML=`<div class="${c||""}">${t}</div>`; };
   let keep=[];
+  const person=cur;
+  const history=measRows(person);
   const review=res=>{
-    let items=(res&&res.items||[]).map(x=>Object.assign({},x));
+    let items=(res&&res.items||[]).map(labSaveItem), date=res?.date||"", place=res?.lab||"";
     const box=document.getElementById("labReview");
     const draw=()=>{ box.innerHTML=`
-      <div class="fld"><label for="labD">Дата забора</label><input id="labD" type="date" value="${esc((res&&res.date)||"")}"></div>
-      <div class="fld"><label for="labPlace">Лаборатория</label><input id="labPlace" value="${esc((res&&res.lab)||"")}"></div>
+      <div class="fld"><label for="labD">Дата забора</label><input id="labD" type="date" value="${esc(date)}"></div>
+      <div class="fld"><label for="labPlace">Лаборатория</label><input id="labPlace" value="${esc(place)}"></div>
       <div class="tbl-wrap"><table class="tbl tbl labrev"><thead><tr><th>Показатель</th><th>Значение</th><th>Ед.</th><th>Норма с бланка</th><th>Статус</th><th></th></tr></thead><tbody>
       ${items.map((it,i)=>`<tr data-i="${i}" class="${(it.confidence??1)<0.7?"unsure":""}">
-        <td><input data-k="name" placeholder="Показатель" aria-label="Показатель" value="${esc(it.name)}">${it.raw?`<div class="muted" style="font-size:11.5px">на бланке: ${esc(it.raw)}</div>`:""}</td>
+        <td><input data-k="name" placeholder="Показатель" aria-label="Показатель" value="${esc(it.name)}">${it.raw?`<div class="muted" style="font-size:11.5px">на бланке: ${esc(it.raw)}</div>`:""}<div class="muted lab-match">${esc(labMatchText(it,history,date))}</div></td>
         <td><input data-k="value" placeholder="Значение" aria-label="Значение" value="${esc(it.value)}" style="width:80px"></td><td><input data-k="unit" placeholder="Ед." aria-label="Ед." value="${esc(it.unit||"")}" style="width:70px"></td>
         <td><input data-k="norm" placeholder="Норма" aria-label="Норма с бланка" value="${esc(it.norm||"")}" style="width:100px"></td>
         <td class="st">${flagByNorm(it.value,it.norm)||"—"}</td><td><button type="button" class="addsym rowdel" title="Убрать строку">✕</button></td></tr>`).join("")}
@@ -13524,18 +13599,22 @@ function labForm(){
       <div class="row"><button type="button" class="btn btn-secondary" id="labAdd">+ Строка</button></div>
       <div class="row"><button class="btn btn-primary" id="labOk">Сохранить</button><button class="btn btn-secondary" data-close>Отмена</button></div>`;
       box.querySelector("tbody").addEventListener("input",e=>{ const tr=e.target.closest("tr"), it=items[+tr.dataset.i]; it[e.target.dataset.k]=e.target.value;
-        it.flag=flagByNorm(it.value,it.norm); tr.querySelector(".st").textContent=it.flag||"—"; });
+        if(e.target.dataset.k==="name") delete it.raw;
+        it.flag=flagByNorm(it.value,it.norm); tr.querySelector(".st").textContent=it.flag||"—";
+        tr.querySelector(".lab-match").textContent=labMatchText(it,history,document.getElementById("labD").value); });
+      document.getElementById("labD").onchange=e=>{ date=e.target.value; box.querySelectorAll(".lab-match").forEach((el,i)=>{ el.textContent=labMatchText(items[i],history,date); }); };
+      document.getElementById("labPlace").oninput=e=>{ place=e.target.value; };
       box.querySelector("tbody").addEventListener("click",e=>{ const b=e.target.closest(".rowdel"); if(!b) return; items.splice(+b.closest("tr").dataset.i,1); draw(); });
       document.getElementById("labAdd").onclick=()=>{ items.push({name:"",value:"",unit:"",norm:"",confidence:1}); draw(); };
       document.getElementById("labOk").onclick=async ()=>{
         const dt=(document.getElementById("labD").value||"").trim(), lab=(document.getElementById("labPlace").value||"").trim();
-        const rows=items.filter(x=>String(x.name).trim()&&String(x.value).trim()).map(x=>({name:String(x.name).trim(),value:String(x.value).trim(),unit:x.unit||"",norm:x.norm||"",flag:flagByNorm(x.value,x.norm),...(x.raw?{raw:x.raw}:{})}));
+        const rows=items.map(labSaveItem).filter(x=>x.name&&x.value).map(({name,value,unit,norm,flag,raw})=>({name,value,unit,norm,flag,...(raw?{raw}:{})}));
         if(!dt){ stat("Укажите дату забора.","er"); return; }
         if(!rows.length){ stat("Нет ни одной строки с показателем и значением.","er"); return; }
         document.getElementById("labOk").disabled=true;
-        try{ await entriesApi("entry_add",{person:cur,kind:"lab",data:{d:dt,lab,title:`Анализ ${ru(dt)}`,items:rows},files:keep});
+        try{ await entriesApi("entry_add",{person,kind:"lab",data:{d:dt,lab,title:`Анализ ${ru(dt)}`,items:rows},files:keep});
           await entriesPull(); render();
-          const tp=rzTopic("lab",cur,dt); rzGet(tp,{person:cur,defaultQ:"Разбери этот анализ",payload:{person:cur,mode:"lab",lab_date:dt}}).rows=[]; RZB[tp].loaded=true;
+          const tp=rzTopic("lab",person,dt); rzGet(tp,{person,defaultQ:"Разбери этот анализ",payload:{person,mode:"lab",lab_date:dt}}).rows=[]; RZB[tp].loaded=true;
           document.querySelector("#modal .mbox").innerHTML=`<button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
             <h3 style="margin:0 0 6px;font-size:18px">✓ Анализ сохранён</h3><p class="muted" style="margin:0 0 10px">Он в разделе «Анализы». Разобрать его с семейным ИИ-врачом: что в норме, что нет и что делать?</p>
             ${rzHtml(tp)}<div class="row"><button class="btn btn-secondary" data-close="1">Позже</button></div>`; }
@@ -13553,7 +13632,7 @@ function labForm(){
     try{
       const p=await prepareDocs(fl,t=>stat(t)); keep=p.keep;
       stat("Читаю документ… Нахожу показатели…");
-      const res=await entriesApi("analyze_document",{kind:"lab",person:cur,text:p.text||undefined,files:p.files.length?p.files:undefined});
+      const res=await entriesApi("analyze_document",{kind:"lab",person,text:p.text||undefined,files:p.files.length?p.files:undefined});
       stat(`Нашлось показателей: ${res.items.length}. Проверьте и сохраните.`,"ok"); review(res);
     }catch(err){
       stat(err.message==="limit"?"На сегодня распознаваний больше нет (30 в сутки). Заполните вручную.":"Не получилось прочитать. Переснимите при хорошем свете или заполните вручную.","wa");
@@ -13579,7 +13658,7 @@ function docSavePlan(parts,today){
   for(const p of [...vis,...on.filter(p=>p.type!=="visit"&&p.type!=="symptom")]){
     const f=p.fields||{}, q=p.quote||"";
     let data;
-    if(p.type==="lab") data={d:f.d||"",lab:f.lab||"",title:("Анализ "+(f.d?ru(f.d):"")).trim(),items:p.items||[]};
+    if(p.type==="lab") data={d:f.d||"",lab:f.lab||"",title:("Анализ "+(f.d?ru(f.d):"")).trim(),items:(p.items||[]).map(labSaveItem)};
     else if(p.type==="med") data={title:f.title||"",dose:f.dose||"",how:f.how||"",doc:f.doc||"",d:f.d||today,
       status:f.started?"начали":"назначено",from:f.started?(f.from||today):""};
     else if(p.type==="note") data={title:String(f.text||q).slice(0,60)||"Заметка",text:f.text||q};
