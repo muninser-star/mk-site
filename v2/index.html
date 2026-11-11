@@ -717,6 +717,46 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .wzadd{margin-top:12px;gap:8px;align-items:stretch;flex-wrap:nowrap}.wzadd .btn{flex:none;white-space:nowrap}.wzadd .input{flex:1;min-width:160px}.wzadd .btn{height:48px}
 .wztreat{padding:12px;border-radius:12px;background:var(--surface-2,#f1f3f6);margin:10px 0}.wznav{margin-top:14px;gap:8px;flex-wrap:wrap}.wzlab{display:flex;flex-direction:column;gap:6px;font:600 13px/16px var(--font);color:var(--text-primary)}.wzlab .input,.wzlab .select{min-width:200px}
 .wzho{width:100%;min-height:520px;font:13.5px/1.55 ui-monospace,Menlo,monospace!important;letter-spacing:0!important}
+.wzpanel,.hoprint{min-width:0;overflow-wrap:anywhere}
+.wzstart{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
+.wzcands,.wzlist{grid-template-columns:minmax(0,1fr)}
+.wzbody,.wzlab{min-width:0;max-width:100%}
+.wzpanel .wzlab .input,.wzpanel .wzlab .select{width:100%;min-width:0;max-width:100%}
+.wzfields{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px;margin:12px 0}
+.wzadd{flex-wrap:wrap}
+.wzadd .wzarea{flex:1 1 160px;min-width:0}
+.wzpanel .btn,.hoprint .btn{max-width:100%;min-height:44px;height:auto;white-space:normal}
+.wzpanel .addsym{width:44px;min-width:44px;min-height:44px;flex:none;margin:0}
+.wzarea,.prep .planrow textarea.ptext{box-sizing:border-box;min-height:44px;max-width:100%;height:auto;field-sizing:content;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
+.wzarea{display:block;width:100%;padding:10px 12px}
+.wzbody .wzarea,.wzadd .wzarea,.wztreat .wzarea{height:auto}
+.wzcontext{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.wzcontext .wzctx{margin:0}
+.wzsub{font-size:15px;margin:16px 0 6px}
+.wzlabrow,.wzreading{padding:10px 0;border-top:1px solid var(--line);min-width:0}
+.wzlabrow>label,.wzreading{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px}
+.wzlabrow input,.wzreading input{width:20px;height:20px;margin:3px 0;accent-color:var(--accent)}
+.wzlabrow p,.wzreading p{margin:4px 0}
+.wzlabrow .oclink{margin-left:30px;text-align:left}
+.wzreadbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wzreadbar .wzlab{flex:1 1 180px}
+.wzreadbar button{flex:none}
+.hoprint .docbar{justify-content:flex-start}
+.hoprint .tbl{table-layout:fixed;width:100%;min-width:0}
+.hoprint .tbl th,.hoprint .tbl td{white-space:normal;overflow-wrap:anywhere;vertical-align:top}
+.hoprint .tbl-wrap{max-width:100%;overflow:visible}
+@media(max-width:480px){
+  .wzfields,.prep .prep2{grid-template-columns:minmax(0,1fr)}
+  .wzrow{gap:6px}
+  .wzpanel .wzadd .btn{min-height:44px;height:auto}
+  .hoprint#docout td,.hoprint#docout th{padding:5px 3px;font-size:12px}
+}
+@media print{
+  body.print-wz-extract main>*:not(#wzExtract){display:none!important}
+  #wzExtract{background:#fff!important;color:#000!important;border:0!important;padding:0!important}
+  .hoprint .tbl thead{display:table-header-group}
+  .hoprint,.hoprint h2,.hoprint h3,.hoprint th,.hoprint td{color:#000!important}
+}
 .mdview .mdh1{font-size:22px;margin:4px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdh{font-size:16px;margin:18px 0 6px;text-transform:none;color:var(--ink)}.mdview .mdhr{border:0;border-top:1px solid var(--border,#e3e6ea);margin:14px 0}.mdview .mdq{margin:8px 0;padding:8px 14px;border-left:4px solid var(--accent,#1a6fd3);background:var(--surface-2,#f1f3f6);border-radius:0 10px 10px 0}
 .chatbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}.chatbox textarea{width:100%;min-height:76px;padding:10px 12px;border:1px solid var(--border,#d0d5dd);border-radius:12px;background:var(--bg,#fff);color:var(--ink);font:inherit;resize:vertical;box-sizing:border-box}.chatbox .btn{align-self:flex-end}
 .chatm table{font-size:13px}.chatm{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:14.5px;line-height:1.5;max-width:92%}.chatm--q{background:var(--accent,#1a6fd3);color:#fff;margin-left:auto}.chatm--a{background:var(--surface-2,#f1f3f6)}
@@ -4664,7 +4704,7 @@ function docSpecOf(text){
     [/невролог|невропатолог/,"neuro"],[/офтальмолог|окулист/,"ophth"],[new RegExp(B+"лор(?:[^а-я]|$)|оториноларинголог|отоларинголог"),"ent"],
     [/аллерголог|иммунолог/,"allergo"],[/пульмонолог/,"pulmo"],[/нефролог/,"nephro"],[/уролог/,"uro"],[/гинеколог/,"gyn"],[/маммолог/,"mammo"],
     [/гастроэнтеролог|гепатолог/,"gastro"],[/дерматолог/,"derm"],[/ортопед|травматолог/,"ortho"],[/хирург/,"surgeon"],[/стоматолог/,"dent"],
-    [/генетик|онкогенетик/,"gen"],[new RegExp(B+"терапевт|педиатр|врач общей практики"),"ped"]];
+    [/генетик|онкогенетик/,"gen"],[/педиатр/,"ped"],[new RegExp(B+"терапевт|врач общей практики"),"therapy"]];
   for(const [re,sp] of R) if(re.test(t)) return sp;
   return "other";
 }
@@ -5615,7 +5655,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="09.11 14:42 · анализы";   // подставляется при публикации
+const BUILD="11.11 16:23 · подготовка к врачу";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6773,7 +6813,7 @@ function mdLite(text){
   while(i<L.length){
     const l=L[i];
     if(/^\s*\|/.test(l)){ const rows=[]; while(i<L.length&&/^\s*\|/.test(L[i])){ rows.push(L[i]); i++; }
-      const cells=r=>r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      const cells=r=>r.trim().replace(/^\||\|$/g,"").replace(/\\\|/g,"\u0001").split("|").map(c=>c.replace(/\u0001/g,"|").trim());
       const body=rows.filter(r=>!/^\s*\|?\s*:?-{2,}/.test(r)); if(!body.length) continue;
       out.push(`<div class="tbl-wrap"><table class="tbl"><thead><tr>${cells(body[0]).map(c=>`<th>${inl(c)}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r=>`<tr>${cells(r).map(c=>`<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`); continue; }
     let h=l.match(/^(#{1,3})\s+(.+)/); if(h){ out.push(h[1].length===1?`<h2 class="mdh1">${inl(h[2])}</h2>`:`<h3 class="mdh">${inl(h[2])}</h3>`); i++; continue; }
@@ -8211,10 +8251,14 @@ async function bpSave(button){
   if(!v.ok){ log(`<div class="er">${esc(v.error)}</div>`); return; }
   if(!window.__MK_KEY){ log(`<div class="er">Нужен вход по ссылке с кодом.</div>`); return; }
   const at=document.getElementById("bpAt").value, note=document.getElementById("bpNote").value, who=cur;
+  const measured=new Date(at);
+  if(!at||!Number.isFinite(+measured)||+measured>Date.now()){
+    log('<div class="er">Проверьте дату и время замера.</div>'); return;
+  }
   button.disabled=true;
   try{
-    await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:at?new Date(at).toISOString():undefined,note:note||undefined});
-    BPL[who]=0; MZD[who]=0;
+    await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:measured.toISOString(),note:note||undefined});
+    BPL[who]=0; MZD[who]=0; wzRefreshReadings(who);
     if(cur!==who)return;
     const active=button.isConnected&&modal.classList.contains("on"), c=bpClass(v.sys,v.dia);
     if(active&&fromHistory)bpHistory();
@@ -8252,15 +8296,15 @@ async function bpHistory(){
   }
 }
 function bpHistoryBody(body){
-  const today=localDay(), all=(BPS[cur]||[]).map(r=>({...r,day:dzDayOf(r.measured_at)}));
+  const today=localDay(), all=(BPS[cur]||[]).map(r=>({...r,...wzReadingTime(r.measured_at,r.measured_on)})).filter(r=>r.day);
   const rows=measRangeRows(all,BP_RANGE,today);
-  const mk=k=>rows.slice().reverse().filter(r=>r[k]!=null).map(r=>[`${ru(r.day)} ${bmLocal(r.measured_at).slice(11)}`,r[k],{iso:r.day}]);
+  const mk=k=>rows.slice().reverse().filter(r=>r[k]!=null).map(r=>[[wzDate(r.day),r.time].filter(Boolean).join(" "),r[k],{iso:r.day}]);
   const graphs=[['sys','Верхнее',90,140],['dia','Нижнее',60,90]].map(([k,name,lo,hi])=>
     `<div class="muted">${name}</div>${chart({name,unit:'мм рт. ст.',pts:mk(k),lo,hi,measurement:true,nosum:true})}`).join('');
   body.innerHTML=measurePeriods('data-bprange',BP_RANGE)+
     (rows.length>1?graphs:'<p class="muted">За этот период меньше двух замеров.</p>')+
-    (rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Когда</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
-    ${rows.map(r=>{const c=bpClass(r.sys,r.dia);return `<tr><td>${esc(bpWhen(r.measured_at,today))}${r.note?`<div class="muted">${esc(r.note)}</div>`:''}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted">${c.word}</span></td>
+    (rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата и время</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
+    ${rows.map(r=>{const c=bpClass(r.sys,r.dia);return `<tr><td>${wzDate(r.day)}${r.time?` · ${esc(r.time)}`:''}${r.note?`<div class="muted">${esc(r.note)}</div>`:''}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted">${c.word}</span></td>
       <td>${r.pulse||'—'}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">×</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="muted">Записей за выбранный период нет.</p>');
 }
 
@@ -8289,7 +8333,7 @@ document.addEventListener("click",e=>{
   const save=e.target.closest?.("[data-bpsave]"); if(save){bpSave(save);return;}
   const d=e.target.closest&&e.target.closest("[data-bpdel]");
   if(d){ if(!confirm("Удалить этот замер?")) return; const who=cur;
-    mkApi("bp_delete",{id:+d.dataset.bpdel}).then(()=>{ BPL[who]=0; bpLoad(true); closeModal(); toast("Замер удалён"); }).catch(()=>toast("Не получилось удалить — нет связи")); }
+    mkApi("bp_delete",{id:+d.dataset.bpdel}).then(()=>{ BPL[who]=0; bpLoad(true); wzRefreshReadings(who); closeModal(); toast("Замер удалён"); }).catch(()=>toast("Не получилось удалить — нет связи")); }
 });
 // ── Любые замеры (ТЗ-055 блок 2): рост, температура, сахар, пульс, сатурация, свой замер; вес и давление — прежние хранилища ──
 const MEAS_DEF=[["weight","Вес","кг",2,300],["height","Рост","см",30,230],["temp","Температура","°C",34,42],["glucose","Сахар","ммоль/л",1,35],
@@ -8361,6 +8405,14 @@ function bmScreen(content,kind=''){
 function bmFocus(){
   modal.querySelector('#bmTitle')?.focus({preventScroll:true});
 }
+async function bmBodyRows(person){
+    let capability;
+    try{capability=await mkApi('body_profile_capabilities',{});}
+    catch(e){if(!/bad_request|unknown_action/.test(String(e.message)))throw e;capability={version:0};}
+    if(capability.version===1)return {available:true,...await mkApi('body_profile_list',{person})};
+    const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
+    return {available:false,rows:w.rows,heights:h.rows};
+  }
 async function bmOpen(add=''){
   const person=cur;
   if(!DATA[person]||lockNeeded(person))return;
@@ -8370,15 +8422,7 @@ async function bmOpen(add=''){
   bmFocus();
   const active=()=>cur===person&&BM.request===request&&modal.classList.contains('on')&&modal.querySelector('.bm-screen');
   if(!window.__MK_KEY){BM.error='Для замеров войдите в медкнижку.';bmDraw();return;}
-  async function bodyRows(){
-    let capability;
-    try{capability=await mkApi('body_profile_capabilities',{});}
-    catch(e){if(!/bad_request|unknown_action/.test(String(e.message)))throw e;capability={version:0};}
-    if(capability.version===1)return {available:true,...await mkApi('body_profile_list',{person})};
-    const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
-    return {available:false,rows:w.rows,heights:h.rows};
-  }
-  const work=[bodyRows()];
+  const work=[bmBodyRows(person)];
   if(!add)work.push(mkApi('metric_list',{person}),mkApi('bp_list',{person}));
   const [body,metrics,bp]=await Promise.allSettled(work);
   if(!active())return;
@@ -8592,7 +8636,7 @@ function bmForm(row,initial){
     button.disabled=true;button.textContent='Сохраняем…';
     try{
       await mkApi('body_profile_save',{person,...result,request_id:token,expected_revision:revision});
-      bmRefreshCaches(person,result.day);
+      bmRefreshCaches(person,result.day); wzRefreshReadings(person);
       if(cur!==person||BM.person!==person||!box.isConnected||!modal.classList.contains('on'))return;
       if(tab==='home'||tab==='hp')render();
       toast('Замер сохранён');
@@ -8710,7 +8754,7 @@ async function measSave(){
       await mkApi("body_save",{person:who,d,weight:v.value});
       nutSET("weight",nutMerge([...nutLS("weight",[],who),{d,v:v.value}]),who); }
     else await mkApi("metric_save",{person:who,metric:v.metric,value:v.value,label:v.label,unit:v.unit,at:at.toISOString(),note:note||undefined});
-    MZD[who]=0; mzLoad(true);
+    MZD[who]=0; mzLoad(true); wzRefreshReadings(who);
     const D=measDef(MEAS_SEL), nm=v.label||D[1], un=v.unit||D[2], key=MEAS_SEL;
     closeModal(); toast(`${esc(nm)} ${String(v.value).replace(".",",")} ${esc(un)} сохранён`,"История",()=>measHistory(key,v.label,v.unit));
     render();
@@ -9092,7 +9136,8 @@ function nvFormModel(r){
 function nvFormHtml(r,o){
   const m=nvFormModel(r);
   window.__nvRec={d:r.d,who:r.who||"",title:r.title||"",plan:m.plan,spec:m.spec,after:!!(o&&o.after)};
-  const sel=m.spec?"":`<div class="fld"><label for="nvSpec">К какому врачу</label><select id="nvSpec"><option value="">— выберите —</option>${DOC_SPECS.filter(x=>x[0]!=="other").map(x=>`<option value="${x[0]}">${esc(x[1])}</option>`).join("")}</select></div>`;
+  const sel=docSpecAllowed(m.spec)?"":`<div class="fld"><label for="nvSpec">К какому врачу</label><select id="nvSpec">${docSpecOptions("")}</select></div>`;
+  if(sel) window.__nvRec.spec="";
   const sum=m.planned?`<div class="muted" style="margin-bottom:6px">Запланировано: ${m.date?ru(m.date):"пока без даты"}${m.spec?" · "+esc(specName(m.spec)):""}</div>`:"";
   return `<div class="nvform">${sum}<details class="nvd"${o&&o.after?" open":""}><summary class="btn btn-secondary">${m.planned?"Изменить посещение":"Запланировать посещение"}</summary>
     <div class="addform" style="margin-top:8px">${sel}<div class="fld"><label for="nvDate">Дата (можно оставить пустой)</label><input type="date" id="nvDate" value="${esc(m.date)}">${qdChipsHtml("nvDate",r.d,m.date)}</div>
@@ -9100,8 +9145,9 @@ function nvFormHtml(r,o){
 }
 async function nvSave(R0,del){
   if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-  const v=del?"":((document.getElementById("nvDate")||{}).value||""), spec=R0.spec||((document.getElementById("nvSpec")||{}).value||"");
-  if(!spec){ toast("Выберите врача"); return; }
+  const v=del?"":((document.getElementById("nvDate")||{}).value||"");
+  const spec=del?(PLANS||[]).find(p=>p.id===R0.plan)?.specialty||R0.spec:R0.spec||document.getElementById("nvSpec")?.value;
+  if(!del&&!docSpecAllowed(spec)){ toast("Выберите врача"); return; }
   if(v&&v<=R0.d){ toast("Следующее посещение — после даты этого приёма"); return; }
   if(del&&!R0.plan) return;
   const body={id:R0.plan||undefined,person:cur,specialty:spec,planned_date:v,purpose:nvMarker({d:R0.d,who:R0.who,title:R0.title}),status:del?"cancelled":"planned"};
@@ -9116,9 +9162,11 @@ const nvDate=r=>{ const p=nvPlan(r); return p&&p.planned_date||(r.data&&r.data.n
 // специальность строго по названию врача; не узнали — пусто (а не «педиатр»)
 function specOfName(who){
   const w=String(who||"").toLowerCase().replace(/ё/g,"е");
-  for(const sp of DOC_SPECS){ if(sp[0]==="ped"||sp[0]==="other") continue;
+  if(/психотерапевт/.test(w)) return "psych";
+  for(const sp of DOC_SPECS){ if(docGeneral(sp[0])) continue;
     if(sp[1].toLowerCase().split("/").some(part=>{ const t=part.trim().replace(/ё/g,"е").replace(/(ий|ый|ой|ог|ст)$/,""); return t.length>=4&&w.includes(t.slice(0,Math.max(4,t.length-1))); })) return sp[0]; }
-  return /педиатр|терапевт/.test(w)?"ped":"";
+  if(/педиатр/.test(w)) return "ped";
+  return /(?:^|[^а-я])терапевт|врач общей практики/.test(w)?"therapy":"";
 }
 // специальность по названию врача для следующего посещения: «Офтальмолог» → ophth; не узнали — по тексту болезни
 function specByDoctor(who){ return specOfName(who)||planSpecFor(who); }
@@ -11611,7 +11659,7 @@ function planSpecFor(dx){
   const t=String(dx||"").toLowerCase();
   const M=[[/стоп|сколиоз|осанк|вальгус|варус|сустав|ортопед/,"ortho"],[/энурез|почк|моч/,"uro"],[/анеми|железа|ферритин/,"hema"],[/аллерг|ринит/,"allergo"],[/глаз|миопи|зрени|гиперметроп/,"ophth"],
     [/кожа|дерматит|экзем|зуд/,"derm"],[/зуб|кариес/,"dent"],[/ухо|горло|лор|отит|синусит/,"ent"],[/сердц|аритм|давлени/,"cardio"],[/живот|гастрит|жкт|стул/,"gastro"],[/тревож|невроз|сон|поведен/,"psych"]];
-  const hit=M.find(x=>x[0].test(t)); return hit?hit[1]:"ped";
+  const hit=M.find(x=>x[0].test(t)); return hit?hit[1]:docPrimary();
 }
 // ключ задачи для «готово» / «напомнить»: название строчными; состояние лежит у кода доступа
 const taskKey=t=>favKey(t).slice(0,120);
@@ -11955,7 +12003,7 @@ const favStar=(person,name)=>`<button class="favstar${isFav(person,favKey(name))
 
 // ── «Для врача» (ТЗ-010 блок 5): страница и PDF из уже записанного, без выводов и без пересказа моделью ──
 // специальность → системы; «all» — все. Коды sys взяты из реальных данных всех четырёх человек (30 штук)
-const DOC_SPECS=[["ped","Педиатр / терапевт","all"],["cardio","Кардиолог","heart vein blood kidney endo fit sleep"],
+const DOC_SPECS=[["ped","Педиатр","all"],["therapy","Терапевт","all"],["cardio","Кардиолог","heart vein blood kidney endo fit sleep"],
   ["phleb","Флеболог / сосудистый хирург","vein lymph heart"],["endo","Эндокринолог","endo thyro vit liver fit gi"],
   ["hema","Гематолог","blood vit lymph"],["neuro","Невролог","neuro spine sleep psy vit"],["psych","Психиатр / психолог","psy sleep neuro"],
   ["ophth","Офтальмолог","eye neuro endo"],["ent","ЛОР","ent allerg lung"],["allergo","Аллерголог-иммунолог","allerg immun ent lung skin"],
@@ -11963,10 +12011,25 @@ const DOC_SPECS=[["ped","Педиатр / терапевт","all"],["cardio","К
   ["gyn","Гинеколог","repro breast endo thyro"],["mammo","Маммолог","breast repro"],["gastro","Гастроэнтеролог / гепатолог","gi liver vit blood"],
   ["derm","Дерматолог","skin allerg immun"],["ortho","Ортопед / травматолог","ortho spine bone fit"],["surgeon","Хирург","vein lymph skin gi uro ortho"],
   ["dent","Стоматолог","teeth"],["gen","Генетик","gen blood"],["other","Другая / не знаю","all"]];
-// специальности, доступные человеку: мужчине не показываем женские (гинеколог, маммолог)
-function docSpecList(){ const pp=(typeof PPL!=="undefined"&&PPL&&PPL.people||[]).find(x=>x.id===cur);
-  const male=pp?pp.sex==="m":/(ич|оглы)$/i.test(String(DATA[cur]&&DATA[cur].name||"").trim());
-  return male?DOC_SPECS.filter(x=>x[0]!=="gyn"&&x[0]!=="mammo"):DOC_SPECS; }
+function docPerson(person){ return (PPL?.people||[]).find(x=>x.id===person); }
+function docIsChild(person=cur){
+  const d=DATA[person]||{}, dob=String(d.dob||"");
+  const birth=docPerson(person)?.birth_date||(/^\d{2}\.\d{2}\.\d{4}$/.test(dob)?dob.split(".").reverse().join("-"):dob);
+  const age=/^\d{4}-\d{2}-\d{2}$/.test(birth)?ageOf(birth,localDay())?.years:d.age;
+  return age!=null&&age!==""&&+age>=0&&+age<18;
+}
+const docPrimary=(person=cur)=>docIsChild(person)?"ped":"therapy";
+const docGeneral=spec=>spec==="ped"||spec==="therapy"||spec==="other";
+function docSpecList(person=cur){
+  const pp=docPerson(person), d=DATA[person]||{}, primary=docPrimary(person);
+  const male=pp?pp.sex==="m":/(ич|оглы)$/i.test(String(d.name||"").trim());
+  return DOC_SPECS.filter(([id])=>(id!=="ped"&&id!=="therapy"||id===primary)&&(!male||id!=="gyn"&&id!=="mammo"));
+}
+const docSpecAllowed=(spec,person=cur)=>docSpecList(person).some(([id])=>id===spec);
+function docSpecOptions(selected,person=cur){
+  return (docSpecAllowed(selected,person)?"":'<option value="" selected disabled>Выберите специальность</option>')+
+    docSpecList(person).map(([id,name])=>`<option value="${id}"${id===selected?" selected":""}>${esc(name)}</option>`).join("");
+}
 const DOC_SYS_ALL="allerg blood bone breast endo ent eye fit gen gi heart immun kidney liver lung lymph neuro ortho psy repro skin sleep spine teeth thyro uro vein vit".split(" ");
 // ключевые слова семейного анамнеза по специальности
 const DOC_FAM={cardio:/инфаркт|инсульт|гипертони|сердц|тромб|холестерин/i,endo:/диабет|щитовид|гипотиреоз|тиреоид|ожирен/i,
@@ -12013,39 +12076,44 @@ const SPEC_LINKS={
 function wzPrim(spec){ const sp=DOC_SPECS.find(x=>x[0]===spec)||DOC_SPECS[0]; return sp[2]==="all"?docSpecSys(spec):sp[2].split(" ").slice(0,2); }
 // специальность задачи: по названию врача в тексте, иначе по системе задачи (первая специальность, у которой она в списке)
 function wzSpecOfTask(x){
-  const bySys=x.sys?(DOC_SPECS.find(sp=>sp[0]!=="ped"&&sp[0]!=="other"&&sp[2]!=="all"&&sp[2].split(" ").includes(x.sys))||[])[0]:null;
-  const byText=specByDoctor(x.title);
-  return byText&&byText!=="ped"?byText:(bySys||"ped");
+  return specOfName(x.title)||(DOC_SPECS.find(([id,,systems])=>!docGeneral(id)&&systems.split(" ").includes(x.sys))||[])[0]||docPrimary();
 }
-// куда идти: ближайшие визиты (запланированные и «следующий визит» с прошлых приёмов), задачи «записаться», авто-подбор по записям
 function wzCandidates(d,plans,todo,today){
-  const out=[], has=k=>out.some(x=>x.spec===k);
-  upcomingVisits(d,plans,today).forEach(v=>{ const k=v.src==="plan"?v.title:specByDoctor(v.title); if(!has(k)) out.push({spec:k,date:v.date,why:v.src==="plan"?"запланирован визит":`назначен на прошлом приёме: ${v.title}`}); });
-  // дата дальше чем через 4 месяца — не «ближайший визит»: такие идут после задач «записаться»
-  const far=x=>x.date&&Math.round((Date.parse(x.date+"T12:00:00Z")-Date.parse(today+"T12:00:00Z"))/864e5)>120, farOnes=out.filter(far); farOnes.forEach(x=>out.splice(out.indexOf(x),1));
-  // «Педиатр 13.11 — уже после забора»: врач и дата из текста задач
-  const yr=+today.slice(0,4), fix=(dd,mm,yy)=>{ let y=yy?+yy:yr, iso=`${y}-${mm}-${dd}`; if(!yy&&iso<today) iso=`${y+1}-${mm}-${dd}`; return iso; };
-  (todo||[]).forEach(x=>{ const m=(x.title+" "+(x.why||"")).match(/(педиатр|гематолог|невролог|кардиолог|уролог|эндокринолог|офтальмолог|ортопед|аллерголог|гастроэнтеролог|психиатр|психотерапевт|нейропсихолог|стоматолог|лор\b|дерматолог|хирург)[а-яё]*[^.;\n]{0,30}?(\d{2})\.(\d{2})(?:\.(\d{4}))?/i);
-    if(m){ const k=specByDoctor(m[1]), date=fix(m[2],m[3],m[4]); if(date>=today&&!has(k)) out.push({spec:k,date,why:`в плане: ${m[1]} ${m[2]}.${m[3]}`}); } });
-  (todo||[]).filter(x=>!x.self&&x.tag==="записаться").forEach(x=>{ const k=wzSpecOfTask(x); if(k!=="ped"&&!has(k)) out.push({spec:k,date:"",why:x.title}); });
-  const a=briefSpecialty(d,today); if(!has(a.spec)) out.push({spec:a.spec,date:"",why:a.why});
-  farOnes.forEach(x=>{ if(!has(x.spec)) out.push(x); });
-  // порядок: ближайшие по дате → без даты → дата дальше четырёх месяцев
-  const rank=x=>x.date?(far(x)?2:0):1;
-  return out.map((x,i)=>[x,i]).sort((a,b)=>rank(a[0])-rank(b[0])||(rank(a[0])===0?a[0].date.localeCompare(b[0].date):a[1]-b[1])).map(x=>x[0]).slice(0,5);
+  const out=[], add=(spec,date,why)=>{
+    if(docSpecAllowed(spec)&&!out.some(x=>x.spec===spec&&x.date===date)) out.push({spec,date,why});
+  };
+  upcomingVisits(d,plans,today).forEach(v=>add(v.src==="plan"?v.title:specOfName(v.title),v.date,
+    v.src==="plan"?"Запланирован визит":"Следующий приём из записи"));
+  const yr=+today.slice(0,4);
+  for(const x of todo||[]){
+    const m=(x.title+" "+(x.why||"")).match(/(педиатр|терапевт|гематолог|невролог|кардиолог|уролог|эндокринолог|офтальмолог|ортопед|аллерголог|гастроэнтеролог|психиатр|психотерапевт|стоматолог|лор\b|дерматолог|хирург)[а-яё]*[^.;\n]{0,30}?(\d{2})\.(\d{2})(?:\.(\d{4}))?/i);
+    if(m){
+      let date=`${m[4]||yr}-${m[3]}-${m[2]}`;
+      if(!m[4]&&date<today) date=`${yr+1}-${m[3]}-${m[2]}`;
+      if(date>=today) add(specOfName(m[1]),date,"Дата из плана");
+    }
+    if(!x.self&&x.tag==="записаться") add(wzSpecOfTask(x),"",x.title);
+  }
+  const primary=docPrimary(), a=briefSpecialty(d,today);
+  if(!out.some(x=>x.spec===primary)) add(primary,"","Врач общей практики");
+  if(!out.some(x=>x.spec===a.spec)) add(a.spec,"",a.why);
+  const rank=x=>!x.date?1:x.date>dayShift(today,120)?2:0;
+  return out.sort((a,b)=>rank(a)-rank(b)||a.date.localeCompare(b.date)).slice(0,5);
 }
 // что предложить для приёма: причины, вопросы, анализы и обследования, что взять; каждый пункт — {t, src: дата или пояснение}
 function wzSuggest(d,spec,todo,today){
   const ms=iso=>Date.parse(iso+"T12:00:00Z"), days=(a,b)=>Math.round((ms(b)-ms(a))/864e5);
   const sp=DOC_SPECS.find(x=>x[0]===spec)||DOC_SPECS[0], all=sp[2]==="all", sys=new Set(wzPrim(spec));
-  const inS=x=>all||!x.sys||sys.has(x.sys), I=(t,src)=>({t,src:src||""});
+  const I=(t,src)=>({t,src:src||""});
   const S=d.sym||{};
   // болезнь относится к специальности, если её симптомы лежат в системах этой специальности (педиатр и «другая» — все)
   const epInS=e=>all||(S.log||[]).some(x=>sameIll(x.p,e.dx)&&x.d>=e.d1&&sys.has(x.sys))||String(e.sym||"").split(/,\s*/).some(n=>(S.cat||[]).some(c=>c.n===n&&sys.has(c.sys)))||(d.diagnoses||[]).some(x=>sameIll(x.n,e.dx)&&sys.has(x.sys));
   const eps=(S.ep||[]).filter(e=>!e.d2&&/[a-zа-яё]{2}/i.test(e.dx||"")&&!/не установлен/i.test(e.dx)&&epInS(e));
   // дело относится к специальности, если в нём назван этот врач, либо врач не назван и система — основная для специальности
-  const namesOther=x=>{ const k=specByDoctor(x.title); return k!=="ped"&&k!==spec; };
-  const myTodo=(todo||[]).filter(x=>!x.self&&(specByDoctor(x.title)===spec&&spec!=="ped"||(all?true:(!namesOther(x)&&x.sys&&sys.has(x.sys)))));
+  const myTodo=(todo||[]).filter(x=>{
+    const doctor=specOfName(x.title);
+    return !x.self&&(all||doctor===spec||(!doctor&&sys.has(x.sys)));
+  });
   const reasons=[], questions=[], tests=[], bring=[];
   // причины
   eps.slice(0,4).forEach(e=>reasons.push(I(`${e.dx} — с ${ru(e.d1)}`,e.d1)));
@@ -12062,54 +12130,21 @@ function wzSuggest(d,spec,todo,today){
   (d.meds||[]).filter(m=>!m.plan&&m.from&&m.from<=today&&(!m.to||m.to>=today)&&!(m.stopped&&m.stopped<=today)&&(all||eps.some(e=>e.id===m.ep))).slice(0,3)
     .forEach(m=>questions.push(I(`${m.n}: до какого срока принимать и по какому признаку судить, что работает?`,m.from)));
   // анализы: сначала из задач, потом повтор находок вне нормы
-  const labs=(d.rec||[]).filter(r=>r.t==="lab"&&r.v&&r.n&&r.title).sort((a,b)=>b.d.localeCompare(a.d)), seen=new Set();
+  const labs=(d.rec||[]).filter(r=>r.t==="lab"&&r.v!=null&&r.title&&r.d).sort((a,b)=>b.d.localeCompare(a.d));
   const last=name=>{ const k=favKey(String(name).split(/[,:(—-]/)[0]); return k.length<4?null:labs.find(r=>favKey(r.title).includes(k)); };
   const note=name=>{ const r=last(name); if(!r) return ""; const dd=days(r.d,today); return dd<=21?`сдавали ${ru(r.d)}: ${r.v}`:`последний ${ru(r.d)}: ${r.v}`; };
-  myTodo.filter(x=>x.tag==="сдать"||x.tag==="сделать").slice(0,6).forEach(x=>{ seen.add(favKey(x.title).slice(0,12)); tests.push(I(x.title,note(x.title)||x.when||"")); });
-  // повтор находок вне нормы — только по последнему значению показателя (улучшившееся уже не просим)
-  const latest=new Map(); labs.forEach(r=>{ const k=favKey(String(r.title).split(/[,(]/)[0]); if(!latest.has(k)) latest.set(k,r); });
-  [...latest.values()].filter(r=>(all||inS(r))&&!seen.has(favKey(r.title).slice(0,12))&&["выше","ниже"].includes(flagByNorm(String(r.v).match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",r.n))&&days(r.d,today)<=365).forEach(r=>{
-    if(tests.length<9) tests.push(I(`Повторить: ${r.title}`,`${ru(r.d)}: ${r.v} (норма ${r.n})`)); });
-  // что известно по специальности: последний приём, свежие исследования по теме, диагнозы в её системах, семейный анамнез по теме
-  const known=[], fam=DOC_FAM[spec];
-  known.push(prev?I(`Последний приём (${sp[1].split(" /")[0].toLowerCase()}): ${ru(prev.d)} — ${prev.who||prev.title}${prev.res?`; ${String(prev.res).slice(0,140)}`:""}`,prev.d):I(`Приёма специальности «${sp[1].split(" /")[0].toLowerCase()}» в записях нет`,""));
-  (d.rec||[]).filter(r=>r.t==="instr"&&(all||sys.has(r.sys))).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,4).forEach(r=>known.push(I(`Исследование ${ru(r.d)}: ${r.title}${r.res?` — ${String(r.res).slice(0,120)}`:""}`,r.d)));
-  (d.diagnoses||[]).filter(x=>!all&&x.sys&&sys.has(x.sys)).slice(0,5).forEach(x=>known.push(I(`${x.n}${x.s?` — ${String(x.s).slice(0,100)}`:""}`,x.y||"")));
-  (d.family||[]).filter(f=>fam&&fam.test(f.who+" "+f.what)).slice(0,5).forEach(f=>known.push(I(`Семейный анамнез — ${f.who}: ${String(f.what).slice(0,120)}`,"родные")));
-  // слова темы: болезни и диагнозы специальности — по ним ищем прошлое лечение, анализы и исследования
-  const keys=[...eps.map(e=>e.dx),...(d.diagnoses||[]).filter(x=>!all&&x.sys&&sys.has(x.sys)).map(x=>x.n)].flatMap(t=>String(t).toLowerCase().replace(/ё/g,"е").split(/[^а-яa-z0-9]+/).filter(w=>w.length>=6).map(w=>w.slice(0,Math.max(5,w.length-2)))), hit=t=>keys.some(k=>String(t||"").toLowerCase().replace(/ё/g,"е").includes(k));
-  const past=[];   // лечение раньше: снятые, закончившиеся и закрытые курсы по теме
-  (d.medsOff||[]).filter(x=>all||hit(x[0]+" "+x[1])).forEach(x=>past.push(I(`${x[0]} — ${String(x[1]).slice(0,130)}`,"раньше")));
-  (d.meds||[]).filter(m=>(m.to&&m.to<today)||(m.stopped&&m.stopped<=today)).filter(m=>all||hit(m.n+" "+(m.why||""))).forEach(m=>past.push(I(`${m.n} — ${m.from?"с "+ru(m.from):""}${m.to||m.stopped?" по "+ru(m.to||m.stopped):""}${m.till?"; "+String(m.till).slice(0,90):""}`,"раньше")));
-  eps.concat((S.ep||[]).filter(e=>e.d2&&(all||hit(e.dx)))).forEach(e=>(e.rx||[]).filter(r=>r.m&&r.to&&r.to<today).forEach(r=>past.push(I(`${r.m} — ${r.from?ru(r.from):""}–${ru(r.to)}${r.how?"; "+String(r.how).slice(0,60):""}`,e.dx))));
-  const seenM=new Set(); past.filter(x=>{ const k=favKey(x.t).slice(0,14); if(seenM.has(k)) return false; seenM.add(k); return true; }).slice(0,6).forEach(x=>known.push(I("Лечение раньше: "+x.t,x.src)));
-  // смежные врачи (таблица SPEC_LINKS): последний приём смежной специальности; если приёмов нет — напоминание о связи
-  const lastVisit=k=>(d.rec||[]).filter(r=>r.t==="visit"&&specOfName(r.who||r.title)===k).sort((x,y)=>y.d.localeCompare(x.d))[0]||null;
-  const nameOf=k=>((DOC_SPECS.find(x=>x[0]===k)||[])[1]||k).split(" /")[0].toLowerCase();
-  const adj=[], seenV=new Set();
-  const words=t=>String(t).toLowerCase().replace(/ё/g,"е").split(/[^а-яa-z0-9]+/).filter(w=>w.length>=5).map(w=>w.slice(0,Math.max(5,w.length-2)));
-  const onTopic=(r,why)=>{ const txt=JSON.stringify([r.title,r.res,r.full]).toLowerCase().replace(/ё/g,"е"); return hit(txt)||words(why).some(w=>txt.includes(w)); };
-  (SPEC_LINKS[spec]||[]).forEach(([k,why])=>{ const v=lastVisit(k); if(v&&onTopic(v,why)){ seenV.add(v.d+v.title); adj.push({k,v,why}); } else adj.push({k,v:null,why}); });
-  adj.filter(x=>x.v).slice(0,4).forEach(x=>known.push(I(`Смежный врач — ${nameOf(x.k)}, ${ru(x.v.d)}${x.v.res?`: ${String(x.v.res).slice(0,120)}`:""}`,x.v.d)));
-  const none=adj.filter(x=>!x.v&&keys.length&&hit(x.why)).slice(0,3);   // смежные, у кого не были и тема совпадает со связью
-  if(none.length) questions.push(I(`Нужно ли подключить смежных специалистов: ${none.map(x=>nameOf(x.k)).join(", ")}?`,none.map(x=>x.why).join("; ").slice(0,100)));
-  // анализы по теме: последние значения (вне нормы первыми)
-  const lastBy=new Map(); labs.forEach(r=>{ const k=favKey(String(r.title).split(/[,(]/)[0]); if(!lastBy.has(k)) lastBy.set(k,r); });
-  const outN=r=>["выше","ниже"].includes(flagByNorm(String(r.v).match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",r.n))?1:0;
-  [...lastBy.values()].filter(r=>!all&&(sys.has(r.sys)||hit(r.title+" "+(r.res||"")))&&days(r.d,today)<=730)
-    .sort((x,y)=>outN(y)-outN(x)||y.d.localeCompare(x.d)).slice(0,6)
-    .forEach(r=>known.push(I(`Анализ ${ru(r.d)}: ${r.title} — ${r.v}${/\d/.test(r.n||"")?` (норма ${r.n})`:""}`,r.d)));
-  // что можно попросить у врача заодно: направления к смежным, анализы, справки (особенно у педиатра и терапевта)
-  const extra=[], gpx=spec==="ped"||spec==="other";
-  adj.filter(x=>!x.v||days(x.v.d,today)>365).filter(x=>x.k!=="ped"&&x.k!=="other"&&hit(x.why)).slice(0,gpx?5:3)
-    .forEach(x=>extra.push(I(`Направление к ${specDat(x.k)} — ${x.why}${x.v?` (последний приём ${ru(x.v.d)})`:" (приёмов нет)"}`,"заодно")));
-  if(gpx){ [...latest.values()].filter(r=>days(r.d,today)>365).slice(0,4).forEach(r=>extra.push(I(`Анализ давно не сдавали: ${r.title} — последний ${ru(r.d)}`,"заодно")));
-    extra.push(I("Дополнительные анализы и направления на обследования — спросить, что врач считает нужным добавить",""),I("Справки и формы (школа, секция, бассейн), если нужны",""),I("Рецепт на постоянно принимаемое",""),I("Свериться со сроками прививок",""));
-  } else extra.push(I(`Какие анализы и обследования по теме ${specDat(spec)} можно назначить сразу, чтобы не приходить второй раз`,""),I("Нужны ли направления к смежным специалистам или обратно педиатру/терапевту",""));
+  myTodo.filter(x=>x.tag==="сдать"||x.tag==="сделать").slice(0,6).forEach(x=>tests.push(I(x.title,note(x.title)||x.when||"")));
+  const extra=[];
+  if(all){
+    extra.push(I("Какие дополнительные анализы или обследования стоит обсудить?"),
+      I("Нужны ли справка или выписка?"),I("Нужно ли обновить рецепт?"),I("Нужно ли сверить сроки прививок?"));
+  } else {
+    extra.push(I("Нужны ли направления к смежным специалистам?"));
+  }
   // что взять
   bring.push(I("Результаты анализов и исследований",""),I("Список назначений и подтверждённых отметок приёма",""),I("Направления и выписки с прошлых приёмов",""));
   if(prev) bring.push(I(`Заключение приёма ${ru(prev.d)}`,prev.d));
-  return {reasons,questions,tests,bring,extra,known,epIds:eps.map(e=>e.id),prev:prev?{d:prev.d,who:prev.who||prev.title}:null,spec};
+  return {reasons,questions,tests,bring,extra,epIds:eps.map(e=>e.id)};
 }
 // показатели в тексте задачи: «Забор: ферритин, СРБ, ОАК, 25(OH)D…» → список названий (задачи без названий показателей остаются как есть)
 const WZ_ANALYTES=[["Ферритин",/ферритин/i],["СРБ",/срб|с-реактив/i],["ОАК",/(?<![а-яёa-z])оак(?![а-яёa-z])|общий анализ крови|клинический анализ крови/i],["Общий IgA",/общий\s*iga|общий\s*igа/i],["Общий IgE",/общий\s*ige/i],["ТТГ",/(?<![а-яёa-z])ттг(?![а-яёa-z])/i],["25(OH)D",/25\(oh\)d|витамин\s*d/i],
@@ -12145,38 +12180,148 @@ function wzPrep(names){
   out.push("Взять направление и полис; результаты потом внести в медкнижку");
   return [...new Set(out)];
 }
-// динамика ключевых показателей: ряды анализов (≥2 значений) по системам специальности и по названиям из списка focus; свежие и вне нормы — первыми
-function wzDynamics(d,spec,focus,today){
-  const sp=DOC_SPECS.find(x=>x[0]===spec)||DOC_SPECS[0], all=sp[2]==="all", sys=new Set(wzPrim(spec));
-  const num=v=>{ const x=parseFloat(String(v==null?"":v).replace(",",".").replace(/\s/g,"").replace(/^[<>≤≥]/,"")); return isFinite(x)?x:null; };
-  const by={}; (d.rec||[]).filter(r=>r.t==="lab"&&r.title&&num(r.v)!=null&&r.d).forEach(r=>{ const k=favKey(String(r.title).split(/[,(]/)[0]); (by[k]=by[k]||[]).push(r); });
-  const fk=(focus||[]).map(x=>favKey(String(x).split(/[,:(—-]/)[0])).filter(x=>x.length>=4);
-  const out=[];
-  for(const k of Object.keys(by)){
-    const L=by[k].sort((a,b)=>a.d.localeCompare(b.d)); if(L.length<2) continue;
-    const last=L[L.length-1], prev=L[L.length-2], first=L[0];
-    const asked=fk.some(f=>k.includes(f)||f.includes(k)), inSys=all||sys.has(last.sys);
-    if(!asked&&!inSys) continue;
-    if(!asked&&today&&Math.round((Date.parse(today+"T12:00:00Z")-Date.parse(last.d+"T12:00:00Z"))/864e5)>400) continue;
-    const t=trendWord(num(prev.v),num(last.v),last.n), f=flagByNorm(String(last.v).match(/^\s*([<>]?\s*-?[\d.,]+)/)?.[1]||"",last.n);
-    out.push({name:last.title,first:{d:first.d,v:first.v},prev:{d:prev.d,v:prev.v},last:{d:last.d,v:last.v},norm:last.n||"",word:t.word,out:f==="выше"||f==="ниже",n:L.length,asked});
+const wzDay=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||""));
+const wzDate=value=>wzDay(value)?ru(value):String(value||"");
+const wzText=value=>String(value??"").replace(/\s+/g," ").trim();
+const wzTextKey=value=>wzText(value).toLowerCase().replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim();
+const wzTopicMatch=(text,topic)=>{
+  const t=wzTextKey(text), k=wzTextKey(topic);
+  if(k.length>=3&&(" "+t+" ").includes(" "+k+" ")) return true;
+  const analytes=wzAnalytes(topic);
+  return analytes.length>0&&wzAnalytes(text).some(x=>analytes.includes(x));
+};
+const wzOn=(z,key)=>(z[key]||[]).filter(x=>x.on&&wzText(x.t));
+function wzMergeItems(current,items){
+  const result=[], seen=new Set();
+  for(const x of [...(current||[]),...items]){
+    const key=wzTextKey(x.t)||wzText(x.t);
+    if(!key||seen.has(key)) continue;
+    seen.add(key); result.push(x);
   }
-  return out.sort((a,b)=>(b.asked-a.asked)||(b.out-a.out)||b.last.d.localeCompare(a.last.d)).slice(0,8);
+  return result;
 }
-const wzDynLine=x=>`${x.name}: ${x.prev.v} (${ru(x.prev.d)}) → ${x.last.v} (${ru(x.last.d)})${x.norm?`, норма ${x.norm}`:""} — ${x.word}${x.n>2?`; с ${ru(x.first.d)} было ${x.first.v}`:""}`;
-// лекарства в приёме: какой показатель смотрят по действию, динамика и готовый вопрос «продолжать / снизить / закончить»
-const WZ_MEDMETRIC=[[/тотем|железа|феррум|мальтофер|сорбифер/i,["ферритин","гемоглобин","железо"]],[/витамин d|вит\.? ?d|аквадетрим|вигантол|д3/i,["25(oh)d","витамин d"]],[/левотирокс|тироксин|эутирокс/i,["ттг","т4"]],[/цинк/i,["цинк"]],[/омега|рыбий/i,["триглицерид"]]];
+// Контроль из явно сохранённых назначений и рекомендаций врача.
+function wzRecordedPlans(d,today){
+  return (d.rec||[]).filter(r=>r.t==="visit"&&wzDay(r.d)&&r.d<=today)
+    .slice().sort((a,b)=>b.d.localeCompare(a.d)).flatMap(r=>
+      visitCardModel(r).sections.filter(s=>s.key==="rx"||s.key==="recs").flatMap(s=>
+        s.text.split(/\n|;\s+/).map(wzText).filter(t=>/контрол|повтор|пересда|сда[тч]|обслед/i.test(t))
+          .map(text=>({day:r.d,text}))));
+}
+function wzLabRows(d,spec,focus,today){
+  const groups=new Map(), systems=new Set(docSpecSys(spec)), plans=wzRecordedPlans(d,today);
+  for(const r of d.rec||[]){
+    if(r.t!=="lab"||!r.title||!wzDay(r.d)||r.d>today||r.v==null||!wzText(r.v)) continue;
+    const point=labRecordPoint(r);
+    const key=labSeriesKey(point.n,point.u).split("|")[0];
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push({point,r});
+  }
+  const rows=[];
+  for(const [id,group] of groups){
+    group.sort((a,b)=>b.point.d.localeCompare(a.point.d));
+    const {point:last,r}=group[0], name=labName(last.n,last.u), unit=labUnit(last.u);
+    const asked=focus.some(t=>wzTopicMatch(t,r.title)||wzTopicMatch(t,name));
+    if(!asked&&!docGeneral(spec)&&!systems.has(r.sys)&&labSpecFor(r)!==spec) continue;
+    const prev=labExactValue(last.v)==null?null:group.find(({point})=>
+      point.d<last.d&&labUnit(point.u)===unit&&labExactValue(point.v)!=null)?.point||null;
+    const plan=plans.find(p=>p.day>=last.d&&(wzTopicMatch(p.text,name)||wzTopicMatch(p.text,last.n)));
+    const changed=prev&&labExactValue(prev.v)!==labExactValue(last.v);
+    const attention=["bad","warn"].includes(r.st);
+    const question=plan?"":changed?`Что означает изменение показателя «${name}» и когда его проверить снова?`:
+      attention||asked?`Нужно ли повторить анализ «${name}» и когда?`:"";
+    rows.push({id,name,last,prev,plan,question,asked,attention});
+  }
+  return rows.sort((a,b)=>Number(b.asked)-Number(a.asked)||Number(b.attention)-Number(a.attention)||
+    b.last.d.localeCompare(a.last.d)||a.name.localeCompare(b.name,"ru"));
+}
+const wzLabValue=p=>[wzText(p.v),wzText(p.u)].filter(Boolean).join(" ");
+const wzLabResult=p=>p?`${wzLabValue(p)} · ${wzDate(p.d)}`:"Нет данных для сравнения";
+const wzDoneMed=m=>m.useState==="off"||/^(?:курс )?заверш[её]н[оа]?$|^отмен[её]н[оа]?$/i.test(m.data?.status||"");
 function wzTreatment(d,today){
-  return medSummaryRows(d,today).map(m=>{
-    const eps=m.ep?[m.ep]:[];
-    const from=m.confirmedFrom||m.from||"", days=m.confirmedStart&&from?Math.round((Date.parse(today+"T12:00:00Z")-Date.parse(from+"T12:00:00Z"))/864e5)+1:null;
-    return {n:m.n,from,to:m.to||"",till:m.till||"",days,eps,how:m.how||"",why:m.why||"",useState:m.useState,useLabel:m.useLabel,confirmedStart:m.confirmedStart,crit:"Какие показатели и сроки оценки подходят для этого назначения?",back:"",dyn:[],decision:"",note:""};
-  });
+  const plans=wzRecordedPlans(d,today);
+  return medSummaryRows(d,today).filter(m=>!wzDoneMed(m)&&m.useState!=="declined"&&(!m.to||m.to>=today||m.useState==="on"))
+    .map(m=>{
+      const source=(d.rec||[]).find(r=>r.t==="visit"&&m.visit?.entry&&r.entry===m.visit.entry);
+      const plan=plans.find(p=>(!m.from||p.day>=m.from)&&wzTopicMatch(p.text,medShort(m.n)));
+      return {n:m.n,from:m.confirmedFrom||m.from||"",to:m.to||"",till:m.till||"",ep:m.ep,
+        how:m.how||"",why:m.why||"",useLabel:m.useLabel,confirmedStart:m.confirmedStart,
+        effect:m.effect||m.data?.effect||m.observation||m.data?.observation||"",
+        control:m.control_on||m.data?.control_on||m.control||m.data?.control||plan?.text||source?.data?.next||"",
+        crit:"",back:"",decision:"",note:""};
+    });
 }
 function wzTreatQ(t){
-  const status=t.useLabel||"Статус приёма не подтверждён";
-  const position={continue:"продолжения",reduce:"изменения дозы",stop:"завершения",ask:"дальнейших действий"}[t.decision];
-  return `${t.n} (${status}). ${position?"Хотим обсудить условия "+position+". ":""}Какие показатели и сроки оценки подходят для этого назначения? Что уточнить по фактическому приёму?`;
+  const ask={continue:"продолжение курса",reduce:"изменение дозы",stop:"завершение курса",ask:"дальнейшую схему"}[t.decision];
+  return [`${t.n}: ${ask?`обсудить ${ask}`:"уточнить схему и сроки контроля"}.`,wzText(t.crit)].filter(Boolean).join(" ");
+}
+function wzTreatmentLine(t){
+  return [t.n,t.useLabel,t.from?`${t.confirmedStart?"Начали":"Дата начала по записи"} ${wzDate(t.from)}`:"",
+    t.how?`Схема: ${wzText(t.how)}`:"",t.to?`По плану до ${wzDate(t.to)}`:wzText(t.till),
+    t.effect?`Наблюдаемый эффект: ${wzText(t.effect)}`:"",t.note?`Наблюдения: ${wzText(t.note)}`:"",
+    t.control?`Контроль по записи врача: ${wzDate(t.control)}`:"",t.back?`Запланировано обсудить ${wzDate(t.back)}`:""
+  ].filter(Boolean).join(" · ");
+}
+function wzHistory(d,spec,focus,today){
+  const systems=new Set(docSpecSys(spec)), all=docGeneral(spec), labs=new Map();
+  const related=x=>all||systems.has(x.sys)||focus.some(t=>wzTopicMatch(t,x.title||x.n||x.dx));
+  const relatedVisit=r=>{
+    const sp=specOfName(r.who||r.title);
+    return related(r)||sp===spec||((SPEC_LINKS[spec]||[]).some(([id])=>id===sp)&&
+      focus.some(t=>wzTopicMatch(r.res||r.data?.dx,t)));
+  };
+  const rows=[];
+  const add=(day,text)=>{ if(text) rows.push({t:text,src:day||""}); };
+  for(const r of d.rec||[]){
+    if(!wzDay(r.d)||r.d>today) continue;
+    if(r.t==="lab"&&related(r)&&r.title){
+      if(!labs.has(r.d)) labs.set(r.d,[]);
+      labs.get(r.d).push(r);
+    } else if(r.t==="visit"&&relatedVisit(r)){
+      const v=visitCardModel(r);
+      const result=v.sections.find(x=>x.key==="dx")||v.sections.find(x=>x.key==="result");
+      add(r.d,[`Консультация: ${r.who||r.title||"врач"}`,firstSentence(result?.text,220)].filter(Boolean).join(" — "));
+    } else if(r.t==="instr"&&related(r)){
+      add(r.d,[r.title||"Обследование",firstSentence(r.res||r.data?.conclusion,220)].filter(Boolean).join(" — "));
+    }
+  }
+  for(const [day,tests] of labs){
+    const sorted=tests.slice().sort((a,b)=>Number(["bad","warn"].includes(b.st))-Number(["bad","warn"].includes(a.st)));
+    const sample=sorted.filter(r=>r.v!=null&&wzText(r.v)).slice(0,3).map(r=>`${r.title}: ${wzLabValue(labRecordPoint(r))}`);
+    add(day,`Анализы · ${tests.length} ${plural(tests.length,"показатель","показателя","показателей")}${sample.length?" — "+sample.join(" · "):""}`);
+  }
+  for(const m of medSummaryRows(d,today)){
+    const episode=d.sym?.ep?.find(e=>e.id===m.ep);
+    if(!wzDoneMed(m)||!(related(m)||(episode&&related(episode)))) continue;
+    add(m.stopped||m.data?.ended_on||m.to,`Завершённый курс: ${m.n}${m.effect||m.data?.effect?" — "+wzText(m.effect||m.data.effect):""}`);
+  }
+  for(const row of d.medsOff||[]){
+    const [name,note]=Array.isArray(row)?row:[row.n,row.s];
+    if(!name||!related({n:name})) continue;
+    add("",`Ранее: ${name}${note?" — "+wzText(note):""}`);
+  }
+  return rows.sort((a,b)=>String(b.src).localeCompare(String(a.src)));
+}
+function wzStatuses(d,spec,today){
+  const systems=new Set(docSpecSys(spec));
+  const out=[];
+  const relevant=x=>docGeneral(spec)||!x.sys||systems.has(x.sys);
+  const resolved=(d.resolved||[]).filter(x=>x.n&&relevant(x));
+  for(const x of d.diagnoses||[]){
+    if(!x.n||!relevant(x)||resolved.some(r=>sameIll(r.n,x.n))) continue;
+    const changed=x.changed_on||x.updated_on||x.d||"";
+    out.push({t:[x.n,x.s||x.status,changed?`Статус от ${wzDate(changed)}`:x.y?`В карте с ${wzDate(x.y)}`:""].filter(Boolean).join(" · "),src:""});
+  }
+  for(const x of resolved){
+    const when=x.changed_on||x.d||x.y;
+    out.push({t:[x.n,x.s||"Переведено в перенесённые",wzDate(when)].filter(Boolean).join(" · "),src:""});
+  }
+  for(const r of d.rec||[]){
+    const next=r.data?.next, sp=specOfName(r.who||r.title);
+    if(r.t!=="visit"||!wzDay(next)||next<today||!sp||!docSpecAllowed(sp)||(!docGeneral(spec)&&sp!==spec)) continue;
+    out.push({t:`Наблюдение у ${specDat(sp)}: следующий приём ${wzDate(next)} по записи врача`,src:r.d});
+  }
+  return out;
 }
 // ── Подготовка к приёму (ТЗ-011 блок 10, этап 1): черновик из записанного, правилами; ФИО, полис, адрес не читаются
 // специальность по открытым болезням, диагнозам и симптомам за 90 дней: у какой специальности больше всего совпадений по системам
@@ -12185,8 +12330,8 @@ function briefSpecialty(d,today){
   const cnt={}; (d.diagnoses||[]).forEach(x=>x.sys&&(cnt[x.sys]=(cnt[x.sys]||0)+2));
   ((d.sym||{}).log||[]).filter(x=>x.sys&&x.d>=from&&x.d<=today).forEach(x=>{ cnt[x.sys]=(cnt[x.sys]||0)+1; });
   let best=null, score=0;
-  for(const sp of DOC_SPECS){ if(sp[2]==="all") continue; const n=sp[2].split(" ").reduce((a,k)=>a+(cnt[k]||0),0); if(n>score){ score=n; best=sp; } }
-  if(!best) return {spec:"ped",why:"Записей по системам нет — начните с педиатра или терапевта."};
+  for(const sp of docSpecList()){ if(sp[2]==="all") continue; const n=sp[2].split(" ").reduce((a,k)=>a+(cnt[k]||0),0); if(n>score){ score=n; best=sp; } }
+  if(!best) return {spec:docPrimary(),why:"Выберите врача общей практики или нужную специальность."};
   const top=Object.keys(cnt).filter(k=>best[2].split(" ").includes(k)).sort((a,b)=>cnt[b]-cnt[a])[0];
   return {spec:best[0],why:`Больше всего записано по системе «${sysName(top)}» — ${best[1].toLowerCase()}.`};
 }
@@ -12256,16 +12401,161 @@ function doctorPack(d,key,today,opt){
 
 // ── экран раздела «Для врача»
 // ── Мастер «Для врача» / «Сдать анализы»: шаги, на каждом сервис предлагает, человек подтверждает и правит ──
-const WZ_VISIT=["Куда идём","Что известно","Повод обращения","Динамика","Лечение","Вопросы","Анализы и что взять","Готово"];
+const WZ_READINGS=new Map();
+function wzReadingsLoad(person=cur,force=false){
+  if(!window.__MK_KEY||(!force&&WZ_READINGS.has(person))) return;
+  const previous=WZ_READINGS.get(person);
+  const state={...previous,loading:true,errors:[]};
+  WZ_READINGS.set(person,state);
+  const jobs={pressure:mkApi("bp_list",{person}),metrics:mkApi("metric_list",{person}),
+    body:bmBodyRows(person),symptoms:mkApi("symptoms_list",{person})};
+  Promise.allSettled(Object.values(jobs)).then(results=>{
+    if(WZ_READINGS.get(person)!==state) return;
+    for(const [i,key] of Object.keys(jobs).entries()){
+      const result=results[i];
+      if(result.status==="fulfilled"){
+        const {rows=[],heights=[]}=result.value;
+        state[key]=key==="body"?bmProject(rows,heights,person):rows.filter(r=>!r.person||r.person===person);
+      } else state.errors.push(key);
+    }
+    state.loading=false;
+    if(cur===person&&tab==="doc"&&WZ_FOR===person&&WZ?.mode==="visit"&&[3,8].includes(WZ.step)&&!WZ.hoEdit) render();
+  });
+}
+function wzRefreshReadings(person){
+  if(tab==="doc"&&cur===person&&WZ?.mode==="visit") wzReadingsLoad(person,true);
+  else WZ_READINGS.delete(person);
+}
+function wzReadingTime(at,day){
+  if(/T\d{2}:\d{2}/.test(String(at||""))&&Number.isFinite(Date.parse(at))){
+    const [date,time]=bmLocal(at).split("T");
+    return {day:date,time};
+  }
+  return {day:wzDay(day)?day:"",time:""};
+}
+function wzReadings(d,person,today){
+  const state=WZ_READINGS.get(person)||{}, types=new Map(), ids=new Set();
+  const add=(type,name,at,day,id,value,note="",pulse="")=>{
+    const when=wzReadingTime(at,day);
+    if(!when.day||when.day>today) return;
+    const key=type+"|"+(id??JSON.stringify([when.day,when.time,value,note]));
+    if(ids.has(key)) return;
+    ids.add(key);
+    if(!types.has(type)) types.set(type,{type,name,rows:[]});
+    types.get(type).rows.push({id:key,type,...when,value,note:wzText(note),pulse});
+  };
+  types.set("bp",{type:"bp",name:"Давление",rows:[]});
+  types.set("headache",{type:"headache",name:"Дневник головной боли",rows:[]});
+  for(const r of state.pressure||BPS[person]||[]){
+    if((r.person&&r.person!==person)||r.sys==null||r.dia==null) continue;
+    add("bp","Давление",r.measured_at,r.measured_on,r.id,`${r.sys}/${r.dia}`,r.note,r.pulse??"");
+  }
+  const serverSymptoms=state.symptoms||[];
+  const byId=new Set(serverSymptoms.map(r=>String(r.id)));
+  const log=(d.sym?.log||[]).filter(x=>!x.per&&!x.pend&&(x.id==null||!byId.has(String(x.id))));
+  for(const r of [...serverSymptoms,...log]){
+    const name=r.symptom||r.n, at=r.occurred_at||r.at, day=r.occurred_on||r.d, a=r.attrs||{};
+    if(/^(?:головная боль|мигрень)$/i.test(String(name||"").trim())){
+      const intensity=r.intensity??r.i;
+      const note=[r.feeling||r.f,r.med||r.m,a.i_after!=null?`Через 2 часа: ${a.i_after}/10`:""].filter(Boolean).join(" · ");
+      add("headache","Дневник головной боли",at,day,r.id,intensity==null?"—":`${intensity}/10`,note);
+    } else if(name==="Температура"&&(r.value_num??r.v)!=null){
+      add("temp","Температура",at,day,r.id,`${r.value_num??r.v} °C`,r.feeling||r.f);
+    }
+  }
+  for(const r of state.metrics||[]){
+    if(r.metric==="bp"||r.metric==="temp"||r.metric==="height"&&state.body||r.value==null) continue;
+    const def=measDef(r.metric), label=r.metric==="custom"?r.label:def?.[1], unit=r.unit||def?.[2]||"";
+    if(!label) continue;
+    const type=r.metric==="custom"?JSON.stringify([r.metric,wzTextKey(label),unit]):r.metric;
+    add(type,label,r.measured_at,r.measured_on,r.id,[r.value,unit].filter(x=>x!=="").join(" "),r.note);
+  }
+  const body=state.body||[];
+  for(const r of body){
+    for(const field of bmFields()){
+      const v=r.values[field.key];
+      if(v==null) continue;
+      const side=field.side&&r.sides[field.key], type=side?field.key+":"+side:field.key;
+      const name=field.name+(side?side==="left"?" (левая сторона)":" (правая сторона)":"");
+      add(type,name,r.at,r.day,r.id,`${v} ${field.unit}`,r.note);
+    }
+  }
+  const bodyWeightDays=new Set(body.filter(r=>r.values.weight!=null).map(r=>r.day));
+  if(d.nutrition) for(const r of nutLS("weight",[],person)){
+    if(r.v!=null&&!bodyWeightDays.has(r.d)) add("weight","Вес",null,r.d,null,`${r.v} кг`);
+  }
+  for(const group of types.values()) group.rows.sort((a,b)=>b.day.localeCompare(a.day)||b.time.localeCompare(a.time));
+  return [...types.values()];
+}
+const wzReadingRange=(z,type)=>z.readingRanges?.[type]||"1m";
+const wzReadingOn=(z,r)=>z.readingPick?.[r.id]??(r.type==="bp");
+function wzSelectedReadings(d,z,today){
+  return wzReadings(d,cur,today).map(g=>({...g,rows:measRangeRows(g.rows,wzReadingRange(z,g.type),today).filter(r=>wzReadingOn(z,r))}))
+    .filter(g=>g.rows.length);
+}
+function wzReadingsHtml(d,z,today){
+  const groups=wzReadings(d,cur,today), g=groups.find(x=>x.type===z.readingType)||groups[0];
+  const state=WZ_READINGS.get(cur), rows=measRangeRows(g.rows,wzReadingRange(z,g.type),today);
+  const n=rows.filter(r=>wzReadingOn(z,r)).length, first=rows.at(-1), last=rows[0];
+  const when=r=>wzDate(r.day)+(r.time?" · "+r.time:"");
+  const value=r=>r.type==="bp"?r.value+" мм рт. ст.":r.value;
+  return `<div class="wzreadbar"><label class="wzlab">Вид замера<select class="select" data-wzreadtype>
+    ${groups.map(x=>`<option value="${esc(x.type)}"${x===g?" selected":""}>${esc(x.name)}</option>`).join("")}
+    </select></label><button type="button" class="btn btn-secondary" data-wzreadadd="${esc(g.type)}">${g.type==="headache"?"Записать приступ":"Добавить замер"}</button></div>
+    ${measurePeriods("data-wzreadrange",wzReadingRange(z,g.type))}
+    ${state?.loading?'<p class="muted" role="status">Загружаем замеры…</p>':""}
+    ${state?.errors.length?'<p class="muted">Часть записей не загрузилась. <button type="button" class="oclink" data-wzreadretry>Повторить</button></p>':""}
+    ${rows.length? `<div class="wzreadbar"><b>В памятку · ${n} из ${rows.length}</b>
+      <button type="button" class="oclink" data-wzreadall="${n===rows.length?"off":"on"}">${n===rows.length?"Снять все":"Выбрать все"}</button></div>
+      ${rows.length>1?`<p class="muted">Первый: ${esc(when(first))} · ${esc(value(first))}. Последний: ${esc(when(last))} · ${esc(value(last))}.</p>`:""}
+      ${rows.map(r=>`<label class="wzreading"><input type="checkbox" data-wzread="${esc(r.id)}"${wzReadingOn(z,r)?" checked":""}><span>
+        <b>${esc(value(r))}</b> · ${esc(when(r))}${r.pulse!==""?` · пульс ${esc(r.pulse)}`:""}${r.note?`<span class="wzsrc">${esc(r.note)}</span>`:""}</span></label>`).join("")}`
+      :state?.loading?"":'<p class="muted">Записей за выбранный период нет.</p>'}`;
+}
+const WZ_VISIT=["Куда идём","Что уже сделали","Регулярные замеры","Динамика анализов","Лечение","Вопросы врачу","Что взять","Готово"];
 const WZ_LABS=["Какой забор","Что сдаём","Подготовка","Готово"];
 let WZ=null, WZ_FOR=null;
-const wzKey=()=>"mk_wiz_"+cur;
-function wzGet(){ if(WZ&&WZ_FOR===cur) return WZ; WZ=null; try{ WZ=JSON.parse(localStorage.getItem(wzKey())||"null"); }catch(e){} WZ_FOR=cur; if(!WZ) WZ={mode:null,step:0}; return WZ; }
-function wzPut(){ try{ localStorage.setItem(wzKey(),JSON.stringify(WZ)); }catch(e){} }
-const wzItems=a=>(a||[]).map(x=>({t:x.t,src:x.src||"",on:true}));
-function wzTodo(d){ const today=localDay(); return buildTodo(d).filter(x=>x.kind!=="own"&&x.st!=="ok"&&!taskHidden(taskState(cur,x.title),today)); }
-const wzNextDay=iso=>dayShift(iso,1);
-// «Кардиолог» → «кардиологу», «Педиатр / терапевт» → «педиатру», «Аллерголог-иммунолог» → «аллергологу-иммунологу», «ЛОР» → «ЛОРу»
+const wzKey=person=>"mk_wiz_"+person;
+function wzGet(){
+  if(WZ&&WZ_FOR===cur) return WZ;
+  WZ_FOR=cur;
+  try{ WZ=JSON.parse(localStorage.getItem(wzKey(cur))||"null"); }catch(e){ WZ=null; }
+  if(!WZ||typeof WZ!=="object") WZ={mode:null,step:0};
+  if(WZ.mode==="visit") wzRestoreVisit(WZ);
+  return WZ;
+}
+function wzPut(){
+  const {aiBusy,revBusy,hoBusy,hoSaving,...saved}=WZ;
+  try{ localStorage.setItem(wzKey(WZ_FOR),JSON.stringify(saved)); }catch(e){}
+}
+function wzRestoreVisit(z){
+  let changed=false;
+  if(z.format!==2){
+    const oldAgenda=["reasons","questions","tests","extra"].flatMap(k=>(z[k]||[]).map(x=>({...x,kind:k})));
+    z.agenda=wzMergeItems([],oldAgenda);
+    z.labFocus=(z.tests||[]).map(x=>x.t);
+    z.labNotes=(z.dyn||[]).map(x=>({...x,on:x.src==="своё"&&x.on}));
+    if(z.ho) Object.assign(z.ho,{spec:z.spec,date:z.date||""});
+    if(z.step===3||z.step===7) z.step=6;
+    z.format=2; z.computedFor=""; changed=true;
+  }
+  if(!docSpecAllowed(z.spec)&&(z.spec||z.step>1)){
+    z.resumeStep=z.step>1?z.step:2;
+    z.needsSpecialty=true; z.spec=""; z.step=1; changed=true;
+  }
+  z.aiBusy=false; z.revBusy=false;
+  if(changed) wzPut();
+}
+const wzItems=(rows,kind)=>rows.map(x=>({t:x.t,src:x.src||"",on:x.on??true,kind,original:x.t}));
+function wzReconcile(current,items,keep,removed=[]){
+  const existing=(current||[]).filter(x=>keep||x.touched||x.original!==x.t);
+  return wzMergeItems(existing,items.filter(x=>!removed.includes(wzTextKey(x.t))));
+}
+function wzTodo(d){
+  const today=localDay();
+  return buildTodo(d).filter(x=>x.kind!=="own"&&x.st!=="ok"&&!taskHidden(taskState(cur,x.title),today));
+}
+// «Кардиолог» → «кардиологу», «Терапевт» → «терапевту», «ЛОР» → «ЛОРу»
 function specDat(spec){
   const name=((DOC_SPECS.find(x=>x[0]===spec)||[])[1]||"врач").split(/\s*\/\s*/)[0];
   if(/другая|не знаю/i.test(name)) return "врачу";
@@ -12273,117 +12563,223 @@ function specDat(spec){
   return name.split("-").map(one).join("-");
 }
 const wzPrepItems=names=>wzPrep(names).map(t=>({t,src:""}));
-let HANDOUTS=null;   // готовые памятки человека (из базы); null — ещё не загружены
+let HANDOUTS=null;
 function handoutsLoad(force){
-  if(!window.__MK_KEY||(HANDOUTS&&HANDOUTS.p===cur&&!force)||window.__hoLoading) return; window.__hoLoading=1; const p=cur;
-  mkApi("handout_list",{person:p}).then(j=>{ HANDOUTS={p,rows:j.rows||[]}; window.__hoLoading=0; render(); }).catch(()=>{ window.__hoLoading=0; HANDOUTS=HANDOUTS||{p,rows:[]}; });
+  if(!window.__MK_KEY||(HANDOUTS&&HANDOUTS.p===cur&&!force)||window.__hoLoading) return;
+  window.__hoLoading=1; const p=cur;
+  mkApi("handout_list",{person:p}).then(j=>{ HANDOUTS={p,rows:j.rows||[]}; window.__hoLoading=0; render(); })
+    .catch(()=>{ window.__hoLoading=0; HANDOUTS=HANDOUTS||{p,rows:[]}; });
 }
-// подбор для приёма заново, когда выбрана специальность
-function wzCompute(d){
-  const z=wzGet(), today=localDay(), todo=wzTodo(d), sug=wzSuggest(d,z.spec,todo,today);
-  const gp=z.spec==="ped"||z.spec==="other";   // общие анализы крови выписывает педиатр / терапевт; узкому специалисту — только его
-  const groups=wzLabGroups(d,todo,today), g=gp?((z.date&&groups.filter(x=>x.date&&x.date<=z.date).pop())||groups.find(x=>x.date)||null):null;
-  const focus=[...sug.tests.map(x=>x.t),...(g?g.items.map(i=>i.t):[])];
-  z.reasons=wzItems(sug.reasons); z.questions=wzItems(sug.questions); z.tests=wzItems(sug.tests); z.bring=wzItems(sug.bring); z.extra=wzItems(sug.extra||[]);
-  if(g) g.items.forEach(i=>{ if(!z.tests.some(x=>x.t.toLowerCase()===i.t.toLowerCase())) z.tests.unshift({t:`${i.t} — к забору ${g.label}`,src:i.src,on:true}); });
-  // одинаковые показатели из разных задач и из забора — одной строкой, с последним значением
-  const key=t=>{ const a=wzAnalytes(t); return a.length?a.join("+"):favKey(t).slice(0,22); }, seenK=new Set();
-  z.tests=z.tests.filter(x=>{ const k=key(x.t.replace(/ — к забору.*$/,"")); if(seenK.has(k)) return false; seenK.add(k); return true; });
-  z.reasons=z.reasons.slice(0,7);
-  z.dyn=wzDynamics(d,z.spec,focus,today).map(x=>({t:wzDynLine(x),src:"",on:true}));
-  z.known=wzItems(sug.known); z.lastLine=sug.prev?`Последний приём: ${ru(sug.prev.d)} — ${sug.prev.who}`:`Приёма «${specDat(z.spec)}» в записях нет`;
-  // для узкого специалиста — только лекарства, связанные с его болезнями (в том числе курсы, добавленные в болезнь с сайта)
-  // идущие лекарства показываем все (врачу важно знать всё, что принимает); связанные с его болезнями — выше и с пометкой
-  z.treat=wzTreatment(d,today).map(t=>Object.assign(t,{rel:(t.eps||[]).some(id=>(sug.epIds||[]).includes(id))})).sort((a,b)=>b.rel-a.rel);
-  if(!gp) z.treat.filter(t=>t.rel).forEach(t=>z.known.push({t:`Лечение по теме: ${t.n} — с ${ru(t.from)}${t.to?`, до ${ru(t.to)}`:""}`,src:"",on:true})); z.labGroup=g?g.label:"";
-  z.computedFor=z.spec+"|"+(z.date||""); wzPut();
+function wzCompute(d,z,today){
+  const todo=wzTodo(d), sug=wzSuggest(d,z.spec,todo,today);
+  const groups=wzLabGroups(d,todo,today);
+  const g=docGeneral(z.spec)?(groups.filter(x=>x.date&&z.date&&x.date<=z.date).at(-1)||groups.find(x=>x.date)):null;
+  const tests=wzMergeItems(sug.tests,g?.items||[]);
+  z.labFocus=[...tests.map(x=>x.t),...wzOn(z,"agenda").filter(x=>x.kind==="tests").map(x=>x.t)];
+  const labs=wzLabRows(d,z.spec,z.labFocus,today), sameSpec=z.computedFor?.split("|")[0]===z.spec;
+  const questions=labs.filter(x=>x.question&&(x.asked||x.attention)).slice(0,8).map(x=>({t:x.question,src:x.last.d}));
+  const agenda=[
+    ...wzItems(sug.reasons,"reasons"),...wzItems(sug.questions,"questions"),...wzItems(tests,"tests"),
+    ...wzItems(questions,"questions"),...wzItems(sug.extra,"extra")
+  ];
+  // Edits, explicit selections and legacy input survive reselecting a doctor.
+  z.agenda=wzReconcile(z.agenda,agenda,sameSpec,z.removed?.agenda);
+  z.known=wzReconcile(z.known,wzItems(wzHistory(d,z.spec,z.labFocus,today)),sameSpec,z.removed?.known);
+  z.status=wzReconcile(z.status,wzItems(wzStatuses(d,z.spec,today)),sameSpec,z.removed?.status);
+  z.bring=wzReconcile(z.bring,wzItems(sug.bring),sameSpec,z.removed?.bring);
+  const courses=z.treat||[], current=wzTreatment(d,today).map(t=>{
+    const prev=courses.find(x=>x.n===t.n&&x.from===t.from&&x.how===t.how);
+    return {...t,rel:sug.epIds.includes(t.ep),...(prev?{crit:prev.crit,back:prev.back,decision:prev.decision,note:prev.note}:{})};
+  });
+  z.treat=current.sort((a,b)=>b.rel-a.rel);
+  z.labGroup=g?.label||"";
+  z.computedFor=z.spec+"|"+(z.date||"");
+  wzPut();
 }
-function wzList(key,ph){
+function wzTextarea(attrs,value=""){
+  return `<textarea class="input wzarea" rows="1" ${attrs}>${esc(value)}</textarea>`;
+}
+function wzResize(root){
+  for(const field of root.querySelectorAll("textarea.wzarea, .prep textarea.ptext")) wzSizeField(field);
+}
+window.addEventListener("resize",()=>wzResize(document));
+function wzSizeField(field){
+  if(CSS.supports("field-sizing","content")) return;
+  field.style.height="auto";
+  field.style.height=(field.scrollHeight+field.offsetHeight-field.clientHeight)+"px";
+}
+function wzList(key,ph,editLabel=ph){
   const z=wzGet(), L=z[key]||[];
-  return `<div class="wzlist">${L.map((x,i)=>`<div class="wzrow"><input type="checkbox" data-wzon="${key}:${i}"${x.on?" checked":""} aria-label="Включить"><div class="wzbody"><input class="input wzt" data-wzi="${key}:${i}" value="${esc(x.t)}">${x.src?`<span class="wzsrc">${esc(x.src)}</span>`:""}</div><button class="addsym" data-wzdel="${key}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`).join("")||`<div class="muted">Пока пусто — добавьте своё</div>`}</div>
-    <div class="row wzadd"><input class="input" id="wzNew_${key}" placeholder="${esc(ph||"добавить своё")}"><button class="btn btn-secondary" data-wzadd="${key}">＋ Добавить</button></div>`;
+  return `<div class="wzlist">${L.map((x,i)=>`<div class="wzrow">
+    <input type="checkbox" data-wzon="${key}:${i}"${x.on?" checked":""} aria-label="Включить пункт ${i+1}">
+    <div class="wzbody">${wzTextarea(`data-wzi="${key}:${i}" aria-label="${esc(editLabel)} ${i+1}"`,x.t)}
+    ${x.src?`<span class="wzsrc">${esc(wzDate(x.src))}</span>`:""}</div>
+    <button type="button" class="addsym" data-wzdel="${key}:${i}" aria-label="Убрать пункт ${i+1}">✕</button></div>`).join("")||
+    '<div class="muted">Пока пусто</div>'}</div>
+    <div class="row wzadd">${wzTextarea(`id="wzNew_${key}" data-wznew="${key}" placeholder="${esc(ph)}" aria-label="${esc(ph)}"`,z.inputDraft?.[key]||"")}
+    <button type="button" class="btn btn-secondary" data-wzadd="${key}">Добавить</button></div>`;
 }
-function wzHeader(steps,z){
-  return `<div class="wzsteps">${steps.map((n,i)=>`<span class="wzstep${i+1===z.step?" on":i+1<z.step?" done":""}"${i+1<z.step?` data-wzgo="${i+1}"`:""}><b>${i+1}</b> ${esc(n)}</span>`).join("")}</div>`;
+const wzNav=(z,nextLabel)=>`<div class="row wznav"><button type="button" class="btn btn-secondary" data-wzback>← Назад</button>
+  <button type="button" class="btn btn-primary" data-wznext${z.mode==="visit"&&z.step===1&&!z.spec?" disabled":""}>${nextLabel||"Дальше →"}</button>
+  <button type="button" class="btn btn-secondary" data-wzreset>Начать заново</button></div>`;
+function wzLabIncluded(z,row,index){
+  return z.labPick?.[row.id]??(row.asked||index<8);
 }
-const wzNav=(z,last,nextLabel)=>`<div class="row wznav"><button class="btn btn-secondary" data-wzback="1">← Назад</button>${last?"":`<button class="btn btn-primary" data-wznext="1">${nextLabel||"Дальше →"}</button>`}<button class="btn btn-secondary" data-wzreset="1" style="margin-left:auto">Начать заново</button></div>`;
+function wzLabsHtml(d,z,today){
+  const labs=wzLabRows(d,z.spec,z.labFocus||[],today);
+  const row=(r,i)=>`<div class="wzlabrow"><label><input type="checkbox" data-wzlab="${esc(r.id)}"${wzLabIncluded(z,r,i)?" checked":""}>
+    <span><b>${esc(r.name)}</b><p>${r.prev?"Было: ":""}${esc(wzLabResult(r.prev))}</p><p>Последний результат: ${esc(wzLabResult(r.last))}</p>
+    ${r.plan?`<p class="muted">План врача от ${wzDate(r.plan.day)}: ${esc(r.plan.text)}</p>`:""}</span></label>
+    ${r.question?`<button type="button" class="oclink" data-wzask="${esc(r.id)}">Добавить вопрос врачу</button>`:""}</div>`;
+  return (labs.slice(0,8).map(row).join("")||'<p class="muted">Анализов по теме в записях нет.</p>')+
+    (labs.length>8?`<details class="fold"><summary>Остальные показатели (${labs.length-8})</summary>${labs.slice(8).map((r,i)=>row(r,i+8)).join("")}</details>`:"")+
+    (z.labNotes?.length?`<details class="fold"><summary>Заметки к анализам из черновика</summary>${wzList("labNotes","Добавьте заметку","Заметка")}</details>`:"");
+}
+const wzMarkdownTable=(headers,rows)=>{
+  const cells=row=>"| "+row.map(value=>wzText(value).replace(/\|/g,"\\|")).join(" | ")+" |";
+  return [cells(headers),cells(headers.map(()=> "---")),...rows.map(cells)].join("\n");
+};
+function wzHandout(d,z,today){
+  const section=(title,body)=>"## "+title+"\n\n"+(body||"Записей для памятки нет.");
+  const list=(lines,ordered=false)=>lines.map((t,i)=>(ordered?(i+1)+". ":"- ")+wzText(t)).join("\n");
+  const facts=key=>wzOn(z,key).map(x=>wzDay(x.src)&&!x.t.includes(wzDate(x.src))?`${wzDate(x.src)} · ${x.t}`:x.t);
+  const agenda=wzMergeItems([],wzOn(z,"agenda"));
+  const labs=wzLabRows(d,z.spec,z.labFocus||[],today).filter((r,i)=>wzLabIncluded(z,r,i));
+  const labLines=labs.length?wzMarkdownTable(["Показатель","Предыдущий результат","Последний результат"],
+    labs.map(r=>[r.name,wzLabResult(r.prev),wzLabResult(r.last)])):"";
+  const labPlans=list(labs.filter(x=>x.plan).map(x=>`${x.name} · план врача от ${wzDate(x.plan.day)}: ${x.plan.text}`));
+  const groups=wzSelectedReadings(d,z,today);
+  const readings=groups.map(g=>{
+    const pressure=g.type==="bp";
+    const headers=["Дата","Время",pressure?"Давление, мм рт. ст.":g.type==="headache"?"Сила":"Значение",pressure?"Пульс, уд/мин":"Запись"];
+    const rows=g.rows.map(r=>[wzDate(r.day),r.time||"—",pressure&&r.note?`${r.value} (${r.note})`:r.value,pressure?r.pulse||"—":r.note||"—"]);
+    return "### "+g.name+"\n\n"+wzMarkdownTable(headers,rows);
+  }).join("\n\n");
+  const day=z.date||today;
+  const title=`${day.slice(8)}.${day.slice(5,7)}.${day.slice(2,4)} ${specName(z.spec)} — памятка (${d.short})`;
+  const text=[
+    "# Памятка к приёму",
+    [d.name||d.short,d.dob?`Дата рождения: ${wzDate(d.dob)}`:"",`Врач: ${specName(z.spec)}${z.date?" · "+wzDate(z.date):""}`].filter(Boolean).join("\n"),
+    section("Зачем я пришла",list(agenda.map(x=>x.t),true)||"Пункты для разговора не отмечены."),
+    section("Что уже сделали по теме",list(facts("known"))),
+    section("Чем лечимся сейчас",list((z.treat||[]).map(wzTreatmentLine))),
+    section("Динамика анализов",[labLines,labPlans,list(facts("labNotes"))].filter(Boolean).join("\n\n")),
+    section("Постоянный статус",list(facts("status"))),
+    section("Регулярные замеры",readings),
+    ...(wzOn(z,"bring").length?[section("Что взять с собой",list(wzOn(z,"bring").map(x=>x.t)))]:[])
+  ].join("\n\n");
+  return {id:null,title,text,spec:z.spec,date:z.date||"",generated:true};
+}
+function wzCurrentHandout(d,z,today){
+  return z.ho&&(z.hoEdit||!z.ho.generated)?z.ho:{...wzHandout(d,z,today),id:z.ho?.id||null};
+}
+function wzHandoutHtml(d,z,today,loading){
+  const h=wzCurrentHandout(d,z,today), disabled=loading&&h.generated?" disabled":"";
+  return `<div class="card hoprint" id="docout"><div class="docbar nodoc"><div class="row wzreadbar">
+      <button type="button" class="btn btn-secondary" data-wzho="${z.hoEdit?"view":"edit"}"${disabled}>${z.hoEdit?"Читать":"Править текст"}</button>
+      <button type="button" class="btn btn-primary" data-wzho="save"${z.hoSaving?" disabled":disabled}>${h.id?"Сохранить изменения":"Сохранить"}</button>
+      <button type="button" class="btn btn-secondary" data-wzho="md"${disabled}>Скачать .md</button>
+      <button type="button" class="btn btn-secondary" data-wzho="print"${disabled}>PDF / печать</button>
+      ${z.ho&&!z.ho.generated?`<button type="button" class="btn btn-secondary" data-wzho="make"${loading?" disabled":""}>Обновить из черновика</button>`:""}
+      ${h.id?'<button type="button" class="btn btn-secondary" data-wzho="del">Удалить</button>':""}</div></div>
+    ${z.hoEdit?`<label class="wzlab nodoc">Название памятки<input id="hoTitle" class="input wzt" value="${esc(h.title)}"></label>
+      <textarea id="hoText" aria-label="Текст памятки" class="textarea wzho nodoc">${esc(h.text)}</textarea>`:`<div class="mdview">${mdLite(h.text)}</div>`}
+    ${z.previousHandout?`<details class="fold nodoc"><summary>Прежний текст памятки</summary><div class="fold-b mdview">${mdLite(z.previousHandout.text)}</div></details>`:""}
+    </div>`;
+}
+function wzExtractHtml(d,z,today){
+  const req={purpose:"",questions:wzOn(z,"agenda").map(x=>({t:x.t})),tests:[],other:[]};
+  const P=doctorPack(d,z.spec,today,{req});
+  return `<div class="card wzpanel" id="wzExtract"><div class="docbar nodoc"><button type="button" class="btn btn-primary" data-wzextractprint>Распечатать выписку</button></div>
+    ${docHtml(P,d)}</div>`;
+}
 function wizTab(m){
   const d=DATA[cur], z=wzGet(), today=localDay(); plansLoad();
   const todo=wzTodo(d), plans=PLANS?PLANS.filter(p=>p.person===cur):[];
   let html="";
   if(!z.mode){   // старт: сервис сам предлагает, с чего начать
     const cands=wzCandidates(d,plans,todo,today), groups=wzLabGroups(d,todo,today), g=groups.find(x=>x.date)||groups[0];
-    html=`<div class="card"><h2>Подготовка к врачу и к анализам</h2>
+    html=`<div class="card wzpanel"><h2>Подготовка к врачу и к анализам</h2>
       <div class="muted" style="margin:-4px 0 12px">Сервис сам подберёт, что рассказать и что спросить, по вашим записям. На каждом шаге вы только подтверждаете и правите.</div>
       <div class="wzstart">
         <button class="wzcard" data-wzstart="visit"><span class="wzic">🩺</span><b>К врачу</b><span class="muted">${cands[0]?`Ближайшее: ${esc(specName(cands[0].spec))}${cands[0].date?" · "+ru(cands[0].date):""}`:"Выберем специальность по записям"}</span></button>
         <button class="wzcard" data-wzstart="labs"><span class="wzic">🧪</span><b>Сдать плановые анализы</b><span class="muted">${g?`${g.label}: ${g.items.length} ${plural(g.items.length,"показатель","показателя","показателей")}`:"Сводим задачи «сдать» в один забор"}</span></button>
         ${g&&g.date?`<button class="wzcard" data-wzstart="chain"><span class="wzic">🧪➜🩺</span><b>Забор ${esc(g.label)} и приём по итогам</b><span class="muted">Сначала анализы, потом разбор результатов с врачом</span></button>`:""}
       </div></div>
-      ${(()=>{ handoutsLoad(); const H=HANDOUTS&&HANDOUTS.p===cur?HANDOUTS.rows:[]; return H.length?`<div class="card"><h2>Готовые памятки <span class="muted" style="text-transform:none">— ${H.length}</span></h2>${H.slice(0,8).map(h=>`<div class="tl-item is-link" data-hoopen="${esc(h.id)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-none" style="white-space:nowrap;flex:none">${h.visit_on?ru(h.visit_on):ru(String(h.updated_at).slice(0,10))}</span><div style="min-width:0"><div class="tl-title">${esc(h.title)}</div></div></div>`).join("")}</div>`:""; })()}
+      ${(()=>{ handoutsLoad(); const H=HANDOUTS&&HANDOUTS.p===cur?HANDOUTS.rows:[]; return H.length?`<div class="card wzpanel"><h2>Готовые памятки <span class="muted" style="text-transform:none">— ${H.length}</span></h2>${H.slice(0,8).map(h=>`<div class="tl-item is-link" data-hoopen="${esc(h.id)}" style="padding:8px 0;display:flex;gap:12px;align-items:center"><span class="status status-none" style="white-space:nowrap;flex:none">${h.visit_on?ru(h.visit_on):ru(String(h.updated_at).slice(0,10))}</span><div style="min-width:0"><div class="tl-title">${esc(h.title)}</div></div></div>`).join("")}</div>`:""; })()}
       ${plansBlock()}`;
   } else if(z.mode==="visit"){
+    if(z.step>1&&z.computedFor!==z.spec+"|"+(z.date||"")) wzCompute(d,z,today);
+    if(z.step===3||z.step===8) wzReadingsLoad();
+    const heading=t=>`<div class="card wzpanel nodoc"><div class="muted">Шаг ${z.step} из ${WZ_VISIT.length}</div><h2>${t}</h2>`;
     if(z.step===1){
       const cands=wzCandidates(d,plans,todo,today);
-      html=`<div class="card"><h2>Шаг 1 из 8. К какому врачу идём</h2><div class="muted" style="margin:-4px 0 10px">Подобрал по планам, задачам «записаться» и записям. Выберите или укажите другого.</div>
-        <div class="wzcands">${cands.map(c=>`<button class="wzcand${z.spec===c.spec&&(z.date||"")===(c.date||"")?" on":""}" data-wzpick="${esc(c.spec)}|${esc(c.date||"")}"><b>${esc(specName(c.spec))}</b>${c.date?` <span class="status status-none">${ru(c.date)}</span>`:""}<span class="muted">${esc(String(c.why).slice(0,110))}</span></button>`).join("")}</div>
-        <div class="row" style="gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap"><label class="wzlab">Другая специальность<select class="select" id="wzSpec">${docSpecList().map(x=>`<option value="${x[0]}"${x[0]===z.spec?" selected":""}>${esc(x[1])}</option>`).join("")}</select></label>
+      html=heading("К какому врачу идём")+
+        (z.needsSpecialty?'<p role="status">Выберите специальность заново. Данные черновика сохранены.</p>':"")+
+        `<div class="wzcands">${cands.map(c=>`<button type="button" class="wzcand${z.spec===c.spec&&(z.date||"")===c.date?" on":""}" data-wzpick="${esc(c.spec)}|${esc(c.date)}">
+          <b>${esc(specName(c.spec))}</b>${c.date?`<span class="status status-none">${wzDate(c.date)}</span>`:""}<span class="muted">${esc(c.why)}</span></button>`).join("")}</div>
+        <div class="wzfields"><label class="wzlab">Специальность<select class="select" id="wzSpec">${docSpecOptions(z.spec)}</select></label>
           <label class="wzlab">Дата приёма<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label></div>
-        ${wzNav(z,false,"Подобрать повод →")}</div>`;
+        ${wzNav(z,"Продолжить →")}</div>`;
     } else if(z.step===2){
-      const K=z.known||[];
-      html=`<div class="card"><h2>Шаг 2 из 8. Что известно по специальности</h2><div class="muted" style="margin:-4px 0 10px">Когда были у ${esc(specDat(z.spec))} в последний раз, что уже найдено, что есть у родных. Отмеченное попадёт в памятку как анамнез по теме.</div>
-        ${z.lastLine?`<div class="wztreat"><b>${esc(z.lastLine)}</b></div>`:""}${wzList("known","свой факт")}${wzNav(z)}</div>`;
+      html=heading("Что уже сделали по теме")+`<p class="muted">Отметьте проведённые консультации, анализы, обследования и завершённые курсы.</p>
+        ${wzList("known","Добавьте, что уже сделали","Что сделали")}<h3 class="wzsub">Постоянный статус</h3>
+        ${wzList("status","Добавьте состояние или изменение","Постоянный статус")}${wzNav(z)}</div>`;
     } else if(z.step===3){
-      html=`<div class="card"><h2>Шаг 3 из 8. Повод обращения к ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Что с человеком сейчас и зачем идём — собрал из болезней, симптомов за месяц и задач. Уберите лишнее, допишите своё.</div>${wzList("reasons","например, жалоба, которой нет в списке")}${wzNav(z)}</div>`;
+      html=heading("Регулярные замеры")+`<p class="muted">Выберите вид замера и период. Отмеченные записи за этот период попадут в памятку.</p>
+        ${wzReadingsHtml(d,z,today)}${wzNav(z)}</div>`;
     } else if(z.step===4){
-      html=`<div class="card"><h2>Шаг 4 из 8. Динамика — что рассказать врачу</h2><div class="muted" style="margin:-4px 0 10px">Ключевые показатели: как менялись${z.labGroup?`, с учётом планового забора ${esc(z.labGroup)}`:""}. Отмеченное попадёт в документ.</div>${wzList("dyn","своя строка динамики")}${wzNav(z)}</div>`;
+      html=heading("Динамика анализов")+`<p class="muted">Последний результат и ближайший сопоставимый. Выберите, что показать врачу.</p>
+        ${wzLabsHtml(d,z,today)}${wzNav(z)}</div>`;
     } else if(z.step===5){
       const T=z.treat||[];
-      html=`<div class="card"><h2>Шаг 5 из 8. Лечение — продолжать, снижать или заканчивать</h2><div class="muted" style="margin:-4px 0 10px">Назначения и отметки приёма показаны отдельно от их подтверждённости. Вопросы об эффективности и дальнейшей схеме решает врач.</div>
-        ${T.length?T.map((t,i)=>`<div class="wztreat"><b>${esc(t.n)}</b>${t.rel?` <span class="status status-ok">по теме приёма</span>`:""} <span class="muted">· ${esc(t.useLabel||"Статус приёма не подтверждён")}${t.from?", дата в записи "+ru(t.from):""}${t.to?`, по плану до ${ru(t.to)}`:t.till?` · ${esc(t.till)}`:""}</span>
-          ${t.how?`<div class="wzsrc"><b>Схема из записи:</b> ${esc(t.how)}</div>`:""}${t.why?`<div class="wzsrc"><b>Зачем:</b> ${esc(t.why)}</div>`:""}${t.dyn.map(x=>`<div class="wzsrc">${esc(x)}</div>`).join("")||`<div class="wzsrc">Критерии оценки необходимо обсудить с врачом</div>`}
-          <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap">${[["continue","Продолжить"],["reduce","Снизить дозу"],["stop","Закончить"],["ask","Решить вместе с врачом"]].map(([v,n])=>`<button class="btn ${t.decision===v?"btn-primary":"btn-secondary"}" data-wzdec="${i}:${v}" style="height:34px">${n}</button>`).join("")}</div>
-          <label class="wzlab">По каким критериям поймём, что лечение работает или нет<input class="input wzt" data-wztreatcrit="${i}" placeholder="вопрос о критериях и сроках оценки для врача" value="${esc(t.crit||"")}"></label>
-          <label class="wzlab" style="margin-top:6px">Когда прийти к врачу с результатами<input class="input" type="date" data-wztreatback="${i}" value="${esc(t.back||"")}"></label>
-          <input class="input wzt" data-wztreatnote="${i}" placeholder="Что вы видите по самочувствию, переносимости, как принимает" value="${esc(t.note||"")}"><div class="wzsrc">Вопрос врачу: ${esc(wzTreatQ(t))}</div></div>`).join(""):`<div class="muted">Назначений и отметок приёма в записях нет — шаг можно пропустить.</div>`}
+      html=heading("Чем лечимся сейчас")+`
+        ${T.length?T.map((t,i)=>`<div class="wztreat"><p>${esc(wzTreatmentLine({...t,note:"",back:""}))}</p>
+          <div class="row" style="gap:8px;margin:8px 0;flex-wrap:wrap">${[["continue","Продолжение курса"],["reduce","Изменение дозы"],["stop","Завершение курса"],["ask","Дальнейшая схема"]].map(([v,n])=>`<button type="button" class="btn ${t.decision===v?"btn-primary":"btn-secondary"}" data-wzdec="${i}:${v}">${n}</button>`).join("")}</div>
+          <label class="wzlab">Наблюдения о самочувствии и переносимости${wzTextarea(`data-wztreatnote="${i}"`,t.note||"")}</label>
+          <label class="wzlab" style="margin-top:6px">Что уточнить у врача${wzTextarea(`data-wztreatcrit="${i}"`,t.crit||"")}</label>
+          <label class="wzlab" style="margin-top:6px">Когда планируете обсудить<input class="input" type="date" data-wztreatback="${i}" value="${esc(t.back||"")}"></label>
+          <button type="button" class="oclink" data-wztreatask="${i}">Добавить вопрос врачу</button></div>`).join(""):'<p class="muted">Текущих назначений в записях нет.</p>'}
         ${wzNav(z)}</div>`;
     } else if(z.step===6){
-      html=`<div class="card"><h2>Шаг 6 из 8. Вопросы ${esc(specDat(z.spec))}</h2><div class="muted" style="margin:-4px 0 10px">Из задач «спросить», болезней, лекарств и результатов. Можно дополнить от семейного врача — по вашим записям.</div>${wzList("questions","свой вопрос")}
-        <div class="row" style="margin-top:10px"><button class="btn btn-secondary" data-wzai="1" ${z.aiBusy?"disabled":""}>${z.aiBusy?'<span class="spin"></span>Семейный врач думает…':"✨ Дополнить от семейного врача"}</button></div>${wzNav(z)}</div>`;
+      html=heading("Зачем я пришла")+`<p class="muted">Что рассказать, спросить и попросить у ${esc(specDat(z.spec))}. В памятку попадут отмеченные пункты.</p>
+        ${wzList("agenda","Добавьте один вопрос или просьбу","Пункт для врача")}
+        <div class="row" style="margin-top:10px"><button type="button" class="btn btn-secondary" data-wzai ${z.aiBusy?"disabled":""}>${z.aiBusy?'<span class="spin"></span>Подбираем вопросы…':"Дополнить от семейного врача"}</button></div>
+        ${wzNav(z)}</div>`;
     } else if(z.step===7){
-      html=`<div class="card"><h2>Шаг 7 из 8. Какие анализы и обследования просить, что взять</h2><div class="muted" style="margin:-4px 0 6px">Что сдать к приёму или обсудить, с последними значениями. Недавно сданное помечено.</div><h3 style="font-size:14px;margin:8px 0 4px">Анализы и обследования</h3>${wzList("tests","например, ферритин")}
-        <h3 style="font-size:14px;margin:14px 0 4px">Что можно попросить у врача заодно</h3><div class="muted" style="margin:0 0 6px">Направления, дополнительные анализы, справки — чтобы не приходить второй раз. Особенно у педиатра и терапевта.</div>${wzList("extra","например, направление к ЛОРу")}
-        <h3 style="font-size:14px;margin:14px 0 4px">Что взять с собой</h3>${wzList("bring","например, выписка")}${wzNav(z,false,"К итогу →")}</div>`;
-    } else {   // шаг 8
-      const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim()), T=(z.treat||[]).filter(t=>t.decision||t.note);
-      const questions=[...T.map(wzTreatQ),...on("questions").map(x=>x.t)];
-      html=`<div class="card"><h2>Шаг 8 из 8. Готово</h2><div class="muted" style="margin:-4px 0 10px">${esc(specName(z.spec))}${z.date?" · "+ru(z.date):""} · для ${esc(d.short)}</div>
-        ${[["Повод",on("reasons").map(x=>x.t)],["Динамика",on("dyn").map(x=>x.t),1],["Позиция по лечению",(z.treat||[]).map(t=>`${t.n} — с ${ru(t.from)}${t.to?" по "+ru(t.to)+" (по плану)":t.till?" ("+t.till+")":", срок не указан"} · ${t.days}-й день${t.how?" · "+t.how:""}${t.crit?" · критерии: "+t.crit:""}${t.back?" · прийти с результатами "+ru(t.back):""}${t.decision||t.note?": "+(({continue:"продолжить",reduce:"снизить дозу",stop:"закончить",ask:"решить вместе"})[t.decision]||"")+(t.note?" · "+t.note:""):""}`)],["Вопросы врачу",questions],["Анализы и обследования",on("tests").map(x=>x.t),1],["Что попросить заодно",on("extra").map(x=>x.t)],["Взять с собой",on("bring").map(x=>x.t)]].filter(x=>x[1].length).map(([h,L,b])=>`<h3 style="font-size:14px;margin:12px 0 4px">${h}</h3><ul style="margin:0;padding-left:20px">${L.map(x=>`<li>${b?wzBold(x):esc(x)}</li>`).join("")}</ul>`).join("")}
-        <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" data-wzho="make" ${z.hoBusy?"disabled":""}>${z.hoBusy?'<span class="spin" style="border-color:rgba(255,255,255,.5);border-top-color:#fff"></span>Составляю памятку…':(z.ho?"📄 Составить заново":"📄 Составить памятку для врача")}</button><button class="btn btn-secondary" data-wzplan="1">Сохранить как визит</button><button class="btn btn-secondary" data-wzdoc="1">${z.showDoc?"Обновить данные из карты":"Выписка из карты"}</button><button class="btn btn-secondary" data-wzrev="1" ${z.revBusy?"disabled":""}>${z.revBusy?'<span class="spin"></span>Семейный врач разбирает…':(z.rev?"Разбор семейного врача — заново":"Попросить разбор семейного врача")}</button></div>
-        ${z.rev?`<div class="card" style="margin-top:12px"><h3 style="font-size:14px;margin:0 0 6px">Разбор семейного врача</h3><div class="mdview">${mdLite(z.rev)}</div><div class="muted" style="margin-top:8px">Это подготовка к приёму по вашим записям, не диагноз.</div></div>`:""}
-        ${z.hoBusy?`<div class="muted" style="margin-top:8px">Семейный врач собирает памятку по образцу: задачи визита, что сказать, анамнез, что просить, вопросы, что взять. Это до двух минут.</div>`:""}
-        <div class="row wznav"><button class="btn btn-secondary" data-wzback="1">← Назад</button><button class="btn btn-secondary" data-wzreset="1" style="margin-left:auto">Начать заново</button></div></div>
-        ${z.ho?`<div class="card hoprint" id="docout"><div class="docbar nodoc"><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-secondary" data-wzho="${z.hoEdit?"view":"edit"}">${z.hoEdit?"Читать":"✎ Править текст"}</button><button class="btn btn-primary" data-wzho="save">${z.ho.id?"Сохранить изменения":"Сохранить"}</button><button class="btn btn-secondary" data-wzho="md">Скачать .md</button><button class="btn btn-secondary" data-wzho="print">PDF / печать</button>${z.ho.id?`<button class="btn btn-secondary" data-wzho="del">Удалить</button>`:""}</div>
-          ${z.hoEdit?`<input id="hoTitle" class="input wzt" value="${esc(z.ho.title)}" style="margin-top:8px">`:""}</div>
-          ${z.hoEdit?`<textarea id="hoText" class="textarea wzho">${esc(z.ho.text)}</textarea>`:`<div class="mdview">${mdLite(z.ho.text)}</div>`}</div>`:""}
-        ${z.showDoc?(()=>{ docSt.spec=z.spec; const P=doctorPack(d,z.spec,today,{systems:docSt.sys,req:{purpose:on("reasons").map(x=>x.t).join("; "),questions:questions.map(t=>({t})),tests:on("tests").map(x=>({t:x.t})),other:[...on("dyn").map(x=>({t:"Динамика: "+x.t})),...on("bring").map(x=>({t:"Взять: "+x.t}))]}});
-          return `<div class="card" id="docout"><div class="docbar"><button class="btn btn-primary btn-block" data-dock="print" style="margin:0">Скачать PDF</button></div>${docHtml(P,d)}</div>`; })():""}`;
+      html=heading("Что взять с собой")+`${wzList("bring","Добавьте документ или запись","Что взять")}${wzNav(z,"К памятке →")}</div>`;
+    } else {
+      const state=WZ_READINGS.get(cur);
+      html=heading("Памятка готова")+
+        (state?.loading?'<p class="muted" role="status">Загружаем замеры для памятки…</p>':"")+
+        (state?.errors.length?'<p class="muted">Часть замеров не загрузилась. <button type="button" class="oclink" data-wzreadretry>Повторить</button></p>':"")+
+        `<div class="row wznav">
+          <button type="button" class="btn btn-secondary" data-wzgo="6">К вопросам</button>
+          <button type="button" class="btn btn-secondary" data-wzgo="3">К замерам</button>
+          <button type="button" class="btn btn-secondary" data-wzplan>Сохранить как визит</button>
+          <button type="button" class="btn btn-secondary" data-wzdoc>${z.showDoc?"Скрыть выписку":"Выписка из карты"}</button>
+          <button type="button" class="btn btn-secondary" data-wzrev ${z.revBusy?"disabled":""}>${z.revBusy?'<span class="spin"></span>Подготавливаем разбор…':"Попросить разбор семейного врача"}</button>
+        </div>
+        ${z.rev?`<div class="wztreat"><h3 class="wzsub">Разбор семейного врача</h3><div class="mdview">${mdLite(z.rev)}</div></div>`:""}
+        <div class="row wznav"><button type="button" class="btn btn-secondary" data-wzback>← Назад</button>
+          <button type="button" class="btn btn-secondary" data-wzreset>Начать заново</button></div></div>
+        ${wzHandoutHtml(d,z,today,state?.loading)}
+        ${z.showDoc?wzExtractHtml(d,z,today):""}`;
     }
   } else if(z.mode==="labs"){
     const groups=wzLabGroups(d,todo,today);
     if(z.step===1){
-      html=`<div class="card"><h2>Шаг 1 из 4. Какой забор</h2><div class="muted" style="margin:-4px 0 10px">Собрал задачи «сдать» по датам. Один выбранный забор — один визит в лабораторию.</div>
+      html=`<div class="card wzpanel"><h2>Шаг 1 из ${WZ_LABS.length}. Какой забор</h2><div class="muted" style="margin:-4px 0 10px">Собрал задачи «сдать» по датам. Один выбранный забор — один визит в лабораторию.</div>
         <div class="wzcands">${groups.map((g,i)=>`<button class="wzcand${z.group===g.date?" on":""}" data-wzgrp="${esc(g.date)}"><b>${esc(g.label)}</b><span class="muted">${g.items.map(x=>esc(x.t)).join(", ")}</span></button>`).join("")||`<div class="muted">Задач «сдать» нет — добавьте показатели на следующем шаге</div>`}</div>
-        ${wzNav(z,false,"Что сдаём →")}</div>`;
+        ${wzNav(z,"Что сдаём →")}</div>`;
     } else if(z.step===2){
-      html=`<div class="card"><h2>Шаг 2 из 4. Что сдаём</h2><div class="muted" style="margin:-4px 0 10px">Показатели с последним результатом. Добавьте то, о чём договорились с врачом.</div>${wzList("labItems","например, ферритин")}${wzNav(z,false,"Подготовка →")}</div>`;
+      html=`<div class="card wzpanel"><h2>Шаг 2 из ${WZ_LABS.length}. Что сдаём</h2><div class="muted" style="margin:-4px 0 10px">Показатели с последним результатом. Добавьте то, о чём договорились с врачом.</div>${wzList("labItems","например, ферритин")}${wzNav(z,"Подготовка →")}</div>`;
     } else if(z.step===3){
-      html=`<div class="card"><h2>Шаг 3 из 4. Подготовка к сдаче</h2><div class="muted" style="margin:-4px 0 10px">Общие правила по выбранным показателям — не назначение. Сверьте с направлением лаборатории.</div>${wzList("prep","своё правило")}
-        <label class="wzlab" style="margin-top:8px">Дата забора<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label>${wzNav(z,false,"К итогу →")}</div>`;
+      html=`<div class="card wzpanel"><h2>Шаг 3 из ${WZ_LABS.length}. Подготовка к сдаче</h2><div class="muted" style="margin:-4px 0 10px">Общие правила по выбранным показателям — не назначение. Сверьте с направлением лаборатории.</div>${wzList("prep","своё правило")}
+        <label class="wzlab" style="margin-top:8px">Дата забора<input class="input" id="wzDate" type="date" value="${esc(z.date||"")}"></label>${wzNav(z,"К итогу →")}</div>`;
     } else {
       const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim());
-      html=`<div class="card" id="docout"><h2>Шаг 4 из 4. План забора для ${esc(d.short)}${z.date?" · "+ru(z.date):""}</h2>
+      html=`<div class="card wzpanel" id="docout"><h2>Шаг 4 из ${WZ_LABS.length}. План забора для ${esc(d.short)}${z.date?" · "+ru(z.date):""}</h2>
         <h3 style="font-size:14px;margin:8px 0 4px">Сдать</h3><ul style="margin:0;padding-left:20px">${on("labItems").map(x=>`<li>☐ ${esc(x.t)}${x.src?` <span class="muted">(${esc(x.src)})</span>`:""}</li>`).join("")||"<li>—</li>"}</ul>
         <h3 style="font-size:14px;margin:12px 0 4px">Как подготовиться</h3><ul style="margin:0;padding-left:20px">${on("prep").map(x=>`<li>${esc(x.t)}</li>`).join("")}</ul>
         <p class="muted" style="margin-top:10px">Результаты потом внесите: ＋ Добавить → Анализ.</p>
@@ -12391,121 +12787,282 @@ function wizTab(m){
         <div class="row wznav nodoc"><button class="btn btn-secondary" data-wzback="1">← Назад</button><button class="btn btn-secondary" data-wzreset="1" style="margin-left:auto">Начать заново</button></div></div>`;
     }
   }
-  if(z.mode==="visit"&&z.step>1&&z.spec) html=`<div class="wzctx">🩺 К ${esc(specDat(z.spec))}${z.date?" · "+ru(z.date):""} · ${esc(d.short)}</div>`+html;
+  if(z.mode==="visit"&&z.step>1&&z.spec) html=`<div class="wzcontext nodoc"><span class="wzctx">${esc(specName(z.spec))}${z.date?" · "+wzDate(z.date):""} · ${esc(d.short)}</span>
+    <button type="button" class="oclink" data-wzgo="1">Изменить врача</button></div>`+html;
   m.innerHTML=html;
+  wzResize(m);
 }
-// действия мастера
+function wzUseSpecialty(z,spec,date){
+  if(!docSpecAllowed(spec)) return false;
+  if(z.ho&&(z.ho.spec!==spec||z.ho.date!==date)){
+    z.previousHandout=z.ho; z.ho=null; z.hoEdit=false;
+  }
+  if(z.spec!==spec||z.date!==date){ z.rev=""; z.showDoc=false; }
+  z.spec=spec; z.date=date; z.needsSpecialty=false; wzPut();
+  return true;
+}
+function wzAddAgenda(z,text,src){
+  const key=wzTextKey(text);
+  const existing=(z.agenda||[]).find(x=>wzTextKey(x.t)===key);
+  if(existing){ existing.on=true; existing.touched=true; }
+  else (z.agenda??=[]).push({t:text,src,on:true,kind:"questions",touched:true});
+  wzPut();
+}
+function wzPrint(title,className){
+  const original=document.title;
+  document.title=title;
+  document.body.classList.add(className);
+  const done=()=>{ document.title=original; document.body.classList.remove(className); };
+  window.addEventListener("afterprint",done,{once:true});
+  setTimeout(()=>{ window.print(); setTimeout(done,1500); },80);
+}
+function wzHandoutAction(action,b,d,z,today){
+  if(b.disabled) return;
+  if(action==="make"){
+    const next=wzHandout(d,z,today);
+    if(z.ho&&z.ho.text!==next.text) z.previousHandout=z.ho;
+    z.ho={...next,id:z.ho?.id||null}; z.hoEdit=false; wzPut(); render(); return;
+  }
+  const h=wzCurrentHandout(d,z,today);
+  if(action==="edit"||action==="view"){
+    z.ho=h; z.hoEdit=action==="edit"; wzPut(); render();
+    if(z.hoEdit) document.getElementById("hoText")?.focus();
+  } else if(action==="save"){
+    if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
+    const person=cur;
+    z.ho=h; z.hoSaving=true; wzPut(); b.disabled=true;
+    mkApi("handout_save",{id:h.id||undefined,person,specialty:z.spec,visit_on:z.date||null,title:h.title,body:h.text})
+      .then(j=>{
+        h.id=j.id||h.id;
+        if(WZ!==z||WZ_FOR!==person||z.ho!==h) return;
+        z.hoSaving=false; wzPut(); handoutsLoad(true); render(); toast("Памятка сохранена");
+      }).catch(()=>{
+        z.hoSaving=false;
+        if(WZ===z&&WZ_FOR===person){ render(); toast("Не сохранилось. Попробуйте ещё раз."); }
+      });
+  } else if(action==="md"){
+    const blob=new Blob([h.text],{type:"text/markdown;charset=utf-8"}), url=URL.createObjectURL(blob);
+    const link=document.createElement("a"); link.href=url;
+    link.download=(h.title||"Памятка").replace(/[\\/:*?"<>|]+/g,"")+".md";
+    document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+  } else if(action==="print"){
+    if(z.hoEdit){ z.hoEdit=false; wzPut(); render(); }
+    wzPrint(h.title||"Памятка","print-ho");
+  } else if(action==="del"&&h.id){
+    const person=cur;
+    confirmDel("Удалить памятку?",()=>mkApi("handout_delete",{id:h.id}).then(()=>{
+      if(WZ===z&&WZ_FOR===person){ z.ho=null; z.hoEdit=false; wzPut(); handoutsLoad(true); render(); }
+    }).catch(()=>toast("Не получилось удалить")));
+  }
+}
 function wzAct(e){
-  const t=e.target; if(!t.closest) return false; const z=wzGet(), d=DATA[cur], today=localDay();
-  const set=(k,v)=>{ z[k]=v; wzPut(); };
+  const t=e.target; if(!t.closest) return false;
+  const z=wzGet(), d=DATA[cur], today=localDay();
   let b;
-  if(b=t.closest("[data-wzstart]")){ const k=b.dataset.wzstart; const todo=wzTodo(d), plans=PLANS?PLANS.filter(p=>p.person===cur):[];
-    if(k==="visit"||k==="chain"){ const c=wzCandidates(d,plans,todo,today)[0]||{spec:"ped",date:""}; Object.assign(z,{mode:"visit",step:1,spec:c.spec,date:c.date||"",showDoc:false,chain:k==="chain"}); if(k==="chain"){ const g=wzLabGroups(d,todo,today).find(x=>x.date); if(g){ Object.assign(z,{mode:"labs",step:1,group:g.date,date:g.date,chain:true}); z.labItems=wzItems(g.items); z.prep=wzItems(wzPrepItems(g.items.map(i=>i.t))); z.step=2; } } }
-    else { const g=wzLabGroups(d,todo,today)[0]; Object.assign(z,{mode:"labs",step:1,group:g?g.date:"",date:g&&g.date||"",chain:false}); if(g){ z.labItems=wzItems(g.items); z.prep=wzItems(wzPrepItems(g.items.map(i=>i.t))); } }
-    wzPut(); render(); return true; }
-  if(b=t.closest("[data-wzpick]")){ const [sp,dt]=b.dataset.wzpick.split("|"); z.spec=sp; z.date=dt; wzPut(); render(); return true; }
-  if(b=t.closest("[data-wzgrp]")){ const todo=wzTodo(d), g=wzLabGroups(d,todo,today).find(x=>x.date===b.dataset.wzgrp); z.group=b.dataset.wzgrp; z.date=g&&g.date||""; z.labItems=wzItems(g?g.items:[]); z.prep=wzItems(wzPrepItems((g?g.items:[]).map(i=>i.t))); wzPut(); render(); return true; }
+  if(b=t.closest("[data-wzstart]")){
+    const kind=b.dataset.wzstart, todo=wzTodo(d), plans=(PLANS||[]).filter(p=>p.person===cur);
+    const group=wzLabGroups(d,todo,today).find(g=>kind!=="chain"||g.date);
+    if(kind==="labs"||kind==="chain"&&group){
+      Object.assign(z,{mode:"labs",step:kind==="chain"?2:1,group:group?.date||"",date:group?.date||"",chain:kind==="chain"});
+      z.labItems=wzItems(group?.items||[]); z.prep=wzItems(wzPrepItems(z.labItems.map(x=>x.t)));
+    } else {
+      const c=wzCandidates(d,plans,todo,today)[0];
+      const spec=z.needsSpecialty?"":docSpecAllowed(z.spec)?z.spec:c?.spec||docPrimary();
+      Object.assign(z,{mode:"visit",step:1,spec,date:z.date||c?.date||"",showDoc:false,chain:false});
+      wzRestoreVisit(z);
+    }
+    wzPut(); render(); return true;
+  }
+  if(b=t.closest("[data-wzpick]")){
+    const [sp,dt]=b.dataset.wzpick.split("|");
+    if(wzUseSpecialty(z,sp,dt||z.date||"")) render();
+    return true;
+  }
+  if(b=t.closest("[data-wzgrp]")){
+    const g=wzLabGroups(d,wzTodo(d),today).find(x=>x.date===b.dataset.wzgrp);
+    z.group=b.dataset.wzgrp; z.date=g?.date||""; z.labItems=wzItems(g?.items||[]);
+    z.prep=wzItems(wzPrepItems(z.labItems.map(i=>i.t))); wzPut(); render(); return true;
+  }
   if(t.closest("[data-wznext]")){
-    if(z.mode==="visit"){ if(z.step===1&&z.computedFor!==z.spec+"|"+(z.date||"")) wzCompute(d); if(z.step<8) z.step++; }
-    else if(z.mode==="labs"){ if(z.step===2){ z.prep=wzItems(wzPrepItems((z.labItems||[]).filter(x=>x.on).map(x=>x.t))); } if(z.step<4) z.step++; }
-    wzPut(); render(); window.scrollTo({top:0}); return true; }
-  if(t.closest("[data-wzback]")){ if(z.step>1) z.step--; else { z.mode=null; z.step=0; } wzPut(); render(); window.scrollTo({top:0}); return true; }
-  if(b=t.closest("[data-wzgo]")){ z.step=+b.dataset.wzgo; wzPut(); render(); return true; }
+    if(z.mode==="visit"){
+      if(!docSpecAllowed(z.spec)) return true;
+      z.step=z.step===1&&z.resumeStep?z.resumeStep:Math.min(z.step+1,WZ_VISIT.length);
+      delete z.resumeStep;
+    } else if(z.mode==="labs"){
+      if(z.step===2) z.prep=wzItems(wzPrepItems(wzOn(z,"labItems").map(x=>x.t)));
+      z.step=Math.min(z.step+1,WZ_LABS.length);
+    }
+    wzPut(); render(); window.scrollTo({top:0}); return true;
+  }
+  if(t.closest("[data-wzback]")){
+    if(z.step>1) z.step--; else { z.mode=null; z.step=0; }
+    wzPut(); render(); window.scrollTo({top:0}); return true;
+  }
+  if(b=t.closest("[data-wzgo]")){
+    z.step=+b.dataset.wzgo; wzPut(); render(); window.scrollTo({top:0}); return true;
+  }
   if(t.closest("[data-wzreset]")){ WZ={mode:null,step:0}; wzPut(); render(); return true; }
-  if(b=t.closest("[data-wzon]")){ const [k,i]=b.dataset.wzon.split(":"); if(z[k]&&z[k][+i]){ z[k][+i].on=b.checked; wzPut(); } return true; }
-  if(b=t.closest("[data-wzdel]")){ const [k,i]=b.dataset.wzdel.split(":"); (z[k]||[]).splice(+i,1); wzPut(); render(); return true; }
-  if(b=t.closest("[data-wzadd]")){ const k=b.dataset.wzadd, el=document.getElementById("wzNew_"+k), v=(el&&el.value||"").trim(); if(v){ (z[k]=z[k]||[]).push({t:v,src:"своё",on:true}); wzPut(); render(); } return true; }
-  if(b=t.closest("[data-wzdec]")){ const [i,v]=b.dataset.wzdec.split(":"); const tr=(z.treat||[])[+i]; if(tr){ tr.decision=tr.decision===v?"":v; wzPut(); render(); } return true; }
+  if(b=t.closest("[data-wzon]")){
+    const [k,i]=b.dataset.wzon.split(":"), x=z[k]?.[+i];
+    if(x){ x.on=b.checked; x.touched=true; wzPut(); }
+    return true;
+  }
+  if(b=t.closest("[data-wzdel]")){
+    const [k,i]=b.dataset.wzdel.split(":"), x=z[k]?.[+i];
+    if(x){
+      (z.removed??={})[k]=[...(z.removed[k]||[]),wzTextKey(x.original??x.t)];
+      z[k].splice(+i,1); wzPut(); render();
+    }
+    return true;
+  }
+  if(b=t.closest("[data-wzadd]")){
+    const key=b.dataset.wzadd, el=document.getElementById("wzNew_"+key), text=el?.value.trim();
+    if(text){
+      if(key==="agenda") wzAddAgenda(z,text,"своё");
+      else (z[key]??=[]).push({t:text,src:"своё",on:true,touched:true});
+      if(z.inputDraft) delete z.inputDraft[key];
+      wzPut(); render(); document.getElementById("wzNew_"+key)?.focus({preventScroll:true});
+    }
+    return true;
+  }
+  if(b=t.closest("[data-wzlab]")){ (z.labPick??={})[b.dataset.wzlab]=b.checked; wzPut(); return true; }
+  if(b=t.closest("[data-wzask]")){
+    const row=wzLabRows(d,z.spec,z.labFocus||[],today).find(r=>r.id===b.dataset.wzask);
+    if(row?.question){ wzAddAgenda(z,row.question,row.last.d); toast("Вопрос добавлен в памятку"); }
+    return true;
+  }
+  if(b=t.closest("[data-wzdec]")){
+    const [i,v]=b.dataset.wzdec.split(":"), tr=z.treat?.[+i];
+    if(tr){ tr.decision=tr.decision===v?"":v; wzPut(); render(); }
+    return true;
+  }
+  if(b=t.closest("[data-wztreatask]")){
+    const tr=z.treat?.[+b.dataset.wztreatask];
+    if(tr){ wzAddAgenda(z,wzTreatQ(tr),tr.from); toast("Вопрос добавлен в памятку"); }
+    return true;
+  }
+  if(b=t.closest("[data-wzreadrange]")){
+    (z.readingRanges??={})[z.readingType||"bp"]=b.dataset.wzreadrange; wzPut(); render(); return true;
+  }
+  if(b=t.closest("[data-wzread]")){
+    (z.readingPick??={})[b.dataset.wzread]=b.checked; wzPut(); render(); return true;
+  }
+  if(b=t.closest("[data-wzreadall]")){
+    const g=wzReadings(d,cur,today).find(x=>x.type===(z.readingType||"bp"));
+    if(g){
+      const rows=measRangeRows(g.rows,wzReadingRange(z,g.type),today);
+      for(const r of rows) (z.readingPick??={})[r.id]=b.dataset.wzreadall==="on";
+      wzPut(); render();
+    }
+    return true;
+  }
+  if(b=t.closest("[data-wzreadadd]")){
+    const type=b.dataset.wzreadadd;
+    if(type==="bp") bpForm();
+    else if(type==="headache") hdForm(diaryCatalog().find(x=>x.id==="migraine"),today,today);
+    else measForm();
+    return true;
+  }
+  if(t.closest("[data-wzreadretry]")){ wzReadingsLoad(cur,true); render(); return true; }
   if(t.closest("[data-wzai]")){ wzAi(); return true; }
   if(t.closest("[data-wzrev]")){ wzReview(); return true; }
-  if(b=t.closest("[data-hoopen]")){ const h=((HANDOUTS||{}).rows||[]).find(x=>x.id===b.dataset.hoopen); if(h){ Object.assign(z,{mode:"visit",step:7,spec:h.specialty||z.spec||"ped",date:h.visit_on||"",showDoc:false,hoEdit:false,ho:{id:h.id,text:h.body,title:h.title}}); wzPut(); render(); window.scrollTo({top:0}); } return true; }
-  if(b=t.closest("[data-wzho]")){ const a=b.dataset.wzho, H=z.ho;
-    if(a==="make"){ wzHandout(); return true; }
-    if(!H) return true;
-    if(a==="edit"){ z.hoEdit=true; wzPut(); render(); return true; }
-    if(a==="view"){ const ta=document.getElementById("hoText"), ti=document.getElementById("hoTitle"); if(ta) H.text=ta.value; if(ti) H.title=ti.value; z.hoEdit=false; wzPut(); render(); return true; }
-    if(a==="save"){ const ta=document.getElementById("hoText"), ti=document.getElementById("hoTitle"); if(ta) H.text=ta.value; if(ti) H.title=ti.value;
-      if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return true; }
-      mkApi("handout_save",{id:H.id||undefined,person:cur,specialty:z.spec,visit_on:z.date||null,title:H.title,body:H.text}).then(j=>{ H.id=j.id||H.id; wzPut(); handoutsLoad(true); render(); toast("Памятка сохранена"); }).catch(()=>toast("Не сохранилось — попробуйте ещё раз")); return true; }
-    if(a==="md"){ const ta=document.getElementById("hoText"); if(ta) H.text=ta.value; const blob=new Blob([H.text],{type:"text/markdown;charset=utf-8"}), url=URL.createObjectURL(blob), l=document.createElement("a"); l.href=url; l.download=(H.title||"памятка").replace(/[\\/:*?"<>|]+/g,"")+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000); return true; }
-    if(a==="print"){ const ta=document.getElementById("hoText"); if(ta){ H.text=ta.value; z.hoEdit=false; wzPut(); render(); } const t0=document.title; document.title=H.title||"Памятка"; document.body.classList.add("print-ho"); setTimeout(()=>{ window.print(); setTimeout(()=>{ document.title=t0; document.body.classList.remove("print-ho"); },1500); },80); return true; }
-    if(a==="del"){ confirmDel("Удалить памятку?",()=>mkApi("handout_delete",{id:H.id}).then(()=>{ z.ho=null; wzPut(); handoutsLoad(true); render(); }).catch(()=>toast("Не получилось удалить"))); return true; } }
-
-  if(t.closest("[data-wzdoc]")){ z.showDoc=true; wzPut(); render(); setTimeout(()=>{ const o=document.getElementById("docout"); o&&o.scrollIntoView({behavior:"smooth"}); },60); return true; }
-  if(t.closest("[data-wzplan]")){ const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim());
-    planOpen(null); planEdit.specialty=z.spec; planEdit.planned_date=z.date||""; planEdit.purpose=on("reasons").map(x=>x.t).join("; ").slice(0,480);
-    planEdit.questions=planClean([...(z.treat||[]).filter(x=>x.decision||x.note).map(wzTreatQ),...on("questions").map(x=>x.t)]); planEdit.tests=planClean(on("tests").map(x=>x.t)); planEdit.other=planClean([...on("dyn").map(x=>"Динамика: "+x.t),...on("bring").map(x=>"Взять: "+x.t)]).slice(0,40); planDraw(); return true; }
-  if(t.closest("[data-wzplanlab]")){ const on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim());
-    planOpen(null); planEdit.specialty="other"; planEdit.planned_date=z.date||""; planEdit.purpose="Плановый забор анализов"; planEdit.tests=planClean(on("labItems").map(x=>x.t)); planEdit.other=planClean(on("prep").map(x=>x.t)); planEdit.questions=[]; planDraw(); return true; }
-  if(t.closest("[data-wztovisit]")){ const todo=wzTodo(d), plans=PLANS?PLANS.filter(p=>p.person===cur):[], labDate=z.date||"", C=wzCandidates(d,plans,todo,today),
-      near=C.filter(x=>x.date&&x.date>labDate&&Math.round((Date.parse(x.date+"T12:00:00Z")-Date.parse(labDate+"T12:00:00Z"))/864e5)<=45), c=near[0]||C[0]||{spec:"ped",date:""};
-    Object.assign(z,{mode:"visit",step:1,spec:c.spec,date:c.date||(labDate?wzNextDay(labDate):""),showDoc:false,computedFor:""}); wzPut(); render(); window.scrollTo({top:0}); return true; }
+  if(b=t.closest("[data-hoopen]")){
+    const h=HANDOUTS?.p===cur&&HANDOUTS.rows.find(x=>String(x.id)===b.dataset.hoopen);
+    if(h){
+      Object.assign(z,{mode:"visit",format:2,step:8,spec:h.specialty,date:h.visit_on||"",showDoc:false,hoEdit:false,
+        ho:{id:h.id,text:h.body,title:h.title,spec:h.specialty,date:h.visit_on||""}});
+      wzRestoreVisit(z); wzPut(); render(); window.scrollTo({top:0});
+    }
+    return true;
+  }
+  if(b=t.closest("[data-wzho]")){ wzHandoutAction(b.dataset.wzho,b,d,z,today); return true; }
+  if(t.closest("[data-wzdoc]")){
+    z.showDoc=!z.showDoc; wzPut(); render(); document.getElementById("wzExtract")?.scrollIntoView({behavior:"smooth"}); return true;
+  }
+  if(t.closest("[data-wzextractprint]")){ wzPrint("Выписка из карты","print-wz-extract"); return true; }
+  if(t.closest("[data-wzplan]")){
+    const agenda=wzOn(z,"agenda");
+    planOpen((PLANS||[]).find(p=>p.id===z.planId&&p.person===cur));
+    planEdit.specialty=z.spec; planEdit.planned_date=z.date||""; planEdit.purpose="";
+    planEdit.fromWizard=true;
+    planEdit.questions=planClean(agenda.filter(x=>x.kind!=="tests").map(x=>x.t));
+    planEdit.tests=planClean(agenda.filter(x=>x.kind==="tests").map(x=>x.t));
+    planEdit.other=planClean(wzOn(z,"bring").map(x=>"Взять: "+x.t)); planDraw(); return true;
+  }
+  if(t.closest("[data-wzplanlab]")){
+    planOpen(null); planEdit.specialty="other"; planEdit.planned_date=z.date||""; planEdit.purpose="Плановый забор анализов";
+    planEdit.tests=planClean(wzOn(z,"labItems").map(x=>x.t)); planEdit.other=planClean(wzOn(z,"prep").map(x=>x.t));
+    planDraw(); return true;
+  }
+  if(t.closest("[data-wztovisit]")){
+    const labDate=z.date, candidates=wzCandidates(d,(PLANS||[]).filter(p=>p.person===cur),wzTodo(d),today);
+    const next=candidates.find(x=>labDate&&x.date>labDate&&x.date<=dayShift(labDate,45))||candidates[0];
+    Object.assign(z,{mode:"visit",step:1,spec:next?.spec||docPrimary(),date:next?.date||(labDate?dayShift(labDate,1):""),showDoc:false,computedFor:""});
+    wzRestoreVisit(z); wzPut(); render(); window.scrollTo({top:0}); return true;
+  }
   return false;
 }
-// «Данные от родителей» для памятки: что выбрали в мастере и факты из записей — текстом, до ~8000 знаков
-function wzBrief(d){
-  const z=wzGet(), today=localDay(), on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim()).map(x=>x.t), S=d.sym||{};
-  const L=[], sec=(h,a)=>{ if(a&&a.length) L.push(`${h}:\n`+a.map(x=>"- "+x).join("\n")); };
-  const ag=d.age!=null?`${d.age} ${plural(+d.age||0,"год","года","лет")}`:"";
-  L.push(`Пациент: ${d.name}, ${d.dob}${ag?" ("+ag+")":""}`);
-  (d.kpi||[]).filter(k=>/вес|рост|группа крови|аллерг/i.test(k.lab||"")).slice(0,4).forEach(k=>L.push(`${k.lab}: ${k.val}${k.sub?" ("+k.sub+")":""}`));
-  L.push(`Приём: ${specName(z.spec)}${z.date?", "+ru(z.date)+" ("+(DOC_SPECS.find(x=>x[0]===z.spec)||[])[1]+")":""}${z.labGroup?"; плановый забор анализов "+z.labGroup+" — идём с его результатами":""}`);
-  const mine=(d.rec||[]).filter(r=>r.t==="visit"&&specByDoctor(r.who||r.title)===z.spec).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,3);
-  sec("Прошлые приёмы этой специальности",mine.map(r=>`${ru(r.d)} ${r.who||r.title}: ${String(r.res||"").slice(0,220)}`));
-  sec("Что известно по специальности (выбрано)",on("known")); sec("Повод (выбрано родителями)",on("reasons")); sec("Динамика показателей (выбрано)",on("dyn"));
-  sec("Лечение: позиция родителей",(z.treat||[]).filter(t=>t.decision||t.note).map(t=>`${t.n} (${t.useLabel||"Статус приёма не подтверждён"}${t.from?"; дата в записи "+ru(t.from):""}): ${({continue:"хотим продолжить",reduce:"хотим обсудить снижение дозы",stop:"хотим закончить",ask:"решить вместе с врачом"})[t.decision]||"позиция не выбрана"}${t.note?"; наблюдения: "+t.note:""}${t.dyn&&t.dyn[0]?"; "+t.dyn[0]:""}${t.crit?"; вопрос о критериях оценки: "+t.crit:""}${t.back?"; прийти с результатами "+ru(t.back):""}`));
-  sec("Что можно попросить у врача заодно",on("extra"));
-  sec("Вопросы, которые родители хотят задать",on("questions")); sec("Какие анализы и обследования просят",on("tests")); sec("Взять с собой",on("bring"));
-  sec("Диагнозы в карте",(d.diagnoses||[]).slice(0,14).map(x=>`${x.n}${x.c&&x.c!=="—"?" ["+x.c+"]":""}${x.y?", с "+x.y:""}${x.s?" — "+String(x.s).slice(0,100):""}`));
-  sec("Лекарства: назначения и отметки приёма",medSummaryRows(d,today).map(m=>`${m.n} — ${m.useLabel}${m.how?"; схема из записи: "+String(m.how):""}${m.from?"; дата начала в записи: "+ru(m.from):""}${m.till?"; срок по записи: "+m.till:""}`));
-  sec("Открытые болезни",(S.ep||[]).filter(e=>!e.d2&&/[a-zа-яё]{2}/i.test(e.dx||"")).slice(0,5).map(e=>`${e.dx} с ${ru(e.d1)}`));
-  return L.join("\n\n").slice(0,8500);
-}
-// памятка к приёму: ИИ составляет по образцу семьи; человек правит текст, сохраняет, скачивает, печатает
-// жирным — название показателя до двоеточия и числа значений (но не даты)
-function wzBold(t){ let h=esc(t);
-  h=h.replace(/^([^:<]{2,45}):/,"<b>$1</b>:");
-  h=h.replace(/(→\s*)(\d+(?:,\d+)?)(?![\d]|\.\d)/g,"$1<b>$2</b>");
-  h=h.replace(/^(<b>[^<]*<\/b>:\s*)(\d+(?:,\d+)?)(?![\d]|\.\d)/,"$1<b>$2</b>");
-  return h; }
 async function wzReview(){
-  const z=wzGet(), d=DATA[cur]; if(z.revBusy) return; if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-  const who0=cur; z.revBusy=true; wzPut(); render();
-  try{ const j=await mkApi("ask",{mode:"doctor",question:`Разбери подготовку ${d.short} к приёму: ${specName(z.spec)}. Что в плане верно, чего не хватает, на что обратить внимание врача, какие вопросы стоит добавить.`,brief:wzBrief(d),search:specName(z.spec)+" "+(z.reasons||[]).filter(x=>x.on).slice(0,2).map(x=>x.t).join(" "),person:who0,prefer_kind:["razbor","passport"]});
-    z.rev=String(j.answer||"").trim(); }
-  catch(e){ toast("Врач не ответил, попробуйте ещё раз"); }
-  if(WZ_FOR===who0){ z.revBusy=false; wzPut(); } render();
-}
-async function wzHandout(){
-  const z=wzGet(), d=DATA[cur]; if(z.hoBusy) return; if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-  const who0=cur; z.hoBusy=true; wzPut(); render();
-  try{ const j=await mkApi("ask",{mode:"handout",quiet:true,question:`Памятка к приёму: ${specName(z.spec)}, ${d.short}`,brief:wzBrief(d),search:specName(z.spec)+" "+(z.reasons||[]).filter(x=>x.on).slice(0,2).map(x=>x.t).join(" "),person:who0,prefer_kind:["razbor","passport"]});
-    z.ho={id:null,text:String(j.answer||"").trim(),title:`${ru(localDay()).slice(0,5).replace(".",".")}.${localDay().slice(2,4)} ${specName(z.spec)} — памятка по ${(DATA[who0].short||"")}`.replace(/^.*?\s/,"")}; z.ho.title=`${(z.date||localDay()).slice(8,10)}.${(z.date||localDay()).slice(5,7)}.${(z.date||localDay()).slice(2,4)} ${specName(z.spec)} — памятка (${d.short})`; z.hoEdit=false; }
-  catch(e){ toast("Врач не ответил, попробуйте ещё раз"); }
-  if(WZ_FOR===who0){ z.hoBusy=false; wzPut(); } render();
+  const z=wzGet(), d=DATA[cur], person=cur;
+  if(z.revBusy||!window.__MK_KEY) return;
+  z.revBusy=true; render();
+  try{
+    const j=await mkApi("ask",{mode:"doctor",question:`Разбери подготовку к приёму: ${specName(z.spec)}. Какие вопросы стоит уточнить у врача?`,
+      brief:wzHandout(d,z,localDay()).text.slice(0,8500),person,prefer_kind:["razbor","passport"]});
+    z.rev=String(j.answer||"").trim();
+  }catch(e){ if(WZ===z) toast("Не получилось получить разбор. Попробуйте ещё раз."); }
+  z.revBusy=false;
+  if(WZ===z&&WZ_FOR===person){ wzPut(); render(); }
 }
 async function wzAi(){
-  const z=wzGet(), d=DATA[cur]; if(z.aiBusy) return; if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
-  const who0=cur, on=k=>(z[k]||[]).filter(x=>x.on&&x.t.trim()).map(x=>x.t);
-  z.aiBusy=true; wzPut(); render();
-  const q=`Подготовь ${d.short} к приёму: ${specName(z.spec)}${z.date?" ("+ru(z.date)+")":""}. Повод: ${on("reasons").join("; ")||"не указан"}. Динамика: ${on("dyn").slice(0,4).join("; ")}.`;
-  try{ const j=await mkApi("ask",{mode:"prep",quiet:true,question:q.slice(0,480),search:specName(z.spec)+" "+on("reasons").slice(0,2).join(" "),person:who0,prefer_kind:["razbor","passport"],history:[{q:"Уже указано",a:[...on("questions"),...on("tests")].join("; ").slice(0,900)}]});
-    const sec={}; let cur0=null; String(j.answer||"").split("\n").forEach(l=>{ const h=l.match(/^\s*(ВОПРОСЫ|АНАЛИЗЫ|ПРОВЕРИТЬ ДО ПРИЁМА)\s*:/i); if(h){ cur0=h[1].toUpperCase(); sec[cur0]=[]; return; } const m=l.match(/^\s*[-•]\s+(.+)/); if(m&&cur0) sec[cur0].push(m[1].trim().replace(/\s+/g," ")); });
-    const have=k=>new Set((z[k]||[]).map(x=>x.t.toLowerCase())), add=(k,L,src)=>{ const h=have(k); (L||[]).slice(0,8).forEach(t=>{ if(!h.has(t.toLowerCase())) (z[k]=z[k]||[]).push({t,src,on:true}); }); };
-    add("questions",sec["ВОПРОСЫ"],"семейный врач (ИИ)"); add("tests",sec["АНАЛИЗЫ"],"семейный врач (ИИ)"); add("bring",sec["ПРОВЕРИТЬ ДО ПРИЁМА"],"проверить до приёма (ИИ)");
-    toast("Добавил предложения семейного врача — просмотрите и уберите лишнее"); }
-  catch(e2){ toast("Врач не ответил, попробуйте ещё раз"); }
-  if(WZ_FOR===who0){ z.aiBusy=false; wzPut(); } render();
+  const z=wzGet(), d=DATA[cur], person=cur;
+  if(z.aiBusy||!window.__MK_KEY) return;
+  const spec=z.spec, agenda=wzOn(z,"agenda").map(x=>x.t);
+  z.aiBusy=true; render();
+  try{
+    const q=`Подготовь ${d.short} к приёму: ${specName(spec)}${z.date?" ("+wzDate(z.date)+")":""}. Что спросить и о чём попросить врача?`;
+    const j=await mkApi("ask",{mode:"prep",quiet:true,question:q,search:specName(spec)+" "+agenda.slice(0,2).join(" "),person,
+      prefer_kind:["razbor","passport"],history:[{q:"Уже указано",a:agenda.join(" · ").slice(0,900)}]});
+    if(WZ===z&&z.spec===spec){
+      const suggestions=[]; let section="";
+      for(const line of String(j.answer||"").split("\n")){
+        const header=line.match(/^\s*(ВОПРОСЫ|АНАЛИЗЫ|ПРОВЕРИТЬ ДО ПРИЁМА)\s*:/i);
+        if(header){ section=header[1].toUpperCase(); continue; }
+        const item=line.match(/^\s*[-•]\s+(.+)/);
+        if(item&&["ВОПРОСЫ","АНАЛИЗЫ"].includes(section)) suggestions.push({t:wzText(item[1]),src:"семейный врач (ИИ)",on:false,touched:true});
+      }
+      z.agenda=wzMergeItems(z.agenda,suggestions.slice(0,16));
+      toast(suggestions.length?"Отметьте вопросы, которые хотите взять на приём":"Новых вопросов пока нет");
+    }
+  }catch(e){ if(WZ===z) toast("Не получилось получить вопросы. Попробуйте ещё раз."); }
+  z.aiBusy=false;
+  if(WZ===z&&WZ_FOR===person){ wzPut(); render(); }
 }
-document.addEventListener("input",e=>{ const t=e.target, z=WZ; if(!t||!z) return;
-  if(t.id==="hoText"&&z.ho){ z.ho.text=t.value; wzPut(); return; }
-  if(t.dataset&&t.dataset.wzi){ const [k,i]=t.dataset.wzi.split(":"); if(z[k]&&z[k][+i]){ z[k][+i].t=t.value; wzPut(); } }
-  else if(t.dataset&&t.dataset.wztreatcrit!=null){ const tr=(z.treat||[])[+t.dataset.wztreatcrit]; if(tr){ tr.crit=t.value; wzPut(); } }
-  else if(t.dataset&&t.dataset.wztreatnote!=null){ const tr=(z.treat||[])[+t.dataset.wztreatnote]; if(tr){ tr.note=t.value; wzPut(); } } });
-document.addEventListener("change",e=>{ const t=e.target, z=WZ; if(!t||!z||!z.mode) return;
-  if(t.dataset&&t.dataset.wztreatback!=null){ const tr=(z.treat||[])[+t.dataset.wztreatback]; if(tr){ tr.back=t.value; wzPut(); } return; }
-  if(t.id==="wzSpec"){ z.spec=t.value; z.date=""; z.computedFor=""; wzPut(); const dt=document.getElementById("wzDate"); if(dt) dt.value=""; }   // другой врач — прежняя дата визита не его
-  else if(t.id==="wzDate"){ z.date=t.value; z.computedFor=""; wzPut(); } });
+document.addEventListener("input",e=>{
+  const t=e.target, z=WZ;
+  if(t.matches?.("textarea.wzarea,.prep textarea.ptext")) wzSizeField(t);
+  if(!z||WZ_FOR!==cur) return;
+  if(z.ho&&t.id==="hoText"){ z.ho.text=t.value; z.ho.generated=false; }
+  else if(z.ho&&t.id==="hoTitle"){ z.ho.title=t.value; z.ho.generated=false; }
+  else if(t.dataset?.wznew) (z.inputDraft??={})[t.dataset.wznew]=t.value;
+  else if(t.dataset?.wzi){
+    const [key,i]=t.dataset.wzi.split(":"), x=z[key]?.[+i];
+    if(x){ x.t=t.value; x.touched=true; }
+  } else if(t.dataset?.wztreatcrit!=null){ const tr=z.treat?.[+t.dataset.wztreatcrit]; if(tr) tr.crit=t.value; }
+  else if(t.dataset?.wztreatnote!=null){ const tr=z.treat?.[+t.dataset.wztreatnote]; if(tr) tr.note=t.value; }
+  else return;
+  wzPut();
+});
+document.addEventListener("change",e=>{
+  const t=e.target, z=WZ;
+  if(!z?.mode||WZ_FOR!==cur) return;
+  if(t.dataset?.wztreatback!=null){ const tr=z.treat?.[+t.dataset.wztreatback]; if(tr) tr.back=t.value; }
+  else if(t.dataset?.wzreadtype!=null){ z.readingType=t.value; wzPut(); render(); return; }
+  else if(t.id==="wzSpec"){ wzUseSpecialty(z,t.value,z.date||""); render(); return; }
+  else if(t.id==="wzDate"){ if(z.mode==="visit"&&z.spec) wzUseSpecialty(z,z.spec,t.value); else z.date=t.value; }
+  else return;
+  wzPut();
+});
 let docSt={spec:"ped",sys:null,shown:false};
 const docEmpty=()=>({purpose:"",questions:[],tests:[],other:[]});
 const docKey=()=>`mk_docreq_${cur}_${docSt.spec}`;
@@ -12621,11 +13178,12 @@ function plansLoad(force){
   if(!window.__MK_KEY||(PLANS&&!force)||window.__plansLoading) return; window.__plansLoading=1;
   mkApi("plan_list").then(j=>{ PLANS=j.rows||[]; window.__plansLoading=0; render(); }).catch(()=>{ window.__plansLoading=0; PLANS=PLANS||[]; });
 }
-const specName=k=>(DOC_SPECS.find(x=>x[0]===k)||DOC_SPECS[0])[1];
+const specName=k=>DOC_SPECS.find(x=>x[0]===k)?.[1]||"Врач";
 const planCount=(p,k)=>(p[k]||[]).length;
 function planCard(p,today){
   const q=planCount(p,"questions"), t=planCount(p,"tests");
-  return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${icon("s-"+p.specialty,"ic--20")} ${esc(specName(p.specialty))}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
+  const name=docSpecAllowed(p.specialty,p.person)?specName(p.specialty):"Уточнить специальность";
+  return `<div class="plancard" data-planopen="${esc(p.id)}"><div><b>${icon("s-"+(p.specialty==="therapy"?"ped":p.specialty),"ic--20")} ${esc(name)}</b> <span class="muted">· ${esc((DATA[p.person]||{}).short||"")}</span>
     <div class="muted" style="font-size:13px">${esc(planLabel(p,today))} · ${q} ${plural(q,"вопрос","вопроса","вопросов")}${t?` · ${t} ${plural(t,"анализ","анализа","анализов")}`:""}</div></div>
     ${p.status==="planned"&&p.planned_date&&p.planned_date<=today?`<button type="button" class="btn btn-primary ocbtn" data-plan="outcome" data-pid="${esc(p.id)}">Записать итоги</button>`:`<span class="muted">→</span>`}</div>`;
 }
@@ -12643,7 +13201,7 @@ function planOverviewCard(){
 // редактор визита: части запроса со строками, ☑ «спросил/сделано», дата, состояние, загрузка файла
 function planOpen(p){
   PREP={sugs:[],busy:false,msg:"",seen:[]};
-  planEdit=p?JSON.parse(JSON.stringify(p)):{id:null,person:cur,specialty:docSt.spec,planned_date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null};
+  planEdit=p?JSON.parse(JSON.stringify(p)):{id:null,person:cur,specialty:docSpecAllowed(docSt.spec)?docSt.spec:docPrimary(),planned_date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null};
   planDraw();
 }
 // ── ТЗ-048: подготовка к приёму — одна форма вместо двух. Главная кнопка «Готово», остальное в меню «⋯» и под «Дополнить» ──
@@ -12653,7 +13211,10 @@ function planAddItem(p,k,text){
   p[k]=p[k]||[]; if(p[k].some(x=>String(x.t||"").trim().toLowerCase()===tt.toLowerCase())) return {added:false};
   p[k].push({t:tt,done:false}); return {added:true};
 }
-function planCheck(p){ return String(p.purpose||"").trim()||planClean(p.questions).length?{ok:true}:{ok:false,msg:"Впишите хотя бы один вопрос или цель"}; }
+function planCheck(p){
+  if(!docSpecAllowed(p.specialty,p.person)) return {ok:false,msg:"Выберите специальность врача"};
+  return String(p.purpose||"").trim()||planClean(p.questions).length||planClean(p.tests).length?{ok:true}:{ok:false,msg:"Впишите хотя бы один вопрос или цель"};
+}
 // «Готово»: проверка → plan_save. Ошибка не очищает поля. api(action, body) → ответ или исключение
 async function planSubmit(p,api,skipCheck){
   if(!skipCheck){ const c=planCheck(p); if(!c.ok) return c; }
@@ -12673,7 +13234,7 @@ function planDraw(){
   const p=planEdit; if(!p) return;
   const dn=(DATA[p.person]||{}).short||"";
   const row=(k,x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="Задано"><textarea class="ptext" rows="2" data-ptext="${k}:${i}" aria-label="Текст">${esc(x.t)}</textarea><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`;
-  const addRow=(k,ph)=>`<div class="planrow"><input class="ptext" id="pnew_${k}" placeholder="${ph}" enterkeyhint="done"><button type="button" class="btn btn-secondary" data-padd="${k}">Добавить</button></div>`;
+  const addRow=(k,ph)=>`<div class="planrow"><textarea class="ptext" id="pnew_${k}" rows="1" placeholder="${ph}" aria-label="${ph}" enterkeyhint="done"></textarea><button type="button" class="btn btn-secondary" data-padd="${k}">Добавить</button></div>`;
   const list=(k,title,ph)=>`<h3 class="prep-h">${title}</h3>${(p[k]||[]).map((x,i)=>row(k,x,i)).join("")}${addRow(k,ph)}`;
   const today=localDay(), canCal=p.planned_date&&p.planned_date>=today&&!calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person);
   const menu=`<details class="plmenu"><summary aria-label="Ещё действия">⋯</summary><div class="plmenu__list">
@@ -12686,9 +13247,10 @@ function planDraw(){
   modal.innerHTML=`<div class="mbox prep"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="prephead"><h2>Подготовка</h2>${menu}</div><div class="ctx">${esc(dn)}</div>
     <div class="addform">
-      <div class="prep2"><div class="fld"><label for="plSpec">Врач</label><select id="plSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===p.specialty?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      <div class="prep2"><div class="fld"><label for="plSpec">Врач</label><select id="plSpec">${docSpecOptions(p.specialty,p.person)}</select></div>
         <div class="fld"><label for="plDate">Дата</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div></div>
-      <div class="fld"><label for="plPurpose">Для чего идёте</label><input id="plPurpose" value="${esc(p.purpose||"")}" placeholder="например, насморк уже 3 недели"></div>
+      ${docSpecAllowed(p.specialty,p.person)?"":'<p class="muted" role="status">Выберите специальность заново. Данные визита сохранены.</p>'}
+      <div class="fld"><label for="plPurpose">Для чего идёте</label><textarea id="plPurpose" class="input wzarea" rows="1" placeholder="например, насморк уже 3 недели">${esc(p.purpose||"")}</textarea></div>
       <h3 class="prep-h">Вопросы</h3>
       ${(p.questions||[]).length?(p.questions||[]).map((x,i)=>row("questions",x,i)).join(""):`<p class="hint">Вопросов пока нет. Впишите первый или нажмите «Подсказать вопросы»</p>`}
       ${addRow("questions","новый вопрос")}
@@ -12700,11 +13262,12 @@ function planDraw(){
           <button type="button" class="btn btn-secondary" data-plan="paste">Вставить текст</button></div></details>
       <div id="plLog" class="formlog"></div>
       <div class="row"><button class="btn btn-primary" data-plan="persist" id="plGo">Готово</button></div></div></div>`;
+  wzResize(modal);
   const f=document.getElementById("plFile"); if(f) f.onchange=()=>planFile(f.files&&f.files[0]);
 }
 function planSync(){   // поля формы → planEdit
   const p=planEdit, v=id=>(document.getElementById(id)||{}).value; if(!p||!document.getElementById("plSpec")) return;
-  p.specialty=v("plSpec"); p.planned_date=v("plDate")||""; p.purpose=v("plPurpose")||"";
+  p.specialty=v("plSpec")||p.specialty; p.planned_date=v("plDate")||""; p.purpose=v("plPurpose")||"";
   document.querySelectorAll("[data-ptext]").forEach(el=>{ const [k,i]=el.dataset.ptext.split(":"); if(p[k][+i]) p[k][+i].t=el.value; });
   document.querySelectorAll("[data-pdone]").forEach(el=>{ const [k,i]=el.dataset.pdone.split(":"); if(p[k][+i]) p[k][+i].done=el.checked; });
 }
@@ -12714,6 +13277,7 @@ async function planPersist(status){
   planLog("Сохраняем…"); const go=document.getElementById("plGo"); if(go) go.disabled=true;
   const r=await planSubmit(p,(a,b)=>mkApi(a,b),!!status);   // отмена — без проверки «хотя бы один вопрос»
   if(!r.ok){ planLog(esc(r.msg),"er"); if(go) go.disabled=false; if(status) p.status="planned"; return; }
+  if(p.fromWizard&&WZ_FOR===p.person&&WZ?.mode==="visit"){ WZ.planId=r.id; wzPut(); }
   PLANS=null; plansLoad(true);
   closeModal(); if(!status){ toast("Сохранено. Откроется в день визита"); tab="home"; render(); }
 }
@@ -12742,6 +13306,7 @@ function planPaste(){
 }
 async function prepSuggest(more){
   planSync(); const p=planEdit; if(!p||PREP.busy) return;
+  if(!docSpecAllowed(p.specialty,p.person)){ PREP.msg="Выберите специальность врача"; planDraw(); return; }
   if(!window.__MK_KEY){ PREP.msg="Подсказка недоступна. Впишите вопросы сами"; planDraw(); return; }
   PREP.busy=true; PREP.msg=""; planDraw();
   try{
@@ -12770,9 +13335,19 @@ function planClick(e){
   if(w==="done"){ planPersist("done"); return true; }
   if(w==="cancel"){ planPersist("cancelled"); return true; }
   if(w==="delete"){ if(!planEdit.id||!confirm("Удалить этот визит?")) return true; mkApi("plan_delete",{id:planEdit.id}).then(()=>{ PLANS=null; plansLoad(true); closeModal(); toast("Визит удалён"); }).catch(()=>planLog("Не удалилось. Попробуйте ещё раз","er")); return true; }
-  if(w==="makedoc"){ planSync(); const p=planEdit; cur=p.person; const z=wzGet(), mk2=l=>planClean(l).map(x=>({t:x.t,src:"",on:true}));   // документ строится на последнем шаге мастера «К врачу»
-    Object.assign(z,{mode:"visit",step:8,spec:p.specialty,date:p.planned_date||"",showDoc:true,reasons:p.purpose?[{t:p.purpose,src:"",on:true}]:[],dyn:[],treat:[],questions:mk2(p.questions),tests:mk2(p.tests),extra:[],bring:mk2(p.other),ho:null}); wzPut();
-    docSt.spec=p.specialty; tab="doc"; closeModal(); render(); return true; }
+  if(w==="makedoc"){
+    planSync(); const p=planEdit; cur=p.person;
+    const z=wzGet(), same=p.fromWizard||p.id&&p.id===z.planId;
+    const items=(list,kind)=>planClean(list).map(x=>({t:x.t,kind,on:!x.done,touched:true,src:"из визита"}));
+    const agenda=[...items(p.purpose?[p.purpose]:[],"reasons"),...items(p.questions,"questions"),
+      ...items(p.tests,"tests"),...items((p.other||[]).filter(x=>!/^Взять:/i.test(x.t||x)),"extra")];
+    const bring=items((p.other||[]).filter(x=>/^Взять:/i.test(x.t||x)).map(x=>String(x.t||x).replace(/^Взять:\s*/i,"")),"bring");
+    if(!same) WZ={mode:"visit",format:2,previousHandout:z.ho||z.previousHandout};
+    Object.assign(WZ,{mode:"visit",step:8,spec:p.specialty,date:p.planned_date||"",planId:p.id,computedFor:"",
+      agenda:wzMergeItems([],agenda),bring:wzMergeItems([],bring)});
+    wzRestoreVisit(WZ); wzPut();
+    tab="doc"; closeModal(); render(); return true;
+  }
   if(w==="persist"){ planPersist(); return true; }
   if(w==="paste"){ planPaste(); return true; }
   if(w==="pasteok"){ planReview(Object.assign(parsePlanText(document.getElementById("plPaste").value),{source_name:"вставленный текст"})); return true; }
@@ -13715,7 +14290,7 @@ function docForm(opts){
   modal.className="modal on";
   modal.innerHTML=O?`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2>Итоги приёма</h2><div class="ctx">${esc(d.short)}${plan?` · ${esc(specName(oSpec))} ${esc(dd2(oDate))}`:""}</div>
     <div class="addform">
-      ${plan?"":`<div class="fld"><label for="ocSpec">Врач</label><select id="ocSpec">${docSpecList().map(s=>`<option value="${s[0]}"${s[0]===oSpec?" selected":""}>${esc(s[1])}</option>`).join("")}</select></div>
+      ${plan?"":`<div class="fld"><label for="ocSpec">Врач</label><select id="ocSpec">${docSpecOptions(docSpecAllowed(oSpec)?oSpec:docPrimary())}</select></div>
       <div class="fld"><label for="ocDate">Дата приёма</label><input id="ocDate" type="date" value="${esc(oDate)}" max="${esc(localDay())}"></div>`}
       <div class="fld"><label for="docText">Что сказал врач</label><textarea id="docText" rows="5" placeholder="Например: назначил Флуимуцил на 5 дней, контроль через 2 недели"></textarea>
         <p class="hint">Можно надиктовать с клавиатуры</p></div>
@@ -15210,7 +15785,7 @@ function hdForm(def,day,today){
       const batch="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       const P=headachePayloads({person:cur,day:dzDayOf(at.toISOString()),at:at.toISOString(),batch,i:st.i,med,dose:med?dose.value:"",zones:st.zones,chars:st.chars,also:st.also,triggers:st.trig,note:box.querySelector("#hdNote").value,end:end?end.toISOString():""});
       for(const {action,...rest} of P) await mkApi(action,rest);   // по очереди: «Головная боль» первой
-      closeModal(); dzLoadData(true); toast("Записано");
+      closeModal(); dzLoadData(true); wzRefreshReadings(P[0].person); toast("Записано");
     }catch(e){ ok.disabled=false; err.textContent="Не получилось сохранить. Попробуйте ещё раз"; }
   };
 }
