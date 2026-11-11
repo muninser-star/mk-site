@@ -3575,15 +3575,16 @@ function bpTimelineEvents(rows,person){
 function bpTimelineClock(iso){
   const t=new Date(iso);return String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0");
 }
+function bpNoteText(r){ return [r.note,r.comment].filter(Boolean).join(" · "); }
 function bpTimelineHay(e){
-  return [e.t,"артериальное АД",e.d,ru(e.d),bpTimelineClock(e.r.measured_at),e.r.pulse!=null?"пульс "+e.r.pulse:"",e.r.note||""].join(" ");
+  return [e.t,"артериальное АД",e.d,ru(e.d),bpTimelineClock(e.r.measured_at),e.r.pulse!=null?"пульс "+e.r.pulse:"",bpNoteText(e.r)].join(" ");
 }
 function tlBpItem(e){
   const r=e.r, bp=bpClass(r.sys,r.dia), high=bp.st==="bad", pulse=r.pulse!=null&&r.pulse!==""&&Number.isFinite(Number(r.pulse))?` · пульс ${esc(r.pulse)} уд/мин`:"";
   return `<div class="tl-item tl-item--nodate tl-bp${high?" tl-bp--high":""}"><div class="tl-ic">${icon(TL_ICON.meas)}</div><div>
     <div class="tl-title"><button type="button" class="linkbtn tl-bp__open" data-bpread="${esc(r.id)}" data-bpperson="${esc(e.person)}" aria-label="Открыть замер давления: ${esc(r.sys)}/${esc(r.dia)} мм рт. ст. · ${esc(ru(e.d))} ${bpTimelineClock(r.measured_at)}">${hl(e.t)}</button></div>
     <div class="tl-meta"><span class="tag tag--gray">замер давления</span>${high?` <span class="tl-bp__flag">${esc(bp.word)}</span>`:""} <time datetime="${esc(r.measured_at)}">${bpTimelineClock(r.measured_at)}</time>${pulse}</div>
-    ${r.note?`<div class="tl-meta">${esc(r.note)}</div>`:""}</div></div>`;
+    ${bpNoteText(r)?`<div class="tl-meta bp-reading__note">${esc(bpNoteText(r))}</div>`:""}</div></div>`;
 }
 function bpReadingOpen(id,person){
   if(person!==cur)return false;
@@ -3594,7 +3595,8 @@ function bpReadingOpen(id,person){
     <h2>Замер давления — ${esc((DATA[person]||{}).short||person)}</h2><p class="muted"><time datetime="${esc(r.measured_at)}">${ru(e.d)} ${bpTimelineClock(r.measured_at)}</time></p>
     <p class="bp-big${high?" bp-big--high":""}">${esc(r.sys)}/${esc(r.dia)} <span class="muted" style="font-size:14px">мм рт. ст.</span></p>
     ${high?`<p class="tl-bp__flag">${esc(bp.word)}</p>`:""}${pulse}
-    ${r.note?`<h3>Заметка к замеру</h3><p class="bp-reading__note">${esc(r.note)}</p>`:""}
+    ${r.note?`<h3>Условия замера</h3><p class="bp-reading__note">${esc(r.note)}</p>`:""}
+    ${r.comment?`<h3>Комментарий</h3><p class="bp-reading__note">${esc(r.comment)}</p>`:""}
     <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-secondary" data-bphist="1">История давления</button><button type="button" class="btn btn-primary" data-bpadd="1">Добавить замер</button></div></div>`;
   modal.querySelector("[data-close]")?.focus();return true;
 }
@@ -4150,7 +4152,7 @@ function labFacts(r,rows,o){
 // одна фраза «что это значит»: норма, затем изменение к прошлой сдаче (одно число); положение — только словами записи
 function labMeaning(f){
   const s1=f.normKind==="none"?"Нормы на бланке нет, статус не определён.":(f.normKind==="scale"?"Норма "+f.normText.replace(/^норма\s*/i,""):"Норма: "+f.normText.replace(/^норма:\s*/i,""))+".";
-  if(!f.prev) return s1+" Сдавался один раз, сравнить пока не с чем.";
+  if(!f.prev) return s1+" Нет сопоставимых результатов для сравнения.";
   if(!f.delta) return s1;
   const rd=d=>String(d).split("-").reverse().join("."), u=f.unit==="%"?" п. п.":f.unit?" "+f.unit:"";
   let s=f.delta.dir==="same"?`Без изменений с ${rd(f.prev.d)} (${String(f.prev.v).replace(".",",")})`
@@ -4998,7 +5000,8 @@ function labAdvHtml(r,idx){
 // эта же сдача — показатели той же группы за ту же дату (не по «системе»: у биохимии они разные)
 function labSameSdacha(D,r){
   const day=(D.rec||[]).filter(x=>x.t==="lab"&&x.d===r.d), g=labGroupOf(r.title);
-  let same=g?day.filter(x=>labGroupOf(x.title)===g):day.filter(x=>x.sys===r.sys); if(!same.length) same=[r];
+  let same=r.entry?day.filter(x=>x.entry===r.entry):r.source?day.filter(x=>x.source===r.source):
+    day.filter(x=>!x.entry&&!x.source&&(g?labGroupOf(x.title)===g:x.sys===r.sys)); if(!same.length) same=[r];
   same=same.slice().sort((a,b)=>(labStatus(b).attention-labStatus(a).attention)||String(a.title).localeCompare(String(b.title),"ru"));
   const out=same.filter(x=>labStatus(x).attention).length;
   return {group:g,same,other:day.filter(x=>!same.includes(x)),n:same.length,out,
@@ -5014,9 +5017,15 @@ document.addEventListener("click",e=>{
     const r=(DATA[cur].rec||[])[+lp.dataset.labplan], a=r&&labAdviceFor(r,indicatorParts(r.title),personFacts(cur),labHistFor(DATA[cur].rec,r)); if(!a) return;
     closeModal(); planOpen({id:null,person:cur,specialty:a.spec,planned_date:"",purpose:`${r.title}: ${r.v}${r.n?" (норма "+r.n+")":""} — ${a.level==="bad"?"вне нормы":"у границы нормы"}`.slice(0,500),
       questions:[{t:`Что означает ${r.title} ${r.v}${r.n?" при норме "+r.n:""}?`,done:false},{t:"Нужно ли пересдать или обследоваться дополнительно?",done:false}],tests:[{t:r.title,done:false}],other:[],status:"planned",source_name:null}); return; }
+  const panel=e.target.closest?.("[data-lab-panel]");
+  if(panel){
+    const r=DATA[cur].rec[+panel.dataset.labPanel];
+    if(r?.t==="lab"&&r.entry) labReviewDialog(cur,[{date:r.d,entry:r.entry,lab:r.place}],"Разбор анализа",true);
+    return;
+  }
   const la=e.target.closest&&e.target.closest("[data-labask]"); if(la){
     const r=(DATA[cur].rec||[])[+la.dataset.labask]; if(!r) return;
-    const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}});
+    const tp=labIndicatorReview(cur,r);
     rzSend(tp,`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`);
     const box=document.querySelector(`.rzb[data-rzb="${tp}"]`); if(box){ const f=box.closest("details"); if(f) f.open=true; box.scrollIntoView({block:"center",behavior:"smooth"}); } return; }
 });
@@ -5257,11 +5266,11 @@ function openRec(i,showSer){
       <div class="labown"><b style="color:${statusColor(LF.status.cls)}">${esc(LF.value)}</b><span class="status status-${LF.status.cls}">${esc(LF.status.word)}</span></div>
       ${normScaleHtml(S)?`<div class="lr-sc lr-sc--top">${normScaleHtml(S)}</div><div class="muted lr-cap" style="font-size:13px">${esc(S.caption)}</div>`:""}
       <p class="lab-mean">${esc(meaning)}</p>
-      ${info&&info.what?`<p class="muted">${esc(info.what)}</p>`:""}
-      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(LF.histN<=1&&!/Сдавался один раз/.test(meaning)?`<div class="muted lr-once" style="font-size:13px;margin:4px 0 8px">Пока нет сопоставимых прошлых значений</div>`:"")}
+      ${info&&info.what?`<p class="muted"><b>Что это за показатель.</b> ${esc(info.what)}</p>`:""}
+      ${chartHtml?`<div class="ind-ch">${chartHtml}</div>`:(LF.histN<=1&&!/Нет сопоставимых результатов/.test(meaning)?`<div class="muted lr-once" style="font-size:13px;margin:4px 0 8px">Пока нет сопоставимых прошлых значений</div>`:"")}
       ${labAdvHtml(r,idOf(r))}
-      ${(()=>{ const tp=rzTopic("ind",cur,r.title); rzGet(tp,{person:cur,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? К чему это может привести и что делать?`,sendDefault:1,
-        legacy:{topic:rzTopic("lab",cur,r.d),title:r.title},payload:{person:cur,mode:"lab",lab_date:r.d,indicator:r.title}}); return rzHtml(tp); })()}
+      ${rzHtml(labIndicatorReview(cur,r))}
+      ${r.entry&&SD.n>1?`<button type="button" class="btn btn-secondary" data-lab-panel="${idOf(r)}">Разобрать весь бланк</button>`:""}
       <div style="margin:6px 0 2px">${favStar(cur,r.title)} <span class="muted" style="font-size:13px">следить за показателем</span></div>
       ${fold("Подробнее",more)}`);
   } else if(r.t==="instr"){   // ТЗ-070 блок 3: заключение → что требует внимания → графики → ИИ-врач → «Подробнее»
@@ -5659,7 +5668,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="11.11 18:58 · многострочные поля";   // подставляется при публикации
+const BUILD="11.11 · разбор анализов и давление";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -6867,13 +6876,41 @@ async function symChatSend(name,full){
 const RZB={};   // тема → {rows, busy, loaded, err, cfg:{person, defaultQ, firstLabel, payload}}
 function rzTopic(kind,p,key){ return `${kind}:${p}:${kind==="ind"?String(key).toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim().slice(0,100):key}`; }
 function rzGet(topic,cfg){ const c=RZB[topic]||(RZB[topic]={rows:[],busy:false,loaded:false,err:"",cfg}); if(cfg) c.cfg=cfg; return c; }
+function labReviewPayload(person,date,entry){
+  return {person,mode:"lab",lab_date:date,...(entry?{lab_entry_id:entry}:{})};
+}
+function labIndicatorReview(person,r){
+  const topic=rzTopic("ind",person,r.title), point=labRecordPoint(r);
+  rzGet(topic,{person,bare:true,defaultQ:`Что значит ${r.title} ${r.v}${r.n?" при норме "+r.n:""}? Сравни с предыдущими результатами, если они есть.`,sendDefault:1,
+    legacy:{topic:rzTopic("lab",person,r.d),title:r.title},
+    payload:{...labReviewPayload(person,r.d,r.entry),indicator:r.title,lab_unit:point.u}});
+  return topic;
+}
+function labPanelReview(person,date,entry){
+  const topic=rzTopic("lab",person,entry?`${date}|${entry}`:date);
+  rzGet(topic,{person,defaultQ:"Разбери сохранённый анализ и сравни с предыдущими результатами",sendDefault:1,payload:labReviewPayload(person,date,entry)});
+  return topic;
+}
+function labReviewDialog(person,targets,message,analyze=false){
+  if(person!==cur||!targets.length) return;
+  const topics=targets.map(t=>labPanelReview(person,t.date,t.entry));
+  modal.className="modal on";
+  modal.innerHTML=`<div class="mbox" role="dialog" aria-modal="true" aria-labelledby="savedLabTitle">
+    <button type="button" class="mclose" data-close aria-label="Закрыть">${icon("close")}</button>
+    <h3 id="savedLabTitle">${esc(message)}</h3>
+    ${targets.map((t,i)=>`<section><p class="muted">${esc([DATA[person].short,ru(t.date),t.lab].filter(Boolean).join(" · "))}</p>${rzHtml(topics[i])}</section>`).join("")}
+    <button type="button" class="btn btn-secondary" data-close>Закрыть</button></div>`;
+  if(analyze&&topics.length===1) rzSend(topics[0],"");
+}
 function rzLoad(topic){
   const c=RZB[topic]; if(!c||c.loaded||!window.__MK_KEY) return; c.loaded=true;
   const lg=c.cfg&&c.cfg.legacy;
   Promise.all([mkApi("ask_history",{topic}),lg?mkApi("ask_history",{topic:lg.topic}).catch(()=>({rows:[]})):Promise.resolve({rows:[]})]).then(([j,o])=>{
     // разговор за дату анализа общий для всех показателей: берём из него только вопросы про этот показатель (Денис, 18.10.2026)
     const mine=lg?(o.rows||[]).filter(r=>String(r.question||"").startsWith("Что значит "+lg.title+" ")):[];
-    c.rows=mine.concat(j.rows||[]); rzPaint(topic); }).catch(()=>{ c.loaded=false; });
+    const loaded=mine.concat(j.rows||[]), ids=new Set(loaded.map(r=>r.id).filter(id=>id!=null));
+    c.rows=loaded.concat(c.rows.filter(r=>r.id==null||!ids.has(r.id))); rzPaint(topic);
+  }).catch(()=>{ c.loaded=false; });
 }
 // «Добавить в задачи»: действия из блока «ДЕЛА:» ответа; все отмечены, можно снять лишние
 function rzTodoAdded(rowId){ return new Set((window.__entries||[]).filter(e=>e&&e.kind==="task"&&e.status!=="deleted"&&e.data&&String(e.data.src||"").startsWith(rowId+":")).map(e=>+String(e.data.src).split(":")[1])); }
@@ -6895,13 +6932,13 @@ function rzHtml(topic){
   rzLoad(topic);
   const cfg=c.cfg||{};
   // пока диалог не начат — одна кнопка (Денис, 20.10.2026); поле вопроса и подпись появляются после нажатия
-  if(!c.rows.length&&!c.busy) return `<div class="rzb rzb--btn" data-rzb="${esc(topic)}">${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}<button type="button" class="btn btn-primary" data-rzgo="${esc(topic)}" style="margin:2px 0 4px">${esc(rzFirst().label)}</button><div class="muted rz-hint" style="font-size:13px;margin:0 0 8px">${esc(rzFirst().hint)}</div></div>`;
+  if(!c.rows.length&&!c.busy) return `<div class="rzb rzb--btn" data-rzb="${esc(topic)}">${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}<button type="button" class="btn btn-primary" ${c.err?'data-rzretry':'data-rzgo'}="${esc(topic)}" style="margin:2px 0 4px">${c.err?"Повторить":esc(rzFirst().label)}</button><div class="muted rz-hint" style="font-size:13px;margin:0 0 8px">${esc(rzFirst().hint)}</div></div>`;
   const msgs=c.rows.map(r=>`<div class="chatm chatm--q">${esc(r.question)}</div>${r.answer?`<div class="chatm chatm--a">${aiSavedNotice(r)}${mdLite(r.answer)}${rzSrc(r)}</div>${rzTodosHtml(r,topic)}`:""}`).join("");
   const refresh=c.rows.some(r=>r.answer)?`<button type="button" class="btn btn-secondary" data-rzrefresh="${esc(topic)}" ${c.busy?"disabled":""} style="margin:8px 0">Обновить по текущим записям</button>`:"";
   return `<div class="rzb${cfg.bare?"":" card"}" data-rzb="${esc(topic)}">${cfg.bare?"":`<h3 style="font-size:15px;margin:0 0 6px">Семейный ИИ-врач</h3>`}
     ${msgs}
-    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает… это до минуты</div>`:""}
-    ${c.err?`<div class="er" style="margin:6px 0">${esc(c.err)}</div>`:""}
+    ${c.busy?`<div class="chatm chatm--a muted"><span class="spin"></span>Семейный ИИ-врач разбирает записи…</div>`:""}
+    ${c.err?`<div class="er" role="alert" style="margin:6px 0">${esc(c.err)}</div><button type="button" class="btn btn-secondary" data-rzretry="${esc(topic)}">Повторить</button>`:""}
     ${refresh}
     <div class="chatbox"><textarea data-rzin="${esc(topic)}" rows="2" placeholder="Задайте вопрос врачу. Enter — отправить" ${c.busy?"disabled":""}></textarea>
       <button type="button" class="btn btn-primary" data-rzsend="${esc(topic)}" ${c.busy?"disabled":""}>Спросить</button></div>
@@ -6938,12 +6975,20 @@ async function rzSend(topic,q){
   const c=RZB[topic]; if(!c||c.busy) return;
   if(!window.__MK_KEY){ toast("Нужен вход по ссылке с кодом"); return; }
   const cfg=c.cfg||{}, qq=q||cfg.defaultQ||"";
-  c.busy=true; c.err=""; c.rows.push({question:qq,answer:"",sources:[]}); rzPaint(topic);
-  const hist=c.rows.slice(0,-1).filter(r=>r.answer).map(r=>({q:r.question,a:r.answer})).slice(-3);
-  try{ const j=await mkApi("ask",{...cfg.payload,topic,history:hist,prefer_kind:["razbor","passport"],...(q||cfg.sendDefault?{question:qq}:{})});
-    const last=c.rows[c.rows.length-1]; last.created_at=j.created_at||new Date().toISOString(); last.id=j.log_id; last.answer=j.answer||"В медкнижке этого нет."; last.todos=j.todos||[];
-    last.sources=(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date})); }
-  catch(e){ c.rows.pop(); c.err="Не получилось — нет связи. Попробовать ещё раз."; }
+  const hist=c.rows.filter(r=>r.answer).map(r=>({q:r.question,a:r.answer})).slice(-3);
+  const pending={question:qq,answer:"",sources:[]};
+  c.busy=true; c.err=""; c.retryQuestion=q||""; c.rows.push(pending); rzPaint(topic);
+  try{
+    const j=await mkApi("ask",{...cfg.payload,topic,history:hist,prefer_kind:["razbor","passport"],...(q||cfg.sendDefault?{question:qq}:{})});
+    Object.assign(pending,{created_at:j.created_at||new Date().toISOString(),id:j.log_id,
+      answer:j.answer||"В медкнижке этого нет.",todos:j.todos||[],
+      sources:(j.sources||[]).slice(0,4).map(x=>({title:x.title,doc_date:x.doc_date}))});
+    if(pending.id!=null) c.rows=c.rows.filter(r=>r===pending||r.id!==pending.id);
+    if(RAZBS[cfg.person]) RAZBS[cfg.person].loaded=false;
+  }catch(e){
+    c.rows=c.rows.filter(r=>r!==pending);
+    c.err=e.message==="upstream"||e.message==="bad_json"?"Сервис ИИ не ответил. Повторите запрос.":"Не удалось получить разбор. Повторите запрос.";
+  }
   c.busy=false; rzPaint(topic);
 }
 async function rzAdd(rowId,topic){
@@ -6957,6 +7002,8 @@ async function rzAdd(rowId,topic){
 }
 document.addEventListener("click",e=>{
   const rf=e.target.closest&&e.target.closest("[data-rzrefresh]"); if(rf){ rzRefresh(rf.dataset.rzrefresh); return; }
+  const retry=e.target.closest?.("[data-rzretry]");
+  if(retry){ const topic=retry.dataset.rzretry; rzSend(topic,RZB[topic]?.retryQuestion||""); return; }
   const g=e.target.closest&&e.target.closest("[data-rzgo]"); if(g){ rzSend(g.dataset.rzgo,""); return; }
   const sd=e.target.closest&&e.target.closest("[data-rzsend]"); if(sd){ const tp=sd.dataset.rzsend, ta=[...document.querySelectorAll("[data-rzin]")].find(x=>x.dataset.rzin===tp), q=(ta&&ta.value||"").trim(); if(q) rzSend(tp,q); return; }
   const ad=e.target.closest&&e.target.closest("[data-rzadd]"); if(ad){ rzAdd(ad.dataset.rzadd,ad.dataset.rztopic); return; }
@@ -6974,7 +7021,7 @@ function rzEpisodeNote(eps,dateISO,today){
 const RAZBS={};   // человек → {rows, loaded, filter}
 function rzLabel(topic){
   const m=String(topic).match(/^(lab|ind|symptom):[^:]+:(.*)$/); if(!m) return "Разбор";
-  return m[1]==="lab"?"Анализ от "+ru(m[2]):m[1]==="ind"?"Показатель: "+m[2]:"Симптом: "+m[2];
+  return m[1]==="lab"?"Анализ от "+ru(m[2].split("|")[0]):m[1]==="ind"?"Показатель: "+m[2]:"Симптом: "+m[2];
 }
 function razbLoad(then){
   const st=RAZBS[cur]||(RAZBS[cur]={rows:[],loaded:false,filter:""});
@@ -7005,7 +7052,12 @@ document.addEventListener("click",e=>{
   const f=e.target.closest&&e.target.closest("[data-rzf]"); if(f){ (RAZBS[cur]||(RAZBS[cur]={rows:[],loaded:true,filter:""})).filter=f.dataset.rzf; render(); return; }
   const o=e.target.closest&&e.target.closest("[data-rzopen]"); if(!o) return;
   const m=String(o.dataset.rzopen).match(/^(lab|ind|symptom):[^:]+:(.*)$/); if(!m) return;
-  if(m[1]==="lab"){ const D=DATA[cur], i=(D.rec||[]).findIndex(x=>x.t==="lab"&&x.d===m[2]); if(i>=0) openRec(i); else toast("Анализ этой даты в медкнижке не найден"); }
+  if(m[1]==="lab"){
+    const [date,id]=m[2].split("|"), entry=id?Number(id):null;
+    const row=(DATA[cur].rec||[]).find(x=>x.t==="lab"&&x.d===date&&(!entry||x.entry===entry));
+    if(row) labReviewDialog(cur,[{date,entry,lab:row.place}],"Разбор анализа");
+    else toast("Анализ в медкнижке не найден");
+  }
   else if(m[1]==="ind"){ window.__indBack=null; tlReset(); query=m[2]; const qi=document.getElementById("q"); if(qi) qi.value=query; tab="all"; sysFilter=null; render(); window.scrollTo({top:0}); }
   else { closeModal(); const tp=symTopic(cur,m[2]); (SYMCHAT[tp]=SYMCHAT[tp]||{rows:[],busy:false,loaded:false}).open=true; tab="sym"; symView="main"; symSel=m[2]; render(); window.scrollTo({top:0}); }
 });
@@ -8212,7 +8264,7 @@ function bpCard(){
   bpLoad();
   const today=localDay(), rows=BPS[cur]||[], sm=bpSummary(rows,today), L=sm.last, c=L?bpClass(L.sys,L.dia):null;
   const body=L?`<div class="bp-big" style="color:${statusColor(c.st)}">${L.sys}/${L.dia}</div>
-      <div class="muted">${L.pulse?`${icon("m-pulse","ic--16")} пульс ${L.pulse} · `:""}${c.word} · ${esc(bpWhen(L.measured_at,today))}${L.note?` · ${esc(L.note)}`:""}</div>
+      <div class="muted">${L.pulse?`${icon("m-pulse","ic--16")} пульс ${L.pulse} · `:""}${c.word} · ${esc(bpWhen(L.measured_at,today))}${bpNoteText(L)?` · ${esc(bpNoteText(L))}`:""}</div>
       ${c.urgent?`<div class="note" style="margin-top:6px;background:var(--badbg,#fdecea);color:var(--bad)">${icon("u-warn","ic--20")} Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}
       ${sm.n>1?`<div class="muted" style="margin-top:6px">За ${sm.days} дней: среднее ${sm.avgSys}/${sm.avgDia}, замеров ${sm.n}</div>`:""}`
     :`<div class="empty-state">${window.__MK_KEY&&!(BPL[cur]&&!BPS[cur])?illus("e-bp"):""}<div class="muted">${window.__MK_KEY?(BPL[cur]&&!BPS[cur]?"Загружаю…":"Замеров пока нет. Запишите первый — здесь появятся среднее и динамика."):"Нужен вход по ссылке с кодом"}</div></div>`;
@@ -8231,6 +8283,7 @@ function bpForm(fromHistory=false){
         <div class="fld" style="flex:1"><label for="bpPulse">Пульс</label><input id="bpPulse" inputmode="numeric" autocomplete="off" placeholder="—"></div></div>
       <div class="fld"><label for="bpAt">Когда</label><input id="bpAt" type="datetime-local" value="${local}" max="${local}"></div>
       <div class="fld"><label for="bpNote">Как измеряли (необязательно)</label><select id="bpNote"><option value="">—</option><option>в покое</option><option>после нагрузки</option><option>после лекарства</option><option>плохое самочувствие</option><option>стоя</option></select></div>
+      <div class="fld"><label for="bpComment">Комментарий (необязательно)</label><textarea id="bpComment" rows="3" maxlength="500" placeholder="Что важно запомнить о замере"></textarea></div>
       <div class="row"><button type="button" class="btn btn-primary" data-bpsave="${fromHistory?'history':'1'}">Сохранить</button><button type="button" class="btn btn-secondary" ${fromHistory?'data-bphist':'data-close'}>Отмена</button></div>
       <div id="bpLog" class="formlog"></div></div></div>`;
   const f=document.getElementById("bpSys"); if(f) f.focus();
@@ -8254,14 +8307,14 @@ async function bpSave(button){
   const v=bpParse(document.getElementById("bpSys").value,document.getElementById("bpDia").value,document.getElementById("bpPulse").value);
   if(!v.ok){ log(`<div class="er">${esc(v.error)}</div>`); return; }
   if(!window.__MK_KEY){ log(`<div class="er">Нужен вход по ссылке с кодом.</div>`); return; }
-  const at=document.getElementById("bpAt").value, note=document.getElementById("bpNote").value, who=cur;
+  const at=document.getElementById("bpAt").value, note=document.getElementById("bpNote").value, comment=document.getElementById("bpComment").value.trim(), who=cur;
   const measured=new Date(at);
   if(!at||!Number.isFinite(+measured)||+measured>Date.now()){
     log('<div class="er">Проверьте дату и время замера.</div>'); return;
   }
   button.disabled=true;
   try{
-    await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:measured.toISOString(),note:note||undefined});
+    await mkApi("bp_save",{person:who,sys:v.sys,dia:v.dia,pulse:v.pulse,at:measured.toISOString(),note:note||undefined,comment:comment||undefined});
     BPL[who]=0; MZD[who]=0; wzRefreshReadings(who);
     if(cur!==who)return;
     const active=button.isConnected&&modal.classList.contains("on"), c=bpClass(v.sys,v.dia);
@@ -8308,7 +8361,7 @@ function bpHistoryBody(body){
   body.innerHTML=measurePeriods('data-bprange',BP_RANGE)+
     (rows.length>1?graphs:'<p class="muted">За этот период меньше двух замеров.</p>')+
     (rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Дата и время</th><th>Давление</th><th>Пульс</th><th></th></tr></thead><tbody>
-    ${rows.map(r=>{const c=bpClass(r.sys,r.dia);return `<tr><td>${wzDate(r.day)}${r.time?` · ${esc(r.time)}`:''}${r.note?`<div class="muted">${esc(r.note)}</div>`:''}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted">${c.word}</span></td>
+    ${rows.map(r=>{const c=bpClass(r.sys,r.dia);return `<tr><td>${wzDate(r.day)}${r.time?` · ${esc(r.time)}`:''}${bpNoteText(r)?`<div class="muted bp-reading__note">${esc(bpNoteText(r))}</div>`:''}</td><td><b style="color:${statusColor(c.st)}">${r.sys}/${r.dia}</b> <span class="muted">${c.word}</span></td>
       <td>${r.pulse||'—'}</td><td><button type="button" class="linkbtn" data-bpdel="${r.id}" aria-label="Удалить замер">×</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="muted">Записей за выбранный период нет.</p>');
 }
 
@@ -8450,7 +8503,7 @@ function bmOtherRows(person,metrics,pressure){
     if(r.metric==='custom')custom.set('custom:'+name.toLowerCase(),{name,unit:r.unit||''});
     extra.push({day:dzDayOf(r.measured_at),at:r.measured_at,text:`${name} ${chartFmt(+r.value)} ${r.unit||measDef(r.metric)?.[2]||''}`,note:r.note});
   }
-  for(const r of pressure)extra.push({day:dzDayOf(r.measured_at),at:r.measured_at,text:`Давление ${r.sys}/${r.dia}${r.pulse?' · пульс '+r.pulse:''}`,note:r.note});
+  for(const r of pressure)extra.push({day:dzDayOf(r.measured_at),at:r.measured_at,text:`Давление ${r.sys}/${r.dia}${r.pulse?' · пульс '+r.pulse:''}`,note:bpNoteText(r)});
   for(const r of DATA[person].sym?.log||[]){
     if(r.n!=='Температура'||!r.d||r.v==null||!Number.isFinite(+r.v))continue;
     extra.push({day:r.d,at:r.at,text:`Температура ${chartFmt(+r.v)} °C`});
@@ -10132,8 +10185,23 @@ function normEdge(value,norm){
   return null;
 }
 // система показателя для анализа с сайта: сначала как у тех же показателей в книжке семьи (known: название без скобок → система), потом по названию
+function knownLabName(name) {
+  const label = String(name ?? "").normalize("NFKC").toLowerCase().replace(/ё/g, "е")
+    .replace(/[()[\],:]/g, " ").replace(/\s+/g, " ").trim();
+  if (/^(?:(?:исследование|определение|измерение|анализ) )?(?:(?:уровень|уровня|концентрация|концентрации|содержание|содержания|на) )?(?:(?:сывороточный|сывороточного|serum|plasma) )?(?:ферритина?|ferritin)(?: (?:в )?(?:крови|кровь|сыворотк[ае](?: крови)?|плазм[ае](?: крови)?|сывороточный|ferritin|ферритин))*$/.test(label)) return "Ферритин";
+  if (/^(?:mchc|мснс|mean (?:corpuscular|cell) hemoglobin concentration|средняя концентрация (?:гемоглобина|hb) в (?:одном )?эритроцит(?:е|ах))(?: (?:mchc|мснс))?$/.test(label)) return "MCHC";
+  if (/^(?:mch|мсн|mean (?:corpuscular|cell) hemoglobin|среднее содержание (?:гемоглобина|hb) в (?:одном )?эритроцит(?:е|ах))(?: (?:mch|мсн))?$/.test(label)) return "MCH";
+  return "";
+}
+function comparableLabUnit(unit) {
+  const label = String(unit ?? "").normalize("NFKC").toLowerCase().replace(/\s+/g, "").replace(/μ/g, "µ");
+  if (/^(?:мкг|[uµ]g)\/[lл]$|^(?:нг|ng)\/(?:мл|ml)$/.test(label)) return "µg/l";
+  if (/^(?:пг|pg)$/.test(label)) return "pg";
+  if (/^(?:г|g)\/[lл]$/.test(label)) return "g/l";
+  return label;
+}
 function labUnit(unit){
-  const u=String(unit||"").normalize("NFKC").toLowerCase().replace(/\s+/g,"").replace(/μ/g,"µ");
+  const u=comparableLabUnit(unit);
   if(/^(?:[xх×*]?10(?:\^|\*)?3\/(?:u|µ|мк)[lл]|[xх×*]?10\^?9\/[lл])$/.test(u)) return "10^9/l";
   if(/^(?:f\/[lл]|[lл]\/[lл])$/.test(u)) return "l/l";
   return u;
@@ -10142,7 +10210,7 @@ function labUnit(unit){
 function labName(name,unit){
   const raw=String(name||"").trim(), n=raw.toLowerCase().replace(/ё/g,"е"), u=labUnit(unit);
   if(/^(?:h\s*c\s*t(?:\s*\(гематокрит\))?|гематокрит(?:\s*\(h\s*c\s*t\))?)$/.test(n)) return "Гематокрит";
-  if(/^ферритин(?:\s*\((?:в крови|сыворотка)\))?$/.test(n)) return "Ферритин";
+  const known=knownLabName(raw); if(known) return known;
   if(/^(?:hgb|hb|гемоглобин(?:\s*\((?:hgb|hb)\))?)$/.test(n)) return "Гемоглобин";
   const neu=/^n\s*e\s*u(?:t)?(?=$|[\s(#%])/.test(n), lym=/^l\s*y\s*m(?:ph)?(?=$|[\s(#%])/.test(n);
   if(/палочкоядер|микроскоп|ручн/.test(n)||(!neu&&/сегментоядер/.test(n))) return raw;
@@ -10272,7 +10340,7 @@ function entriesInto(D,rows){
       for(const it of items) addPt(P,x.d||"",it);
       for(const it of items) (P.rec=P.rec||[]).push({t:"lab",d:x.d||String(e.created_at).slice(0,10),title:it.name,who:x.lab||"",place:x.lab||"",
         sys:it.sys||labSysFor(it.name,known),st:it.flag==="норма"&&normEdge(it.value,it.norm)?"warn":(ST2[it.flag]||""),v:[it.value,it.unit].filter(Boolean).join(" "),unit:it.unit,n:it.norm||"",
-        res:it.raw?`на бланке: ${it.raw}`:"",from,full:[],files:e.files||[],entry:e.id});
+        res:it.raw?`на бланке: ${it.raw}`:"",from,full:[],files:e.files||[],entry:e.id,source:e.source_id||null});
       continue;
     }
     const full=x.full||(e.kind==="visit"?[["ЖАЛОБЫ",x.complaints],["ОСМОТР",x.exam],["ДИАГНОЗ",[x.dx,x.mkb?`(${x.mkb})`:""].filter(Boolean).join(" ")],
@@ -10327,6 +10395,7 @@ function indStems(s){
 // насколько название показателя подходит к запросу: 3 — это он («hb», «Гемоглобин (HGB)»), 1 — запрос входит в название, 0 — нет
 function indicatorMatch(q,name){
   const noBr=x=>String(x||"").replace(/\([^)]*\)/g," ");
+  const alias=knownLabName(q); if(alias&&alias===knownLabName(name)) return 3;
   const qs=indStems(q), qb=indStems(noBr(q)), bs=indStems(noBr(name)), is=indStems((String(name).match(/\(([^)]*)\)/)||[])[1]||"");
   if(!qs.size) return 0;
   const eq=(a,b)=>a.size>0&&a.size===b.size&&[...a].every(x=>b.has(x));
@@ -11833,14 +11902,18 @@ document.addEventListener("input",e=>{ if(e.target.id!=="fpQ") return; const q=e
 /*REG*/const REG_LINKS=[{"keys":["вальгус","плоскостоп","осанк","искривление позвоночника"],"spec":"ortho","why":"Стопы и осанка: смотреть динамику роста","months":0},{"keys":["миопи","пвхрд","гиперметроп"],"spec":"ophth","why":"Глаза: осмотр глазного дна и зрения","months":0},{"keys":["овальн","межпредсердн"],"spec":"cardio","why":"Сердце: контроль открытого овального окна","months":0},{"keys":["энурез"],"spec":"uro","why":"Ночной энурез: наблюдение","months":0},{"keys":["аллергический ринит"],"spec":"allergo","why":"Аллергия: подготовка к сезону пыльцы","months":0},{"keys":["дефицит железа","железодефицит"],"spec":"hema","why":"Железо: контроль после курса","months":0},{"keys":["узловой зоб","щитовидн"],"spec":"endo","why":"Щитовидная железа: контроль узлов","months":0},{"keys":["предиабет","толерантность к глюкозе"],"spec":"endo","why":"Сахар: контроль обмена","months":0},{"keys":["гипертенз","повышенное давление"],"spec":"cardio","why":"Давление: контроль и подбор терапии","months":0},{"keys":["миома","аденомиоз","мирена"],"spec":"gyn","why":"Гинеколог: контроль миомы и ВМС","months":0},{"keys":["мастопат"],"spec":"mammo","why":"Молочные железы: плановое обследование","months":0},{"keys":["варикоз"],"spec":"phleb","why":"Вены: контроль у флеболога","months":0},{"keys":["гепатоз"],"spec":"gastro","why":"Печень: контроль гепатоза","months":0},{"keys":["баланопостит"],"spec":"uro","why":"Баланопостит: контроль течения","months":0},{"keys":["витилиго"],"spec":"derm","why":"Кожа: наблюдение витилиго","months":0},{"keys":["тревожн"],"spec":"psych","why":"Тревожность: наблюдение","months":0}];/*/REG*/
 // ── Справка по показателю — значок «i» (ТЗ-014): справочник IND_INFO встроен скриптом, сопоставление точное, без подстрок ──
 function indKey(s){ return String(s||"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim(); }
+const BLOOD_INDEX_INFO=[
+  {name:"MCH",what:"Среднее количество гемоглобина в одном эритроците.",why:"В общем анализе крови его оценивают вместе с другими эритроцитарными индексами.",unit:"пг",group:"Общий анализ крови",source_url:"https://medlineplus.gov/lab-tests/red-blood-cell-rbc-indices/"},
+  {name:"MCHC",what:"Средняя концентрация гемоглобина внутри эритроцитов.",why:"В общем анализе крови его оценивают вместе с другими эритроцитарными индексами.",unit:"г/л",group:"Общий анализ крови",source_url:"https://medlineplus.gov/lab-tests/red-blood-cell-rbc-indices/"}
+];
 function indIndex(){
   if(indIndex.c) return indIndex.c;
-  const m=new Map(); (typeof IND_INFO!=="undefined"?IND_INFO:[]).forEach(r=>[r.name,...(r.synonyms||[])].forEach(x=>{ const k=indKey(x); if(!m.has(k)) m.set(k,r); }));
+  const m=new Map(); [...BLOOD_INDEX_INFO,...(typeof IND_INFO!=="undefined"?IND_INFO:[])].forEach(r=>[r.name,...(r.synonyms||[])].forEach(x=>{ const k=indKey(x); if(!m.has(k)) m.set(k,r); }));
   return (indIndex.c=m);
 }
 function indicatorInfo(name){
   const ix=indIndex(), raw=String(name||"").trim();
-  for(const v of [raw,labName(raw,"%"),raw.replace(/\s*\([^)]*\)\s*$/,""),raw.split(",")[0]]){ const r=ix.get(indKey(v)); if(r) return r; }
+  for(const v of [knownLabName(raw),raw,labName(raw,"%"),raw.replace(/\s*\([^)]*\)\s*$/,""),raw.split(",")[0]]){ const r=ix.get(indKey(v)); if(r) return r; }
   return null;
 }
 function indicatorParts(name){
@@ -11860,7 +11933,7 @@ function indDirHtml(r,dir){
 function indInfoHtml(parts,dir){
   return parts.map(r=>`<section class="indp__s"><h3>${esc(r.name)}</h3>
     <div><b>Что это.</b> ${esc(r.what)}</div><div><b>Зачем смотрят.</b> ${esc(r.why)}</div>
-    ${r.affects?`<div><b>Что влияет на результат.</b> ${esc(r.affects)}</div>`:""}${indDirHtml(r,dir)}${r.unit?`<div class="muted"><b>Единицы.</b> ${esc(r.unit)}</div>`:""}</section>`).join("")
+    ${r.affects?`<div><b>Что влияет на результат.</b> ${esc(r.affects)}</div>`:""}${indDirHtml(r,dir)}${r.unit?`<div class="muted"><b>Единицы.</b> ${esc(r.unit)}</div>`:""}${r.source_url?`<p class="muted"><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">Источник · MedlinePlus</a></p>`:""}</section>`).join("")
     +`<div class="muted indp__f">Общая справка, не врачебное заключение. Ваши значения и норма — рядом с показателем.</div>`;
 }
 // значок «i»: только у анализов и показателей, для которых есть справка; нажатие не открывает строку под ним
@@ -12439,20 +12512,20 @@ function wzReadingTime(at,day){
 }
 function wzReadings(d,person,today){
   const state=WZ_READINGS.get(person)||{}, types=new Map(), ids=new Set();
-  const add=(type,name,at,day,id,value,note="",pulse="")=>{
+  const add=(type,name,at,day,id,value,note="",pulse="",comment="")=>{
     const when=wzReadingTime(at,day);
     if(!when.day||when.day>today) return;
     const key=type+"|"+(id??JSON.stringify([when.day,when.time,value,note]));
     if(ids.has(key)) return;
     ids.add(key);
     if(!types.has(type)) types.set(type,{type,name,rows:[]});
-    types.get(type).rows.push({id:key,type,...when,value,note:wzText(note),pulse});
+    types.get(type).rows.push({id:key,type,...when,value,note:wzText(note),pulse,comment:wzText(comment)});
   };
   types.set("bp",{type:"bp",name:"Давление",rows:[]});
   types.set("headache",{type:"headache",name:"Дневник головной боли",rows:[]});
   for(const r of state.pressure||BPS[person]||[]){
     if((r.person&&r.person!==person)||r.sys==null||r.dia==null) continue;
-    add("bp","Давление",r.measured_at,r.measured_on,r.id,`${r.sys}/${r.dia}`,r.note,r.pulse??"");
+    add("bp","Давление",r.measured_at,r.measured_on,r.id,`${r.sys}/${r.dia}`,r.note,r.pulse??"",r.comment);
   }
   const serverSymptoms=state.symptoms||[];
   const byId=new Set(serverSymptoms.map(r=>String(r.id)));
@@ -12513,7 +12586,7 @@ function wzReadingsHtml(d,z,today){
       <button type="button" class="oclink" data-wzreadall="${n===rows.length?"off":"on"}">${n===rows.length?"Снять все":"Выбрать все"}</button></div>
       ${rows.length>1?`<p class="muted">Первый: ${esc(when(first))} · ${esc(value(first))}. Последний: ${esc(when(last))} · ${esc(value(last))}.</p>`:""}
       ${rows.map(r=>`<label class="wzreading"><input type="checkbox" data-wzread="${esc(r.id)}"${wzReadingOn(z,r)?" checked":""}><span>
-        <b>${esc(value(r))}</b> · ${esc(when(r))}${r.pulse!==""?` · пульс ${esc(r.pulse)}`:""}${r.note?`<span class="wzsrc">${esc(r.note)}</span>`:""}</span></label>`).join("")}`
+        <b>${esc(value(r))}</b> · ${esc(when(r))}${r.pulse!==""?` · пульс ${esc(r.pulse)}`:""}${(r.note||r.comment)?`<span class="wzsrc">${esc(bpNoteText(r))}</span>`:""}</span></label>`).join("")}`
       :state?.loading?"":'<p class="muted">Записей за выбранный период нет.</p>'}`;
 }
 const WZ_VISIT=["Куда идём","Что уже сделали","Регулярные замеры","Динамика анализов","Лечение","Вопросы врачу","Что взять","Готово"];
@@ -12660,7 +12733,10 @@ function wzHandout(d,z,today){
   const readings=groups.map(g=>{
     const pressure=g.type==="bp";
     const headers=["Дата","Время",pressure?"Давление, мм рт. ст.":g.type==="headache"?"Сила":"Значение",pressure?"Пульс, уд/мин":"Запись"];
-    const rows=g.rows.map(r=>[wzDate(r.day),r.time||"—",pressure&&r.note?`${r.value} (${r.note})`:r.value,pressure?r.pulse||"—":r.note||"—"]);
+    const withComments=pressure&&g.rows.some(r=>r.comment);
+    if(withComments) headers.push("Комментарий");
+    const rows=g.rows.map(r=>[wzDate(r.day),r.time||"—",pressure&&r.note?`${r.value} (${r.note})`:r.value,
+      pressure?r.pulse||"—":r.note||"—",...(withComments?[r.comment||"—"]:[])]);
     return "### "+g.name+"\n\n"+wzMarkdownTable(headers,rows);
   }).join("\n\n");
   const day=z.date||today;
@@ -14167,11 +14243,10 @@ function labForm(){
   const stat=(t,c)=>{ document.getElementById("labStat").innerHTML=`<div class="${c||""}">${t}</div>`; };
   let keep=[];
   const person=cur;
-  const history=measRows(person);
   const review=res=>{
     let items=(res&&res.items||[]).map(labSaveItem), date=res?.date||"", place=res?.lab||"";
     const box=document.getElementById("labReview");
-    const draw=()=>{ box.innerHTML=`
+    const draw=()=>{ const history=measRows(person); box.innerHTML=`
       <div class="fld"><label for="labD">Дата забора</label><input id="labD" type="date" value="${esc(date)}"></div>
       <div class="fld"><label for="labPlace">Лаборатория</label><input id="labPlace" value="${esc(place)}"></div>
       <div class="tbl-wrap"><table class="tbl tbl labrev"><thead><tr><th>Показатель</th><th>Значение</th><th>Ед.</th><th>Норма с бланка</th><th>Статус</th><th></th></tr></thead><tbody>
@@ -14182,29 +14257,33 @@ function labForm(){
         <td class="st">${flagByNorm(it.value,it.norm)||"—"}</td><td><button type="button" class="addsym rowdel" title="Убрать строку">✕</button></td></tr>`).join("")}
       </tbody></table></div>
       <div class="row"><button type="button" class="btn btn-secondary" id="labAdd">+ Строка</button></div>
-      <div class="row"><button class="btn btn-primary" id="labOk">Сохранить</button><button class="btn btn-secondary" data-close>Отмена</button></div>`;
+      <div class="row" style="flex-wrap:wrap"><button type="button" class="btn btn-primary" id="labAnalyze">Сохранить и разобрать</button>
+        <button type="button" class="btn btn-secondary" id="labOk">Сохранить</button><button type="button" class="btn btn-secondary" data-close>Отмена</button></div>`;
       box.querySelector("tbody").addEventListener("input",e=>{ const tr=e.target.closest("tr"), it=items[+tr.dataset.i]; it[e.target.dataset.k]=e.target.value;
         if(e.target.dataset.k==="name") delete it.raw;
         it.flag=flagByNorm(it.value,it.norm); tr.querySelector(".st").textContent=it.flag||"—";
-        tr.querySelector(".lab-match").textContent=labMatchText(it,history,document.getElementById("labD").value); });
-      document.getElementById("labD").onchange=e=>{ date=e.target.value; box.querySelectorAll(".lab-match").forEach((el,i)=>{ el.textContent=labMatchText(items[i],history,date); }); };
+        tr.querySelector(".lab-match").textContent=labMatchText(it,measRows(person),document.getElementById("labD").value); });
+      document.getElementById("labD").onchange=e=>{ date=e.target.value; const history=measRows(person);
+        box.querySelectorAll(".lab-match").forEach((el,i)=>{ el.textContent=labMatchText(items[i],history,date); }); };
       document.getElementById("labPlace").oninput=e=>{ place=e.target.value; };
       box.querySelector("tbody").addEventListener("click",e=>{ const b=e.target.closest(".rowdel"); if(!b) return; items.splice(+b.closest("tr").dataset.i,1); draw(); });
       document.getElementById("labAdd").onclick=()=>{ items.push({name:"",value:"",unit:"",norm:"",confidence:1}); draw(); };
-      document.getElementById("labOk").onclick=async ()=>{
-        const dt=(document.getElementById("labD").value||"").trim(), lab=(document.getElementById("labPlace").value||"").trim();
+      const buttons=[box.querySelector("#labOk"),box.querySelector("#labAnalyze")];
+      const save=async analyze=>{
+        if(person!==cur||buttons.some(b=>b.disabled)) return;
+        const dt=box.querySelector("#labD").value, lab=box.querySelector("#labPlace").value.trim();
         const rows=items.map(labSaveItem).filter(x=>x.name&&x.value).map(({name,value,unit,norm,flag,raw})=>({name,value,unit,norm,flag,...(raw?{raw}:{})}));
         if(!dt){ stat("Укажите дату забора.","er"); return; }
         if(!rows.length){ stat("Нет ни одной строки с показателем и значением.","er"); return; }
-        document.getElementById("labOk").disabled=true;
-        try{ await entriesApi("entry_add",{person,kind:"lab",data:{d:dt,lab,title:`Анализ ${ru(dt)}`,items:rows},files:keep});
-          await entriesPull(); render();
-          const tp=rzTopic("lab",person,dt); rzGet(tp,{person,defaultQ:"Разбери этот анализ",payload:{person,mode:"lab",lab_date:dt}}).rows=[]; RZB[tp].loaded=true;
-          document.querySelector("#modal .mbox").innerHTML=`<button class="mclose" data-close="1" aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
-            <h3 style="margin:0 0 6px;font-size:18px">✓ Анализ сохранён</h3><p class="muted" style="margin:0 0 10px">Он в разделе «Анализы». Разобрать его с семейным ИИ-врачом: что в норме, что нет и что делать?</p>
-            ${rzHtml(tp)}<div class="row"><button class="btn btn-secondary" data-close="1">Позже</button></div>`; }
-        catch(e){ stat("Не сохранилось: "+(e.message||"ошибка"),"er"); document.getElementById("labOk").disabled=false; }
+        buttons.forEach(b=>{ b.disabled=true; });
+        let saved;
+        try{ saved=await entriesApi("entry_add",{person,kind:"lab",data:{d:dt,lab,title:`Анализ ${ru(dt)}`,items:rows},files:keep}); }
+        catch(e){ if(box.isConnected){ stat("Не удалось сохранить анализ. Попробуйте ещё раз.","er"); buttons.forEach(b=>{ b.disabled=false; }); } return; }
+        if(box.isConnected) labReviewDialog(person,[{date:dt,entry:saved.id,lab}],"Анализ сохранён",analyze);
+        entriesPull().then(()=>render());
       };
+      buttons[0].onclick=()=>save(false);
+      buttons[1].onclick=()=>save(true);
     };
     draw();
   };
@@ -14325,7 +14404,7 @@ function docForm(opts){
   const src={text:"",files:[]};
   let chips=[];   // жалобы за 2 недели (блок 2)
   const save=async (list,btn)=>{
-    const plan2=docSavePlan(list,localDay());
+    const person=cur, box=btn.closest(".mbox"), plan2=docSavePlan(list,localDay());
     if(!plan2.entries.length&&!plan2.symptoms.length){ slog("Ничего не отмечено.","er"); return; }
     btn.disabled=true;
     try{
@@ -14347,7 +14426,16 @@ function docForm(opts){
         if(ids.length) try{ await mkApi("visit_link_set",{person:cur,entry_id:res.ids[0],symptom_ids:ids}); }catch(e){ lmsg="Связь не сохранилась. Приём сохранён, привяжите позже"; }
       }
       const warn=[vmsg,lmsg].filter(Boolean).map(esc).join(". ");
-      slog("✓ "+(O?outcomeSaved(list):"Записано: "+docCount(list.filter(p=>p.on)))+"."+(warn?" "+warn+".":""),warn?"wa":"ok"); setTimeout(closeModal,warn?3500:1400);
+      if(!box?.isConnected||cur!==person) return;
+      const analyses=plan2.entries.flatMap((part,i)=>part.kind==="lab"&&part.data.d&&res?.ids?.[i]?
+        [{date:part.data.d,entry:res.ids[i],lab:part.data.lab}]:[]);
+      if(analyses.length){
+        labReviewDialog(person,analyses,"Анализы сохранены");
+        if(warn) toast(warn);
+      } else {
+        slog("✓ "+(O?outcomeSaved(list):"Записано: "+docCount(list.filter(p=>p.on)))+"."+(warn?" "+warn+".":""),warn?"wa":"ok");
+        setTimeout(()=>{ if(box.isConnected&&cur===person) closeModal(); },warn?3500:1400);
+      }
     }catch(e){ slog("Не сохранилось: "+(e.message||"ошибка")+". Попробуйте ещё раз.","er"); btn.disabled=false; }
   };
   const review=found=>{
