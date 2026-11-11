@@ -727,9 +727,7 @@ tr.hl-row td{background:var(--accentbg);transition:background 1.2s}
 .wzadd .wzarea{flex:1 1 160px;min-width:0}
 .wzpanel .btn,.hoprint .btn{max-width:100%;min-height:44px;height:auto;white-space:normal}
 .wzpanel .addsym{width:44px;min-width:44px;min-height:44px;flex:none;margin:0}
-.wzarea,.prep .planrow textarea.ptext{box-sizing:border-box;min-height:44px;max-width:100%;height:auto;field-sizing:content;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
-.wzarea{display:block;width:100%;padding:10px 12px}
-.wzbody .wzarea,.wzadd .wzarea,.wztreat .wzarea{height:auto}
+.input.wzarea{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:44px;max-width:100%;height:auto;padding:10px 12px;field-sizing:content;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}
 .wzcontext{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .wzcontext .wzctx{margin:0}
 .wzsub{font-size:15px;margin:16px 0 6px}
@@ -845,7 +843,7 @@ body.sv-lock{overflow:hidden}
 }
 .prep .prephead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-right:48px}.prep .prephead h2{margin:0}
 .prep .prep2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.prep .prep-h{font-size:14px;margin:14px 0 4px}
-.prep .planrow{display:flex;gap:8px;align-items:center;margin:6px 0}.prep .planrow .ptext{flex:1;min-width:0;min-height:44px}.prep .planrow input[type=checkbox]{width:24px;height:24px;flex:none;margin:10px}.prep .planrow textarea.ptext{resize:none;field-sizing:content;min-height:44px;padding:10px 12px;font:inherit}.prep .row .btn-primary{width:100%}
+.prep .planrow{display:flex;gap:8px;align-items:flex-start;margin:6px 0}.prep .planrow .wzarea{flex:1}.prep .planrow input[type=checkbox]{width:24px;height:24px;flex:none;margin:10px}.prep .row .btn-primary{width:100%}
 .prep .addsym,.prep .btn{min-height:44px;min-width:44px}.prep .prepsug__row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
 .plmenu{position:relative}.plmenu>summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;border-radius:12px;background:var(--seg)}.plmenu>summary::-webkit-details-marker{display:none}
 .plmenu__list{position:absolute;right:0;top:48px;z-index:6;min-width:210px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-popup,0 8px 24px rgba(0,0,0,.18));padding:6px;display:flex;flex-direction:column}
@@ -871,7 +869,13 @@ body.sv-lock{overflow:hidden}
 .polarch .polcard{box-shadow:none;border:1px solid var(--line);margin-top:10px}
 .mono{font-variant-numeric:tabular-nums;letter-spacing:.3px}
 @media (max-width:480px){.polrow{grid-template-columns:1fr;gap:2px}}
-.planrow{display:flex;gap:6px;align-items:center;margin:4px 0}.planrow .ptext{flex:1;min-width:0}.planrow select{max-width:110px}
+.prep-import .planrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;margin:8px 0}
+.prep-import .planrow input[type=checkbox]{margin:12px 0 0}
+.prep-import .planrow .select{min-width:0;height:44px}
+@media(max-width:540px){
+  .prep-import .planrow{grid-template-columns:auto minmax(0,1fr)}
+  .prep-import .planrow .select{grid-column:2;width:auto;max-width:100%}
+}
 /*КОМП-НАЧАЛО*/
 :root {
   /* ── Шрифт ── */
@@ -5655,7 +5659,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="11.11 16:23 · подготовка к врачу";   // подставляется при публикации
+const BUILD="11.11 18:58 · многострочные поля";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -12597,14 +12601,18 @@ function wzCompute(d,z,today){
   wzPut();
 }
 function wzTextarea(attrs,value=""){
-  return `<textarea class="input wzarea" rows="1" ${attrs}>${esc(value)}</textarea>`;
+  return `<textarea class="input wzarea" rows="1" wrap="soft" ${attrs}>${esc(value)}</textarea>`;
 }
+const WZ_TEXTAREAS="textarea.wzarea";
 function wzResize(root){
-  for(const field of root.querySelectorAll("textarea.wzarea, .prep textarea.ptext")) wzSizeField(field);
+  for(const field of root.querySelectorAll(WZ_TEXTAREAS)) wzSizeField(field);
 }
 window.addEventListener("resize",()=>wzResize(document));
+document.addEventListener("toggle",e=>{
+  if(e.target.tagName==="DETAILS"&&e.target.open) wzResize(e.target);
+},true);
 function wzSizeField(field){
-  if(CSS.supports("field-sizing","content")) return;
+  if(CSS.supports("field-sizing","content")||!field.clientWidth) return;
   field.style.height="auto";
   field.style.height=(field.scrollHeight+field.offsetHeight-field.clientHeight)+"px";
 }
@@ -13040,7 +13048,7 @@ async function wzAi(){
 }
 document.addEventListener("input",e=>{
   const t=e.target, z=WZ;
-  if(t.matches?.("textarea.wzarea,.prep textarea.ptext")) wzSizeField(t);
+  if(t.matches?.(WZ_TEXTAREAS)) wzSizeField(t);
   if(!z||WZ_FOR!==cur) return;
   if(z.ho&&t.id==="hoText"){ z.ho.text=t.value; z.ho.generated=false; }
   else if(z.ho&&t.id==="hoTitle"){ z.ho.title=t.value; z.ho.generated=false; }
@@ -13233,8 +13241,8 @@ function prepTake(sugs,p,i){
 function planDraw(){
   const p=planEdit; if(!p) return;
   const dn=(DATA[p.person]||{}).short||"";
-  const row=(k,x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="Задано"><textarea class="ptext" rows="2" data-ptext="${k}:${i}" aria-label="Текст">${esc(x.t)}</textarea><button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`;
-  const addRow=(k,ph)=>`<div class="planrow"><textarea class="ptext" id="pnew_${k}" rows="1" placeholder="${ph}" aria-label="${ph}" enterkeyhint="done"></textarea><button type="button" class="btn btn-secondary" data-padd="${k}">Добавить</button></div>`;
+  const row=(k,x,i)=>`<div class="planrow"><input type="checkbox" data-pdone="${k}:${i}"${x.done?" checked":""} aria-label="Задано">${wzTextarea(`data-ptext="${k}:${i}" aria-label="Текст пункта ${i+1}"`,x.t)}<button type="button" class="addsym" data-pdel="${k}:${i}" title="Убрать" aria-label="Убрать">✕</button></div>`;
+  const addRow=(k,ph)=>`<div class="planrow">${wzTextarea(`id="pnew_${k}" placeholder="${esc(ph)}" aria-label="${esc(ph)}" enterkeyhint="done"`)}<button type="button" class="btn btn-secondary" data-padd="${k}">Добавить</button></div>`;
   const list=(k,title,ph)=>`<h3 class="prep-h">${title}</h3>${(p[k]||[]).map((x,i)=>row(k,x,i)).join("")}${addRow(k,ph)}`;
   const today=localDay(), canCal=p.planned_date&&p.planned_date>=today&&!calIsAdded({t:"Приём: "+specName(p.specialty),date:p.planned_date},p.person);
   const menu=`<details class="plmenu"><summary aria-label="Ещё действия">⋯</summary><div class="plmenu__list">
@@ -13250,7 +13258,7 @@ function planDraw(){
       <div class="prep2"><div class="fld"><label for="plSpec">Врач</label><select id="plSpec">${docSpecOptions(p.specialty,p.person)}</select></div>
         <div class="fld"><label for="plDate">Дата</label><input id="plDate" type="date" value="${esc(p.planned_date||"")}"></div></div>
       ${docSpecAllowed(p.specialty,p.person)?"":'<p class="muted" role="status">Выберите специальность заново. Данные визита сохранены.</p>'}
-      <div class="fld"><label for="plPurpose">Для чего идёте</label><textarea id="plPurpose" class="input wzarea" rows="1" placeholder="например, насморк уже 3 недели">${esc(p.purpose||"")}</textarea></div>
+      <div class="fld"><label for="plPurpose">Для чего идёте</label>${wzTextarea('id="plPurpose" placeholder="например, насморк уже 3 недели"',p.purpose||"")}</div>
       <h3 class="prep-h">Вопросы</h3>
       ${(p.questions||[]).length?(p.questions||[]).map((x,i)=>row("questions",x,i)).join(""):`<p class="hint">Вопросов пока нет. Впишите первый или нажмите «Подсказать вопросы»</p>`}
       ${addRow("questions","новый вопрос")}
@@ -13292,12 +13300,14 @@ async function planFile(f){
 function planReview(r){
   planSync(); planImport={name:r.source_name||"",purpose:r.purpose||"",rows:[...r.questions.map(t=>({k:"questions",t,on:true})),...r.tests.map(t=>({k:"tests",t,on:true})),...r.other.map(t=>({k:"other",t,on:true}))]};
   const parts={questions:"Вопросы",tests:"Анализы",other:"Что ещё"};
-  modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Проверьте, что нашлось</h2>
+  modal.innerHTML=`<div class="mbox prep-import"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Проверьте, что нашлось</h2>
     <div class="muted" style="margin-bottom:8px">Текст пунктов не менялся. Уберите лишнее галочкой или переложите строку в другую часть.</div>
-    ${planImport.purpose?`<div class="fld"><label>Для чего пришли</label><input id="rvPurpose" value="${esc(planImport.purpose)}"></div>`:""}
-    ${planImport.rows.map((x,i)=>`<div class="planrow"><input type="checkbox" data-rvon="${i}" checked><input class="ptext" data-rvt="${i}" value="${esc(x.t)}">
-      <select data-rvk="${i}">${Object.entries(parts).map(([k,n])=>`<option value="${k}"${k===x.k?" selected":""}>${n}</option>`).join("")}</select></div>`).join("")||`<div class="muted">В файле ничего не нашлось</div>`}
+    ${planImport.purpose?`<div class="fld"><label for="rvPurpose">Для чего пришли</label>${wzTextarea('id="rvPurpose"',planImport.purpose)}</div>`:""}
+    ${planImport.rows.map((x,i)=>`<div class="planrow"><input type="checkbox" data-rvon="${i}" checked aria-label="Добавить пункт ${i+1}">
+      ${wzTextarea(`data-rvt="${i}" aria-label="Текст пункта ${i+1}"`,x.t)}
+      <select class="select" data-rvk="${i}" aria-label="Раздел пункта ${i+1}">${Object.entries(parts).map(([k,n])=>`<option value="${k}"${k===x.k?" selected":""}>${n}</option>`).join("")}</select></div>`).join("")||`<div class="muted">В файле ничего не нашлось</div>`}
     <div class="row" style="margin-top:12px"><button class="btn btn-primary" data-plan="rvadd">Добавить в визит</button><button class="btn btn-secondary" data-plan="rvback">Назад</button></div></div>`;
+  wzResize(modal);
 }
 function planPaste(){
   planSync(); modal.innerHTML=`<div class="mbox"><button class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button><h2 style="text-transform:none;font-size:20px;color:var(--ink)">Вставить текст</h2>
