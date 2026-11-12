@@ -2076,9 +2076,26 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 .bm-chart-note{font-size:13px;margin-top:6px!important}
 .bm-history-title{margin-top:18px!important}
 .bm-history{list-style:none;padding:0;margin:4px 0 0}
-.bm-history li{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--line)}
+.bm-history>li{display:grid;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
 .bm-history .row{gap:8px}
-.bm-history li:last-child{border-bottom:0}
+.bm-history>li:last-child{border-bottom:0}
+.bm-circ-profile{min-width:0}
+.mbox .bm-circ-profile{margin:14px 0;padding:14px 0;border-block:1px solid var(--line)}
+.bm-circ-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 14px;margin-bottom:8px}
+.bm-circ-head h2{margin:0}
+.bm-circ-head button,.bm-history .row button{min-height:44px}
+.bm-circ-values{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr));gap:6px;margin:0}
+.bm-history .bm-circ-values{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:480px){.bm-history .bm-circ-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bm-circ-values>div,.bm-circ-values>button{min-width:0;display:grid;align-content:start;gap:2px;padding:7px 9px;border-radius:10px;background:var(--field);overflow-wrap:anywhere}
+.bm-circ-values>button{min-height:48px;border:1px solid var(--line);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.bm-circ-values>button:hover{background:var(--seg)}
+.bm-circ-values dt,.bm-circ-values .muted{font-size:13px;line-height:1.25}
+.bm-circ-values dd{margin:0}
+.bm-circ-values b{font-variant-numeric:tabular-nums}
+.bm-circ-trend+.bm-circ-trend{margin-top:12px}
+.bm-screen .bm-circ-trend h3{margin-top:12px;font-size:14px}
+.bm-circ-trend h3+.bm-summary{margin-top:2px!important}
 .bm-empty{background:var(--field);padding:14px;border-radius:12px}
 .bm-empty p{margin-top:5px}
 .bm-screen .bm-status{margin:8px 0 14px}
@@ -5668,7 +5685,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="2026-11-12.2";   // подставляется при публикации
+const BUILD="2026-11-12.3";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8406,6 +8423,12 @@ function bmFields(){return [
  {key:'thigh',name:'Бедро',unit:'см',min:1,max:200,side:true,help:'Измерьте окружность одной ноги в выбранной постоянной точке, например на середине между паховой складкой и коленом; записывайте сторону и используйте тот же ориентир.'},
  {key:'calf',name:'Икра',unit:'см',min:1,max:150,side:true,help:'Измерьте окружность голени в самом широком месте, стоя ровно и не напрягая мышцы; записывайте сторону.'}
 ];}
+function bmCircFields(){return bmFields().slice(2);}
+function bmCircKey(key){return key==='circ'||bmCircFields().some(f=>f.key===key);}
+function bmSideName(field,side){
+ if(!field.side||!['left','right'].includes(side))return '';
+ return (side==='left'?'левая':'правая')+(field.key==='upper_arm'?' рука':' нога');
+}
 function bmLocal(when){const d=when instanceof Date?when:new Date(when),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}
 function bmValidate(raw,now){
  const errors={},values={},sides={},stamp=String(raw.day||'')+'T'+String(raw.time||''),at=new Date(stamp);
@@ -8421,23 +8444,25 @@ function bmValidate(raw,now){
  const note=String(raw.note||'');if(note.length>500)errors.note='Заметка — до 500 знаков.';
  return Object.keys(errors).length?{ok:false,errors}:{ok:true,day:raw.day,at:at.toISOString(),values,sides,note};
 }
+function bmNewest(a,b){return b.day.localeCompare(a.day)||String(b.at||'').localeCompare(String(a.at||''));}
 function bmProject(bodyRows,heightRows,person){
  const H=new Map((heightRows||[]).filter(h=>h.person===person).map(h=>[String(h.id),h]));const used=new Set(),rows=[];
+ const fields=bmCircFields();
  for(const r of bodyRows||[]){
   if(r.person!==person)continue;const m=r.profile_meta||{},live=m.version===1&&!m.deleted_at,v={};
   if(r.weight_kg!=null&&Number.isFinite(+r.weight_kg))v.weight=+r.weight_kg;
-  if(live){for(const f of bmFields())if(!['weight','height'].includes(f.key)&&m.circumferences&&m.circumferences[f.key]!=null)v[f.key]=+m.circumferences[f.key];
+  if(live){for(const f of fields){const value=m.circumferences?.[f.key];if(value!=null&&Number.isFinite(+value)&&+value>0)v[f.key]=+value;}
    const hr=H.get(String(m.height_metric_id));if(hr){v.height=+hr.value;used.add(String(hr.id));}}
   if(!Object.keys(v).length)continue;
   rows.push({id:'body:'+r.measured_on,day:r.measured_on,at:live?m.observed_at:null,values:v,sides:live?m.sides||{}:{},note:live?m.note||'':'',revision:live?m.revision:null,editable:live,legacy:!live});
  }
  for(const h of H.values())if(!used.has(String(h.id))&&Number.isFinite(+h.value))rows.push({id:'height:'+h.id,day:bmLocal(h.measured_at).slice(0,10),at:h.measured_at,values:{height:+h.value},sides:{},note:'',revision:null,editable:false,legacy:true});
- return rows.sort((a,b)=>String(b.at||b.day).localeCompare(String(a.at||a.day)));
+ return rows.sort(bmNewest);
 }
-function bmComparable(row,key,side){return row&&row.values&&row.values[key]!=null&&(!['upper_arm','thigh','calf'].includes(key)||row.sides[key]===side);}
+function bmComparable(row,key,side){return row?.values?.[key]!=null&&(side==='all'||!['upper_arm','thigh','calf'].includes(key)||row.sides[key]===side);}
 function bmSeries(rows,key,side,range,today){
- const days={"7d":7,"1m":30,"3m":91,"6m":183,"1y":366}[range],base=Date.parse(today+'T12:00:00Z'),from=days?new Date(base-days*864e5).toISOString().slice(0,10):'';
- return (rows||[]).filter(r=>r.day<=today&&(!from||r.day>from)&&bmComparable(r,key,side)).slice().sort((a,b)=>String(a.at||a.day).localeCompare(String(b.at||b.day))).map(r=>({day:r.day,at:r.at,value:+r.values[key]}));
+ return measRangeRows((rows||[]).filter(r=>r.day<=today&&bmComparable(r,key,side)),range,today)
+   .sort((a,b)=>bmNewest(b,a)).map(r=>({day:r.day,at:r.at,value:+r.values[key]}));
 }
 function bmDelta(points){if(points.length<2)return '';const d=Math.round((points.at(-1).value-points.at(-2).value)*10)/10;return (d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(1).replace('.',',');}
 function bmGraph(points,unit){
@@ -8448,9 +8473,10 @@ function bmGraph(points,unit){
  const dots=points.map((p,i)=>{const x=span?50+(times[i]-first)*500/span:300,y=max===min?80:130-(p.value-min)*100/den;return `<circle cx="${x}" cy="${y}" r="5"><title>${esc(ru(p.day))}${p.at?' '+esc(bmLocal(p.at).slice(11)):''}: ${esc(p.value)} ${esc(unit)}</title></circle>`;}).join('');
  return `<svg class="bm-chart" viewBox="0 0 600 180" role="img" aria-label="Измерения по датам; значения перечислены в истории"><g fill="currentColor" font-size="12"><text x="4" y="30">${esc(max)}</text><text x="4" y="134">${esc(min)}</text><text x="50" y="168">${esc(ru(points[0].day))}</text><text x="550" y="168" text-anchor="end">${esc(ru(points.at(-1).day))}</text></g>${dots}</svg><p class="muted">Отмечены только фактические замеры. Пропуски не заменяются нулями.</p>`;
 }
-const BM={person:null,rows:[],extra:[],custom:[],limit:40,available:false,error:'',key:'all',side:'right',range:'all',request:0,add:''};
-function bmHeading(title){
-  return `<header class="bm-heading"><h2 id="bmTitle" tabindex="-1">${title}</h2><p class="muted">${esc(DATA[cur].short)}</p></header>`;
+const BM={person:null,rows:[],extra:[],custom:[],limit:40,available:false,error:'',key:'all',side:'all',range:'all',request:0,add:''};
+const BM_BODY=new Map();
+function bmHeading(title,person=cur){
+  return `<header class="bm-heading"><h2 id="bmTitle" tabindex="-1">${title}</h2><p class="muted">${esc(DATA[person].short)}</p></header>`;
 }
 function bmClose(){
   return `<button type="button" class="mclose" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>`;
@@ -8478,28 +8504,46 @@ async function bmBodyRows(person){
     const [w,h]=await Promise.all([mkApi('body_list',{person}),mkApi('metric_list',{person,metric:'height'})]);
     return {available:false,rows:w.rows,heights:h.rows};
   }
-async function bmOpen(add=''){
-  const person=cur;
+function bmBodyData(person,refresh=false){
+  const access=window.__MK_KEY, previous=BM_BODY.get(person);
+  if(previous&&previous.access===access&&(!refresh||previous.status==='loading'))return previous;
+  const state={access,status:'loading',available:false,rows:[]};
+  BM_BODY.set(person,state);
+  state.promise=bmBodyRows(person).then(data=>{
+    Object.assign(state,{status:'ready',available:data.available,rows:bmProject(data.rows,data.heights,person)});
+  }).catch(()=>{state.status='error';}).then(()=>{
+    if(BM_BODY.get(person)===state&&window.__MK_KEY===access)bmCircRefresh(person,state);
+    return state;
+  });
+  return state;
+}
+function bmHistoryOptions(){return {person:BM.person,key:BM.key,side:BM.side,range:BM.range};}
+async function bmOpen(add='',{person=cur,key='all',side='all',range='all'}={}){
   if(!DATA[person]||lockNeeded(person))return;
-  Object.assign(BM,{person,error:'',rows:[],extra:[],custom:[],limit:40,key:'all',side:'right',range:'all',available:false,add});
+  const circumference=bmCircKey(key);
+  Object.assign(BM,{person,error:'',rows:[],extra:[],custom:[],limit:40,key,side,range,available:false,add});
   const request=++BM.request;
-  bmScreen(bmClose()+bmHeading(add?'Добавить замер':'История замеров')+'<p role="status">Загружаем замеры…</p>');
+  bmScreen(bmClose()+bmHeading(add?'Добавить замер':circumference?'Окружности':'История замеров',person)+'<p role="status">Загружаем замеры…</p>');
+  const loading=modal.querySelector('.bm-screen');
   bmFocus();
-  const active=()=>cur===person&&BM.request===request&&modal.classList.contains('on')&&modal.querySelector('.bm-screen');
+  const active=()=>BM.request===request&&modal.classList.contains('on')&&loading.isConnected;
   if(!window.__MK_KEY){BM.error='Для замеров войдите в медкнижку.';bmDraw();return;}
-  const work=[bmBodyRows(person)];
-  if(!add)work.push(mkApi('metric_list',{person}),mkApi('bp_list',{person}));
+  const work=[bmBodyData(person,true).promise];
+  const other=!add&&!circumference;
+  if(other)work.push(mkApi('metric_list',{person}),mkApi('bp_list',{person}));
   const [body,metrics,bp]=await Promise.allSettled(work);
   if(!active())return;
-  if(body.status==='fulfilled'){
+  const ready=body.value?.status==='ready';
+  if(ready){
     BM.available=body.value.available;
-    BM.rows=bmProject(body.value.rows,body.value.heights,person);
+    BM.rows=body.value.rows;
   }
   if(add&&BM.available){bmForm(null,add);return;}
-  if(add&&body.status==='fulfilled'&&add!=='circ'){measForm(add);return;}
-  if(add&&body.status==='fulfilled')BM.error='Запись окружностей пока недоступна. Выберите другой тип замера.';
-  else if([body,metrics,bp].some(r=>r?.status==='rejected'))BM.error='Часть замеров не загрузилась. Попробуйте ещё раз.';
-  if(!add)bmOtherRows(person,metrics?.value?.rows||[],bp?.value?.rows||[]);
+  if(add&&ready&&add!=='circ'&&person===cur){measForm(add);return;}
+  if((circumference||add==='circ')&&ready&&!BM.available)BM.error='Окружности пока недоступны.';
+  else if(!ready)BM.error=circumference?'Не удалось загрузить окружности.':'Не удалось загрузить замеры тела.';
+  else if([metrics,bp].some(r=>r?.status==='rejected'))BM.error='Часть замеров не загрузилась. Попробуйте ещё раз.';
+  if(other)bmOtherRows(person,metrics?.value?.rows||[],bp?.value?.rows||[]);
   bmDraw();
 }
 function bmOtherRows(person,metrics,pressure){
@@ -8519,38 +8563,104 @@ function bmOtherRows(person,metrics,pressure){
   BM.extra=extra;
   BM.custom=[...custom];
 }
+function bmCircValue(field,row){
+  return `<b>${chartFmt(row.values[field.key])}</b> ${field.unit}`;
+}
+function bmCircTileContent(state){
+  const fields=bmCircFields();
+  const row=state.rows.find(r=>fields.some(f=>r.values[f.key]!=null));
+  const field=row&&(row.values.waist!=null?fields.find(f=>f.key==='waist'):fields.find(f=>row.values[f.key]!=null));
+  const detail=field?`${field.name} · ${ru(row.day)}`:state.status==='loading'?'Загружаем…':state.status==='error'?'Не загрузились':state.available?'Пока нет замеров':'Пока недоступны';
+  return `<span class="measrow__l"><span class="measrow__n">Окружности</span>${field?`<span class="measrow__v">${bmCircValue(field,row)}</span>`:''}<span class="measrow__d">${esc(detail)}</span></span>`;
+}
+function bmCircProfileContent(person,state){
+  if(state.status==='loading')return '<p class="muted" role="status">Загружаем окружности…</p>';
+  if(state.status==='error')return '<p class="muted">Не удалось загрузить окружности. Повторите в истории.</p>';
+  const values=bmCircFields().map(field=>({field,row:state.rows.find(r=>r.values[field.key]!=null)})).filter(x=>x.row);
+  if(!values.length)return `<p class="muted">${state.available?'Пока нет замеров окружности.':'Окружности пока недоступны.'}</p>`;
+  return `<div class="bm-circ-values">${values.map(({field,row})=>{
+    const side=bmSideName(field,row.sides[field.key]);
+    return `<button type="button" data-bm-view="${field.key}" data-bm-person="${esc(person)}">
+      <span>${field.name}</span><span>${bmCircValue(field,row)}</span><span class="muted">${esc([side,ru(row.day)].filter(Boolean).join(' · '))}</span>
+    </button>`;
+  }).join('')}</div>`;
+}
+function bmCircProfile(person,inDialog=false){
+  if(!window.__MK_KEY||!DATA[person]||lockNeeded(person))return '';
+  const state=bmBodyData(person);
+  return `<section class="bm-circ-profile${inDialog?'':' card'}">
+    <div class="bm-circ-head"><h2>Окружности</h2><button type="button" class="btn btn-secondary" data-bm-view="circ" data-bm-person="${esc(person)}">История окружностей</button></div>
+    <div data-bm-circ-profile="${esc(person)}">${bmCircProfileContent(person,state)}</div>
+  </section>`;
+}
+function bmCircRefresh(person,state){
+  for(const tile of document.querySelectorAll('[data-bm-circ-tile]')){
+    if(tile.dataset.bmCircTile===person)tile.innerHTML=bmCircTileContent(state);
+  }
+  for(const profile of document.querySelectorAll('[data-bm-circ-profile]')){
+    if(profile.dataset.bmCircProfile===person)profile.innerHTML=bmCircProfileContent(person,state);
+  }
+}
+function bmCircRecord(row,fields){
+  return `<dl class="bm-circ-values">${fields.filter(f=>row.values[f.key]!=null).map(f=>{
+    const side=bmSideName(f,row.sides[f.key]);
+    return `<div><dt>${f.name}</dt><dd>${bmCircValue(f,row)}</dd>${f.side?`<dd class="muted">${side||'Сторона не указана'}</dd>`:''}</div>`;
+  }).join('')}</dl>`;
+}
+function bmHistoryTrend(field,today,hasRows){
+  const separate=field.side&&BM.side==='all';
+  const sides=separate?['left','right']:[BM.side];
+  const series=sides.map(side=>({side,points:bmSeries(BM.rows,field.key,side,BM.range,today)})).filter(s=>s.points.length);
+  if(!series.length)return field.side&&hasRows?'<p class="bm-summary muted">Для графика укажите сторону замера.</p>':'';
+  const charts=series.map(({side,points})=>{
+    const latest=points.at(-1), delta=bmDelta(points), name=bmSideName(field,side);
+    return `<section class="bm-circ-trend">${separate?`<h3>${name[0].toUpperCase()+name.slice(1)}</h3>`:''}
+      <p class="bm-summary"><b>${chartFmt(latest.value)} ${field.unit}</b> · ${esc(ru(latest.day))}${delta?` · ${esc(delta)} ${field.unit}`:''}</p>
+      ${points.length>1||!separate?bmGraph(points,field.unit):''}
+    </section>`;
+  }).join('');
+  return charts+(separate&&series.every(s=>s.points.length<2)?'<p class="muted bm-chart-note">График появится после двух замеров одной стороны.</p>':'');
+}
 function bmDraw(restore){
-  if(cur!==BM.person||lockNeeded(cur))return;
-  const fields=bmFields(), f=fields.find(f=>f.key===BM.key);
-  const points=f?bmSeries(BM.rows,f.key,BM.side,BM.range,localDay()):[], latest=points.at(-1);
-  const comparable=f?BM.rows.filter(r=>bmComparable(r,f.key,BM.side)):BM.rows;
-  const records=(f?measRangeRows(comparable,BM.range,localDay()):[...comparable,...BM.extra])
-    .slice().sort((a,b)=>String(b.at||b.day).localeCompare(String(a.at||a.day)));
+  const person=BM.person;
+  if(!person||lockNeeded(person))return;
+  const fields=bmFields(), circFields=fields.slice(2), f=fields.find(f=>f.key===BM.key);
+  const circ=BM.key==='circ'||circFields.includes(f), today=localDay();
+  const comparable=BM.key==='circ'?BM.rows.filter(r=>circFields.some(field=>r.values[field.key]!=null)):
+    f?BM.rows.filter(r=>bmComparable(r,f.key,BM.side)):BM.rows;
+  const records=(f||circ?measRangeRows(comparable,BM.range,today):[...comparable,...BM.extra]).sort(bmNewest);
+  const remaining=records.length-BM.limit;
   const list=records.slice(0,BM.limit).map(r=>`<li>
     <b>${esc(ru(r.day))}${r.at?' · '+esc(bmLocal(r.at).slice(11)):''}</b>
-    <div>${r.values?fields.filter(f=>r.values[f.key]!=null).map(f=>`${f.name} ${chartFmt(r.values[f.key])} ${f.unit}${f.side?' ('+(r.sides[f.key]==='left'?'левая':'правая')+')':''}`).join(' · '):esc(r.text)}</div>
+    ${circ?bmCircRecord(r,f?[f]:circFields):`<div>${r.values?fields.filter(field=>r.values[field.key]!=null).map(field=>{
+      const side=bmSideName(field,r.sides[field.key]);
+      return `${field.name} ${chartFmt(r.values[field.key])} ${field.unit}${side?` (${side})`:''}`;
+    }).join(' · '):esc(r.text)}</div>`}
     ${r.note?`<p>${esc(r.note)}</p>`:''}
     ${r.editable&&BM.available?`<div class="row"><button class="btn btn-secondary" data-bm-edit="${esc(r.id)}">Изменить</button><button class="btn btn-ghost" data-bm-delete="${esc(r.id)}">Удалить</button></div>`:''}
   </li>`).join('');
   const toolbar=`<div class="bm-toolbar">
-    <button class="btn btn-primary" data-measadd>Добавить замер</button>
-    ${BM.error?`<button class="btn btn-secondary" data-bm-open="${esc(BM.add)}">Повторить</button>`:''}
+    ${circ?BM.available?'<button type="button" class="btn btn-primary" data-bm-add-circ>Добавить замер</button>':'':'<button type="button" class="btn btn-primary" data-measadd>Добавить замер</button>'}
+    ${BM.error&&window.__MK_KEY?'<button type="button" class="btn btn-secondary" data-bm-retry>Повторить</button>':''}
     <button class="btn btn-secondary" data-bm-how>Как измерять</button>
+    ${circ&&person===cur?'<button type="button" class="btn btn-ghost" data-bm-open>Все замеры</button>':''}
   </div>`;
+  const options=list=>list.map(x=>`<option value="${x.key}"${x.key===BM.key?' selected':''}>${x.name}</option>`).join('');
   const filters=`<div class="bm-controls">
-    <label>Показатель<select data-bm-key><option value="all">Все замеры</option>
-      <optgroup label="Вес, рост и окружности">${fields.map(x=>`<option value="${x.key}"${x.key===BM.key?' selected':''}>${x.name}</option>`).join('')}</optgroup>
+    ${circ?`<label>Зона<select data-bm-key><option value="circ">Все зоны</option>${options(circFields)}</select></label>`:
+    `<label>Показатель<select data-bm-key><option value="all">Все замеры</option>
+      ${options(fields.slice(0,2))}
+      <optgroup label="Окружности"><option value="circ">Все окружности</option>${options(circFields)}</optgroup>
       <optgroup label="Другие показатели">${MEAS_DEF.filter(x=>!['weight','height','custom'].includes(x[0])).map(([key,name])=>`<option value="${key}">${name}</option>`).join('')}
-      ${BM.custom.map(([key,v])=>`<option value="${esc(key)}">${esc(v.name)}</option>`).join('')}</optgroup></select></label>
-    ${f?.side?`<label>Сторона<select data-bm-side><option value="right"${BM.side==='right'?' selected':''}>Правая</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option></select></label>`:''}
+      ${BM.custom.map(([key,v])=>`<option value="${esc(key)}">${esc(v.name)}</option>`).join('')}</optgroup></select></label>`}
+    ${f?.side?`<label>Сторона<select data-bm-side><option value="all">Все стороны</option><option value="left"${BM.side==='left'?' selected':''}>Левая</option><option value="right"${BM.side==='right'?' selected':''}>Правая</option></select></label>`:''}
   </div>`;
-  bmScreen(bmClose()+bmHeading('История замеров')+
+  const empty=BM.error?'':`<p class="bm-status muted">${(f||circ)&&BM.range!=='all'?'За этот период записей нет.':circ&&BM.key==='circ'?'Пока нет замеров окружности.':'Пока нет замеров.'}</p>`;
+  bmScreen(bmClose()+bmHeading(circ?'Окружности':'История замеров',person)+
     (BM.error?`<p class="bm-status" role="alert">${esc(BM.error)}</p>`:'')+toolbar+filters+
-    (f?measurePeriods('data-bm-range',BM.range)+
-      (latest?`<p class="bm-summary"><b>${chartFmt(latest.value)} ${f.unit}</b> · ${esc(ru(latest.day))}${bmDelta(points)?' · '+esc(bmDelta(points))+' '+f.unit:''}</p>`:'<p class="bm-summary muted">За этот период записей нет.</p>')+
-      (latest?bmGraph(points,f.unit):''):'')+
-    (records.length?`<h3 class="bm-history-title">Записи</h3><ul class="bm-history">${list}</ul>${records.length>BM.limit?'<button type="button" class="btn btn-secondary" data-bm-more>Показать ещё</button>':''}`:
-      '<p class="bm-status muted">Пока нет замеров.</p>'));
+    (f||circ?measurePeriods('data-bm-range',BM.range):'')+
+    (f?bmHistoryTrend(f,today,records.length>0):'')+
+    (records.length?`<h3 class="bm-history-title">Записи · ${records.length}</h3><ul class="bm-history">${list}</ul>${remaining>0?`<button type="button" class="btn btn-secondary" data-bm-more>Показать ещё ${Math.min(remaining,40)}</button>`:''}`:empty));
   if(restore)modal.querySelector(restore)?.focus({preventScroll:true});
   else bmFocus();
 }
@@ -8616,15 +8726,18 @@ function bmBindGuide(box){
   draw();
 }
 function bmHow(){
-  bmScreen(bmClose()+bmHeading('Как измерять')+
+  const circumference=bmCircKey(BM.key);
+  bmScreen(bmClose()+bmHeading('Как измерять',BM.person)+
     '<p class="muted bm-status">Измеряйте в похожих условиях. Держите ленту горизонтально и не перетягивайте её.</p>'+
-    bmGuide(bmFields(),'waist')+'<div class="bm-toolbar" style="margin:12px 0 0"><button class="btn btn-secondary" data-bm-back>К истории</button></div>');
+    bmGuide(circumference?bmCircFields():bmFields(),circumference&&BM.key!=='circ'?BM.key:'waist')+
+    '<div class="bm-toolbar" style="margin:12px 0 0"><button class="btn btn-secondary" data-bm-back>К истории</button></div>');
   bmBindGuide(modal.querySelector('.bm-screen'));
   bmFocus();
 }
 function bmForm(row,initial){
-  if(!BM.available||cur!==BM.person||lockNeeded(cur))return;
-  const person=cur,revision=row?.revision||null,now=bmLocal(new Date());
+  const person=BM.person;
+  if(!BM.available||!person||lockNeeded(person))return;
+  const revision=row?.revision||null,now=bmLocal(new Date());
   const profiles=row?(PPL?.people||[]).filter(p=>DATA[p.id]&&!lockNeeded(p.id)):[];
   const day=row?.day||now.slice(0,10),time=row?.at?bmLocal(row.at).slice(11):now.slice(11),fields=bmFields();
   let token=null,last='';
@@ -8635,7 +8748,7 @@ function bmForm(row,initial){
     ${f.side?`<select id="bmSide_${f.key}" aria-label="${f.name}: сторона"><option value="right">${f.key==='upper_arm'?'Правая рука':'Правая нога'}</option><option value="left"${row?.sides[f.key]==='left'?' selected':''}>${f.key==='upper_arm'?'Левая рука':'Левая нога'}</option></select>`:''}
     <span id="bmErr_${f.key}" class="er" role="alert"></span>
   </div>`;
-  bmScreen(bmClose()+bmHeading(row?'Изменить замер':'Добавить замер')+`<form id="bmEditForm" novalidate>
+  bmScreen(bmClose()+bmHeading(row?'Изменить замер':'Добавить замер',person)+`<form id="bmEditForm" novalidate>
     <div class="bm-form-body">
       ${profiles.length>1?`<div class="bm-controls"><label>Кого измеряли<select id="bmPerson">${profiles.map(p=>`<option value="${esc(p.id)}"${p.id===person?' selected':''}>${esc(p.short||DATA[p.id].short)}</option>`).join('')}</select></label></div>`:''}
       <div class="bm-controls bm-datetime">
@@ -8661,7 +8774,7 @@ function bmForm(row,initial){
       <p id="bmErr_values" class="er" role="alert"></p>
       <p id="bmSaveError" role="alert"></p>
       <button class="btn btn-primary" type="submit" id="bmSave">Сохранить замер</button>
-      ${row?'<button type="button" class="btn btn-ghost" data-bm-back>Отмена</button>':'<button type="button" class="btn btn-ghost" data-measadd>Выбрать тип замера</button>'}
+      ${row||bmCircKey(BM.key)?'<button type="button" class="btn btn-ghost" data-bm-back>Отмена</button>':'<button type="button" class="btn btn-ghost" data-measadd>Выбрать тип замера</button>'}
     </footer>
   </form>`,'bm-form');
   const box=modal.querySelector('.bm-form');
@@ -8672,7 +8785,7 @@ function bmForm(row,initial){
   const button=box.querySelector('#bmSave'),saveError=box.querySelector('#bmSaveError');
   box.querySelector('form').onsubmit=async e=>{
     e.preventDefault();
-    if(button.disabled||cur!==person||BM.person!==person||lockNeeded(person))return;
+    if(button.disabled||BM.person!==person||!box.isConnected||lockNeeded(person))return;
     const values={},sides={};
     for(const f of fields){
       values[f.key]=box.querySelector('#bm_'+f.key).value;
@@ -8712,10 +8825,10 @@ function bmForm(row,initial){
       for(const id of new Set([person,destination])){
         bmRefreshCaches(id,result.day); wzRefreshReadings(id);
       }
-      if(cur!==person||BM.person!==person||!box.isConnected||!modal.classList.contains('on'))return;
-      if(tab==='home'||tab==='hp')render();
+      if(BM.person!==person||!box.isConnected||!modal.classList.contains('on'))return;
+      if([person,destination].includes(cur)&&(tab==='home'||tab==='hp'))render();
       toast(moving?`Замер перенесён · ${esc(DATA[destination].short)}`:'Замер сохранён');
-      bmOpen();
+      bmOpen('',bmHistoryOptions());
     }catch(e){
       button.disabled=false;button.textContent='Сохранить замер';
       saveError.textContent=String(e.message).includes('destination_conflict')?'У выбранного профиля уже есть замер за этот день. Записи сохранены на своих местах.':String(e.message).includes('deleted_retry')?'Эта отправка относится к удалённой записи. Вернитесь в историю и добавьте новый замер.':String(e.message).includes('revision_conflict')?'Запись изменилась. Вернитесь в историю и откройте её заново.':'Не удалось сохранить. Данные остались в форме. Повторите попытку.';
@@ -8723,21 +8836,36 @@ function bmForm(row,initial){
   };
 }
 function bmRefreshCaches(person,day){
+ BM_BODY.delete(person);
+ bmBodyData(person);
  MZD[person]=0;for(const key of ['weight','height']){delete MSER[person+':'+key];delete MSERL[person+':'+key];}
  // Clear only the affected daily cache; keep unrelated browser-only history.
  nutSET('weight',nutLS('weight',[],person).filter(r=>r.d!==day),person);
  mkApi('body_list',{person}).then(j=>{const remote=(j.rows||[]).filter(r=>r.weight_kg!=null).map(r=>({d:r.measured_on,v:+r.weight_kg,fat:r.fat_pct,water:r.water_pct}));nutSET('weight',nutMerge([...nutLS('weight',[],person),...remote]),person);}).catch(()=>{});
 }
 async function bmDelete(row){
- if(!row||!row.editable||cur!==BM.person||lockNeeded(cur)||!confirm('Удалить объединённый замер? Его окружности и рост будут удалены, а вес вернётся к значению, которое было до этой записи. Независимые жир, вода и другие замеры сохранятся.'))return;const person=cur;
- try{await mkApi('body_profile_delete',{person,day:row.day,expected_revision:row.revision});if(cur!==person)return;bmRefreshCaches(person,row.day);toast('Замер удалён');bmOpen();}
- catch(e){if(cur===person){BM.error=String(e.message).includes('revision_conflict')?'Запись изменилась. Обновите историю перед удалением.':'Не удалось удалить замер. Повторите попытку.';bmDraw();}}
+ const person=BM.person, screen=modal.querySelector('.bm-screen');
+ if(!row?.editable||!person||lockNeeded(person)||!confirm('Удалить объединённый замер? Его окружности и рост будут удалены, а вес вернётся к значению, которое было до этой записи. Независимые жир, вода и другие замеры сохранятся.'))return;
+ const active=()=>BM.person===person&&screen?.isConnected&&modal.classList.contains('on');
+ try{
+   await mkApi('body_profile_delete',{person,day:row.day,expected_revision:row.revision});
+   bmRefreshCaches(person,row.day);
+   if(active()){toast('Замер удалён');bmOpen('',bmHistoryOptions());}
+ }catch(e){
+   if(active()){BM.error=String(e.message).includes('revision_conflict')?'Запись изменилась. Обновите историю перед удалением.':'Не удалось удалить замер. Повторите попытку.';bmDraw();}
+ }
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest?.('[data-bm-open],[data-bm-back],[data-bm-how],[data-bm-edit],[data-bm-delete],[data-bm-range],[data-bm-more]');
+  const b=e.target.closest?.('[data-bm-open],[data-bm-view],[data-bm-add-circ],[data-bm-retry],[data-bm-back],[data-bm-how],[data-bm-edit],[data-bm-delete],[data-bm-range],[data-bm-more]');
   if(!b)return;
-  if(b.hasAttribute('data-bm-open')){bmOpen(b.dataset.bmOpen);return;}
-  if(cur!==BM.person)return;
+  if(b.hasAttribute('data-bm-open')||b.hasAttribute('data-bm-view')){
+    const add=b.dataset.bmOpen||'',key=b.dataset.bmView||(add==='circ'?'circ':'all');
+    bmOpen(add,{person:b.dataset.bmPerson||cur,key});
+    return;
+  }
+  if(!BM.person||!b.closest('.bm-screen'))return;
+  if(b.hasAttribute('data-bm-add-circ')){bmForm(null,BM.key==='circ'?'circ':BM.key);return;}
+  if(b.hasAttribute('data-bm-retry')){bmOpen(BM.add,bmHistoryOptions());return;}
   if(b.hasAttribute('data-bm-back')){bmDraw();return;}
   if(b.hasAttribute('data-bm-how')){bmHow();return;}
   if(b.hasAttribute('data-bm-range')){
@@ -8755,14 +8883,14 @@ document.addEventListener('click',e=>{
   if(row){if(b.hasAttribute('data-bm-edit'))bmForm(row);else bmDelete(row);}
 });
 document.addEventListener('change',e=>{
-  if(cur!==BM.person)return;
   const target=e.target;
-  if(target.hasAttribute('data-bm-side')){BM.side=target.value;bmDraw('[data-bm-side]');return;}
+  if(!BM.person||!target.closest('.bm-screen'))return;
+  if(target.hasAttribute('data-bm-side')){BM.side=target.value;BM.limit=40;bmDraw('[data-bm-side]');return;}
   if(!target.hasAttribute('data-bm-key'))return;
   const key=target.value, custom=BM.custom.find(([k])=>k===key);
   if(custom){measHistory('custom',custom[1].name,custom[1].unit);return;}
-  if(key!=='all'&&!bmFields().some(f=>f.key===key)){measHistory(key);return;}
-  BM.key=key;BM.limit=40;bmDraw('[data-bm-key]');
+  if(key!=='all'&&key!=='circ'&&!bmFields().some(f=>f.key===key)){measHistory(key);return;}
+  BM.key=key;BM.side='all';BM.limit=40;bmDraw('[data-bm-key]');
 });
 
 /* /BODY_PROFILE_CLIENT_V1 */
@@ -8901,8 +9029,8 @@ function measSerAll(p,S){
   }
   return out;
 }
-// S — ответ measures_summary ({last:{weight,bp,height,…:{last,prev}}}); → {rows (на виду ≤4), rest, more}. Вес и давление первые, остальные по свежести; давление старше 90 дней и остальное старше 365 — не показываем
-function measTile(S,today,hidden,ser,order,temp){
+// Плитка окружностей читает свою историю отдельно от measures_summary.
+function measTile(S,today,hidden,ser,order,temp,circ){
   const MEAS_MON=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"], L=(S&&S.last)||{}, H=hidden||[], out=[], fmt=n=>String(n).replace(".",","), tdn=new Date(today+"T12:00:00");
   const age=day=>Math.round((tdn-new Date(day+"T12:00:00"))/864e5);
   const when=day=>{ const a=age(day); if(a<=0) return "сегодня"; if(a===1) return "вчера"; return +day.slice(8,10)+" "+MEAS_MON[+day.slice(5,7)-1]; };
@@ -8919,9 +9047,11 @@ function measTile(S,today,hidden,ser,order,temp){
       out.push({key,name,value:fmt(+r.value),unit,delta:measMonthText((ser||{})[key],today,unit)||(e.prev?delta(+r.value,+e.prev.value):""),when:when(day),day,sub:"",urgent:false,label:D?"":(r.label||""),metric:D?key:"custom",spark:key.startsWith("custom:")?"":sparkMini(measSeriesPts((ser||{})[key],today,90))}); }
   }
   if(temp&&temp.v!=null&&temp.d&&age(temp.d)<=3&&!H.includes("temp")) out.push({key:"temp",name:"Температура",value:fmt(+temp.v),unit:"°C",delta:"",when:when(temp.d),day:temp.d,sub:temp.time?"в "+temp.time:"",urgent:false,spark:"",metric:"temp",last:1});   // без изменения и графика: только «последняя»
+  if(circ&&!circ.hidden)out.push({key:"circ"});
   const rank=r=>r.key==="weight"?0:r.key==="bp"?1:2;
-  out.sort((a,b)=>rank(a)-rank(b)||(rank(a)===2?String(b.day).localeCompare(String(a.day)):0));
-  const ord=Array.isArray(order)?order:[]; if(ord.length){ const ix=r=>{ const i=ord.indexOf(r.metric||r.key); return i<0?999:i; }; out.sort((a,b)=>ix(a)-ix(b)); }   // свой порядок плиток (стабильно: остальные — по умолчанию)
+  out.sort((a,b)=>rank(a)-rank(b)||(rank(a)===2?String(b.day||'').localeCompare(String(a.day||'')):0));
+  const ord=measureTileOrder(out.map(r=>r.key),order,circ?.before);
+  out.sort((a,b)=>ord.indexOf(a.key)-ord.indexOf(b.key));
   return {rows:out.slice(0,4),rest:out.slice(4),more:Math.max(0,out.length-4)};
 }
 // state: объект сводки · 1 — грузится · "err" — не загрузилось. o: {hidden, nutrition}. Нет замеров — пусто (плитка не просит данные)
@@ -8931,20 +9061,21 @@ function measTileHtml(S,today,o){
     <button type="button" class="btn btn-primary" data-measadd><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Добавить замер</button>
     <button type="button" class="btn btn-secondary" data-bm-open>История замеров</button>
   </div></div>`;
-  if(S==="err") return `<div class="card meastile">${heading}<p class="muted bm-status">Замеры не загрузились. Обновите страницу.</p></div>`;
-  if(S===1) return `<div class="card meastile">${heading}<div class="meas-skel" role="status" aria-label="Загружаем последние замеры"></div></div>`;
-  if(!S||typeof S!=="object") return "";
-  const T=measTile(S,today,o.hidden,o.ser,o.order,o.temp);
-  if(!T.rows.length&&(o.hidden||[]).length) return "";
-  if(!T.rows.length) return `<div class="card meastile">${heading}</div>`;
+  const circ=o.person&&window.__MK_KEY?circTilePrefs(o.person):null;
+  const T=measTile(S,today,o.hidden,o.ser,o.order,o.temp,circ);
+  const status=S==="err"?'<p class="muted bm-status">Не удалось загрузить сводку замеров.</p>':
+    S===1?'<div class="meas-skel" role="status" aria-label="Загружаем последние замеры"></div>':'';
+  if(!T.rows.length&&!status&&(!S||typeof S!=="object"||(o.hidden||[]).length))return "";
+  if(!T.rows.length)return `<div class="card meastile">${heading}${status}</div>`;
   const row=r=>{
+    if(r.key==="circ")return `<button type="button" class="measrow" data-bm-view="circ" data-bm-person="${esc(o.person)}" data-bm-circ-tile="${esc(o.person)}">${bmCircTileContent(bmBodyData(o.person))}</button>`;
     const date=o.adult&&r.key==="height"?"":r.when;
     const detail=[r.delta,date].filter(Boolean).join(" · ");
     return `<button type="button" class="measrow" data-measopen="${esc(r.metric||r.key)}"${r.label?` data-measlab="${esc(r.label)}"`:""}${r.unit?` data-measun="${esc(r.unit)}"`:""}>
       <span class="measrow__l"><span class="measrow__n">${esc(r.name)}</span><span class="measrow__v"><b>${esc(r.value)}</b>${r.unit?" "+esc(r.unit):""}${r.sub?` <span class="muted">· ${esc(r.sub)}</span>`:""}</span>${detail?`<span class="measrow__d">${esc(detail)}</span>`:""}</span>${r.spark||""}</button>
     ${r.urgent?`<div class="note meas-urgent">Очень высокое давление. Если есть головная боль, боль в груди, одышка, слабость в руке или ноге — вызывайте скорую. Без симптомов — перемерьте через 5–10 минут в покое и свяжитесь с врачом сегодня.</div>`:""}`;
   };
-  return `<div class="card meastile">${heading}
+  return `<div class="card meastile">${heading}${status}
     <div class="measgrid">${T.rows.map(row).join("")}</div>${T.more?`<details class="meas-more"><summary>Ещё ${T.more}</summary><div class="measgrid">${T.rest.map(row).join("")}</div></details>`:""}</div>`;
 }
 // сохранённый порядок блоков: старые body и bp сворачиваются в meas на месте первого из них
@@ -11234,7 +11365,7 @@ function profAboutHtml(d){
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   polLoad();   // плитка ДМС в шапке
-  return profAboutHtml(d)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
+  return profAboutHtml(d)+bmCircProfile(cur)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
 }
 // плитка «Профиль здоровья» (ТЗ-025 блок 5): сколько органов известно, чего мало, куда нажать; без процента
 function hpTileModel(scores,organs){ return {known:scores.filter(s=>s>=50).length,total:scores.length,missing:organs.filter((o,i)=>!(scores[i]>=50)).map(o=>o.name)}; }
@@ -11607,18 +11738,42 @@ function kpiTile(d,fields){
 // по умолчанию у взрослых блок «Карточка здоровья» выключен, у детей до 12 лет включён; своя раскладка главнее
 function layoutDefaultHidden(d){ return (d&&d.age!=null&&d.age<12)?[]:["kpi"]; }
 function layoutEff(p){ return LAYOUT[p]||{order:[],hidden:layoutDefaultHidden(DATA[p])}; }
-// плитки внутри виджетов человека: Замеры — «Давление» и «Вес» (старые блоки bp и body), Карточка здоровья — плитки kpiLive
+// Серверная раскладка знает фиксированный набор плиток; место и видимость окружностей хранятся на устройстве.
+const CIRC_TILE_PREFS=(()=>{
+  try{return new Map(Object.entries(JSON.parse(localStorage.getItem("mk_circ_tile")||"{}")||{}));}
+  catch(e){return new Map();}
+})();
+function circTilePrefs(person){return CIRC_TILE_PREFS.get(person)||{};}
+function circTileSave(person,patch){
+  if(patch)CIRC_TILE_PREFS.set(person,{...circTilePrefs(person),...patch});
+  else CIRC_TILE_PREFS.delete(person);
+  try{localStorage.setItem("mk_circ_tile",JSON.stringify(Object.fromEntries(CIRC_TILE_PREFS)));}catch(e){}
+}
+function measureTileOrder(keys,saved,before){
+  const base=keys.filter(key=>key!=="circ");
+  const kept=(Array.isArray(saved)?saved:[]).filter(key=>base.includes(key));
+  const order=[...new Set([...kept,...base])];
+  if(keys.includes("circ")){
+    const anchor=Array.isArray(before)?before.find(key=>order.includes(key)):null;
+    const index=Array.isArray(before)?(anchor?order.indexOf(anchor):order.length):Math.max(order.indexOf("bp"),order.indexOf("weight"))+1;
+    order.splice(index,0,"circ");
+  }
+  return order;
+}
 function layoutTiles(d,pageIds,mz){
   const ids=pageIds||[], meas=[];
   if(ids.some(x=>x==="meas"||x==="bp"||x==="body")){
-    meas.push({id:"bp",name:"Давление"},{id:"weight",name:"Вес"});
+    meas.push({id:"weight",name:"Вес"},{id:"bp",name:"Давление"},{id:"circ",name:"Окружности"});
     const NM={height:"Рост",pulse:"Пульс в покое",temp:"Температура",spo2:"Сатурация",glucose:"Сахар"};
     Object.keys((mz&&mz.last)||{}).filter(k=>NM[k]&&mz.last[k]&&mz.last[k].last).forEach(k=>meas.push({id:k,name:NM[k]}));
   }
   return {meas,kpi:kpiLive(d).map(k=>({id:k.lab,name:k.lab}))};
 }
 // скрытые плитки виджета; у карточки здоровья плитки показаны по выбору (health_fields), по умолчанию — набор kpiDefaults
-function tileHidden(layout,widget,id){ return !!(layout&&layout.hidden_tiles&&(layout.hidden_tiles[widget]||[]).includes(id)); }
+function tileHidden(layout,widget,id){
+  if(widget==="meas"&&id==="circ")return !!circTilePrefs(cur).hidden;
+  return !!(layout&&layout.hidden_tiles&&(layout.hidden_tiles[widget]||[]).includes(id));
+}
 function kpiFieldsOf(d,layout){ return layout&&Array.isArray(layout.health_fields)?layout.health_fields:kpiDefaults(d,d&&d.age); }
 // «Что внутри» виджета: переключатели плиток; свёрнуто по умолчанию, счётчик «показано N из M»
 function layoutTilesHtml(wid,TL,L,d){
@@ -11636,7 +11791,7 @@ function layoutRows(d,layout,pageIds){
 }
 function layoutScreenHtml(d){
   const L=layoutEff(cur), mz=MZD[cur], base=window.__homeAllFor===cur?window.__homeAll:["todo","watch","hp"],
-    pageIds=(!base.includes("meas")&&mz&&typeof mz==="object"&&Object.keys(mz.last||{}).some(k=>mz.last[k]&&mz.last[k].last))?[...base,"meas"]:base,   // все плитки скрыты — блока на главной нет, но включить обратно надо уметь
+    pageIds=base.includes("meas")?base:[...base,"meas"],   // блок можно вернуть, даже если скрыты все его плитки
     rows=layoutRows(d,L,pageIds), TL=layoutTiles(d,pageIds,mz);
   const onN=rows.filter(r=>r.on).length;
   return `<div class="lhead"><h2>Настройка главной</h2><button type="button" class="btn btn-primary" data-lready="1" style="min-height:44px">Готово</button></div>
@@ -11653,6 +11808,9 @@ async function layoutToggle(id,on){
 }
 async function layoutTileToggle(wid,id,on){
   const L=layoutEff(cur), d=DATA[cur];
+  if(wid==="meas"&&id==="circ"){
+    circTileSave(cur,{hidden:!on});render();tilesRedraw();return;
+  }
   if(wid==="kpi"){
     const cur0=kpiFieldsOf(d,L), next=on?[...cur0.filter(x=>x!==id),id]:cur0.filter(x=>x!==id);
     if(next.length>4){ toast("На главной помещается до 4 плиток"); render(); tilesRedraw(); return; }
@@ -11666,7 +11824,8 @@ function tilesModel(wid){
   const d=DATA[cur], L=layoutEff(cur), TL=layoutTiles(d,["meas"],MZD[cur]);
   if(wid==="watch"){ const keys=(FAV[cur]||[]).slice(); return {order:keys,shown:keys,name:k=>k.charAt(0).toUpperCase()+k.slice(1),removable:true}; }
   const list=wid==="kpi"?TL.kpi:TL.meas, shown=wid==="kpi"?kpiFieldsOf(d,L).filter(l=>list.some(t=>t.id===l)):list.filter(t=>!tileHidden(L,"meas",t.id)).map(t=>t.id);
-  const saved=wid==="meas"?((L.tile_order||{}).meas||[]):[], base=list.map(t=>t.id), ordAll=wid==="kpi"?[...shown,...base.filter(x=>!shown.includes(x))]:[...saved.filter(x=>base.includes(x)),...base.filter(x=>!saved.includes(x))];
+  const base=list.map(t=>t.id), ordAll=wid==="kpi"?[...shown,...base.filter(x=>!shown.includes(x))]:
+    measureTileOrder(base,L.tile_order?.meas,circTilePrefs(cur).before);
   return {order:ordAll,shown,name:id=>(list.find(t=>t.id===id)||{name:id}).name};
 }
 function tilesBodyHtml(wid){
@@ -11683,12 +11842,16 @@ function tilesOpen(wid){
 function tilesRedraw(){ const b=document.getElementById("tilesBody"); if(b&&modal.dataset.tiles) b.innerHTML=tilesBodyHtml(modal.dataset.tiles); }
 // сохранить новый порядок плиток: kpi — порядок выбранных; meas — tile_order на сервере; watch — на устройстве
 async function tilesSaveOrder(wid,ids){
-  const d=DATA[cur], L=layoutEff(cur);
+  const person=cur, d=DATA[person], L=layoutEff(person);
   if(wid==="watch"){ FAV[cur]=ids.slice(); favSave(); render(); tilesRedraw(); return; }
   if(wid==="kpi"){ const shown=kpiFieldsOf(d,L).filter(x=>ids.includes(x)), next=ids.filter(x=>shown.includes(x));
     const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],health_fields:next}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw(); return; }
-  const to=Object.assign({},L.tile_order||{}, {meas:ids.slice()});
-  const r=await layoutSave(cur,{order:L.order||[],hidden:L.hidden||[],tile_order:to}); if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); tilesRedraw();
+  const index=ids.indexOf("circ");
+  const to=Object.assign({},L.tile_order||{}, {meas:ids.filter(id=>id!=="circ")});
+  const r=await layoutSave(person,{order:L.order||[],hidden:L.hidden||[],tile_order:to});
+  if(r.ok&&index>=0)circTileSave(person,{before:ids.slice(index+1)});
+  if(!r.ok)toast("Не сохранилось, нажмите ещё раз");
+  render();tilesRedraw();
 }
 function tilesMoveIds(ids,id,dir){ const i=ids.indexOf(id), j=dir==="up"?i-1:i+1; if(i<0||j<0||j>=ids.length) return ids; const a=ids.slice(); [a[i],a[j]]=[a[j],a[i]]; return a; }
 async function tilesMove(id,dir){ const wid=modal.dataset.tiles; if(!wid) return; const M=tilesModel(wid), next=tilesMoveIds(M.order,id,dir); if(next!==M.order) await tilesSaveOrder(wid,next); }
@@ -13525,6 +13688,7 @@ function profOpen(id){
     <div class="profile-card"><span class="avatar avatar--lg" style="cursor:default">${esc(initials(p))}</span>
       <div class="profile-card__info"><b>${esc([p.last_name,p.first_name,p.middle_name].filter(Boolean).join(" "))}</b><span>${p.sex==="m"?"мужской":p.sex==="f"?"женский":""}${p.birth_date?` · ${ru(p.birth_date)}`:""}${a?` · ${a.years} ${plural(a.years,"год","года","лет")}, ${a.adult?"взрослый":"ребёнок"}`:""}</span></div>
       <div class="family">${PPL.people.filter(x=>x.id!==p.id).slice(0,4).map((x,i)=>`<span class="avatar ${i%2?"avatar--gray":"avatar--pink"}" title="${esc(x.short||"")}">${esc(initials(x))}</span>`).join("")}</div></div>
+    ${bmCircProfile(p.id,true)}
     <div class="addform" id="profForm">
       <div class="fld"><label for="pfLast">Фамилия</label><input id="pfLast" value="${esc(p.last_name||"")}"></div>
       <div class="fld"><label for="pfFirst">Имя</label><input id="pfFirst" value="${esc(p.first_name||"")}"></div>
@@ -16752,7 +16916,7 @@ function render(){
     layoutLoad(cur); const LAY=layoutEff(cur), LP=layoutForPage(LAY);
     m.innerHTML=homeAssemble(`
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2>${window.__homeEdit?`<span class="muted hedit__t">Править главную</span><button type="button" class="linkbtn" data-hedit="all" style="min-height:44px">Все блоки</button><button type="button" class="btn btn-primary" data-hedit="done" style="min-height:44px">Готово</button>`:`<button type="button" class="lgear" data-hedit="on" aria-label="Править главную" title="Править главную">⚙</button>`}</div>
-    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{adult:d.age!=null&&d.age>=18,hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today)),order:(LAY.tile_order&&LAY.tile_order.meas)||[],temp:tempLastRec((d.sym||{}).log,today)})}
+    <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{person:cur,adult:d.age!=null&&d.age>=18,hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today)),order:(LAY.tile_order&&LAY.tile_order.meas)||[],temp:tempLastRec((d.sym||{}).log,today)})}
 
     <!--B:weight-->${weightHome(d)}
 
@@ -17621,7 +17785,7 @@ document.addEventListener("click",e=>{
   const lset=e.target.closest("[data-layout]"); if(lset){ goTab("layout"); render(); window.scrollTo({top:0}); return; }
   const lrd=e.target.closest("[data-lready]"); if(lrd){ goTab("home"); render(); window.scrollTo({top:0}); return; }
   const lmv=e.target.closest("[data-lmove]"); if(lmv){ layoutMove(lmv.dataset.lid,lmv.dataset.lmove); return; }
-  const lrs=e.target.closest("[data-lreset]"); if(lrs){ layoutSave(cur,{order:[],hidden:layoutDefaultHidden(DATA[cur]),health_fields:undefined,hidden_tiles:undefined}).then(r=>{ if(!r.ok) toast("Не сохранилось, нажмите ещё раз"); render(); }); return; }
+  const lrs=e.target.closest("[data-lreset]"); if(lrs){ const person=cur; layoutSave(person,{order:[],hidden:layoutDefaultHidden(DATA[person]),health_fields:undefined,hidden_tiles:undefined}).then(r=>{ if(r.ok) circTileSave(person,null); else toast("Не сохранилось, нажмите ещё раз"); render(); }); return; }
   const msc=e.target.closest("[data-mpscheme]"); if(msc){ medSchemeSave(window.__medOpenName); return; }
   const mps=e.target.closest("[data-mpsave],[data-mpnow]"); if(mps){ const nm=mps.dataset.mpsave||mps.dataset.mpnow, now=mps.dataset.mpnow!=null;
     if(now&&!confirm("Подтвердить: курс фактически завершён сегодня? Назначение врача останется в истории.")) return;
