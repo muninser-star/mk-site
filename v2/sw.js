@@ -1,6 +1,6 @@
 // Оболочка медкнижки для установленного приложения (ТЗ-023 блок 3). Шаблон: собрать_v2.js подставляет штамп сборки
 // и кладёт готовый файл в Публикация/v2/sw.js. Данные медкнижки сюда не попадают: запросы к Supabase идут мимо.
-const V = "mk-2026-11-11.1 · разбор анализов и давление";
+const V = "mk-2026-11-12.1";
 const PAGE = "/v2/";
 const FILES = ["/v2/manifest.webmanifest", "/v2/icons/medemo-192.png", "/v2/icons/medemo-512.png", "/v2/icons/apple-touch-icon-180.png", "/v2/icons/logo-mark.png"];
 
@@ -8,7 +8,7 @@ self.addEventListener("install", e => {
   e.waitUntil(caches.open(V).then(c => c.addAll([PAGE, ...FILES].map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("mk-") && k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {
   const r = e.request, u = new URL(r.url);

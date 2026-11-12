@@ -164,9 +164,9 @@ function askNeedsFix(answer, sources) {
   return !(sources && sources.length);
 }
 // ответ модели: заголовки, жирный текст, списки, таблицы и ссылки [1] на источники (тот же разбор, что в карточке симптома)
-function fmt(t) {
+function fmt(t, refs) {
   const text = t;
-  const inl=x=>esc(x).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>").replace(/\[(\d{1,2})\]/g,(m,n)=>`<span class="ref" data-ref="${n}">${n}</span>`);
+  const inl=x=>esc(x).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>").replace(/\[(\d+(?:\s*[,;]\s*\d+)*)\]/g,(_,nums)=>[...new Set(nums.split(/[,;]/).map(n=>refs.get(Number(n))).filter(Boolean))].map(n=>`<span class="ref" data-ref="${n}">${n}</span>`).join(" "));
   const L=String(text||"").replace(/\r/g,"").replace(/^---[\s\S]*?\n---\n/,"").split("\n"), out=[]; let i=0;
   while(i<L.length){
     const l=L[i];
@@ -216,11 +216,23 @@ function view() {
   paint();
   loadHistory();
 }
-// ТЗ-010 блок 16: сверху — источники, на которые ссылается ответ ([3], [6]); остальные найденные — свёрнуты
-function splitSources(answer, sources) {
-  const refs = new Set(); String(answer || "").replace(/\[(\d+(?:\s*[,;]\s*\d+)*)\]/g, (_, g) => g.split(/[,;]/).forEach(n => refs.add(+n)));
-  const list = sources || [];
-  return { cited: list.filter(x => refs.has(x.n)), rest: list.filter(x => !refs.has(x.n)) };
+// Показываем до четырёх источников. Если ответ ссылается на записи, берём только процитированные.
+function selectSources(answer, sources) {
+  const byNumber=new Map((sources||[]).map(s=>[Number(s.n),s]).filter(([n])=>Number.isSafeInteger(n)&&n>0));
+  const cited=new Set();
+  for(const [,group] of String(answer||"").matchAll(/\[(\d+(?:\s*[,;]\s*\d+)*)\]/g)){
+    for(const n of group.split(/[,;]/).map(Number))if(byNumber.has(n))cited.add(n);
+  }
+  const selected=[],refs=new Map(),seen=new Map();
+  for(const n of cited.size?cited:byNumber.keys()){
+    const s=byNumber.get(n);
+    const title=String(s.title||"").replace(/\s*\(часть \d+ из \d+\)$/i,"").trim().toLowerCase();
+    const key=title?JSON.stringify([s.person,s.source,title]):n;
+    if(seen.has(key)){refs.set(n,seen.get(key));continue;}
+    if(selected.length===4)continue;
+    selected.push({...s,n});seen.set(key,n);refs.set(n,n);
+  }
+  return {selected,refs};
 }
 function srcHtml(s) {
   return `<div class="src" data-n="${s.n}"><div class="h"><span class="n">${s.n}</span>
@@ -230,6 +242,7 @@ function srcHtml(s) {
 }
 function card(h, hi) {
   const flagged = h.flag === "fix";
+  const {selected,refs}=selectSources(h.answer,h.sources);
   const fixUi = !h.id || h.error ? "" : flagged
     ? `<div class="fixbar"><span class="fixed">📌 отмечено — поправим</span>${h.flag_note ? `<span class="muted" style="font-size:13px">«${esc(h.flag_note)}»</span>` : ""}
         <button data-unfix="${hi}">Снять отметку</button></div>`
@@ -246,10 +259,8 @@ function card(h, hi) {
     <div class="body-a">
     ${h.error ? `<div class="err">${esc(h.error)}</div>`
       : h.no_data ? `<div class="muted">В медкнижке по этому вопросу ничего не нашлось.</div>`
-      : `<div class="ans" data-h="${hi}">${fmt(h.answer)}</div>
-         ${h.sources.length ? (() => { const sp = splitSources(h.answer, h.sources);
-           return `<div class="srcs">${sp.cited.length ? `<div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники — нажмите, чтобы раскрыть</div>${sp.cited.map(srcHtml).join("")}` : ""}
-           ${sp.rest.length ? `<details class="more-src"><summary class="muted" style="font-size:12.5px;cursor:pointer">${sp.cited.length ? "Ещё найдено" : "Что искал"}: ${sp.rest.length}</summary>${sp.rest.map(srcHtml).join("")}</details>` : ""}</div>`; })() : ""}`}
+      : `<div class="ans" data-h="${hi}">${fmt(h.answer,refs)}</div>
+         ${selected.length?`<div class="srcs"><div class="muted" style="font-size:12.5px;margin-bottom:6px">Источники — нажмите, чтобы раскрыть</div>${selected.map(srcHtml).join("")}</div>`:""}`}
     ${h.answer&&!h.error?`<div class="muted" style="font-size:12px;margin:12px 0">Сохранённый ответ${h.at?" от "+esc(ru(String(h.at).slice(0,10))):""}. Новые записи не учитываются автоматически.</div><button class="linkq" data-refresh="${hi}"${busy?" disabled":""}>Обновить по текущим записям</button>`:""}
     ${fu}
     ${fixUi}
