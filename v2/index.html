@@ -5685,7 +5685,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="2026-11-12.3";   // подставляется при публикации
+const BUILD="2026-11-12.4";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
@@ -8642,7 +8642,7 @@ function bmDraw(restore){
   const toolbar=`<div class="bm-toolbar">
     ${circ?BM.available?'<button type="button" class="btn btn-primary" data-bm-add-circ>Добавить замер</button>':'':'<button type="button" class="btn btn-primary" data-measadd>Добавить замер</button>'}
     ${BM.error&&window.__MK_KEY?'<button type="button" class="btn btn-secondary" data-bm-retry>Повторить</button>':''}
-    <button class="btn btn-secondary" data-bm-how>Как измерять</button>
+    <button type="button" class="btn btn-ghost" data-bm-how>Как измерять</button>
     ${circ&&person===cur?'<button type="button" class="btn btn-ghost" data-bm-open>Все замеры</button>':''}
   </div>`;
   const options=list=>list.map(x=>`<option value="${x.key}"${x.key===BM.key?' selected':''}>${x.name}</option>`).join('');
