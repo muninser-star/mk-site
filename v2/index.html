@@ -10288,13 +10288,31 @@ document.addEventListener("click",e=>{
   if(T.dataset.vhstate==="was") outcomeForm();
   else planOpen({id:null,person:cur,specialty:docSt.spec,planned_date:date>localDay()?date:"",purpose:"",questions:[],tests:[],other:[],status:"planned",source_name:null});
 });
+// Shared diary entry navigation: every diary is configured through the same diary_settings rules.
+// Content of the private emotions diary never flows through the parent medical book.
+function emotionDiaryOwn(){return !!(window.__MK_KEY&&PPL&&PPL.me&&cur===PPL.me);}
+function emotionDiaryNavigate(action){
+  if(!emotionDiaryOwn()){toast("Личный дневник доступен только владельцу профиля");return false;}
+  location.assign("./emotions/"+(action==="new"?"?new=1":action==="history"?"?tab=history":""));return true;
+}
+function emotionDiaryEmbedHtml(){
+  return '<iframe id="emotionDiaryHomeFrame" title="Личный дневник эмоций и энергии" loading="lazy" src="./emotions/?embed=home" referrerpolicy="no-referrer" style="width:100%;height:220px;display:block;border:0;overflow:hidden;background:transparent" scrolling="no"></iframe>';
+}
+if(typeof window!=="undefined"&&!window.__emFrameBound){
+  window.__emFrameBound=1;
+  window.addEventListener("message",ev=>{
+    if(ev.origin!==location.origin||!ev.data||ev.data.type!=="mk-emotions-frame-height")return;
+    const fr=document.getElementById("emotionDiaryHomeFrame");
+    if(fr&&fr.contentWindow===ev.source){const h=Number(ev.data.height);if(Number.isFinite(h)&&h>=120&&h<=1600)fr.style.height=Math.ceil(h+12)+"px";}
+  });
+}
 function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из задачи плана (ТЗ-058)
   return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
     ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
-    ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Задача",()=>ownForm()],
+    ["med",icon("meds"),"Лекарство",f("medForm")],...(emotionDiaryOwn()?[["emotions",icon("note"),"Эмоции и энергия",()=>emotionDiaryNavigate("new")]]:[]),["todo",icon("u-task"),"Задача",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
 }
@@ -11568,20 +11586,22 @@ function quickAccessCatalog(d){
     {id:"dynamics",title:"Показатели",iconId:"dynamics",route:"lab"},
     {id:"studies",title:"Исследования",iconId:"studies",route:"instr"},
     {id:"feed",title:"Лента",iconId:"feed",route:"all"},
+    {id:"diaries",title:"Дневники",iconId:"note",route:"dz"},
+    {id:"emotions",title:"Эмоции и энергия",iconId:"note",route:"emotions",isAvailable:emotionDiaryOwn()},
     {id:"profile",title:"Профиль здоровья",iconId:"profile",route:"hp"},
     {id:"nutr",title:"Питание",iconId:"nutr",route:"nutr",isAvailable:!!d.nutrition},
     {id:"ask",title:"Спросить",iconId:"ask",route:"ask"}
   ];
 }
 function quickAccessDefaults(){
-  return {version:1,show:true,order:quickAccessCatalog({}).map(x=>x.id),enabled:["card","labs","visits","symptoms","meds","vaccines","dynamics","studies"]};
+  return {version:2,show:true,order:quickAccessCatalog({}).map(x=>x.id),enabled:["card","labs","visits","symptoms","meds","vaccines","dynamics","studies","diaries","emotions"]};
 }
 function quickAccessNormalize(value){
   const def=quickAccessDefaults(), ids=def.order;
-  if(!value||typeof value!=="object"||Array.isArray(value)||value.version!==1||typeof value.show!=="boolean"||!Array.isArray(value.order)||!Array.isArray(value.enabled)) return def;
+  if(!value||typeof value!=="object"||Array.isArray(value)||![1,2].includes(value.version)||typeof value.show!=="boolean"||!Array.isArray(value.order)||!Array.isArray(value.enabled)) return def;
   const unique=a=>[...new Set(a.filter(x=>typeof x==="string"&&ids.includes(x)))];
   const order=unique(value.order);
-  return {version:1,show:value.show,order:[...order,...ids.filter(x=>!order.includes(x))],enabled:unique(value.enabled)};
+  return {version:2,show:value.show,order:[...order,...ids.filter(x=>!order.includes(x))],enabled:unique(value.version===1?[...value.enabled,"diaries","emotions"]:value.enabled)};
 }
 function quickAccessRead(store,fallback){
   try{const raw=store&&store.getItem("medemo-home-widget-v1");return raw?quickAccessNormalize(JSON.parse(raw)):quickAccessNormalize(fallback||quickAccessDefaults());}
@@ -11633,7 +11653,7 @@ function quickAccessNavigate(id){
   const d=DATA[cur];if(!d||lockNeeded(cur))return false;
   const item=quickAccessCatalog(d).find(x=>x.id===id&&x.isAvailable!==false);if(!item)return false;
   query="";const q=document.getElementById("q");if(q)q.value="";
-  closeModal();goTab(item.route);
+  closeModal();if(item.route==="emotions")return emotionDiaryNavigate("open");goTab(item.route);
   if(item.id==="symptoms")symView="main";
   if(item.id==="illness")symView="ill";
   if(item.id==="profile"||item.id==="vaccines")hpOrgan=null;
@@ -15569,6 +15589,7 @@ function diaryCatalog(){
     // ТЗ-041 блоки 6 и 8: записи этих дневников никуда не уходят — ни во «Спросить», ни во внешние сервисы; мысли видит только их владелец
     {id:"gratitude",title:"Дневник благодарностей",group:"Эмоции и мысли",hint:"Что хорошего случилось",kind:"gratitude",icon:"d-gratitude"},
     {id:"thoughts",title:"Дневник мыслей",group:"Эмоции и мысли",hint:"Мысли, эмоции, реакции",kind:"thought",icon:"d-thoughts",minAge:12},
+    {id:"emotions",title:"Дневник эмоций и энергии",group:"Эмоции и мысли",hint:"Эмоции, энергия и наполняющие события",kind:"private_external",icon:"d-thoughts",ownerOnly:true},
   ];
 }
 // выборы новых дневников (ТЗ-041): id — латиницей, такие же знает сервер (mk → diaryIdLists), подписи — для экрана и текста реестра
@@ -15708,10 +15729,11 @@ function gratitudeCanSave(f){ return !!String(f&&f.text||"").trim(); }
 function thoughtCanSave(f){ return !!String(f&&f.thoughts||"").trim(); }
 function thoughtTitle(d){ const t=String((d&&d.event)||"").trim()||String((d&&d.thoughts)||"").trim(); return t.length>60?t.slice(0,60)+"…":t; }
 // дневник с ограничением по возрасту (дневник мыслей — с 12 лет, В10); без даты рождения — виден
-function diaryVisible(def,birth,today){ if(!def||!def.minAge) return true; const a=dzAgeOn(birth,today); return a==null||a>=def.minAge; }
+function diaryVisible(def,birth,today){if(!def)return false;if(def.ownerOnly&&!emotionDiaryOwn())return false;if(!def.minAge)return true;const a=dzAgeOn(birth,today);return a==null||a>=def.minAge;}
 // ── дневники на главной и быстрые кнопки (ТЗ-043) ──
 // главная кнопка дневника: ярлык чипа на экране дневников, надпись кнопки на главной, имя формы
 function diaryQuickAction(def){
+  if(def.id==="emotions") return {chip:"Эмоции и энергия",btn:"Записать",form:"emotionForm"};
   if(def.id==="gi") return {chip:"ЖКТ",btn:"Записать",form:"dzSymptomForm"};
   if(def.headache) return {chip:"Приступ",btn:"Записать приступ",form:"hdForm"};
   if(def.kind==="gratitude") return {chip:"Благодарность",btn:"Добавить",form:"grForm"};
@@ -15727,7 +15749,8 @@ function homeDiaryDefs(rows,cat,birth,today){
 function homeDiaryRows(defs,entries,symptoms,today){
   const p2=n=>String(n).padStart(2,"0");
   return (defs||[]).map(def=>{
-    const q=diaryQuickAction(def), M=dayModel(def,entries,symptoms,today); let count=0,label;
+    const q=diaryQuickAction(def); if(def.id==="emotions")return {id:def.id,title:def.title,count:0,label:"Личные записи · редактирование и динамика",btn:q.btn,chip:q.chip,form:q.form};
+    const M=dayModel(def,entries,symptoms,today); let count=0,label;
     if(def.measure){ const c=M.find(x=>x.card==="measure"), L=c&&c.last; count=c?c.entries.length:0;
       if(L){ const t=new Date(L.occurred_at); label=`Последнее: ${Number(L.data.v).toFixed(def.measure.dec||0).replace(".",",")} ${def.measure.unit} · ${p2(t.getHours())}:${p2(t.getMinutes())}`; } else label="Сегодня замеров нет"; }
     else if(def.headache){ const c=M.find(x=>x.card==="symptoms"); count=c?c.items.filter(it=>it.head).length:0; label=count?`Сегодня приступов: ${count}`:"Сегодня приступов нет"; }
@@ -15766,7 +15789,7 @@ function dzSettingsHtml(){
     `<div class="dz-bar"><button type="button" class="btn btn-secondary" id="dzCancel">Отмена</button><button type="button" class="btn btn-primary" id="dzSave">Сохранить</button></div></div>`;
 }
 async function dzSaveSettings(){
-  const cat=diaryCatalog(), was=new Set(dzEnabled(cur)), p=cur, btn=document.getElementById("dzSave"); if(btn){ btn.disabled=true; btn.textContent="Сохраняем…"; }
+  const cat=diaryCatalog().filter(d=>diaryVisible(d,hdBirth(),localDay())), was=new Set(dzEnabled(cur)), p=cur, btn=document.getElementById("dzSave"); if(btn){ btn.disabled=true; btn.textContent="Сохраняем…"; }
   try{
     const rowOf=id=>(DZ.rows[p]||[]).find(r=>r.diary===id), homeWas=id=>{ const r=rowOf(id); return !(r&&r.params&&r.params.home===false); };
     await Promise.all(cat.map((d,i)=>{ const now=DZ.draft.has(d.id), had=was.has(d.id), home=(DZ.draftHome||{})[d.id]!==false;
@@ -15777,20 +15800,17 @@ async function dzSaveSettings(){
     if(!was.size&&dzEnabled(p).length&&!dzIntroSeen(p)) setTimeout(dzIntro,400);
   }catch(e){ if(btn){ btn.disabled=false; btn.textContent="Сохранить"; } toast("Не получилось сохранить. Попробуйте ещё раз"); }
 }
-function emotionDiaryLinkHtml(){
-  return '<section class="card" aria-label="Личный дневник эмоций"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><strong>Дневник эмоций</strong><div class="muted" style="font-size:13px;margin-top:3px">Личные записи, история и динамика. Содержимое зашифровано.</div></div><a class="btn btn-primary" href="./emotions/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px">Открыть дневник</a></div></section>';
-}
 function dzTab(m){
   if(!window.__MK_KEY){ m.innerHTML=`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Дневники доступны после входа по коду доступа.</p></div>`; return; }
   dzLoad();
   if(!DZ.ok[cur]){
-    m.innerHTML=emotionDiaryLinkHtml()+(DZ.err?`<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить дневники.</p><button class="btn btn-primary" id="dzRetry" type="button">Повторить</button></div>`
+    m.innerHTML=(DZ.err?`<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить дневники.</p><button class="btn btn-primary" id="dzRetry" type="button">Повторить</button></div>`
       :`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем…</p></div>`);
     const r=document.getElementById("dzRetry"); if(r) r.onclick=()=>{ DZ.err=false; dzLoad(true); render(); };
     return;
   }
   if(DZ.view==="settings"&&DZ.draft){
-    m.innerHTML=emotionDiaryLinkHtml()+dzSettingsHtml();
+    m.innerHTML=dzSettingsHtml();
     m.querySelectorAll("[data-dz-pick]").forEach(b=>b.onclick=()=>{ const id=b.dataset.dzPick, y=window.scrollY; DZ.draft.has(id)?DZ.draft.delete(id):DZ.draft.add(id); render(); window.scrollTo(0,y);
       const nb=document.querySelector(`[data-dz-pick="${id}"]`); if(nb) nb.focus({preventScroll:true}); });
     m.querySelectorAll("[data-dz-home]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const id=b.dataset.dzHome, on=DZ.draftHome[id]===false; DZ.draftHome[id]=on; b.setAttribute("aria-checked",on); });
@@ -15801,12 +15821,12 @@ function dzTab(m){
   const on=dzEnabled(cur);
   const openSet=()=>{ DZ.draft=new Set(dzEnabled(cur)); DZ.draftHome=Object.fromEntries((DZ.rows[cur]||[]).map(r=>[r.diary,!(r.params&&r.params.home===false)])); DZ.view="settings"; render(); window.scrollTo(0,0); };
   if(!on.length){
-    m.innerHTML=emotionDiaryLinkHtml()+`<div class="dz-empty"><span class="dz-empty__ic">${dzIcon("list","ic--32")}</span><h3>Выберите дневники, которые хотите вести</h3>
+    m.innerHTML=`<div class="dz-empty"><span class="dz-empty__ic">${dzIcon("list","ic--32")}</span><h3>Выберите дневники, которые хотите вести</h3>
       <p class="muted">Симптомы, измерения и оценки за день — в одном месте, чтобы показать врачу.</p><button class="btn btn-primary btn-lg" id="dzPick" type="button">Выбрать</button></div>`;
     document.getElementById("dzPick").onclick=openSet; return;
   }
   dzLoadData();
-  m.innerHTML=emotionDiaryLinkHtml()+dzDayHtml(on);
+  m.innerHTML=dzDayHtml(on);
   const ns=document.getElementById("dzSet"); if(ns) ns.onclick=openSet;
   dzDayBind(m);
 }
@@ -15932,7 +15952,7 @@ function dzDayHtml(on){
   const vis=defs.filter(d=>diaryVisible(d,hdBirth(),today));
   const quick=vis.length?`<div class="dz-quick" role="group" aria-label="Быстрая запись">${vis.map(d=>`<button type="button" class="dz-chip" data-dzq="${d.id}">＋ ${esc(diaryQuickAction(d).chip)}</button>`).join("")}</div>`:"";
   return `<div class="dz-top"><h2 class="dz-h1">Дневники</h2><button class="btn btn-secondary" id="dzSet" type="button">Настроить</button></div>${nav}${quick}`+
-    defs.map(def=>`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="${def.id}"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${def.kind?(def.kind==="thought"?`<p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>`:""):dzInsightHtml(def,D.entries,D.sym,today)}`+
+    defs.map(def=>def.id==="emotions"?`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="emotions"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${emotionDiaryEmbedHtml()}</section>`:`<section class="dz-sec"><button type="button" class="dz-sec__h" data-dz-hist="${def.id}"><h3>${esc(def.title)}</h3>${dzIcon("chevron")}</button>${def.kind?(def.kind==="thought"?`<p class="hd-note th-note">Дневник — для вас, не диагноз. Если очень тяжело, позвоните близкому человеку или врачу</p>`:""):dzInsightHtml(def,D.entries,D.sym,today)}`+
       dayModel(def,D.entries,D.sym,day).map(c=>dzCardHtml(def,c,D.entries,day,today)).join("")+`</section>`).join("");
 }
 // история дневника: 30 дней списком, новые сверху
@@ -16369,8 +16389,8 @@ function symEpisodes(rows,name,day){
 function trackRows(trackers,legacy,symptoms,eps,today,periods,titleOf){
   const rows=[];
   for(const r of (legacy||[])){
-    const personal=r.form==="grForm"||r.form==="thForm";
-    rows.push({id:r.id,title:r.title,count:r.count,btn:r.btn,form:r.form,kind:personal?"personal":"legacy",label:personal?`записей: ${r.count}`:r.label});   // только число и подпись: текст записей наружу не идёт
+    const personal=r.form==="grForm"||r.form==="thForm"||r.form==="emotionForm";
+    rows.push({id:r.id,title:r.title,count:r.count,btn:r.btn,form:r.form,kind:personal?"personal":"legacy",label:r.form==="emotionForm"?r.label:personal?`записей: ${r.count}`:r.label});   // только число и подпись: текст записей наружу не идёт
   }
   for(const t of (trackers||[])){
     if(t.legacy_diary||t.ended_on||t.on_home===false) continue;
@@ -16407,13 +16427,14 @@ function homeTrackHtml(today){
   const D=DZ.data[cur], legacy=defs.length?homeDiaryRows(defs,D?D.entries:[],D?D.sym:[],today):[];
   const R=trackRows(TRK.rows[cur]||[],legacy,D?D.all:[],((DATA[cur].sym||{}).ep||[]),today,(PERIODS||[]).filter(p=>p.person===cur),ep=>illnessTitleFor(DATA[cur],ep,today));
   if(!R.rows.length) return "";
-  const row=r=>`<div class="hdz-row"><button type="button" class="hdz-go" data-trk-go="${esc(r.id)}"><b>${esc(r.title)}</b><span class="muted">${esc(r.label)}</span></button>
+  const row=r=>r.id==="emotions"?`<div class="hdz-emotion"><div class="hdz-row"><button type="button" class="hdz-go" data-trk-go="emotions"><b>${esc(r.title)}</b><span class="muted">Личный дневник · можно изменять записи</span></button><button type="button" class="btn btn-secondary hdz-btn" data-trk-act="emotions">Записать</button></div>${emotionDiaryEmbedHtml()}</div>`:`<div class="hdz-row"><button type="button" class="hdz-go" data-trk-go="${esc(r.id)}"><b>${esc(r.title)}</b><span class="muted">${esc(r.label)}</span></button>
     <button type="button" class="btn btn-secondary hdz-btn" data-trk-act="${esc(r.id)}"${!D?" disabled":""}>Записать</button></div>`;
   return `<div class="card hdz"><div class="watchhead"><h2>Слежу</h2><button type="button" class="linkbtn" data-trk-all="1" style="min-height:44px;min-width:44px">Все</button></div>${R.shown.map(row).join("")}
     ${R.more.length?`<details class="trk-more"><summary class="muted" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Ещё ${R.more.length}</summary>${R.more.map(row).join("")}</details>`:""}</div>`;
 }
 // «Записать» в строке слежения: старый дневник — его форма; симптом — быстрая запись; болезнь — карточка болезни
 function trkAct(id){
+  if(id==="emotions"){emotionDiaryNavigate("new");return;}
   const today=localDay(), defs=DZ.ok[cur]?homeDiaryDefs(DZ.rows[cur],diaryCatalog(),hdBirth(),today):[];
   if(defs.some(d=>d.id===id)){ dzOpenForm(id,today,today); return; }
   const t=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id); if(!t) return;
@@ -16664,7 +16685,7 @@ document.addEventListener("click",e=>{
   const cm=t.closest("[data-chmore]"); if(cm){ cm.parentElement.querySelectorAll(".chip.more").forEach(x=>x.hidden=false); cm.remove(); return; }
   if(t.closest("#seSave")){ symEntrySave(); return; }
   const ta=t.closest("[data-trk-act]"); if(ta){ trkAct(ta.dataset.trkAct); return; }
-  const tg=t.closest("[data-trk-go]"); if(tg){ const id=tg.dataset.trkGo, t2=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id);
+  const tg=t.closest("[data-trk-go]"); if(tg){ if(tg.dataset.trkGo==="emotions"){emotionDiaryNavigate("open");return;}const id=tg.dataset.trkGo, t2=(TRK.rows[cur]||[]).find(x=>"tr:"+x.ref===id);
     if(t2&&t2.kind==="symptom"){ symSel=t2.title||t2.ref; symFocus=localDay(); tab="sym"; render(); window.scrollTo(0,0); } else if(t2&&t2.kind==="illness") epCard(t2.ref);
     else { DZ.view="day"; DZ.hist=null; DZ.day=null; tab="dz"; render(); window.scrollTo(0,0); setTimeout(()=>{ const h=document.querySelector(`[data-dz-hist="${id}"]`); if(h) h.scrollIntoView({block:"start"}); },60); } return; }
   if(t.closest("[data-trk-all]")){ trkAllOpen(); return; }
@@ -16742,6 +16763,7 @@ function homeDiaryHtml(today){
 }
 // открыть форму записи дневника по таблице имён (не по строке из данных)
 function dzOpenForm(id,day,today){
+  if(id==="emotions"){emotionDiaryNavigate("new");return;}
   const def=diaryCatalog().find(d=>d.id===id); if(!def) return;
   const F={hdForm,grForm,thForm,dzMeasureForm,dzSymptomForm}[diaryQuickAction(def).form];
   if(F) F(def,day,today,null);
@@ -16760,7 +16782,7 @@ function dzDayBind(m){
   if(pv) pv.onclick=()=>go(-1); if(nx) nx.onclick=()=>go(1); if(bk) bk.onclick=()=>{ DZ.hist=null; render(); window.scrollTo(0,0); };
   m.querySelectorAll("[data-dz-how]").forEach(b=>b.onclick=dzIntro);
   m.querySelectorAll("[data-dz-hide]").forEach(b=>b.onclick=()=>{ const h=dzHideLoad(); h[b.dataset.dzHide]=today; dzHideSave(h); render(); });
-  m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ const old=()=>{DZ.hist=b.dataset.dzHist;render();window.scrollTo(0,0);};if(b.dataset.dzHist==="gi"){giRouteExisting(old);return;}old(); });
+  m.querySelectorAll("[data-dz-hist]").forEach(b=>b.onclick=()=>{ if(b.dataset.dzHist==="emotions"){emotionDiaryNavigate("open");return;}const old=()=>{DZ.hist=b.dataset.dzHist;render();window.scrollTo(0,0);};if(b.dataset.dzHist==="gi"){giRouteExisting(old);return;}old(); });
   m.querySelectorAll("[data-dz-meas]").forEach(b=>b.onclick=()=>dzMeasureForm(def(b.dataset.dzMeas),day(),today));
   m.querySelectorAll("[data-dz-sym]").forEach(b=>b.onclick=()=>dzSymptomForm(def(b.dataset.dzSym),day(),today));
   const entryOf=id=>((DZ.data[cur]||{}).entries||[]).find(e=>e.id===id);
