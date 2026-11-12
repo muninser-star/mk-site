@@ -85,7 +85,7 @@ function emotionPill(e){return '<span class="pill">'+esc(emotionName(e.code))+(e
 const ENERGY_PARTS=[["morning","Утро"],["day","День"],["evening","Вечер"]];
 function energyValid(v){return Number.isInteger(v)&&v>=0&&v<=10;}
 function energyPart(at){const h=new Date(at).getHours();return h>=5&&h<12?"morning":h>=12&&h<18?"day":"evening";}
-function energyPartLabel(at){return ENERGY_PARTS.find(x=>x[0]===energyPart(at))[1];}
+function energyPartLabel(at,entry=null){return ENERGY_PARTS.find(x=>x[0]===(entry?.energy_daypart||energyPart(at)))?.[1]||"Время не определено";}
 function energyReportDate(at){const d=new Date(at);if(d.getHours()<5)d.setDate(d.getDate()-1);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
 function energyMedian(arr){if(!arr.length)return null;const a=[...arr].sort((x,y)=>x-y),m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;}
 function energyFormat(n){return n==null?"—":String(n).replace(".",",")+"/10";}
@@ -98,7 +98,7 @@ function renderEnergyEditor(){
 function renderEnergyAnalytics(p){
  const energyEntries=p.filter(e=>energyValid(e.energy_level));
  const groups={morning:[],day:[],evening:[]},perDay=new Map();
- for(const e of energyEntries){const part=energyPart(e.at),date=energyReportDate(e.at);groups[part].push(e.energy_level);if(!perDay.has(date))perDay.set(date,{morning:[],day:[],evening:[]});perDay.get(date)[part].push(e.energy_level);}
+ for(const e of energyEntries){const part=ENERGY_PARTS.some(x=>x[0]===e.energy_daypart)?e.energy_daypart:energyPart(e.at),date=/^\d{4}-\d{2}-\d{2}$/.test(e.energy_report_day||"")?e.energy_report_day:energyReportDate(e.at);groups[part].push(e.energy_level);if(!perDay.has(date))perDay.set(date,{morning:[],day:[],evening:[]});perDay.get(date)[part].push(e.energy_level);}
  $("energySummary").innerHTML=energyEntries.length?'<div class="energy-daypart-grid">'+ENERGY_PARTS.map(([key,label])=>'<div class="energy-part-card"><small>'+label+'</small><strong>'+energyFormat(energyMedian(groups[key]))+'</strong><small>'+groups[key].length+' отметок</small></div>').join("")+'</div><p class="muted">'+energyEntries.length+' отметок энергии за период. Показана медиана по каждому времени суток; отсутствие записи не означает 0.</p>':'<p class="muted">Нет оценок энергии за этот период. Можно добавить только энергию, без эмоций.</p>';
  $("energyGraph").innerHTML=graph(energyEntries.map(e=>({at:e.at,value:e.energy_level})),0,10);
  const dates=[...perDay.keys()].sort((a,b)=>b.localeCompare(a));
@@ -110,7 +110,7 @@ function renderEnergyAnalytics(p){
 }
 
 function entryHtml(e){
- const energy=energyValid(e.energy_level)?'<div style="margin-top:9px"><span class="energy-badge">⚡ Энергия '+e.energy_level+'/10 · '+energyPartLabel(e.at)+'</span></div>':"";
+ const energy=energyValid(e.energy_level)?'<div style="margin-top:9px"><span class="energy-badge">⚡ Энергия '+e.energy_level+'/10 · '+energyPartLabel(e.at,e)+'</span></div>':"";
  const events=energyEventsOf(e).map(v=>'<div class="energy-event-line">'+(v.direction==="recharge"?"＋ Наполнило: ":"− Истощило: ")+esc(v.title)+' · '+v.impact+'/5</div>').join("");
  return '<div class="entry"><div class="row between"><strong>'+new Date(e.at).toLocaleString("ru-RU",{dateStyle:"medium",timeStyle:"short"})+'</strong><div class="row"><button class="btn ghost" data-edit="'+esc(e.id)+'">Изменить</button><button class="btn ghost danger" data-delete="'+esc(e.id)+'">Удалить</button></div></div><div class="row">'+(e.emotions||[]).map(emotionPill).join(" ")+'</div>'+energy+events+(e.note?'<p>'+esc(e.note).replace(/\n/g,"<br>")+"</p>":"")+(e.tags?.length?'<small>'+esc(e.tags.join(" · "))+"</small>":"")+"</div>";
 }
@@ -163,6 +163,8 @@ async function saveEntry(){
  emotions:chosen.map(e=>({code:e.code,intensity:e.intensity})),
  valence:$("valence").value===""?null:Number($("valence").value),
  energy_level:energyScore,
+ energy_daypart:editing?.energy_daypart||energyPart(at),
+ energy_report_day:editing?.energy_report_day||energyReportDate(at),
  energy_events:energyEventDrafts.map(v=>({title:v.title.trim(),direction:v.direction,impact:v.impact})),
  note,
  tags:[...new Set($("entryTags").value.split(",").map(x=>x.trim()).filter(Boolean))].slice(0,15),
