@@ -15777,17 +15777,20 @@ async function dzSaveSettings(){
     if(!was.size&&dzEnabled(p).length&&!dzIntroSeen(p)) setTimeout(dzIntro,400);
   }catch(e){ if(btn){ btn.disabled=false; btn.textContent="Сохранить"; } toast("Не получилось сохранить. Попробуйте ещё раз"); }
 }
+function emotionDiaryLinkHtml(){
+  return '<section class="card" aria-label="Личный дневник эмоций"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><strong>Дневник эмоций</strong><div class="muted" style="font-size:13px;margin-top:3px">Личные записи, история и динамика. Содержимое зашифровано.</div></div><a class="btn btn-primary" href="./emotions/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px">Открыть дневник</a></div></section>';
+}
 function dzTab(m){
   if(!window.__MK_KEY){ m.innerHTML=`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Дневники доступны после входа по коду доступа.</p></div>`; return; }
   dzLoad();
   if(!DZ.ok[cur]){
-    m.innerHTML=DZ.err?`<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить дневники.</p><button class="btn btn-primary" id="dzRetry" type="button">Повторить</button></div>`
-      :`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем…</p></div>`;
+    m.innerHTML=emotionDiaryLinkHtml()+(DZ.err?`<div class="card"><h2>Дневники</h2><p class="muted">Не получилось загрузить дневники.</p><button class="btn btn-primary" id="dzRetry" type="button">Повторить</button></div>`
+      :`<div class="card"><h2>Дневники</h2><p class="muted" style="margin:0">Загружаем…</p></div>`);
     const r=document.getElementById("dzRetry"); if(r) r.onclick=()=>{ DZ.err=false; dzLoad(true); render(); };
     return;
   }
   if(DZ.view==="settings"&&DZ.draft){
-    m.innerHTML=dzSettingsHtml();
+    m.innerHTML=emotionDiaryLinkHtml()+dzSettingsHtml();
     m.querySelectorAll("[data-dz-pick]").forEach(b=>b.onclick=()=>{ const id=b.dataset.dzPick, y=window.scrollY; DZ.draft.has(id)?DZ.draft.delete(id):DZ.draft.add(id); render(); window.scrollTo(0,y);
       const nb=document.querySelector(`[data-dz-pick="${id}"]`); if(nb) nb.focus({preventScroll:true}); });
     m.querySelectorAll("[data-dz-home]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const id=b.dataset.dzHome, on=DZ.draftHome[id]===false; DZ.draftHome[id]=on; b.setAttribute("aria-checked",on); });
@@ -15798,12 +15801,12 @@ function dzTab(m){
   const on=dzEnabled(cur);
   const openSet=()=>{ DZ.draft=new Set(dzEnabled(cur)); DZ.draftHome=Object.fromEntries((DZ.rows[cur]||[]).map(r=>[r.diary,!(r.params&&r.params.home===false)])); DZ.view="settings"; render(); window.scrollTo(0,0); };
   if(!on.length){
-    m.innerHTML=`<div class="dz-empty"><span class="dz-empty__ic">${dzIcon("list","ic--32")}</span><h3>Выберите дневники, которые хотите вести</h3>
+    m.innerHTML=emotionDiaryLinkHtml()+`<div class="dz-empty"><span class="dz-empty__ic">${dzIcon("list","ic--32")}</span><h3>Выберите дневники, которые хотите вести</h3>
       <p class="muted">Симптомы, измерения и оценки за день — в одном месте, чтобы показать врачу.</p><button class="btn btn-primary btn-lg" id="dzPick" type="button">Выбрать</button></div>`;
     document.getElementById("dzPick").onclick=openSet; return;
   }
   dzLoadData();
-  m.innerHTML=dzDayHtml(on);
+  m.innerHTML=emotionDiaryLinkHtml()+dzDayHtml(on);
   const ns=document.getElementById("dzSet"); if(ns) ns.onclick=openSet;
   dzDayBind(m);
 }
