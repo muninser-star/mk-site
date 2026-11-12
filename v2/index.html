@@ -10310,9 +10310,9 @@ function addItems(d){
   const f=name=>typeof globalThis[name]==="function"?()=>globalThis[name]():null;   // формы следующих блоков подключаются сами
   const food=d&&d.nutrition?()=>{ tab="diary"; render(); scrollTo(0,0); }:null;
   // итоговая таблица меню (ТЗ-057): 8 основных пунктов; Событие, Заметка — под «Ещё». «Итоги приёма» — внутри «Визита врача» (Денис 26.10.2026). Прививки здесь нет: вход — в Профиле здоровья и из задачи плана (ТЗ-058)
-  return [["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
+  return [...(emotionDiaryOwn()?[["emotions",icon("note"),"Эмоции и энергия",()=>emotionDiaryNavigate("new")]]:[]),["doc",icon("docs"),"Документ или текст",f("docForm")],["food",icon("nutr"),"Еда",food],["visit",icon("visits"),"Визит врача",()=>visitHub()],
     ["lab",icon("labs"),"Анализ",f("labForm")],["sym",icon("symptoms"),"Симптом",()=>symPick()],["meas",icon("scale"),"Замер",()=>measForm()],
-    ["med",icon("meds"),"Лекарство",f("medForm")],...(emotionDiaryOwn()?[["emotions",icon("note"),"Эмоции и энергия",()=>emotionDiaryNavigate("new")]]:[]),["todo",icon("u-task"),"Задача",()=>ownForm()],
+    ["med",icon("meds"),"Лекарство",f("medForm")],["todo",icon("u-task"),"Задача",()=>ownForm()],
     ["event",icon("calendar"),"Событие",()=>eventForm(),1],["note",icon("note"),"Заметка",f("noteForm"),1]]
     .filter(x=>x[3]).map(([k,ic,t,open,more])=>({k,ic,t,open,more:!!more}));
 }
