@@ -15569,6 +15569,7 @@ function diaryCatalog(){
     "sick-contact":"Контакт с больным",meds:"Лекарства",sleep:"Недосып",hunger:"Голод",weather:"Погода",detergent:"Моющие средства"};
   const T=id=>({id,n:TN[id],icon:id==="sick-contact"?"sick-contact":"trig-"+id});
   return [
+    {id:"emotions",title:"Дневник эмоций и энергии",group:"Эмоции и мысли",hint:"Эмоции, энергия и наполняющие события",kind:"private_external",icon:"d-thoughts",ownerOnly:true},
     {id:"allergy",title:"Дневник аллергии",group:"Аллергология",hint:"Симптомы и триггеры",
       symptoms:[S("Чихание","sneeze"),S("Насморк","rhinitis"),S("Заложенность носа","nose"),S("Зуд в носу и глазах","eye-itch"),S("Слезотечение","tearing"),S("Покраснение глаз","eye-red"),S("Кашель","cough"),S("Высыпания","rash")],
       triggers:["pollen-trees","pollen-grass","dust","animals","cold","food","stress"].map(T)},
@@ -15589,7 +15590,6 @@ function diaryCatalog(){
     // ТЗ-041 блоки 6 и 8: записи этих дневников никуда не уходят — ни во «Спросить», ни во внешние сервисы; мысли видит только их владелец
     {id:"gratitude",title:"Дневник благодарностей",group:"Эмоции и мысли",hint:"Что хорошего случилось",kind:"gratitude",icon:"d-gratitude"},
     {id:"thoughts",title:"Дневник мыслей",group:"Эмоции и мысли",hint:"Мысли, эмоции, реакции",kind:"thought",icon:"d-thoughts",minAge:12},
-    {id:"emotions",title:"Дневник эмоций и энергии",group:"Эмоции и мысли",hint:"Эмоции, энергия и наполняющие события",kind:"private_external",icon:"d-thoughts",ownerOnly:true},
   ];
 }
 // выборы новых дневников (ТЗ-041): id — латиницей, такие же знает сервер (mk → diaryIdLists), подписи — для экрана и текста реестра
