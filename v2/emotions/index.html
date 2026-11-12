@@ -37,6 +37,7 @@
 /* Embedded read-only summary uses the same encrypted local vault; full editor remains on its own screen. */
 body.em-home{background:transparent}
 body.em-home .wrap{padding:0;max-width:none}
+.em-embed[hidden]{display:none!important}
 body.em-home header,body.em-home .nav{display:none!important}
 body.em-home .screen{display:none!important}
 body.em-home #gate{margin:0;padding:12px}
@@ -137,7 +138,7 @@ function embedResize(){if(!EMBED_HOME||window.parent===window)return;requestAnim
 function renderEmbeddedHome(){
  const mine=entries.filter(e=>e&&e.type!=="observation"),en=mine.find(e=>energyValid(e.energy_level));
  const today=new Date().toLocaleDateString("sv-SE");
- const d=mine.filter(e=>energyValid(e.energy_level)&&energyReportDate(e.at)===today),groups={morning:[],day:[],evening:[]};
+ const d=mine.filter(e=>energyValid(e.energy_level)&&(e.energy_report_day||energyReportDate(e.at))===today),groups={morning:[],day:[],evening:[]};
  d.forEach(e=>{const part=ENERGY_PARTS.some(x=>x[0]===e.energy_daypart)?e.energy_daypart:energyPart(e.at);groups[part].push(e.energy_level);});
  $("embedEnergy").innerHTML=(en?'<div class="row between"><strong>⚡ Последняя энергия</strong><span class="em-embed__score">'+en.energy_level+'/10</span></div><small>'+new Date(en.at).toLocaleString("ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})+'</small>':'<p class="muted">Пока нет оценок энергии</p>')
  +'<div class="em-embed__mini">'+ENERGY_PARTS.map(([k,label])=>'<div class="em-embed__part"><small>'+label+'</small><b>'+energyFormat(energyMedian(groups[k]))+'</b></div>').join("")+'</div>';
