@@ -15,24 +15,70 @@
 @media(max-width:850px){.wrap{padding-inline:20px}.top-inner{gap:10px}.planlayout{grid-template-columns:minmax(0,1fr) 255px;gap:12px}.weeklist .mealgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.librarygrid,.shopgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:660px){.top-inner{display:grid;grid-template-columns:1fr auto;min-height:0;padding-top:9px;padding-bottom:6px}.top nav{grid-row:2;grid-column:1/-1;justify-content:space-between;overflow:auto;gap:0}.top nav a{padding:7px;font-size:.78rem}.top nav svg{width:15px}.profile{min-height:33px}.wrap{padding-inline:13px}.heading{padding:27px 0 19px;align-items:start;flex-wrap:wrap;gap:10px}.heading p{margin-top:8px}.toolbar{padding:6px}.weeknav{gap:3px}.weeknav strong{min-width:0;font-size:.84rem}.toolbar .btn{font-size:.82rem;padding-inline:7px}.toolbar .btn.icon{width:29px}.days{gap:4px;margin:8px 0 16px}.days button{min-height:48px}.planlayout{display:block}.sides{padding-top:13px}.mealgrid,.weeklist .mealgrid,.librarygrid,.shopgrid{gap:8px}.mealbody{padding:9px}.dish{font-size:1.05rem}.imagebutton img{aspect-ratio:1.38}.mealmeta{font-size:.72rem}.mealtype{font-size:.64rem}.mealactions{margin-top:6px}.footer{flex-direction:column;margin-top:21px}.profiles{grid-template-columns:1fr}.modalbody{padding:17px}.recipehero{margin:-17px -17px 13px}}
 @media(max-width:355px){.top nav a{gap:3px}.top nav svg{display:none}.toolbar{align-items:stretch;flex-direction:column}.weeknav{justify-content:space-between}.toolbar .switch{justify-content:center}}
+
+.heading-actions,.toolbar-switches,.table-actions,.row-actions,.recipe-actions,.tip-actions,.survey-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.heading-actions{justify-content:flex-end}
+.table-scroll{overflow:auto}
+.data-table{border-collapse:collapse;width:100%;text-align:left}
+.data-table th,.data-table td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.data-table thead th{color:var(--deep);background:var(--pale);white-space:nowrap;font-size:.83rem}
+.data-table tbody tr:last-child>*{border-bottom:0}
+.data-table .table-dish{text-align:left;padding:0;border:0;background:transparent;color:var(--deep);font-weight:800;min-height:0;display:inline;white-space:normal;line-height:1.4}
+.data-table .table-dish:hover{text-decoration:underline}
+.data-table .cell-meta,.data-table .in-stock{display:block;margin-top:5px}
+.cell-meta{color:var(--muted);font-size:.84rem}
+.week-table{min-width:800px;table-layout:fixed}
+.week-table th:first-child{width:100px}
+.week-table td[draggable],.day-table td[draggable]{cursor:grab}
+.data-table .selected{background:var(--accent)}
+.recipe-table{min-width:770px}
+.recipe-table td:nth-child(3),.recipe-table td:nth-child(4),.recipe-table td:nth-child(5){white-space:nowrap}
+.table-actions{margin-top:7px}
+.table-actions .btn,.recipe-actions .btn{min-height:31px;font-size:.78rem;padding:5px 8px}
+.row-actions{flex-wrap:nowrap}
+.row-actions .heart,.formend .heart{position:static;background:var(--pale);color:var(--green);width:34px;height:34px;min-height:34px;padding:6px;flex:none}
+.row-actions .heart.on,.formend .heart.on{color:#a53c54}
+.recipe-actions{margin-top:6px}
+.row-actions .recipe-actions{margin-top:0;flex-wrap:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.photo-wrap{display:block;position:relative;width:100%;height:100%;background:var(--pale)}
+.photo-wrap img{display:block;width:100%;height:100%;object-fit:cover}
+.photo-missing{display:none;position:absolute;inset:0;align-items:center;justify-content:center;padding:8px;color:var(--muted);text-align:center;font-size:.8rem}
+.photo-wrap.missing img{visibility:hidden}
+.photo-wrap.missing .photo-missing{display:flex}
+.pick>.photo-wrap{flex:0 0 62px;width:62px;height:51px;border-radius:8px;overflow:hidden}
+.daily-tip{margin-top:25px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;background:#eff4e9}
+.daily-tip h2{margin:4px 0 7px}.daily-tip p,.tip-grid p{line-height:1.5}.tip-kicker{font-size:.82rem;color:var(--green);font-weight:800}
+.tip-actions{flex-wrap:nowrap}.tip-actions a{white-space:nowrap}
+.tip-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.survey-top>*{flex:1;min-width:150px}
+.survey-dishes{padding:10px;border:1px solid var(--line);border-radius:10px}
+.survey-dishes summary{cursor:pointer;font-weight:750}
+.survey-choices{max-height:180px;overflow:auto;display:grid;gap:5px;margin-top:9px}
+.draft-switch{margin:10px 0;flex-wrap:wrap}
+.draft-table{min-width:590px;font-size:.85rem}
+.modalbody>.table-scroll{margin:10px 0}
+@media(max-width:660px){.heading-actions{justify-content:flex-start}.daily-tip{align-items:flex-start;flex-direction:column;padding:17px}.tip-grid{grid-template-columns:1fr}.toolbar-switches{justify-content:flex-end}.top nav a{white-space:nowrap}}
+
+ 
+.rating-form{margin-top:15px}
+.rating-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:7px 12px}
+.rating-form fieldset>.btn{margin-top:10px}
+.kid-note p{line-height:1.5;margin-bottom:8px}
+.shop-tg{margin:0 0 7px 25px;font-size:.78rem;color:var(--muted)}
+.shop-item+.shop-item{border-top:1px solid var(--line)}
+.shop-item .shoprow{border:0}
+.scan-items{display:grid;gap:8px}
+.scan-item{display:grid;grid-template-columns:auto 1fr minmax(80px,135px);gap:8px;align-items:end}
+.scan-item>input{align-self:center;width:auto}
+.footer .btn{font-size:inherit;min-height:0;padding:0 6px}
+@media(max-width:550px){.rating-grid{grid-template-columns:1fr}.rating-grid label:nth-child(even){margin-bottom:5px}}
 </style></head>
 <body><div id="app"></div><dialog id="dialog" aria-label="Настройки и рецепты"></dialog><noscript>Включите JavaScript, чтобы пользоваться семейным меню.</noscript>
 <script>
 
 
-const photos = {
- oats:["Oatmeal with Blueberries (5076894938) 2.jpg","2/2d","TheCulinaryGeek","by/2.0"],
- omelet:["Flickr - cyclonebill - Omelet med squash, forårsløg, gulerødder og gedeost.jpg","4/49","cyclonebill","by-sa/2.0"],
- toast:["Fresh Avocado Toast with Egg.jpg","4/4e","Asramsey","by-sa/4.0"],
- yogurt:["Yogurt fruit bowl.jpg","d/d1","Jumbocombo0811","by-sa/4.0"],
- fritters:["Greek Zucchini Fritters.jpg","5/5a","Christin568","by-sa/4.0"],
- balls:["Liat Portal for Foodie Disorder - Meatballs in tomato sauce.jpg","4/4d","HaJunkiyada","by-sa/4.0"],
- cod:["Baked cod fillet.jpg","f/f3","Tiia Monto","by-sa/4.0"],
- lentils:["Red lentil soup.jpg","1/1e","Gilabrand","by-sa/3.0"],
- soup:["Bowl of chicken soup.jpg","b/b8","RWS","by-sa/3.0"],
- rice:["Plate of food-boiled rice served with chicken.jpg","e/e5","Queen Asali","by-sa/4.0"],
- boats:["Gefüllte Zucchini 1.jpg","3/34","Schnobby","by-sa/4.0"]
-};
+const photos = {"oats":{"src":"https://www.sanday.nl/cdn/shop/articles/bosbessenhavermout-met-gevriesdroogde-blauwebessen-topping.png?v=1770394179&width=1100","source":"https://www.sanday.nl/blogs/recepten/bosbessen-havermout-pap","note":""},"omelet":{"src":"https://images.silpo.ua/products/853x853/webp/2b60e501-2640-4da5-a44d-35649f610a61.jpg","source":"https://silpo.ua/recipes/omlet-z-pecherycyamy-tomatamy-ta-zelennyu","note":""},"toast":{"src":"https://upload.wikimedia.org/wikipedia/commons/4/4e/Fresh_Avocado_Toast_with_Egg.jpg","source":"https://commons.wikimedia.org/wiki/File:Fresh_Avocado_Toast_with_Egg.jpg","note":"Фото Asramsey, CC BY-SA 4.0."},"curd":{"src":"https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/recipe_pics_v2/medium/cottage_cheese_with_banana_and_blueberries.jpg","source":"https://www.snapcalorie.com/recipes/cottage_cheese_with_banana_and_blueberries.html","note":""},"yogurt":{"src":"https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/yogurt_with_blueberries_and_bananas.jpg","source":"https://www.snapcalorie.com/nutrition/yogurt_with_blueberries_and_bananas_nutrition.html","note":""},"fritters":{"src":"https://cdn-m.sport24.ru/m/a3d3/ea8a/a688/4412/b88e/42d0/777c/7036/1200_10000_max.webp","source":"https://sport24.ru/lifestyle/article-gotovlyu-kabachkovyye-oladi-tolko-po-etomu-retseptu-s-udovolstviyem-yedyat-i-te-kto-ne-lyubit-kabachki","note":""},"balls":{"src":"https://static.1000.menu/img/content-v2/3d/66/19930/tefteli-iz-govyajego-farsha_1695525676_26_max.jpg","source":"https://1000.menu/cooking/19930-teftelki-govyaji-v-souse","note":""},"turkey":{"src":"https://cooking.fathom.care/images/recipes/turkey-meatballs-rice%40large.webp","source":"https://cooking.fathom.care/recipes/turkey-meatballs-rice","note":""},"cod":{"src":"https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDkxNi8zUURXOFEuanBlZw.jpg","source":"https://food.ru/recipes/261966-zapechennaja-treska-s-brokkoli-i-bebi-kartofelem","note":""},"lentils":{"src":"https://lafoy.ru/photo_l/foto-3577-9.jpg","source":"https://lafoy.ru/chechevichnyy-sup-pyure-recepty-3577","note":""},"soup":{"src":"https://obedspb78.ru/photos/2.jpeg","source":"https://obedspb78.ru/","note":""},"rice":{"src":"https://www.novinite.bg/storage/articles/main/202604/49JX3FM4dXvxlbqWKO101gisi2z1syK3Dx3Ehv5w.webp","source":"https://www.novinite.bg/articles/282700/Kakvo-da-sgotvya-za-obyad-Pileshko-s-oriz-i-zelenchuci-na-tigan","note":""},"boats":{"src":"https://lafoy.ru/photo_l/foto-4263-1.jpg","source":"https://lafoy.ru/farshirovannye-kabachki-recepty-4263","note":"На фото фаршированные кабачки. Гречка подаётся отдельно."},"paprika":{"src":"https://igatas.com.au/volumes/images/recipes/_1200x800_crop_center-center_70_none/73438/Tomato-and-Olive-Roasted-chicken_Overhead_Tray.jpg","source":"https://igatas.com.au/recipes/one-tray-tomato-lemon-baked-chicken","note":"На фото курица с томатами и лимоном. Гречка подаётся отдельно."},"shakshuka":{"src":"https://thespiceclub.nl/cdn/shop/articles/The_Spice_Club_Recept_70_114472ff-bc1e-46f7-9484-16a9c55094fb.png?v=1778192087","source":"https://thespiceclub.nl/en/blogs/recepten-makkelijk-gezond/witte-bonen-shakshuka","note":""},"lavash-omelet":{"src":"https://images.news.ru/2025/07/03/rriOGbWn8oL5vACTSlujLcnAR5LHDxJsAMcIaN32_1200.png","source":"https://news.ru/society/prostoj-lavash-prevrashaetsya-v-bombeznyj-zavtrak-eta-nachinka-tvorit-chudesa","note":""},"millet":{"src":"https://ferma-m2.ru/images/shop/recipe_image/crop_shutterstock_203049889.jpg","source":"https://www.m2-shop.ru/recipes/pshennayakashastukvoy","note":"На фото каша. Яйца подаются отдельно."},"syrniki":{"src":"https://molbuk.ua/uploads/posts/2020-10/1602413409_1594757386-9161.jpg","source":"https://molbuk.ua/news/209929-nizhno-povitryani-syrnyky-yak-prygotuvaty-smakolyk-u-dukhovci.html","note":""},"avocado-egg":{"src":"https://upload.wikimedia.org/wikipedia/commons/4/4e/Fresh_Avocado_Toast_with_Egg.jpg","source":"https://commons.wikimedia.org/wiki/File:Fresh_Avocado_Toast_with_Egg.jpg","note":"На фото тост с авокадо и яйцом. Апельсин подаётся отдельно. Фото Asramsey, CC BY-SA 4.0."},"buck-egg":{"src":"https://images.silpo.ua/products/853x853/webp/495cbde4-3f10-49c1-a4da-9890ec7b1c96.jpg","source":"https://silpo.ua/recipes/grechka-z-grybamy","note":""},"overnight":{"src":"https://vkusnoff.com/img/recepty/6842/big.webp","source":"https://vkusnoff.com/recepty/nochnaya-ovsyanka-6842/","note":""},"frittata":{"src":"https://static.750g.com/images/640-440/d1befd7a773567724b877e76b5153e3b/adobestock-861643743.jpeg","source":"https://www.750g.com/un-reste-de-courgettes-cette-recette-de-frittata-est-parfaite-pour-un-repas-d-ete-facile-et-rapide-a38220.htm","note":""},"turkey-sandwich":{"src":"https://www.healthywomen.org/media-library/turkey-and-cucumber-sandwich.jpg?coordinates=0%2C24%2C0%2C24&height=800&id=25261212&quality=70&width=1200","source":"https://www.healthywomen.org/content/article/turkey-and-cucumber-sandwich","note":""},"fried-rice":{"src":"https://hips.hearstapps.com/hmg-prod/images/fried-rice-secondary-642edb6852991.jpg","source":"https://www.delish.com/cooking/recipe-ideas/a25325036/best-fried-rice-recipe/","note":""},"crepes":{"src":"https://img.povar.ru/uploads/b6/18/91/ac/blinchiki_s_kuricei_i_sirom-870852.jpg","source":"https://povar.ru/recipes/blinchiki_s_kuricei_i_syrom-27715.html","note":""},"hummus-egg":{"src":"https://www.arise-app.com/images/dishes/de/gesundes-fruhstuck-mit-brot-ei-und-gemuse-15qo57.webp","source":"https://www.arise-app.com/de/gericht/Gesundes-Fr%C3%BChst%C3%BCck-mit-Brot%2C-Ei-und-Gem%C3%BCse","note":"На фото тост с хумусом и яйцом. Помидоры и огурцы на фото поданы рядом."},"curd-casserole":{"src":"https://static.1000.menu/img/content-v2/a6/ab/36565/tvorojnaya-zapekanka-s-yablokami_1782979673_0_t7nhkbd_max.jpg","source":"https://1000.menu/cooking/36565-tvorojnaya-zapekanka-s-yablokami","note":""},"pepper-eggs":{"src":"https://static.1000.menu/img/content-v2/ea/d1/50249/yaichnica-v-perce_1761500027_1_jjjb1qt_max.jpg","source":"https://1000.menu/cooking/50249-yaichnica-v-perce","note":""},"tuna-toast":{"src":"https://images.news.ru/photo/630fbc5e-062a-11f0-9360-ac1f6bad3ff4_1200.jpg","source":"https://news.ru/society/zavtrak-za-10-minut-vkusnyushij-tost-s-belkovoj-namazkoj-edim-i-ves-uhodit","note":""},"plov":{"src":"https://imageproxy.wolt.com/assets/69b9630ec1a1772fbd191338","source":"https://wolt.com/ka/geo/tbilisi/restaurant/leilas-plov-house","note":""},"lentil-wrap":{"src":"https://www.newsinfo.ru/image/preview/article/2/5/0/945250_amp.jpeg","source":"https://www.newsinfo.ru/articles/turkish-lentil-soup-2ea/945250/","note":"На фото суп. Ролл подаётся отдельно."},"turkey-pasta":{"src":"https://imagedelivery.net/0Mq3wNnVcEg-6tUqy1Ku0g/cg/media/users/8752/article_images/spicy_turkey_penne_arrabbiata_the_scene_is_absent_of_text_le_20260627_131720_d7h5.png/public","source":"https://homechefcooks.com/ground-turkey-pasta-recipes/","note":"На фото паста с томатным соусом и индейкой. Форма пасты может отличаться."},"buck-chicken":{"src":"https://avatars.mds.yandex.net/get-vertis-journal/3934100/22fb756b-58a9-42be-8625-ed4cd9fc895a.jpg/1600x1600","source":"https://openkitchen.eda.yandex/article/dishes/recipes/grechka-s-kuritsey-i-gribami","note":""},"ramen":{"src":"https://v1.popcornnews.ru/k2/news/1200/upload/news/998498335497.png","source":"https://www.popcornnews.ru/news/lyu-k-okorochku-soevyy-sous-i-varyu--ramen-vmesto-nadoevshih-schey-i-lapshi_id333738_a200","note":"На фото куриный рамен с яйцом. Для общего стола доведите яйцо до полной готовности."},"edamame-bowl":{"src":"https://www.arise-app.com/images/dishes/de/hahnchenreisbowl-mit-edamame-und-rotkohl-1nhtku.webp","source":"https://www.arise-app.com/de/gericht/H%C3%A4hnchen-Reis-Bowl-mit-Edamame-und-Rotkohl","note":""},"cod-bulgur":{"src":"https://www.hit.de/rezept/2023/KW50/25194/image-thumb__25194__thumb-half-content/HIT_KW50_2023_Kabeljaufilet.cb288fd3.jpg","source":"https://www.hit.de/rezepte/hauptspeise/kabeljaufilet-in-wuerziger-tomatensauce","note":"На фото треска в томатном соусе. Булгур подаётся отдельно."},"beef-barley":{"src":"https://recettesduchef.com/assets/images/1750329800911-xhd356wt.jpg","source":"https://recettesduchef.com/recipes/moutarde-boeuf-orge","note":""},"chicken-cheese-balls":{"src":"https://images.news.ru/2025/09/29/G67n8Wbt0xsvDWBI6THkAjC7cW6QoMtRTrtjnu4X_1200.png","source":"https://news.ru/society/kurinye-shariki-v-slivochno-syrnom-souse-vkusnejshaya-podliva-k-pyure-i-paste","note":"На фото тефтели в сырном соусе. Кабачок входит в состав соуса этой версии."},"borscht":{"src":"https://cdn.smt.bz/uploads/media/photo/4976772/IMG_1407.webp","source":"https://kookooha-cafeodessa.ru/menu/137089/krasnyy-borshch-s-kuritsey-i-fasolyu","note":""},"burrito":{"src":"https://s3.us-east-2.amazonaws.com/pfimg1/013/4c/12/4c12f7833f501ec3675b3a27d4340921_1280m.jpg","source":"https://www.punchfork.com/recipe/Turkey-Bean-Burritos-EatingWell","note":""},"mustard-chicken":{"src":"https://images.kot-obzhora.ru/1920_kurica_s_kartoshkoj_zapechyonnaya_v_smetano_gorchichnom_souse_v_duhovke_1_ba9e01cc68.jpg","source":"https://kot-obzhora.ru/kurica-s-kartoshkoj-zapechyonnaya-v-smetano-gorchichnom-souse-v-duhovke.html","note":""},"lobio":{"src":"https://img.povar.ru/mobile/57/d6/30/60/lobio_v_lavashe-398483.JPG","source":"https://m.povar.ru/recipes/lobio_v_lavashe-55877.html","note":"На фото фасоль в лаваше. В этой версии яйца подаются отдельно, орехи исключены."},"hake-curry":{"src":"https://www.abelandcole.co.uk/media/5869_27065_z.jpg","source":"https://www.abelandcole.co.uk/box-recipes/hake-tomato-curry-with-rice","note":"Хек с карри и рисом, гарнир может отличаться."},"shawarma":{"src":"https://pic.rtbcdn.ru/video/ce/bd/cebd47d035786b074c6f37a768d44e2e.jpg?size=l","source":"https://rutube.ru/video/4c16730bbbdab76840ab6ad7c5276900/","note":""},"choc-curd":{"src":"https://media.ovkuse.ru/images/recipes/420f56c2-fb34-47f7-8e75-81e1b9173107/420f56c2-fb34-47f7-8e75-81e1b9173107_420_420.webp","source":"https://ovkuse.ru/recipes/11186551","note":""},"baked-apple":{"src":"https://recipe-images-cdn.mfb.nz/Medium/R00047600001.jpeg/","source":"https://www.myfoodbag.co.nz/recipes/details/58888-Breakfast-for-3-Days-Baked-Apple--Honey-Yoghurt-with-Toasted-Spiced-Oats--Almond","note":"На фото печёное яблоко с йогуртом и овсяной крошкой. Добавки на фото могут отличаться."},"hummus-sticks":{"src":"https://www.mygoalfuel.com/rezepte/hummus-gemuese-sticks-4x3.webp","source":"https://www.mygoalfuel.com/rezepte/snacks-beilagen/hummus-gemuese-sticks/","note":""},"egg-crispbread":{"src":"https://www.arise-app.com/images/dishes/ru/buterbrody-s-tvorogom-zelenu-i-ajcom-mprh73.webp","source":"https://www.arise-app.com/ru/dish/%D0%91%D1%83%D1%82%D0%B5%D1%80%D0%B1%D1%80%D0%BE%D0%B4%D1%8B-%D1%81-%D1%82%D0%B2%D0%BE%D1%80%D0%BE%D0%B3%D0%BE%D0%BC%2C-%D0%B7%D0%B5%D0%BB%D0%B5%D0%BD%D1%8C%D1%8E-%D0%B8-%D1%8F%D0%B9%D1%86%D0%BE%D0%BC","note":""},"kefir-smoothie":{"src":"https://rutxt.ru/files/19781/final/a5037edb44.JPG","source":"https://rutxt.ru/node/19781","note":""},"nut-yogurt":{"src":"https://www.gp.se/images/article/2b2e4c04-6abb-427b-bf3e-4cb30f87543b/images/0voOQti6NAUtqErafkIOKJ3ST93o-REGULAR.jpg?quality=75&width=1920","source":"https://www.gp.se/ekonomi/sa-ska-du-ata-for-att-orka-jobba-hela-dagen.2b2e4c04-6abb-427b-bf3e-4cb30f87543b","note":"На фото йогурт с ягодами. В исходной идее также есть грецкие орехи."},"edamame-lime":{"src":"https://cookcraftandcreate.com/wp-content/smush-webp/2025/07/edamame-with-chili-lime-seasoning.jpg.webp","source":"https://cookcraftandcreate.com/edamame-with-chili-lime-seasoning-recipe/","note":""},"crispy-chickpea":{"src":"https://cdn.recipes.lidl/images/recipes/da-DK/b23ddc90-d357-4209-b9da-1177c2b04361/detail_984x657Ristede-kikaerter.jpg","source":"https://opskrifter.lidl.dk/recipes/ristede-kikaerter","note":""},"cake-coffee":{"src":"https://recette.supertoinette.com/new/2022-04/cheesecake-sans-cuisson-tsje-800.webp","source":"https://www.supertoinette.com/recette/8176/cheesecake-sans-cuisson.html","note":"На фото чизкейк. Кофе подаётся отдельно."},"flat-white":{"src":"https://coffeelounge.delonghi.com/wp-content/uploads/2022/11/Flat-white.jpeg","source":"https://coffeelounge.delonghi.com/en-int/recipes/flat-white-2/","note":"На фото кофе. Шоколад подаётся отдельно."},"turkey-roll":{"src":"https://indilight.ru/upload/iblock/f77/f77d6fafd66417f596adbc562fdf0f6d.jpg","source":"https://www.indilight.ru/recipes/utrennie-rolly-s-indeykoy-i-ogurtsami/","note":""},"oat-cookie":{"src":"https://www.einfachbacken.de/sites/einfachbacken.de/files/2023-02/2023_bananen_haferflockenkekse_1.jpeg","source":"https://www.einfachbacken.de/rezepte/bananen-haferflocken-kekse-blitzschnell-gemacht-und-so-gesund","note":""},"ricotta-toast":{"src":"https://aem.sobeys.com/adobe/dynamicmedia/deliver/dm-aid--de95107e-bea9-44a2-900c-67520d353828/bonmatin-1160x650-tartinericota.jpg.webp?preferwebp=true","source":"https://www.iga.ca/recipes/ricotta_and_blueberry_toast","note":""},"curd-muffins":{"src":"https://kubnews.ru/upload/dev2fun.imagecompress/webp/resize_cache/iblock/eab/1200_800_2/zbqljde30ekhpsc05rdbyvn8hadec6e1.webp","source":"https://kubnews.ru/panorama/2025/10/10/tvorozhnye-keksy-mechty-nezhnye-vozdushnye-i-gotovyatsya-iz-samykh-obychnykh-ingredientov/","note":""},"orange-cheese":{"src":"https://www.arise-app.com/images/dishes/de/mittagsbox-mit-brot-orange-und-gurke-1hqwat.webp","source":"https://www.arise-app.com/de/gericht/Mittagsbox-mit-Brot%2C-Orange-und-Gurke","note":"На фото вариант подачи с апельсином, сыром и хлебом. В меню используются хлебцы."},"pollock":{"src":"https://images.gastronom.ru/xA2UOfyP83lrSNc_89HhkNfz47HKrjRSTJ7WJ12ohYI/pr%3Arecipe-cover-image/g%3Ace/rs%3Aauto%3A0%3A0%3A0/L2Ntcy9hbGwtaW1hZ2VzL2RjNDcyNzdiLWMzNDUtNGI1OS1hMjQ4LWYwZDViNDZhYzU3Yy5qcGc.webp","source":"https://www.gastronom.ru/recipe/57206/file-mintaya-s-syrom-kabachkami-i-chesnokom","note":"На фото запечённый минтай с кабачком и сыром. Гарнир подаётся отдельно."},"kefir-thigh":{"src":"https://img.iamcook.ru/2024/upl/recipes/cat/u-2bb4b014a1d290ce1557f10a9b848933.JPG","source":"https://www.iamcook.ru/showrecipe/36348","note":"На фото бёдра в кефирном маринаде. Овощи и булгур подаются отдельно."},"turkey-cutlet":{"src":"https://lafoy.ru/photo_l/foto-4736-8.jpg","source":"https://lafoy.ru/kotlety-na-protivne-v-duhovke-recepty-4736","note":"На фото котлеты из индейки с кабачком. Гречка подаётся отдельно."},"mustard-cod":{"src":"https://eu.tastescdn.net/thumbor/w4gUS40NHjn5YmNp363ciYpkgXo%3D/1050x1050/filters%3Aquality%2865%29%3Abrightness%282%29%3Acontrast%282%29%3Argb%282%2C-2%2C0%29%3Asharpen%280.2%2C0.2%2Ctrue%29/cz/recipe/LXrLFS8eX1CpbSxcR5PB/42aa916f82f552b5cba0215ad5ac75.jpeg","source":"https://www.tastelist.cz/recept/treska-v-horcicne-omacce-s-bramborem/LXrLFS8eX1CpbSxcR5PB","note":""},"chicken-curry":{"src":"https://www.inspiredskillet.com/cdn/shop/files/ChickenCurryBowl.jpg?v=1730450343&width=1445","source":"https://www.inspiredskillet.com/products/chicken-curry-bowl","note":""},"poultry-balls":{"src":"https://avatars.mds.yandex.net/get-vertis-journal/4469561/f6e7959b-b1a8-404c-becd-67e68bff19f6.jpg/1600x1600","source":"https://openkitchen.eda.yandex/article/dishes/recipes/spagetti-s-myasnymi-sharikami-v-tomatnom-souse","note":""},"oat-hake":{"src":"https://img-global.cpcdn.com/recipes/5afd7fd3da4c0130/680x781cq80/foto-principal-da-receita-lombinhos-de-pescada-com-aveia.jpg","source":"https://cookpad.com/pt/receitas/14755840","note":"На фото хек в овсяной панировке. Пюре подаётся отдельно."},"nuggets":{"src":"https://images.luftigeopskrifter.dk/recipes/s/p/sproede-panerede-kyllingenuggets-med-ovnbagte-kartoffelbade/sproede-panerede-kyllingenuggets-med-ovnbagte-kartoffelbade-large-1792.webp","source":"https://luftigeopskrifter.dk/opskrift/sproede-panerede-kyllingenuggets-med-ovnbagte-kartoffelbade","note":""},"turkey-stew":{"src":"https://img.hellofresh.com/hellofresh_s3/image/HF220708_R215_W34_FR_RFR29804224-1_KB_Main_High-3e28f537.jpg","source":"https://www.hellofresh.fr/recipes/one-pot-de-dinde-and-haricots-mijotes-62e111c4b40f6bc7bf03658b","note":""},"cauliflower-casserole":{"src":"https://znatnakurka.ua/sites/default/files/2024-02/agvxyj-c740x493x50px50p-c740x493x50px50p-up-4b844eb96239a6f988670d130a2dfb75.jpeg","source":"https://znatnakurka.ua/recipes/prygotuvannya-zapikanky-z-czvitnoyi-kapusty-i-kurky/","note":""},"steak":{"src":"https://img.povar.ru/mobile/39/01/6d/83/steik_s_ovoshami-550251.jpg","source":"https://m.povar.ru/recipes/steik_s_ovoshami-73185.html","note":""},"trout":{"src":"https://img.povar.ru/main/26/ff/97/35/zapechennaya_forel_celikom-92134.jpg","source":"https://povar.ru/recipes/zapechennaya_forel_celikom-16355.html","note":""},"stuffed-pepper":{"src":"https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/uwpikkubaoen16xv2ipm","source":"https://www.solin.stream/recipes/247729/lean-ground-turkey-stuffed-bell-peppers","note":""},"pumpkin-soup":{"src":"https://enmicocina.com/api/media/file/crema-de-calabaza-con-pollo-desmenuzado.jpg","source":"https://enmicocina.com/recetas/crema-de-calabaza-con-pollo-desmenuzado","note":"На фото тыквенный суп с курицей. Гренки подаются отдельно."},"zucchini-lasagna":{"src":"https://images.lecker.de/hahnchen-zucchini-lasagne%2Cid%3D82adc9e1%2Cb%3Dlecker%2Cw%3D910%2Cca%3D2.40%2C0%2C97.60%2C95.20%2Crm%3Dsk.webp","source":"https://www.lecker.de/haehnchen-zucchini-lasagne-21518.html","note":""},"paprika-chicken":{"src":"https://media.hellofresh.com/f_auto,q_auto,w_800/hellofresh_s3/image/HF_Y24_R12_W46_IT_IT18537-3_MAIN_low-4bc318e2.jpg","source":"https://www.hellofresh.it/recipes/insalata-di-pollo-alla-paprika-66e9b169dd76c51e0025f17c","note":""},"pasta-nuggets":{"src":"https://static.elementaree.ru/002891/thumb_m/c7f9c9df27320a8ea2474d2eb59b3dfe.jpg","source":"https://elementaree.ru/recipes/recept-domasnie-naggetsy-s-makaronami-i-syrom/","note":""},"buck-sausage":{"src":"https://img.iamcook.ru/2019/upl/recipes/cat/u-c700d48efd919efd9178f3d9d24d8f18.JPG","source":"https://www.iamcook.ru/showrecipe/17580","note":""},"chicken-mash":{"src":"https://picatom.com/uploads/posts/2024-03/mashed-potatoes-with-a-chop.webp","source":"https://picatom.com/179-pjure-s-kotletoj.html","note":""},"beef-buck":{"src":"https://2688f858-4c46-45f7-8250-8add9f65af29.selstorage.ru/govyaji-tefteli-v-slivochnom-souse-s-ogurechnym-relishem-i-grechkoy__1245x700.jpeg","source":"https://www.chefmarket.ru/5dinners-family/constructed/tefteli-iz-govyadiny-tomlennye-v-slivochnom-souse-s-ogurechnym-relishem-i-grechnevaya-kasha-pripravlennaya-aromatnym-maslom-i-svejey-petrushkoy","note":"На фото говяжьи тефтели и гречка. Соус в этом рецепте томатный и подаётся отдельно."},"lentil-pepper":{"src":"https://images.ricardocuisine.com/services/recipes/16x9/2223-v2-1602869348.jpg","source":"https://www.ricardocuisine.com/en/recipes/2223-lentil-and-red-bell-pepper-dip","note":""}};
 const foods = {
  oats:["Овсяные хлопья","Крупы и хлеб",379,13.2,6.5,67.7,["овсянка","овсяные хлопья"]],
  rice:["Рис","Крупы и хлеб",365,7.1,.7,80,["рис"]],
@@ -47,13 +93,13 @@ const foods = {
  cheese:["Сыр","Яйца и молочное",290,20,22,2,["сыр"]],
  chicken:["Куриное филе","Мясо и рыба",120,22.5,2.6,0,["курица","куриное филе","куриная грудка"]],
  turkey:["Фарш индейки","Мясо и рыба",153,17.5,8.3,0,["индейка","фарш индейки"]],
- beef:["Говяжий фарш 10%","Мясо и рыба",176,20,10,0,["говядина","говяжий фарш"]],
+ beef:["Говяжий фарш 10%","Мясо и рыба",176,20,10,0,["говяжий фарш"]],
  cod:["Филе трески","Мясо и рыба",82,17.8,.7,0,["треска","филе трески"]],
  zucchini:["Кабачки","Овощи и фрукты",17,1.2,.3,3.1,["кабачок","кабачки","кабачков","цуккини"]],
  carrot:["Морковь","Овощи и фрукты",41,.9,.2,9.6,["морковь","морковка"]],
  broccoli:["Брокколи","Овощи и фрукты",34,2.8,.4,6.6,["брокколи"]],
  potato:["Картофель","Овощи и фрукты",77,2,.1,17.5,["картошка","картофель"]],
- tomato:["Помидоры","Овощи и фрукты",18,.9,.2,3.9,["помидоры","помидор","томат","томаты"]],
+ tomato:["Помидоры","Овощи и фрукты",18,.9,.2,3.9,["помидоры","помидор","томат","томаты","черри"]],
  passata:["Пассата без добавок","Бакалея",32,1.6,.3,5.6,["пассата","томатное пюре"]],
  mushroom:["Шампиньоны","Овощи и фрукты",22,3.1,.3,3.3,["грибы","шампиньоны"]],
  onion:["Лук","Овощи и фрукты",40,1.1,.1,9.3,["лук"]],
@@ -64,6 +110,7 @@ const foods = {
  lemon:["Лимон","Овощи и фрукты",29,1.1,.3,9.3,["лимон"]],
  oil:["Растительное масло","Бакалея",884,0,100,0,["масло","оливковое масло","растительное масло"]]
 };
+Object.assign(foods,{"beans":["Красная фасоль готовая","Бакалея",127.0,8.7,0.5,22.8,["фасоль","красная фасоль","белая фасоль"]],"pepper":["Сладкий перец","Овощи и фрукты",31.0,1.0,0.3,6.0,["перец","болгарский перец"]],"paprika":["Паприка","Бакалея",282.0,14.0,13.0,54.0,["копчёная паприка","сладкая паприка"]],"spinach":["Шпинат","Овощи и фрукты",23.0,2.9,0.4,3.6,[]],"lavash":["Лаваш","Крупы и хлеб",280.0,9.0,1.0,56.0,[]],"millet":["Пшено","Крупы и хлеб",378.0,11.0,4.2,73.0,[]],"pumpkin":["Тыква","Овощи и фрукты",26.0,1.0,0.1,6.5,[]],"milk":["Молоко","Яйца и молочное",52.0,3.3,2.5,4.8,[]],"cinnamon":["Корица","Бакалея",247.0,4.0,1.2,81.0,[]],"oatflour":["Овсяная мука","Крупы и хлеб",404.0,14.7,9.0,66.0,[]],"vanilla":["Ваниль","Бакалея",288.0,0.1,0.1,13.0,[]],"orange":["Апельсины","Овощи и фрукты",47.0,0.9,0.1,11.8,["апельсин"]],"soy":["Соевый соус","Бакалея",53.0,8.0,0.6,5.0,[]],"kefir":["Кефир 2,5%","Яйца и молочное",53.0,3.0,2.5,4.0,["кефир"]],"apple":["Яблоки","Овощи и фрукты",52.0,0.3,0.2,13.8,["яблоко"]],"feta":["Брынза","Яйца и молочное",264.0,14.0,21.0,4.0,["фета"]],"roastturkey":["Запечённое филе индейки","Мясо и рыба",135.0,29.0,1.8,0.0,["запечённая индейка"]],"creamcheese":["Творожный сыр","Яйца и молочное",280.0,6.0,25.0,5.0,[]],"cucumber":["Огурцы","Овощи и фрукты",15.0,0.7,0.1,3.6,["огурец"]],"lettuce":["Листовой салат","Овощи и фрукты",15.0,1.4,0.2,2.9,["листья салата"]],"mustard":["Горчица","Бакалея",66.0,4.4,4.0,5.0,[]],"peas":["Зелёный горошек","Овощи и фрукты",81.0,5.4,0.4,14.5,["горошек"]],"greenonion":["Зелёный лук","Овощи и фрукты",32.0,1.8,0.2,7.3,[]],"sesameoil":["Кунжутное масло","Бакалея",884.0,0.0,100.0,0.0,[]],"sesame":["Кунжут","Бакалея",573.0,17.7,49.7,23.4,[]],"sourcream":["Сметана 10%","Яйца и молочное",119.0,3.0,10.0,4.0,["сметана"]],"hummus":["Хумус","Бакалея",166.0,8.0,9.6,14.0,[]],"tuna":["Тунец в собственном соку","Мясо и рыба",116.0,25.5,1.0,0.0,["тунец"]],"thigh":["Куриные бёдра без кожи","Мясо и рыба",144.0,18.6,7.9,0.0,["куриные бёдра","бёдра"]],"chickpea":["Нут готовый","Бакалея",164.0,8.9,2.6,27.4,["нут"]],"cumin":["Зира","Бакалея",375.0,18.0,22.0,44.0,["кумин"]],"parmesan":["Пармезан","Яйца и молочное",431.0,38.0,29.0,4.0,[]],"oregano":["Орегано","Бакалея",265.0,9.0,4.0,69.0,[]],"noodles":["Яичная лапша","Крупы и хлеб",384.0,14.0,4.0,71.0,["лапша"]],"nori":["Нори","Бакалея",300.0,40.0,3.0,30.0,[]],"miso":["Мисо-паста","Бакалея",198.0,13.0,6.0,25.0,["мисо"]],"ginger":["Имбирь","Овощи и фрукты",80.0,1.8,0.8,17.8,[]],"edamame":["Эдамаме очищенные","Овощи и фрукты",121.0,11.9,5.2,8.9,["эдамаме"]],"radish":["Редис","Овощи и фрукты",16.0,0.7,0.1,3.4,[]],"lime":["Лайм","Овощи и фрукты",30.0,0.7,0.2,10.5,[]],"capers":["Каперсы","Бакалея",23.0,2.4,0.9,4.9,[]],"bulgur":["Булгур","Крупы и хлеб",342.0,12.3,1.3,76.0,[]],"beefcuts":["Постная говядина","Мясо и рыба",153.0,22.0,7.0,0.0,["говядина куском","стейк"]],"barley":["Перловка","Крупы и хлеб",352.0,9.9,1.2,77.7,["перловая крупа"]],"thyme":["Тимьян","Бакалея",101.0,5.6,1.7,24.0,[]],"groundchicken":["Куриный фарш","Мясо и рыба",143.0,17.4,8.1,0.0,["фарш курицы","фарш куриный"]],"beet":["Свёкла","Овощи и фрукты",43.0,1.6,0.2,9.6,[]],"cabbage":["Капуста белокочанная","Овощи и фрукты",25.0,1.3,0.1,5.8,["капуста"]],"tortilla":["Пшеничная лепёшка","Крупы и хлеб",310.0,8.0,8.0,50.0,["тортилья","лепёшка"]],"blackbeans":["Чёрная фасоль готовая","Бакалея",132.0,8.9,0.5,23.7,["чёрная фасоль"]],"corn":["Кукуруза","Овощи и фрукты",86.0,3.3,1.4,19.0,[]],"cilantro":["Кинза","Овощи и фрукты",23.0,2.1,0.5,3.7,["кориандр"]],"rosemary":["Розмарин","Бакалея",131.0,3.3,5.9,21.0,[]],"vinegar":["Винный уксус","Бакалея",19.0,0.1,0.0,0.3,["уксус"]],"hake":["Филе хека","Мясо и рыба",87.0,17.0,2.0,0.0,["хек"]],"coconut":["Кокосовое молоко лайт","Бакалея",75.0,1.0,7.0,2.0,["кокосовое молоко"]],"greenbeans":["Стручковая фасоль","Овощи и фрукты",31.0,1.8,0.2,7.0,[]],"turmeric":["Куркума","Бакалея",312.0,9.7,3.3,67.0,[]],"cocoa":["Какао без сахара","Бакалея",228.0,20.0,14.0,58.0,["какао"]],"celery":["Стебель сельдерея","Овощи и фрукты",14.0,0.7,0.2,3.0,["сельдерей"]],"crispbread":["Цельнозерновые хлебцы","Крупы и хлеб",350.0,10.0,3.0,71.0,["хлебцы","хлебец"]],"raspberry":["Малина","Овощи и фрукты",52.0,1.2,0.7,11.9,[]],"walnuts":["Грецкие орехи","Бакалея",654.0,15.2,65.2,13.7,["грецкий орех","орехи"]],"cheesecake":["Чизкейк","Готовое",321.0,5.5,22.5,25.5,["пирожное"]],"coffee":["Кофе","Бакалея",1.0,0.1,0.0,0.0,["эспрессо"]],"darkchoc":["Горький шоколад","Бакалея",598.0,7.8,42.6,45.9,["шоколад"]],"ricotta":["Рикотта","Яйца и молочное",174.0,11.0,13.0,3.0,[]],"pollock":["Филе минтая","Мясо и рыба",76.0,16.0,0.8,0.0,["минтай"]],"dill":["Укроп","Овощи и фрукты",43.0,3.5,1.1,7.0,[]],"garam":["Гарам-масала","Бакалея",365.0,12.0,15.0,56.0,[]],"basil":["Базилик","Овощи и фрукты",23.0,3.2,0.6,2.7,[]],"cornflakes":["Кукурузные хлопья без сахара","Крупы и хлеб",357.0,7.5,0.4,84.0,["кукурузные хлопья"]],"cauliflower":["Цветная капуста","Овощи и фрукты",25.0,1.9,0.3,5.0,[]],"trout":["Форель","Мясо и рыба",148.0,20.5,6.5,0.0,["филе форели"]],"daikon":["Дайкон","Овощи и фрукты",18.0,0.6,0.1,4.1,[]],"cream":["Сливки 10%","Яйца и молочное",118.0,3.0,10.0,4.0,["сливки"]],"lasagna":["Листы лазаньи","Крупы и хлеб",350.0,13.0,2.0,70.0,["лазанья"]],"mozzarella":["Моцарелла","Яйца и молочное",280.0,22.0,17.0,3.0,[]],"sausage":["Сосиски","Мясо и рыба",250,12,22,2,["сосиска"]],"butter":["Сливочное масло","Яйца и молочное",717,0.9,81,0,[]]});
 const recipes = [
  ["oats","Овсянка с черникой","breakfast",15,"oats",1,{oats:65,yogurt:170,berries:85,banana:90},["Свари хлопья на воде до мягкости.","Разомни банан, смешай с кашей. Чернику и йогурт подай сверху или отдельно."],"Йогурт и ягоды можно положить рядом с кашей."],
  ["omelet","Омлет с грибами и помидорами","breakfast",20,"omelet",1,{egg:150,mushroom:90,tomato:110,bread:75,oil:5},["Нарежь грибы мелко, прогрей в масле, добавь помидоры.","Залей яйцами, накрой и готовь до схватывания. Подай с хлебом."],"Для детской порции овощи можно подать рядом."],
@@ -81,6 +128,8 @@ const recipes = [
  ["paprika","Курица с томатами и лимоном","lunch dinner",25,"rice",0,{chicken:210,buck:100,tomato:145,garlic:6,lemon:15,oil:12},["Отвари гречку. Приготовь курицу с помидорами и чесноком до полной готовности.","Добавь лимон при подаче. Паприку или чили можно поставить на стол."],"Острое добавляй только в свою тарелку."]
 ].map(([id,title,slots,time,photo,soft,items,steps,tip])=>({id,title,slots:slots.split(" "),time,photo,soft,items,steps,tip}));
 
+recipes.forEach(r=>r.photo=r.id);
+recipes.push(...[{"id":"shakshuka","title":"Шакшука с фасолью","slots":["breakfast"],"time":20,"photo":"shakshuka","soft":true,"items":{"egg":100,"beans":150,"tomato":220,"pepper":65,"onion":45,"oil":5,"bread":55,"paprika":2},"steps":["Потушите овощи с фасолью и паприкой.","Добавьте яйца и доведите под крышкой до готовности.","Подавайте с хлебом."],"idea":true,"portion":"","kids":"iron"},{"id":"lavash-omelet","title":"Омлет-рулет в лаваше с курицей и шпинатом","slots":["breakfast"],"time":20,"photo":"lavash-omelet","soft":true,"items":{"egg":150,"chicken":80,"spinach":40,"lavash":45,"yogurt":45,"garlic":2},"steps":["Приготовьте курицу и мелко нарежьте.","На сковороде соедините омлет с лавашом, переверните, добавьте курицу и шпинат и сверните.","Йогурт с чесноком подайте отдельно."],"idea":true,"portion":""},{"id":"millet","title":"Пшённая каша с тыквой и два яйца","slots":["breakfast"],"time":25,"photo":"millet","soft":true,"items":{"millet":60,"pumpkin":150,"milk":200,"egg":100,"cinnamon":1},"steps":["Сварите пшено с тыквой, добавьте молоко и корицу.","Два полностью сваренных яйца подайте отдельно."],"idea":true,"portion":""},{"id":"syrniki","title":"Сырники из духовки с ягодным соусом","slots":["breakfast"],"time":30,"photo":"syrniki","soft":true,"items":{"curd":200,"egg":50,"oatflour":30,"berries":100,"vanilla":1},"steps":["Смешайте творог, яйцо, ваниль и муку.","Сформуйте 6 небольших сырников.","Запекайте при 190 °C до готовности, около 20 минут.","Прогрейте и разомните ягоды для подачи."],"idea":true,"portion":"6 небольших сырников"},{"id":"avocado-egg","title":"Тост с авокадо, яйцами и апельсином","slots":["breakfast"],"time":15,"photo":"avocado-egg","soft":false,"items":{"bread":85,"avocado":85,"egg":100,"lemon":10,"orange":165},"steps":["Разомните авокадо с лимоном, намажьте на хлеб.","Приготовьте яйца до готовности и подайте с дольками апельсина."],"idea":true,"portion":""},{"id":"buck-egg","title":"Гречка с грибами и глазуньей","slots":["breakfast"],"time":20,"photo":"buck-egg","soft":true,"items":{"buck":60,"mushroom":150,"onion":45,"egg":100,"soy":10,"lemon":10,"oil":5},"steps":["Отварите гречку.","Подрумяньте грибы с луком и смешайте с крупой.","Положите сверху полностью готовую глазунью, добавьте лимон и соевый соус по вкусу."],"idea":true,"portion":""},{"id":"overnight","title":"Ночная овсянка на греческом йогурте","slots":["breakfast"],"time":10,"photo":"overnight","soft":true,"items":{"oats":60,"yogurt":150,"kefir":150,"berries":100,"apple":75,"cinnamon":1},"steps":["Смешайте хлопья с кефиром, йогуртом, тёртым яблоком и корицей.","Оставьте в холодильнике на ночь.","Перед подачей добавьте ягоды."],"idea":true,"portion":""},{"id":"frittata","title":"Фриттата с кабачком и брынзой","slots":["breakfast"],"time":25,"photo":"frittata","soft":true,"items":{"egg":125,"zucchini":120,"tomato":85,"feta":30,"bread":55,"oil":4},"steps":["Припустите кабачок и томаты.","Залейте яйцами с брынзой и доведите до готовности под крышкой.","Подавайте с хлебом."],"idea":true,"portion":""},{"id":"turkey-sandwich","title":"Бутерброды с запечённой индейкой и огурцом","slots":["breakfast"],"time":10,"photo":"turkey-sandwich","soft":false,"items":{"bread":85,"roastturkey":100,"creamcheese":30,"cucumber":80,"lettuce":20,"mustard":5},"steps":["Намажьте хлеб творожным сыром, положите готовую индейку, тонкий огурец и салат.","Горчицу подайте отдельно."],"idea":true,"portion":""},{"id":"fried-rice","title":"Жареный рис с яйцом, горошком и кунжутом","slots":["breakfast"],"time":20,"photo":"fried-rice","soft":true,"items":{"rice":60,"egg":100,"peas":80,"greenonion":15,"sesameoil":5,"soy":12,"sesame":5},"steps":["Отварите рис.","Прогрейте горошек и приготовьте яйца до готовности, вмешайте рис и зелёный лук.","Заправьте кунжутом, маслом и соевым соусом."],"idea":true,"portion":""},{"id":"crepes","title":"Блинчики с курицей и сыром","slots":["breakfast"],"time":30,"photo":"crepes","soft":true,"items":{"flour":50,"milk":110,"egg":50,"chicken":90,"cheese":20,"sourcream":18,"oil":5},"steps":["Испеките два тонких блина.","Полностью приготовьте курицу, измельчите, смешайте с сыром и заверните в блины.","Прогрейте и подайте сметану отдельно."],"idea":true,"portion":""},{"id":"hummus-egg","title":"Тост с хумусом, яйцом и черри","slots":["breakfast"],"time":12,"photo":"hummus-egg","soft":true,"items":{"bread":85,"hummus":50,"egg":100,"tomato":95,"paprika":1},"steps":["Намажьте хлеб хумусом, добавьте сваренные вкрутую яйца и нарезанные помидоры.","Посыпьте сладкой паприкой."],"idea":true,"portion":""},{"id":"curd-casserole","title":"Творожная запеканка с яблоком","slots":["breakfast"],"time":45,"photo":"curd-casserole","soft":true,"items":{"curd":200,"egg":35,"apple":105,"oatflour":16,"vanilla":1},"steps":["Смешайте творог, яйцо, муку и ваниль.","Добавьте мелко нарезанное яблоко и запеките до схватывания середины."],"idea":true,"portion":""},{"id":"pepper-eggs","title":"Яйца, запечённые в перце, с сыром","slots":["breakfast"],"time":25,"photo":"pepper-eggs","soft":true,"items":{"pepper":180,"egg":100,"cheese":25,"tomato":70,"bread":60,"oil":4},"steps":["Разрежьте перец вдоль.","Наполните половинки яйцом, помидорами и сыром.","Запекайте до полной готовности яиц и подайте с хлебом."],"idea":true,"portion":""},{"id":"tuna-toast","title":"Тост с тунцом, яйцом и огурцом","slots":["breakfast"],"time":12,"photo":"tuna-toast","soft":false,"items":{"tuna":80,"egg":50,"yogurt":30,"mustard":5,"cucumber":80,"greenonion":12,"bread":90},"steps":["Разомните тунец со сваренным яйцом и йогуртом, добавьте огурец и зелёный лук.","Выложите на хлеб.","Горчицу подайте отдельно."],"idea":true,"portion":""},{"id":"plov","title":"Плов с курицей и нутом","slots":["lunch"],"time":50,"photo":"plov","soft":true,"items":{"rice":75,"thigh":155,"chickpea":85,"onion":55,"carrot":45,"oil":8,"cumin":2},"steps":["Потушите лук, морковь и курицу с зирой.","Добавьте нут, рис и воду.","Готовьте под крышкой, пока рис и курица не будут готовы."],"idea":true,"portion":""},{"id":"lentil-wrap","title":"Чечевичный суп с паприкой и ролл с курицей","slots":["lunch"],"time":35,"photo":"lentil-wrap","soft":true,"items":{"lentil":65,"onion":45,"potato":100,"oil":5,"paprika":2,"lavash":55,"chicken":105,"cucumber":60,"yogurt":40,"garlic":3},"steps":["Сварите чечевицу, картофель и лук, добавьте паприку и измельчите.","Заверните готовую курицу и огурец в лаваш.","Йогурт с чесноком подайте отдельно."],"idea":true,"portion":""},{"id":"turkey-pasta","title":"Паста с индейкой в томатном соусе","slots":["lunch"],"time":25,"photo":"turkey-pasta","soft":true,"items":{"pasta":90,"turkey":150,"passata":180,"garlic":4,"parmesan":12,"cucumber":95,"oil":6,"oregano":1},"steps":["Потушите индейку с пассатой, чесноком и орегано до полной готовности.","Смешайте с отваренной пастой, добавьте пармезан и огурец при подаче."],"idea":true,"portion":""},{"id":"buck-chicken","title":"Гречка по-купечески с курицей и грибами","slots":["lunch"],"time":35,"photo":"buck-chicken","soft":true,"items":{"buck":80,"chicken":165,"mushroom":130,"onion":60,"passata":55,"oil":9},"steps":["Обжарьте лук и грибы.","Добавьте мелко нарезанное филе, гречку, пассату и воду.","Тушите под крышкой до готовности крупы и курицы."],"idea":true,"portion":""},{"id":"ramen","title":"Домашний рамен с курицей и яйцом","slots":["lunch"],"time":30,"photo":"ramen","soft":true,"items":{"noodles":85,"chicken":140,"egg":50,"spinach":45,"mushroom":75,"nori":3,"miso":15,"ginger":7,"garlic":4,"greenonion":15},"steps":["Сварите филе с грибами, имбирём и чесноком.","Добавьте мисо и готовую лапшу.","При подаче положите шпинат, нори, лук и полностью сваренное яйцо."],"idea":true,"portion":""},{"id":"edamame-bowl","title":"Боул с рисом, курицей и эдамаме","slots":["lunch"],"time":30,"photo":"edamame-bowl","soft":false,"items":{"rice":70,"chicken":145,"edamame":65,"cucumber":75,"radish":40,"sesame":6,"yogurt":55,"lime":15,"soy":10,"ginger":5},"steps":["Сварите рис и эдамаме.","Полностью приготовьте курицу с соевым соусом и имбирём.","Соберите боул с овощами и кунжутом, заправку из лайма и йогурта подайте отдельно."],"idea":true,"portion":""},{"id":"cod-bulgur","title":"Треска в томате с булгуром","slots":["lunch"],"time":30,"photo":"cod-bulgur","soft":true,"items":{"cod":190,"passata":190,"onion":55,"garlic":5,"capers":12,"bulgur":80,"oil":10},"steps":["Припустите лук с чесноком, добавьте пассату и каперсы.","Потушите в соусе треску до готовности, удалите кости и подайте с булгуром."],"idea":true,"portion":""},{"id":"beef-barley","title":"Тушёная говядина с перловкой","slots":["lunch"],"time":90,"photo":"beef-barley","soft":false,"items":{"beefcuts":150,"barley":75,"onion":55,"zucchini":110,"pepper":85,"passata":65,"oil":8,"thyme":1},"steps":["Потушите говядину с луком, пассатой и тимьяном до мягкости.","В конце добавьте кабачок и перец.","Отдельно сварите перловку."],"idea":true,"portion":""},{"id":"chicken-cheese-balls","title":"Куриные тефтели в кабачково-сырном соусе с пюре","slots":["lunch"],"time":40,"photo":"chicken-cheese-balls","soft":true,"items":{"groundchicken":180,"rice":40,"zucchini":150,"cheese":35,"potato":220,"milk":60,"oil":5},"steps":["Смешайте фарш с отваренным рисом, слепите тефтели и потушите до готовности.","Измельчите припущенный кабачок с сыром.","Отдельно приготовьте пюре.","Соус подайте по желанию."],"idea":true,"portion":"","kids":"familiar"},{"id":"borscht","title":"Борщ с курицей и фасолью","slots":["lunch"],"time":60,"photo":"borscht","soft":true,"items":{"beet":120,"cabbage":100,"potato":135,"chicken":135,"beans":90,"passata":50,"garlic":4,"sourcream":20,"bread":60,"oil":6},"steps":["Сварите курицу, затем добавьте овощи, пассату и готовую фасоль.","Проварите до мягкости и подайте с хлебом.","Сметану поставьте на стол отдельно."],"idea":true,"portion":""},{"id":"burrito","title":"Буррито с индейкой, фасолью и сальсой","slots":["lunch"],"time":25,"photo":"burrito","soft":true,"items":{"tortilla":100,"turkey":135,"blackbeans":80,"corn":55,"tomato":100,"onion":30,"cilantro":7,"yogurt":50,"oil":5},"steps":["Потушите фарш до готовности с фасолью и кукурузой.","Соберите буррито в лепёшке.","Сальсу из томатов, лука и кинзы и йогурт подайте отдельно."],"idea":true,"portion":""},{"id":"mustard-chicken","title":"Картошка с курицей в сметанно-горчичном соусе","slots":["lunch"],"time":45,"photo":"mustard-chicken","soft":true,"items":{"thigh":170,"potato":250,"sourcream":65,"mustard":12,"rosemary":1,"garlic":4,"cabbage":100,"lemon":12,"oil":5},"steps":["Запеките курицу и картофель до готовности.","Смешайте сметану с горчицей, чесноком и розмарином.","Подайте соус и капусту с лимоном отдельно."],"idea":true,"portion":""},{"id":"lobio","title":"Лобио с яйцами и лавашом","slots":["lunch"],"time":30,"photo":"lobio","soft":true,"items":{"beans":235,"onion":65,"garlic":5,"cilantro":10,"vinegar":8,"egg":100,"lavash":60,"oil":8},"steps":["Потушите фасоль с луком и чесноком, частично разомните.","Заправьте кинзой и уксусом.","Подайте с полностью готовыми яйцами и лавашом."],"idea":true,"portion":""},{"id":"hake-curry","title":"Хек в лёгком карри с рисом","slots":["lunch"],"time":25,"photo":"hake-curry","soft":true,"items":{"hake":190,"coconut":85,"greenbeans":110,"rice":75,"lime":15,"turmeric":2,"ginger":7,"garlic":4,"oil":5},"steps":["Прогрейте имбирь и чеснок с куркумой, добавьте кокосовое молоко, фасоль и хека.","Потушите до готовности, удалите кости и подайте с рисом и лаймом."],"idea":true,"portion":""},{"id":"shawarma","title":"Домашняя шаурма с курицей","slots":["lunch"],"time":30,"photo":"shawarma","soft":true,"items":{"lavash":90,"chicken":165,"kefir":65,"turmeric":2,"cabbage":75,"cucumber":75,"tomato":75,"onion":30,"yogurt":55,"garlic":4,"lemon":15,"oil":4},"steps":["Замаринуйте курицу в кефире с куркумой и доведите до готовности.","Сверните её в лаваш с овощами.","Соус из йогурта, чеснока и лимона подайте отдельно."],"idea":true,"portion":""},{"id":"choc-curd","title":"Творожный крем с какао и бананом","slots":["snack"],"time":5,"photo":"choc-curd","soft":true,"items":{"curd":155,"banana":75,"cocoa":6},"steps":["Пробейте творог, банан и какао блендером до гладкости.","Подавайте охлаждённым."],"idea":true,"portion":""},{"id":"baked-apple","title":"Печёное яблоко с йогуртом и овсяной крошкой","slots":["snack"],"time":25,"photo":"baked-apple","soft":true,"items":{"apple":175,"yogurt":100,"oats":24,"cinnamon":1,"oil":3},"steps":["Запеките яблоко с корицей.","Подрумяньте хлопья, дайте им остыть и подайте с йогуртом."],"idea":true,"portion":""},{"id":"hummus-sticks","title":"Хумус с овощами и хлебцем","slots":["snack"],"time":5,"photo":"hummus-sticks","soft":false,"items":{"hummus":70,"cucumber":65,"pepper":65,"celery":45,"crispbread":25},"steps":["Нарежьте овощи.","Подавайте с хумусом и хлебцем.","При желании измельчите овощи и подайте на мягком хлебе."],"idea":true,"portion":""},{"id":"egg-crispbread","title":"Яйцо с хлебцами и творожным сыром","slots":["snack"],"time":12,"photo":"egg-crispbread","soft":false,"items":{"egg":55,"crispbread":25,"creamcheese":35,"cucumber":45,"pepper":40},"steps":["Намажьте хлебцы сыром.","Разложите сверху полностью сваренное яйцо и тонко нарезанные овощи."],"idea":true,"portion":"2 хлебца"},{"id":"kefir-smoothie","title":"Смузи на кефире с бананом и ягодами","slots":["snack"],"time":5,"photo":"kefir-smoothie","soft":true,"items":{"kefir":250,"banana":75,"raspberry":85},"steps":["Измельчите кефир с бананом и ягодами до гладкости."],"idea":true,"portion":""},{"id":"nut-yogurt","title":"Греческий йогурт с ягодами и орехами","slots":["snack"],"time":5,"photo":"nut-yogurt","soft":false,"items":{"yogurt":170,"berries":95,"walnuts":18},"steps":["Положите ягоды и орехи поверх йогурта.","Рецепт содержит грецкие орехи."],"idea":true,"portion":""},{"id":"edamame-lime","title":"Эдамаме с лаймом","slots":["snack"],"time":10,"photo":"edamame-lime","soft":false,"items":{"edamame":160,"lime":20,"oil":4},"steps":["Сварите эдамаме.","Если бобы были в стручках, выньте их.","Добавьте лайм и масло.","Хлопья чили можно подать отдельно."],"idea":true,"portion":""},{"id":"crispy-chickpea","title":"Хрустящий нут с копчёной паприкой","slots":["snack"],"time":30,"photo":"crispy-chickpea","soft":false,"items":{"chickpea":150,"oil":6,"paprika":2,"garlic":3},"steps":["Промокните варёный нут, смешайте с маслом и паприкой.","Подрумяньте в духовке, добавьте чеснок ближе к концу."],"idea":true,"portion":""},{"id":"cake-coffee","title":"Чизкейк к кофе","slots":["snack"],"time":5,"photo":"cake-coffee","soft":false,"items":{"cheesecake":85,"coffee":100},"steps":["Подайте небольшую порцию чизкейка к кофе.","Состав десерта уточните по этикетке."],"idea":true,"portion":""},{"id":"flat-white","title":"Горький шоколад и флэт-уайт","slots":["snack"],"time":5,"photo":"flat-white","soft":false,"items":{"darkchoc":23,"milk":160,"coffee":55},"steps":["Добавьте к эспрессо тёплое молоко с тонким слоем пены.","Шоколад подайте рядом."],"idea":true,"portion":""},{"id":"turkey-roll","title":"Ролл из лаваша с индейкой и огурцом","slots":["snack"],"time":5,"photo":"turkey-roll","soft":false,"items":{"lavash":50,"roastturkey":75,"cucumber":85,"creamcheese":25,"lettuce":20},"steps":["Намажьте лаваш творожным сыром, добавьте готовую индейку, огурец и салат и сверните."],"idea":true,"portion":""},{"id":"oat-cookie","title":"Овсяное печенье с бананом","slots":["snack"],"time":25,"photo":"oat-cookie","soft":true,"items":{"oats":45,"banana":80,"egg":30,"cinnamon":1},"steps":["Разомните банан и перемешайте с хлопьями, яйцом и корицей.","Выложите порциями и запеките до готовности."],"idea":true,"portion":"2–3 печенья"},{"id":"ricotta-toast","title":"Тост с рикоттой и ягодами","slots":["snack"],"time":5,"photo":"ricotta-toast","soft":true,"items":{"bread":55,"ricotta":65,"berries":75,"cinnamon":1},"steps":["Подсушите хлеб, намажьте рикоттой и разложите ягоды.","Добавьте щепотку корицы."],"idea":true,"portion":""},{"id":"curd-muffins","title":"Творожные маффины из духовки","slots":["snack"],"time":30,"photo":"curd-muffins","soft":true,"items":{"curd":135,"egg":45,"oatflour":28,"raspberry":45,"vanilla":1},"steps":["Смешайте творог с яйцом, мукой и ванилью.","Вмешайте ягоды, разложите по формочкам и запеките до готовности."],"idea":true,"portion":"2 небольших маффина"},{"id":"orange-cheese","title":"Апельсин, сыр и хлебцы","slots":["snack"],"time":5,"photo":"orange-cheese","soft":false,"items":{"orange":180,"cheese":32,"crispbread":28},"steps":["Очистите апельсин и подайте дольками с сыром и хлебцами."],"idea":true,"portion":""},{"id":"pollock","title":"Минтай под кабачково-сырным соусом с картофелем","slots":["dinner"],"time":35,"photo":"pollock","soft":true,"items":{"pollock":200,"zucchini":170,"cheese":45,"potato":205,"broccoli":130,"oil":7},"steps":["Запеките минтай, удалите кости.","Разомните тушёный кабачок с плавленым сыром.","Картофель и брокколи отварите до мягкости, соус подайте отдельно."],"idea":true,"portion":""},{"id":"kefir-thigh","title":"Куриные бёдра в кефирном маринаде с овощами и булгуром","slots":["dinner"],"time":45,"photo":"kefir-thigh","soft":false,"items":{"thigh":180,"kefir":90,"garlic":5,"turmeric":2,"paprika":2,"zucchini":110,"pepper":85,"onion":50,"bulgur":65,"oil":6},"steps":["Замаринуйте курицу в кефире с пряностями.","Запекайте с овощами до полной готовности, булгур отварите отдельно."],"idea":true,"portion":""},{"id":"turkey-cutlet","title":"Котлеты из индейки с кабачком и гречкой","slots":["dinner"],"time":40,"photo":"turkey-cutlet","soft":true,"items":{"turkey":180,"zucchini":130,"buck":65,"passata":100,"cucumber":90,"onion":30,"oil":6},"steps":["Смешайте фарш с мелко тёртым кабачком и луком.","Сформуйте и доведите котлеты до готовности.","Подайте с гречкой и огурцом, томатный соус отдельно."],"idea":true,"portion":"","kids":"familiar"},{"id":"mustard-cod","title":"Треска в горчичном соусе с картофелем","slots":["dinner"],"time":30,"photo":"mustard-cod","soft":true,"items":{"cod":210,"sourcream":60,"mustard":12,"lemon":12,"dill":5,"potato":230,"cucumber":90,"oil":6},"steps":["Приготовьте треску и отварите картофель.","Удалите кости.","Соус из сметаны, горчицы, укропа и лимона подайте отдельно."],"idea":true,"portion":""},{"id":"chicken-curry","title":"Куриное карри на йогурте с басмати","slots":["dinner"],"time":35,"photo":"chicken-curry","soft":true,"items":{"chicken":175,"yogurt":110,"tomato":150,"onion":50,"ginger":8,"turmeric":2,"garam":3,"rice":75,"cilantro":6,"oil":6},"steps":["Прогрейте лук с имбирём, куркумой и гарам-масалой.","Добавьте томаты и курицу.","Когда курица готова, вмешайте йогурт на слабом огне.","Подайте с рисом."],"idea":true,"portion":""},{"id":"poultry-balls","title":"Фрикадельки в томатном соусе с пастой","slots":["dinner"],"time":40,"photo":"poultry-balls","soft":true,"items":{"groundchicken":90,"turkey":90,"passata":180,"pasta":75,"parmesan":12,"basil":5,"oil":5},"steps":["Смешайте два вида фарша, слепите небольшие фрикадельки и потушите в томатах до полной готовности.","Подайте с пастой, базиликом и пармезаном."],"idea":true,"portion":"","kids":"iron"},{"id":"oat-hake","title":"Хек в овсяной панировке с пюре","slots":["dinner"],"time":30,"photo":"oat-hake","soft":true,"items":{"hake":195,"egg":50,"oats":40,"paprika":2,"potato":235,"milk":55,"oil":7},"steps":["Обмакните филе в яйцо, обваляйте в хлопьях с паприкой и запеките до готовности.","Удалите кости и подайте с пюре."],"idea":true,"portion":""},{"id":"nuggets","title":"Домашние наггетсы с картофельными дольками и сырным соусом","slots":["dinner"],"time":40,"photo":"nuggets","soft":true,"items":{"chicken":185,"yogurt":65,"cornflakes":40,"potato":225,"cheese":35,"milk":50,"lettuce":55,"oil":6},"steps":["Обмакните кусочки курицы в йогурт, затем в измельчённые хлопья.","Запеките до полной готовности вместе с картофельными дольками.","Сырный соус подайте отдельно."],"idea":true,"portion":"","kids":"familiar"},{"id":"turkey-stew","title":"Рагу из индейки с фасолью","slots":["dinner"],"time":50,"photo":"turkey-stew","soft":true,"items":{"turkey":175,"beans":140,"zucchini":125,"pepper":90,"tomato":155,"onion":55,"thyme":1,"oil":6},"steps":["Припустите лук и индейку, добавьте овощи, готовую фасоль и тимьян.","Тушите до полной готовности индейки и мягкости овощей."],"idea":true,"portion":"","kids":"iron"},{"id":"cauliflower-casserole","title":"Запеканка из цветной капусты с курицей под сыром","slots":["dinner"],"time":45,"photo":"cauliflower-casserole","soft":true,"items":{"cauliflower":290,"chicken":155,"egg":100,"milk":75,"cheese":35,"oil":5},"steps":["Отварите капусту до мягкости.","Разложите с мелко нарезанной курицей, залейте молоком с яйцом и сыром.","Запекайте до полной готовности курицы и схватывания заливки."],"idea":true,"portion":""},{"id":"steak","title":"Говяжий стейк с печёными овощами и сальсой","slots":["dinner"],"time":30,"photo":"steak","soft":false,"items":{"beefcuts":165,"pepper":90,"zucchini":100,"onion":55,"potato":170,"tomato":110,"cilantro":6,"lime":10,"oil":9},"steps":["Запеките картофель, перец, кабачок и лук.","Приготовьте стейк и дайте ему отдохнуть.","Сальсу из томатов, лайма и кинзы подайте отдельно."],"idea":true,"portion":""},{"id":"trout","title":"Форель, запечённая с лимоном","slots":["dinner"],"time":30,"photo":"trout","soft":true,"items":{"trout":170,"lemon":20,"dill":6,"rice":65,"cucumber":90,"daikon":70,"oil":7},"steps":["Запеките форель с лимоном и укропом.","Удалите кости.","Подайте с отварным рисом и салатом из огурца и дайкона."],"idea":true,"portion":""},{"id":"stuffed-pepper","title":"Перцы, фаршированные индейкой и рисом","slots":["dinner"],"time":60,"photo":"stuffed-pepper","soft":true,"items":{"pepper":255,"turkey":165,"rice":50,"onion":45,"passata":160,"sourcream":35,"oil":5},"steps":["Смешайте фарш с луком и предварительно отваренным рисом.","Наполните перцы, залейте пассатой и запеките до готовности.","Сметану подайте отдельно."],"idea":true,"portion":""},{"id":"pumpkin-soup","title":"Тыквенный суп-пюре с курицей и гренками","slots":["dinner"],"time":40,"photo":"pumpkin-soup","soft":true,"items":{"pumpkin":300,"potato":105,"onion":55,"chicken":140,"cream":55,"bread":60,"oil":5},"steps":["Сварите тыкву, картофель и лук, измельчите со сливками.","Добавьте полностью готовую мелко нарезанную курицу.","Подсушенный хлеб подайте отдельно."],"idea":true,"portion":""},{"id":"zucchini-lasagna","title":"Лазанья с курицей и кабачком","slots":["dinner"],"time":60,"photo":"zucchini-lasagna","soft":true,"items":{"lasagna":80,"groundchicken":160,"passata":180,"zucchini":165,"milk":115,"flour":15,"mozzarella":35,"oil":5},"steps":["Полностью приготовьте фарш в томатах.","Сварите густой молочный соус с мукой.","Выложите слоями листы, кабачок и соусы, добавьте сыр и запеките до готовности."],"idea":true,"portion":""},{"id":"paprika-chicken","title":"Курица в паприке с йогуртовым соусом и салатом","slots":["dinner"],"time":25,"photo":"paprika-chicken","soft":false,"items":{"chicken":200,"paprika":4,"garlic":6,"oil":5,"yogurt":105,"lemon":20,"cucumber":120,"tomato":125,"pepper":85,"cilantro":6},"steps":["Натрите курицу паприкой и чесноком, доведите до полной готовности.","Соберите салат и йогуртовый соус с лимоном.","Чили добавьте отдельно в свою тарелку."],"idea":true,"portion":""},{"id":"pasta-nuggets","title":"Макароны с домашними наггетсами","time":30,"items":{"pasta":65,"chicken":120,"yogurt":40,"cornflakes":25,"cheese":20,"oil":5},"steps":["Поставьте вариться макароны.","Обмакните кусочки курицы в йогурт и хлопья. Запеките до полной готовности. Подавайте наггетсы отдельно от макарон."],"tip":"Знакомое блюдо. Если дети согласны, добавьте отдельно мягкую брокколи.","slots":["lunch","dinner"],"photo":"pasta-nuggets","soft":true,"kids":"familiar"},{"id":"buck-sausage","title":"Гречка с сосиской","time":20,"items":{"buck":60,"sausage":65,"butter":5},"steps":["Сварите гречку до мягкости и добавьте немного масла.","Приготовьте сосиску по инструкции. Для маленького ребёнка разрежьте вдоль на тонкие полоски."],"tip":"Запасной вариант на занятый день. Можно положить рядом несколько кусочков мягкого сладкого перца.","slots":["lunch","dinner"],"photo":"buck-sausage","soft":true,"kids":"familiar"},{"id":"chicken-mash","title":"Мягкая куриная котлета с пюре","time":30,"items":{"groundchicken":130,"zucchini":75,"potato":200,"milk":40,"oil":5},"steps":["Натрите кабачок и вмешайте в фарш. Слепите котлету и доведите до готовности.","Отварите картофель и разомните с тёплым молоком. Подавайте отдельно."],"tip":"Кабачок удерживает влагу, а пюре остаётся знакомым гарниром.","slots":["lunch","dinner"],"photo":"chicken-mash","soft":true,"kids":"familiar"},{"id":"beef-buck","title":"Мягкие говяжьи тефтели с гречкой","time":35,"items":{"beef":125,"zucchini":70,"buck":55,"passata":95,"pepper":65,"oil":6},"steps":["Смешайте фарш с мелко натёртым кабачком. Слепите тефтели и потушите в пассате до полной готовности.","Сварите гречку. Припущенный сладкий перец и соус можно подать отдельно."],"tip":"В говядине есть железо. Мягкие тефтели могут подойти детям, которым трудно есть мясо куском.","slots":["lunch","dinner"],"photo":"beef-buck","soft":true,"kids":"iron"},{"id":"lentil-pepper","title":"Пюре из красной чечевицы со сладким перцем","time":25,"items":{"lentil":65,"pepper":100,"garlic":2,"lemon":8,"oil":7,"bread":35},"steps":["Сварите чечевицу до мягкости. Потушите сладкий перец и снимите грубую кожицу.","Измельчите чечевицу с перцем, лимоном и маслом. Подавайте с мягким хлебом."],"tip":"В чечевице есть железо, а витамин C из перца помогает усвоению железа из растительной пищи.","slots":["lunch","dinner"],"photo":"lentil-pepper","soft":true,"kids":"iron"}]);
 
 const byId = Object.fromEntries(recipes.map(r=>[r.id,r]));
 const slots = [["breakfast","Завтрак"],["lunch","Обед"],["snack","Перекус"],["dinner","Ужин"]];
@@ -100,7 +149,23 @@ const dateText = (day,options)=>new Intl.DateTimeFormat("ru-RU",options).format(
 const counts = r=>Object.entries(r.items).reduce((sum,[id,g])=>sum.map((n,i)=>n+foods[id][i+2]*g/100),[0,0,0,0]);
 recipes.forEach(r=>r.macros=counts(r));
 const nameOf = id=>foods[id]?.[0] || id;
-const eligible = (recipe,profile,excluded=[])=>![...profile.excluded,...excluded].some(id=>Object.hasOwn(recipe.items,foodKey(id)));
+const foodGroups = {
+  "орехи": ["walnuts"], "грецкие орехи": ["walnuts"],
+  "молочное": ["yogurt","curd","cheese","milk","kefir","feta","creamcheese","sourcream","parmesan","ricotta","cream","mozzarella","cheesecake"],
+  "курица": ["chicken","groundchicken","thigh"], "индейка": ["turkey","roastturkey"],
+  "говядина": ["beef","beefcuts"], "помидоры": ["tomato","passata"],
+  "томаты": ["tomato","passata"], "кунжут": ["sesame","sesameoil","hummus"],
+  "рыба": ["cod","pollock","hake","trout","tuna"],
+  "фасоль": ["beans","blackbeans","greenbeans"], "ягоды": ["berries","raspberry"]
+};
+function eligible(recipe,profile,excluded=[],people=[0,1,2,3]){
+  if(!recipe || (recipe.items.coffee && people.some(i=>i>=2))) return false;
+  return ![...profile.excluded,...excluded].some(name=>{
+    const keys=foodGroups[norm(name)]||[foodKey(name)];
+    return keys.some(id=>Object.hasOwn(recipe.items,id));
+  });
+}
+const isCurd=r=>Object.hasOwn(r.items,"curd");
 const total = rows=>Object.values(rows||{}).reduce((sum,id)=>byId[id]?sum.map((v,i)=>v+byId[id].macros[i]):sum,[0,0,0,0]);
 const usage = rows=>Object.values(rows||{}).reduce((sum,id)=>(id&&(sum[id]=(sum[id]||0)+1),sum),{});
 const fit = (numbers,goals)=>numbers.reduce((cost,x,i)=>goals[i]>0?cost+[4,3,2,2][i]*Math.abs(x-goals[i])/goals[i]:cost,0);
@@ -108,64 +173,289 @@ const plannedGoals = (profile,people)=>[0,1,2,3].map(i=>{
   const values=people.map(j=>profile.goals[j][i]/profile.factors[j]).filter(x=>x>0);
   return values.length?values.reduce((sum,v)=>sum+v,0)/values.length:0;
 });
-function generate(week, prefs, profile, stock, favorites) {
-  const rows={};
-  const repeats={};
-  const left={...stock};
+function generate(week, prefs, profile, stock, favorites, variant=0) {
+  const rows={}, repeats={}, remaining={...stock};
   const servings=prefs.people.reduce((n,i)=>n+profile.factors[i],0);
   const goals=plannedGoals(profile,prefs.people);
-  const candidates = recipes.filter(r=>eligible(r,profile,prefs.exclude));
-  const stockBonus = r=>Object.entries(r.items).reduce((bonus,[id,g])=>bonus+Math.min(1,(left[id]||0)/(g*servings))*0.38,0);
-  for(let day=0;day<7;day++){
-    const key=shift(week,day);
-    const limit=prefs.fast.includes(day)?Math.min(20,prefs.max):prefs.max;
-    let options=[{ids:{}, totals:[0,0,0,0], score:0}];
-    for(const [slot] of slots) {
-      const pool=candidates.filter(r=>r.time<=limit && r.slots.includes(slot) && !(r.id==="curd"&&profile.maxCurd&&repeats.curd>=profile.maxCurd));
-      if(!pool.length) continue;
-      options=options.flatMap(o=>pool.filter(r=>!Object.values(o.ids).includes(r.id)).map(r=>{
-        let score=o.score+(repeats[r.id]||0)*0.42-stockBonus(r);
-        if(profile.soft&&!r.soft) score+=2.2;
-        if(prefs.useFavorites&&favorites.includes(r.id)) score-=0.65;
-        if(prefs.priorities.includes(r.id)&&!repeats[r.id]) score-=4;
-        return {ids:{...o.ids,[slot]:r.id},totals:o.totals.map((v,i)=>v+r.macros[i]),score};
-      })).concat(options.map(o=>({...o, score:o.score+9})));
+  const candidates=recipes.filter(r=>eligible(r,profile,prefs.exclude,prefs.people));
+  const requested=new Set((prefs.products||[]).map(foodKey));
+  const stockBonus=r=>Object.entries(r.items).reduce((bonus,[id,g])=>
+    bonus+Math.min(1,(remaining[id]||0)/(g*servings))*(requested.has(id)?1.25:.72),0);
+  const preferred=r=>Object.keys(r.items).some(id=>requested.has(id));
+  const variation=id=>Array.from(id).reduce((hash,c)=>Math.imul(hash^c.charCodeAt(0),16777619),2166136261)>>>0;
+  let curdCount=0;
+  for(let dayIndex=0;dayIndex<7;dayIndex++){
+    const key=shift(week,dayIndex);
+    const limit=prefs.fast.includes(dayIndex)?Math.min(20,prefs.max):prefs.max;
+    let options=[{ids:{}, totals:[0,0,0,0], score:0, curd:0}];
+    for(const [slot] of slots){
+      const pool=candidates.filter(r=>r.time<=limit&&r.slots.includes(slot));
+      const next=[];
+      for(const option of options){
+        next.push({...option,score:option.score+22});
+        for(const recipe of pool){
+          const curd=option.curd+Number(isCurd(recipe));
+          if(Object.values(option.ids).includes(recipe.id)||profile.maxCurd&&curdCount+curd>profile.maxCurd)continue;
+          const repeated=repeats[recipe.id]||0;
+          let score=option.score+repeated*1.35-stockBonus(recipe);
+          if(profile.soft&&!recipe.soft)score+=1.45;
+          score+=feedback(recipe,prefs.people);
+          if(prefs.people.some(i=>i>=2)&&(slot==="lunch"||slot==="dinner")&&hasIronSource(recipe))score-=1.1;
+          if(recipe.id==="buck-sausage")score+=3.5;
+          if(prefs.useFavorites&&favorites.includes(recipe.id))score-=1.25;
+          if(prefs.priorities.includes(recipe.id)&&!repeated)score-=9;
+          if(preferred(recipe))score-=repeated?0.8:2.7;
+          if(variant===1)score-=stockBonus(recipe)*.72;
+          if(variant===2)score+=recipe.time*.048;
+          if(variant)score+=variation(key+recipe.id+variant)%97/100;
+          next.push({ids:{...option.ids,[slot]:recipe.id},totals:option.totals.map((v,i)=>v+recipe.macros[i]),score,curd});
+        }
+      }
+      next.sort((a,b)=>a.score+fit(a.totals,goals)-(b.score+fit(b.totals,goals)));
+      options=next.slice(0,slot==="dinner"?1:160);
     }
-    options.sort((a,b)=>(a.score+fit(a.totals,goals))-(b.score+fit(b.totals,goals)));
     rows[key]=options[0].ids;
+    curdCount+=options[0].curd;
     for(const id of Object.values(rows[key])){
       repeats[id]=(repeats[id]||0)+1;
-      for(const [item,g] of Object.entries(byId[id].items)) left[item]=Math.max(0,(left[item]||0)-g*servings);
+      for(const [item,g] of Object.entries(byId[id].items))remaining[item]=Math.max(0,(remaining[item]||0)-g*servings);
     }
   }
   return rows;
 }
 function groceries(plan, profile, stock) {
   const servings=plan.prefs.people.reduce((n,i)=>n+profile.factors[i],0);
-  const need={};
+  const need=Object.create(null);
   for(const row of Object.values(plan.rows)) for(const id of Object.values(row)){
     for(const [item,g] of Object.entries(byId[id]?.items||{})) need[item]=(need[item]||0)+g*servings;
   }
   return Object.entries(need).map(([id,g])=>({id,need:Math.round(g),buy:Math.max(0,Math.round(g-(stock[id]||0)))})).sort((a,b)=>nameOf(a.id).localeCompare(nameOf(b.id),"ru"));
 }
-const basicPrefs=()=>({people:[0,1,2,3],max:45,fast:[],priorities:[],exclude:[],useFavorites:true});
-const initial=()=>({profile:structuredClone(privateFamily||generic),favorites:[...(privateFamily?.favorites||[])],stock:{},weeks:{}});
+const basicPrefs=()=>({people:[0,1,2,3],max:45,fast:[],priorities:[],exclude:[],useFavorites:true,products:[]});
+const initial=()=>({profile:structuredClone(privateFamily||generic),favorites:[...(privateFamily?.favorites||[])],stock:{},weeks:{},queued:[],views:{plan:"text",recipes:"text"}});
 const storageKey="family-menu-v1";
 function readState(){
-  try{const s=JSON.parse(localStorage.getItem(storageKey));if(s?.profile&&s.weeks&&s.stock&&Array.isArray(s.favorites)) return s;}catch{}
-  return initial();
+  try{const s=JSON.parse(localStorage.getItem(storageKey));if(s?.profile&&s.weeks&&s.stock&&Array.isArray(s.favorites)) return hydrate(s);}catch{}
+  return hydrate(initial());
 }
+const menuEndpoint="https://cuhplpukqhdfutcymtmv.supabase.co/functions/v1/family-menu";
+const menuPublishable="sb_publishable_ILfqT6mCyHBOu6BVVRxHKQ_0bPQtNi3";
+const cloud={status:"local",revision:0,busy:false,pending:false,vision:false,telegram:false,dirty:false,initialized:false};
+let menuKey="";
+try{menuKey=sessionStorage.getItem("family-menu-key")||localStorage.getItem("mk2_key")||"";}catch{}
+const notificationDefaults=()=>({enabled:true,time:"08:00",zone:"Europe/Paris",mode:"missing"});
+function notifications(){return {...notificationDefaults(),...state.notifications};}
+function statePayload(){
+ const cfg=notifications(), summaries={}, todayAtZone=isoAtZone(cfg.zone);
+ const relevant=Object.values(state.weeks).filter(plan=>Object.keys(plan.rows).some(d=>d>=shift(todayAtZone,-1)&&d<=shift(todayAtZone,30)));
+ for(const plan of relevant){
+  const left={...state.stock};
+  const servings=plan.prefs.people.reduce((n,i)=>n+state.profile.factors[i],0);
+  for(const [dateValue,row] of Object.entries(plan.rows).sort(([a],[b])=>a.localeCompare(b))){
+   if(dateValue<todayAtZone||dateValue>shift(todayAtZone,30))continue;
+   const needs={};
+   const meals=slots.flatMap(([slot,label])=>{
+    const r=byId[row[slot]];if(!r)return [];
+    for(const [id,g] of Object.entries(r.items))needs[id]=(needs[id]||0)+g*servings;
+    return [label+" — "+r.title];
+   });
+   const buy=Object.entries(needs).flatMap(([id,amount])=>{
+    const grams=Math.max(0,Math.round(amount-(left[id]||0)));
+    left[id]=Math.max(0,(left[id]||0)-amount);
+    if(!grams||plan.checked[id]||(cfg.mode==="marked"&&!plan.toBuy?.[id]))return [];
+    return [nameOf(id)+" — "+grams+" г"];
+   });
+   summaries[dateValue]={meals,buy};
+  }
+ }
+ return {menu:state,notifications:cfg,summaries};
+}
+function isoAtZone(zone){
+ const parts=new Intl.DateTimeFormat("en-CA",{timeZone:zone,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+ return ["year","month","day"].map(x=>parts.find(p=>p.type===x).value).join("-");
+}
+async function cloudCall(action,payload={}){
+ const res=await fetch(menuEndpoint,{method:"POST",headers:{"Content-Type":"application/json",apikey:menuPublishable,"x-mk-key":menuKey},
+   body:JSON.stringify({action,...payload}),signal:AbortSignal.timeout(action==="scan"?52000:15000)});
+ const data=await res.json();
+ if(!res.ok)throw Error(data.code||"unavailable");
+ return data;
+}
+function updateCloudBadge(){
+ const target=document.querySelector("#cloud-status");
+ if(target)target.textContent=cloud.status==="ready"?"Синхронизация включена":cloud.status==="conflict"?"Есть изменения на другом устройстве":cloud.status==="saving"?"Сохраняю…":cloud.status==="error"?"Синхронизация недоступна":"Данные в этом браузере";
+}
+function stashCloudMarker(){
+ try{localStorage.setItem("family-menu-cloud",JSON.stringify({revision:cloud.revision,dirty:cloud.dirty}));}catch{}
+}
+function saveCloud(){
+ if(!cloud.initialized||!menuKey)return;
+ cloud.dirty=true;stashCloudMarker();
+ if(cloud.status==="conflict")return;
+ cloud.pending=true;
+ if(!cloud.busy)void flushCloud();
+}
+async function flushCloud(){
+ cloud.busy=true;
+ while(cloud.pending){
+  cloud.pending=false;cloud.status="saving";updateCloudBadge();
+  try{
+   const data=await cloudCall("save",{revision:cloud.revision,payload:statePayload()});
+   cloud.revision=data.revision;cloud.dirty=cloud.pending;cloud.status="ready";stashCloudMarker();
+  }catch(err){
+   cloud.pending=false;cloud.status=err.message==="conflict"?"conflict":"error";
+  }
+  updateCloudBadge();
+ }
+ cloud.busy=false;
+}
+async function connectCloud(force=false){
+ if(!menuKey||cloud.busy)return;
+ cloud.busy=true;
+ try{
+  const data=await cloudCall("read");
+  cloud.vision=data.vision;cloud.telegram=data.telegram;
+  const remote=data.state;
+  let previous={};
+  try{previous=JSON.parse(localStorage.getItem("family-menu-cloud")||"{}");}catch{}
+  cloud.revision=remote?.revision||0;cloud.initialized=true;
+  if(remote&&!force&&previous.dirty&&previous.revision!==remote.revision){
+   cloud.dirty=true;cloud.status="conflict";updateCloudBadge();return;
+  }
+  if(remote&&(force||!previous.dirty)){
+   state=hydrate(remote.payload.menu);
+  }else if(!remote&&state.profile.names.join("|")===generic.names.join("|")&&data.seed){
+   applySeed(data.seed);
+  }
+  const generated=!state.weeks[week];
+  if(generated)state.weeks[week]=makeWeek(week,basicPrefs());
+  try{localStorage.setItem(storageKey,JSON.stringify(state));sessionStorage.setItem("family-menu-key",menuKey);}catch{}
+  cloud.status="ready";cloud.dirty=generated||!remote||(!force&&!!previous.dirty);
+  stashCloudMarker();render();
+ }catch(err){
+  cloud.status="error";
+  if(err.message==="auth")menuKey="";
+  updateCloudBadge();throw err;
+ }finally{cloud.busy=false;}
+ if(cloud.dirty)saveCloud();
+}
+function applySeed(seed){
+ const wasGeneric=state.profile.names.join("|")===generic.names.join("|");
+ state.profile=cleanProfile(seed);
+ state.favorites=[...new Set([...state.favorites,...state.profile.favorites])];
+ state.queued=[...new Set([...state.queued,...historicalQueue])];
+ for(const plan of Object.values(state.weeks)){
+  for(const row of Object.values(plan.rows))for(const [slot,id] of Object.entries(row)){
+   if(!eligible(byId[id],state.profile,plan.prefs.exclude,plan.prefs.people))delete row[slot];
+  }
+ }
+ if(wasGeneric&&state.weeks[current]&&!state.weeks[current].touched){
+  const plan=state.weeks[current];
+  state.weeks[current]=makeWeek(current,plan.prefs);
+ }
+}
+function cloudModal(){
+ modal={kind:"cloud"};
+ const cfg=notifications();
+ const connected=cloud.initialized&&cloud.status!=="error";
+ const zones=[...new Set([cfg.zone,"Europe/Paris","Europe/Moscow",Intl.DateTimeFormat().resolvedOptions().timeZone])];
+ show('<h2>Уведомления и синхронизация</h2>'+
+ (connected?'<p class="muted">Планы, запасы, избранное и оценки сохраняются для семьи.</p>':'<p class="muted">Для распознавания фото и уведомлений откройте меню из медкнижки после входа или введите её код доступа.</p><form id="cloud-login"><label>Код доступа медкнижки<input name="key" type="password" minlength="20" maxlength="200" autocomplete="off" required></label><button class="btn primary">Подключить</button></form>')+
+ (cloud.status==="conflict"?'<p class="banner">В другом браузере есть более свежая версия. Текущая версия сохранена на этом устройстве.</p><div class="formend">'+btn("cloud-reload","Загрузить версию с сервера")+btn("cloud-overwrite","Сохранить версию этого браузера")+'</div>':"")+
+ '<form id="notify-form"><fieldset><legend>Утреннее сообщение в Telegram</legend><label class="tick"><input type="checkbox" name="enabled" '+(cfg.enabled?"checked":"")+'> Отправлять меню и покупки</label><div class="survey-top"><label>Время<input type="time" name="time" required value="'+e(cfg.time)+'"></label><label>Часовой пояс<select name="zone">'+zones.map(z=>'<option '+(z===cfg.zone?"selected":"")+'>'+e(z)+'</option>').join("")+'</select></label></div>'+
+ '<label>Что включать в покупки<select name="mode"><option value="missing" '+(cfg.mode==="missing"?"selected":"")+'>Всё недостающее</option><option value="marked" '+(cfg.mode==="marked"?"selected":"")+'>Только позиции «В Telegram»</option></select></label>'+
+ '<p class="muted">'+(connected&&cloud.telegram?'Личный чат семейного бота подключён.':'Доставка начнётся после подключения и сохранения плана.')+'</p></fieldset><div class="formend"><button class="btn primary">Сохранить настройки</button></div></form>',true);
+}
+async function compressPhoto(file){
+ const bitmap=await createImageBitmap(file);
+ const factor=Math.min(1,1500/Math.max(bitmap.width,bitmap.height));
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.max(1,Math.round(bitmap.width*factor));canvas.height=Math.max(1,Math.round(bitmap.height*factor));
+ canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);
+ bitmap.close();
+ return canvas.toDataURL("image/jpeg",.78);
+}
+function scanModal(){
+ if(!cloud.initialized||!cloud.vision){cloudModal();return;}
+ modal={kind:"scan"};
+ show('<h2>Фото продуктов</h2><p class="muted">«Польза» предложит список видимых продуктов. Проверьте названия и укажите количество перед сохранением.</p><form id="scan-form"><label>Снять или выбрать фото<input type="file" name="image" accept="image/*" required></label><button class="btn primary">Распознать продукты</button></form>',true);
+}
+function scanResults(items){
+ modal={kind:"scan-results"};
+ show('<h2>Проверьте продукты</h2>'+
+ (items.length?'<form id="scan-confirm"><div class="scan-items">'+items.map((item,i)=>'<div class="scan-item"><input type="checkbox" name="take" value="'+i+'" checked aria-label="Добавить '+e(item.name)+'"><label>Продукт<input name="item-'+i+'" required maxlength="70" value="'+e(item.name)+'"></label><label>Граммы<input type="number" name="grams-'+i+'" min="1" max="100000" value="'+e(item.grams??"")+'" placeholder="Укажите вес"></label></div>').join("")+'</div><p class="muted">Если вес оставить пустым, продукт сохранится с пометкой «вес неизвестен».</p><button class="btn primary">Добавить в запасы</button></form>':'<p class="muted">На фото не удалось различить продукты.</p>'+btn("scan","Выбрать другое фото")),true);
+}
+function showFormError(form,message){
+ const target=form.querySelector("[role=alert]");
+ if(target)target.textContent=message;
+ else form.insertAdjacentHTML("afterbegin",'<p class="banner" role="alert">'+e(message)+'</p>');
+}
+function sendableRows(plan){
+ return groceries(plan,state.profile,state.stock).filter(x=>x.buy);
+}
+
+const historicalQueue=["baked-apple","pollock","turkey-cutlet"];
+function hydrate(s){
+ s.queued=Array.isArray(s.queued)?s.queued.filter(id=>Object.hasOwn(byId,id)):[];
+ if(!s.ideasRestored){s.queued=[...new Set([...s.queued,...historicalQueue])];s.ideasRestored=true;}
+ s.views={plan:"text",recipes:"text",...s.views};
+ s.ratings=s.ratings||{};
+ s.notifications=s.notifications||notificationDefaults();
+ s.unknownStock=s.unknownStock||{};
+ Object.values(s.weeks).forEach(p=>{
+  p.prefs={...basicPrefs(),...p.prefs};p.checked=p.checked||{};p.toBuy=p.toBuy||{};
+ });
+ return s;
+}
+const feedback=(r,people)=>people.reduce((sum,i)=>{
+ const vote=state.ratings?.[r.id]?.[i]?.value;
+ return sum+(vote==="yes"?-1.7:vote==="no"?3.6:0);
+},0);
+const ironFoods=new Set(["beef","beefcuts","lentil","beans","blackbeans","chickpea","edamame"]);
+const hasIronSource=r=>Object.keys(r.items).some(id=>ironFoods.has(id));
+function kidsPage(){
+ const chosen=recipes.filter(r=>r.kids&&eligible(r,state.profile,active().prefs.exclude,[2,3]));
+ const sort=(a,b)=>feedback(a,[2,3])-feedback(b,[2,3]);
+ const list=type=>recipeCards(chosen.filter(r=>r.kids===type).sort(sort));
+ return header("Что приготовить детям","Знакомые блюда для будней и мягкие варианты с источниками железа.")+
+ '<div class="panel sidebox kid-note"><p>Начните со знакомого блюда, соус и новый продукт положите рядом. К чечевице или фасоли можно добавить сладкий перец или брокколи. Витамин C помогает усваивать железо из растительной пищи.</p><a href="https://ods.od.nih.gov/factsheets/iron-consumer/" target="_blank" rel="noreferrer">Железо в продуктах · NIH</a></div>'+
+ '<h2 class="gaphead">Знакомые блюда</h2>'+list("familiar")+
+ '<h2 class="gaphead">Мягкие блюда с источником железа</h2>'+list("iron");
+}
+function ratingForm(r){
+ return '<form id="rate-form" class="rating-form" data-id="'+e(r.id)+'"><fieldset><legend>Кому понравилось</legend><div class="rating-grid">'+
+ state.profile.names.map((name,i)=>{const saved=state.ratings[r.id]?.[i]||{};return '<label>'+e(name)+'<select name="vote-'+i+'">'+[["","Без оценки"],["yes","Понравилось"],["no","Не понравилось"]].map(([key,label])=>'<option value="'+key+'" '+(saved.value===key?"selected":"")+'>'+label+'</option>').join("")+'</select></label><label>Заметка для '+e(name)+'<input name="note-'+i+'" maxlength="130" value="'+e(saved.note||"")+'" placeholder="Например, понравилось без соуса"></label>';}).join("")+
+ '</div><button class="btn secondary">Сохранить оценки</button></fieldset></form>';
+}
+
 let state=readState();
 let storageFailed=false;
-function save(){try{localStorage.setItem(storageKey,JSON.stringify(state));}catch{storageFailed=true;}}
-const makeWeek=(week,prefs)=>({prefs,rows:generate(week,prefs,state.profile,state.stock,state.favorites),checked:{}});
-let week=current, day=today, screen="plan", scope="day", person=0, recipeFilter="all", recipeQuery="", modal=null, notice="", swapFrom=null;
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(state));}catch{storageFailed=true;}saveCloud();}
+const makeWeek=(week,prefs)=>({prefs,rows:generate(week,prefs,state.profile,state.stock,state.favorites),checked:{},toBuy:{}});
+let week=current, day=today, screen="plan", scope="day", person=0, recipeFilter="all", recipeQuery="", mealFilter="all", modal=null, notice="", swapFrom=null, tipOffset=0, draft=null;
 if(!state.weeks[week]){state.weeks[week]=makeWeek(week,basicPrefs());save();}
 const active=()=>state.weeks[week];
 const e = value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 const list = v=>v.split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
 const servingsOf=()=>active().prefs.people.reduce((n,i)=>n+state.profile.factors[i],0);
-const photoInfo=r=>{const [file,hash,author,license]=photos[r.photo];const filename=encodeURIComponent(file.replaceAll(" ","_"));return {src:"https://upload.wikimedia.org/wikipedia/commons/"+hash+"/"+filename,source:"https://commons.wikimedia.org/wiki/File:"+filename,author,license};};
+const photoInfo=r=>photos[r.photo];
+const currentRecipeOK=(r,p=active().prefs)=>eligible(r,state.profile,p.exclude,p.people);
+const tips=[
+  ["Подрумяньте грибы", "Разложите шампиньоны в один слой и дайте им подрумяниться перед тем, как добавить помидоры в омлет."],
+  ["Отожмите кабачок слегка", "Для оладий уберите лишний сок, для тефтелей оставьте часть влаги. Так фарш получится мягче."],
+  ["Добавьте лимон в конце", "Несколько капель лимона перед подачей освежают рыбу и овощи. Поставьте дольки на стол."],
+  ["Поставьте соус отдельно", "К котлетам подойдёт тёплый соус из кабачка и плавленого сыра. Каждый сможет выбрать количество."],
+  ["Разогрейте пряности", "Сладкую паприку прогрейте с луком, а чили поставьте на стол для тех, кто хочет острое."],
+  ["Подайте кабачки двумя способами", "Из первой половины сделайте оладьи, вторую натрите в фарш для мягких котлет."],
+  ["Запеките овощи свободно", "Оставьте расстояние между кусочками на противне. Так овощи быстрее подрумянятся."],
+  ["Прогрейте ягоды для сырников", "Разомните прогретые ягоды вилкой. Положите ложку соуса рядом с сырниками, чтобы корочка осталась сухой."],
+  ["Подсушите хлеб перед сборкой", "Если намазка влажная, слегка подсушите взрослую порцию хлеба. Для мягкой подачи оставьте хлеб без корочки."],
+  ["Сделайте пюре мягче", "Разомните горячий картофель и вливайте тёплое молоко понемногу, пока не получите нужную густоту."],
+  ["Подайте салат в последний момент", "Нарежьте огурцы и помидоры заранее, а соль и лимон добавьте прямо перед подачей."],
+  ["Оставьте место в сковороде", "Жарьте котлеты небольшими партиями, чтобы сковорода успевала восстановить температуру."],
+  ["Прогрейте тарелки для супа", "Ополосните тарелки горячей водой перед подачей супа-пюре. Гренки поставьте отдельно."],
+  ["Добавьте свежую зелень при подаче", "Посыпьте зеленью уже готовую тарелку. Так её вкус будет ярче."]
+];
 const icon = name=>{
   const paths={
     calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
@@ -187,83 +477,147 @@ const icon = name=>{
 
 const app=document.querySelector("#app");
 const dialog=document.querySelector("#dialog");
-const nav=[["plan","Меню","calendar"],["recipes","Рецепты","book"],["pantry","Что дома","pantry"],["shop","Покупки","bag"]];
+const nav=[["plan","Меню","calendar"],["recipes","Рецепты","book"],["pantry","Что дома","pantry"],["shop","Покупки","bag"],["kids","Детям","leaf"],["tips","Советы","leaf"]];
 const btn=(act,label,style="secondary",attrs="")=>'<button type="button" class="btn '+style+'" data-act="'+act+'" '+attrs+'>'+label+'</button>';
 const attr=(k,v)=>'data-'+k+'="'+e(v)+'"';
-const img=(r,cls="")=>'<img class="'+cls+'" src="'+photoInfo(r).src+'" alt="'+e(r.title)+'" loading="lazy" referrerpolicy="no-referrer">';
+const img=(r,cls="")=>'<span class="photo-wrap '+cls+'"><img src="'+e(photoInfo(r).src)+'" alt="'+e(r.title)+'" loading="lazy" referrerpolicy="no-referrer" draggable="false"><span class="photo-missing">Фото временно недоступно</span></span>';
+document.addEventListener("error", event=>{
+ if(event.target.matches?.(".photo-wrap img"))event.target.closest(".photo-wrap").classList.add("missing");
+},true);
 const titleRange=()=>dateText(week,{day:"numeric",month:"short"}).replace(".","")+" — "+dateText(shift(week,6),{day:"numeric",month:"long"});
 function mast(){
  return '<header class="top"><div class="wrap top-inner"><a class="brand" href="#plan"><span class="mark">'+icon("leaf")+'</span><span>Семейное меню</span></a><nav aria-label="Разделы">'+nav.map(([id,label,i])=>'<a href="#'+id+'" '+(screen===id?'aria-current="page"':'')+'>'+icon(i)+label+'</a>').join("")+'</nav>'+btn("profile",icon("sliders")+'<span>Профиль</span>',"profile")+'</div></header>';
 }
 function header(title,sub,action=""){return '<div class="heading"><div><h1>'+title+'</h1><p>'+sub+'</p></div>'+action+'</div>';}
+function favoriteButton(r,action="fav"){
+ const on=state.favorites.includes(r.id);
+ return btn(action,icon("heart"),"heart "+(on?"on":""),attr("id",r.id)+' aria-label="'+(on?"Убрать из избранного":"В избранное")+'" aria-pressed="'+on+'"');
+}
+const formatStats=values=>values.slice(1).map(Math.round).join(" / ");
+const dishPortion=(r,factor=1)=>{
+ if(r.portion&&factor===1)return r.portion;
+ const grams=Math.round(Object.values(r.items).reduce((sum,g)=>sum+g,0)*factor);
+ return '≈ '+grams+' г ингредиентов';
+};
+function viewsToggle(area){
+ return '<div class="switch" aria-label="Отображение">'+[["text","Таблица"],["photo","Фото"]].map(([value,label])=>
+   btn("view",label,state.views[area]===value?"active":"quiet",attr("area",area)+" "+attr("value",value)+' aria-pressed="'+(state.views[area]===value)+'"')).join("")+'</div>';
+}
 function mealCard(r,slot,dateValue){
  const [key,label]=slot;
- const coords=attr("slot",key)+" "+attr("day",dateValue);
+ const coords=attr("slot",key)+" "+attr("day",dateValue)+" data-drop";
  const selected=swapFrom?.day===dateValue&&swapFrom?.slot===key;
- if(!r)return '<article class="meal empty"><span class="mealtype">'+label+'</span><p>Свободно</p><div>'+btn("replace",icon("plus")+" Выбрать блюдо","secondary",coords)+(swapFrom?.slot===key?btn("swap",icon("swap")+" Сюда","quiet",coords):"")+'</div></article>';
- return '<article class="meal'+(selected?' selected':'')+'" draggable="true" '+coords+'><div class="imagebox"><button type="button" class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+btn("fav",icon("heart"),"heart "+(state.favorites.includes(r.id)?"on":""),attr("id",r.id)+' aria-label="Избранное" aria-pressed="'+state.favorites.includes(r.id)+'"')+'</div><div class="mealbody"><div class="mealmeta"><span class="mealtype">'+label+'</span><span>'+icon("clock")+r.time+' мин</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button><div class="dishstats">≈ '+Math.round(r.macros[0]*state.profile.factors[person])+' ккал · Б '+Math.round(r.macros[1]*state.profile.factors[person])+' г</div><div class="mealactions">'+btn("replace","Заменить","quiet",coords)+btn("swap",icon("swap"),"quiet",coords+' aria-label="Переставить '+label.toLowerCase()+'"')+'</div></div></article>';
+ if(!r)return '<article class="meal empty" '+coords+'><span class="mealtype">'+label+'</span><p>Свободно</p><div>'+btn("replace",icon("plus")+" Выбрать блюдо","secondary",coords)+(swapFrom?.slot===key?btn("swap",icon("swap")+" Сюда","quiet",coords):"")+'</div></article>';
+ const factor=state.profile.factors[person];
+ return '<article class="meal'+(selected?' selected':'')+'" draggable="true" '+coords+'><div class="imagebox"><button type="button" class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+favoriteButton(r)+'</div><div class="mealbody"><div class="mealmeta"><span class="mealtype">'+label+'</span><span>'+icon("clock")+r.time+' мин</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button><div class="dishstats">'+e(dishPortion(r,factor))+' · ≈ '+Math.round(r.macros[0]*factor)+' ккал</div><div class="mealactions">'+btn("replace","Заменить","quiet",coords)+btn("swap",icon("swap"),"quiet",coords+' aria-label="Переставить '+label.toLowerCase()+'"')+'</div></div></article>';
 }
 function macroCard(){
  const sum=total(active().rows[day]).map(v=>v*state.profile.factors[person]);
  const goals=state.profile.goals[person];
  const labels=["Калории","Белки","Жиры","Углеводы"];
- return '<aside class="macro panel"><div class="sidehead"><h2>БЖУ за день</h2><select id="person" aria-label="Для кого показать БЖУ">'+active().prefs.people.map(i=>'<option value="'+i+'" '+(i===person?'selected':'')+'>'+e(state.profile.names[i])+'</option>').join("")+'</select></div><div class="metricgrid">'+labels.map((label,i)=>'<div class="metric"><span>'+label+'</span><b>'+Math.round(sum[i])+'<small> '+(i?"г":"ккал")+'</small></b>'+(goals[i]?'<div class="track"><span style="width:'+Math.min(100,100*sum[i]/goals[i])+'%"></span></div><small>Цель '+goals[i]+'</small>':'')+'</div>').join("")+'</div><p class="muted">Оценка по сырым ингредиентам. Упаковка и порции могут отличаться.</p>'+btn("profile",goals.some(Boolean)?"Изменить цели":"Задать цели","quiet")+'</aside>';
+ return '<aside class="macro panel"><div class="sidehead"><h2>БЖУ за день</h2><select id="person" aria-label="Для кого показать БЖУ">'+active().prefs.people.map(i=>'<option value="'+i+'" '+(i===person?'selected':'')+'>'+e(state.profile.names[i])+'</option>').join("")+'</select></div><div class="metricgrid">'+labels.map((label,i)=>'<div class="metric"><span>'+label+'</span><b>'+Math.round(sum[i])+'<small> '+(i?"г":"ккал")+'</small></b>'+(goals[i]?'<div class="track"><span style="width:'+Math.min(100,100*sum[i]/goals[i])+'%"></span></div><small>Цель '+goals[i]+'</small>':'')+'</div>').join("")+'</div><p class="muted">Расчёт приблизительный. Вес указан для ингредиентов до приготовления, крупы — в сухом виде.</p>'+btn("profile",goals.some(Boolean)?"Изменить цели":"Задать цели","quiet")+'</aside>';
+}
+function tableMeal(dateValue,slot,row){
+ const r=byId[row?.[slot]];
+ const factor=state.profile.factors[person];
+ const coords=attr("slot",slot)+" "+attr("day",dateValue);
+ const selected=swapFrom?.day===dateValue&&swapFrom?.slot===slot;
+ return '<td class="'+(selected?"selected":"")+'" data-drop '+coords+(r?' draggable="true"':'')+'>'+
+  (r?btn("detail",e(r.title),"table-dish",attr("id",r.id))+'<span class="cell-meta">'+e(dishPortion(r,factor))+' · '+Math.round(r.macros[0]*factor)+' ккал</span>':'<span class="cell-meta">Свободно</span>')+
+  '<div class="table-actions">'+btn("replace",r?"Заменить":"Выбрать","quiet",coords)+((r||swapFrom?.slot===slot)?btn("swap",icon("swap"),"quiet",coords+' aria-label="Переставить блюдо"'):"")+'</div></td>';
+}
+function planTable(rows){
+ return '<div class="table-scroll panel"><table class="data-table week-table"><thead><tr><th scope="col">День</th>'+slots.map(([,label])=>'<th scope="col">'+label+'</th>').join("")+'</tr></thead><tbody>'+
+ Object.entries(rows).map(([d,row])=>'<tr><th scope="row">'+btn("day",dateText(d,{weekday:"short",day:"numeric",month:"short"}),"quiet",attr("value",d)+' data-open="1"')+'</th>'+slots.map(([slot])=>tableMeal(d,slot,row)).join("")+'</tr>').join("")+'</tbody></table></div>';
+}
+function dayTable(row){
+ return '<div class="table-scroll panel"><table class="data-table day-table"><thead><tr><th scope="col">Приём пищи</th><th scope="col">Блюдо и порция</th></tr></thead><tbody>'+
+ slots.map(([slot,label])=>'<tr><th scope="row">'+label+'</th>'+tableMeal(day,slot,row)+'</tr>').join("")+'</tbody></table></div>';
+}
+const todayTip=()=>((Math.round(Date.UTC(...today.split("-").map((v,i)=>Number(v)-(i===1?1:0)))/86400000)+tipOffset)%tips.length+tips.length)%tips.length;
+function tipCard(){
+ const i=todayTip(),[title,body]=tips[i];
+ return '<section class="daily-tip panel" aria-label="Совет дня"><div><p class="tip-kicker">Совет дня</p><h2>'+title+'</h2><p>'+body+'</p></div><div class="tip-actions">'+
+ btn("tip",icon("left"),"icon",attr("value",-1)+' aria-label="Предыдущий совет"')+btn("tip",icon("right"),"icon",attr("value",1)+' aria-label="Следующий совет"')+'<a href="#tips">Все советы</a></div></section>';
+}
+function tipsPage(){
+ return header("Как сделать вкуснее","Приёмы для блюд, которые вы готовите дома.")+'<div class="tip-grid">'+tips.map(([title,body])=>'<article class="panel sidebox"><h2>'+title+'</h2><p class="muted">'+body+'</p></article>').join("")+'</div>';
 }
 function planPage(){
  const plan=active();
  const items=groceries(plan,state.profile,state.stock).filter(x=>x.buy);
- return header("Меню на неделю","Запланируйте блюда, используйте продукты дома и соберите покупки.",btn("survey",icon("plus")+" Новая неделя","primary"))+
- '<div class="toolbar panel"><div class="weeknav">'+btn("prev",icon("left"),"icon",'aria-label="Предыдущая неделя"')+'<strong>'+titleRange()+'</strong>'+btn("next",icon("right"),"icon",'aria-label="Следующая неделя"')+'</div><div class="switch" aria-label="Вид меню">'+btn("scope","День",scope==="day"?"active":"quiet",attr("value","day"))+btn("scope","Неделя",scope==="week"?"active":"quiet",attr("value","week"))+'</div></div>'+
+ const photo=state.views.plan==="photo";
+ const dayContent=photo?'<div class="mealgrid">'+slots.map(s=>mealCard(byId[plan.rows[day]?.[s[0]]],s,day)).join("")+'</div>':dayTable(plan.rows[day]);
+ const weekContent=photo?'<div class="weeklist">'+Object.entries(plan.rows).map(([d,row])=>'<section><div class="sectionhead"><h2>'+dateText(d,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+btn("day","Открыть день","quiet",attr("value",d)+' data-open="1"')+'</div><div class="mealgrid">'+slots.map(s=>mealCard(byId[row[s[0]]],s,d)).join("")+'</div></section>').join("")+'</div>':planTable(plan.rows);
+ return header("Меню на неделю","Блюда на каждый день и список покупок из недельного плана.",'<div class="heading-actions"><a class="btn secondary" href="#recipes">Другие идеи</a>'+btn("survey",icon("plus")+" Новая неделя","primary")+'</div>')+
+ '<div class="toolbar panel"><div class="weeknav">'+btn("prev",icon("left"),"icon",'aria-label="Предыдущая неделя"')+'<strong>'+titleRange()+'</strong>'+btn("next",icon("right"),"icon",'aria-label="Следующая неделя"')+'</div><div class="toolbar-switches"><div class="switch" aria-label="Период меню">'+btn("scope","День",scope==="day"?"active":"quiet",attr("value","day"))+btn("scope","Неделя",scope==="week"?"active":"quiet",attr("value","week"))+'</div>'+viewsToggle("plan")+'</div></div>'+
  '<div class="days" aria-label="Дни недели">'+Array.from({length:7},(_,i)=>{const d=shift(week,i);return btn("day",'<span>'+dateText(d,{weekday:"short"})+'</span><b>'+date(d).getDate()+'</b>',d===day?"chosen":"",attr("value",d)+' aria-pressed="'+(d===day)+'"');}).join("")+'</div>'+
- (swapFrom?'<div class="banner">Выберите такой же приём пищи в другом дне. '+btn("cancel-swap","Отмена","quiet")+'</div>':"")+
- (scope==="day"?'<div class="planlayout"><section><div class="sectionhead"><h2>'+dateText(day,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+(day===today?'<span>Сегодня</span>':"")+'</div><div class="mealgrid">'+slots.map(s=>mealCard(byId[plan.rows[day]?.[s[0]]],s,day)).join("")+'</div></section><div class="sides">'+macroCard()+'<section class="panel sidebox"><h2>Покупки на неделю</h2><p class="muted">'+items.length+' позиций с учётом продуктов дома</p><a class="btn secondary" href="#shop">Открыть список '+icon("arrow")+'</a></section></div></div>':
- '<div class="weeklist">'+Object.entries(plan.rows).map(([d,row])=>'<section><div class="sectionhead"><h2>'+dateText(d,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+btn("day","Открыть день","quiet",attr("value",d)+' data-open="1"')+'</div><div class="mealgrid">'+slots.map(s=>mealCard(byId[row[s[0]]],s,d)).join("")+'</div></section>').join("")+'</div>');
+ (swapFrom?'<div class="banner">Выберите тот же приём пищи в другом дне. '+btn("cancel-swap","Отмена","quiet")+'</div>':"")+
+ (scope==="day"?'<div class="planlayout"><section><div class="sectionhead"><h2>'+dateText(day,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+(day===today?'<span>Сегодня</span>':"")+'</div>'+dayContent+'</section><div class="sides">'+macroCard()+'<section class="panel sidebox"><h2>Покупки на неделю</h2><p class="muted">'+items.length+' позиций с учётом продуктов дома</p><a class="btn secondary" href="#shop">Открыть список '+icon("arrow")+'</a></section></div></div>':weekContent)+tipCard();
 }
-const matchStock=r=>Object.keys(r.items).filter(id=>state.stock[id]>0);
+const matchStock=r=>Object.keys(r.items).filter(id=>state.stock[id]>0||state.unknownStock[id]);
 const stockNote=r=>matchStock(r).map(id=>nameOf(id));
+const recipeActions=r=>{
+ const allowed=currentRecipeOK(r), queued=state.queued.includes(r.id);
+ return '<div class="recipe-actions">'+btn("pick-day","В меню","secondary",attr("id",r.id)+(allowed?"":" disabled"))+
+ btn("queue",queued?"✓ На следующую":"На следующую","quiet",attr("id",r.id)+' aria-pressed="'+queued+'"'+(allowed||queued?"":" disabled"))+'</div>';
+};
 function recipeCards(rows){
  if(!rows.length)return '<div class="panel message">Подходящих рецептов пока нет.</div>';
- return '<div class="librarygrid">'+rows.map(r=>'<article class="meal"><div class="imagebox"><button class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+btn("fav",icon("heart"),"heart "+(state.favorites.includes(r.id)?"on":""),attr("id",r.id)+' aria-label="Избранное" aria-pressed="'+state.favorites.includes(r.id)+'"')+'</div><div class="mealbody"><div class="mealmeta"><span>'+icon("clock")+r.time+' мин</span><span>≈ '+Math.round(r.macros[0])+' ккал</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button>'+(stockNote(r).length?'<p class="in-stock">Дома есть '+e(stockNote(r).join(", "))+'</p>':'')+'</div></article>').join("")+'</div>';
+ return '<div class="librarygrid">'+rows.map(r=>'<article class="meal"><div class="imagebox"><button class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+favoriteButton(r)+'</div><div class="mealbody"><div class="mealmeta"><span>'+icon("clock")+r.time+' мин</span><span>≈ '+Math.round(r.macros[0])+' ккал</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button><p class="cell-meta">'+e(dishPortion(r))+' · Б/Ж/У '+formatStats(r.macros)+'</p>'+(stockNote(r).length?'<p class="in-stock">Дома есть '+e(stockNote(r).join(", "))+'</p>':'')+(currentRecipeOK(r)?"":'<p class="muted">Исключено из общего меню</p>')+recipeActions(r)+'</div></article>').join("")+'</div>';
+}
+function recipeTable(rows){
+ if(!rows.length)return '<div class="panel message">Подходящих рецептов пока нет.</div>';
+ return '<div class="table-scroll panel"><table class="data-table recipe-table"><thead><tr><th scope="col">Блюдо</th><th scope="col">Порция</th><th scope="col">Ккал</th><th scope="col">Б / Ж / У, г</th><th scope="col">Время</th><th scope="col">Действия</th></tr></thead><tbody>'+
+ rows.map(r=>'<tr><th scope="row">'+btn("detail",e(r.title),"table-dish",attr("id",r.id))+(stockNote(r).length?'<span class="in-stock">Дома есть '+e(stockNote(r).join(", "))+'</span>':'')+(currentRecipeOK(r)?"":'<span class="cell-meta">Исключено из общего меню</span>')+'</th><td>'+e(dishPortion(r))+'</td><td>'+Math.round(r.macros[0])+'</td><td>'+formatStats(r.macros)+'</td><td>'+r.time+' мин</td><td><div class="row-actions">'+favoriteButton(r)+recipeActions(r)+'</div></td></tr>').join("")+'</tbody></table></div>';
 }
 function recipePage(){
- const rows=recipes.filter(r=>eligible(r,state.profile,active().prefs.exclude))
+ const rows=recipes.filter(r=>mealFilter==="all"||r.slots.includes(mealFilter))
  .filter(r=>recipeFilter!=="favorite"||state.favorites.includes(r.id))
- .filter(r=>recipeFilter!=="stock"||matchStock(r).length)
- .filter(r=>!recipeQuery||norm(r.title+" "+Object.keys(r.items).map(nameOf).join(" ")).includes(norm(recipeQuery)));
- return header("Рецепты","Выбирайте блюда для меню и сохраняйте те, которые хочется повторить.")+
- '<div class="filters"><div class="switch">'+[["all","Все"],["favorite","Избранное"],["stock","Из продуктов дома"]].map(([id,label])=>btn("filter",label,recipeFilter===id?"active":"quiet",attr("value",id))).join("")+'</div><input id="recipe-search" type="search" placeholder="Найти блюдо или продукт" aria-label="Найти блюдо или продукт" value="'+e(recipeQuery)+'"></div><div id="recipe-results">'+recipeCards(rows)+'</div>';
+ .filter(r=>recipeFilter!=="queued"||state.queued.includes(r.id))
+ .filter(r=>recipeFilter!=="stock"||currentRecipeOK(r)&&matchStock(r).length)
+ .filter(r=>!recipeQuery||norm(r.title+" "+Object.keys(r.items).map(nameOf).join(" ")).includes(norm(recipeQuery)))
+ .sort((a,b)=>Number(!currentRecipeOK(a))-Number(!currentRecipeOK(b))||Number(!a.idea)-Number(!b.idea));
+ return header("Другие идеи","61 идея из медкнижки и блюда семейного меню.")+
+ '<div class="filters"><div class="switch" aria-label="Подборка">'+[["all","Все"],["favorite","Избранное"],["queued","На следующую"+(state.queued.length?" · "+state.queued.length:"")],["stock","Из продуктов дома"]].map(([id,label])=>btn("filter",label,recipeFilter===id?"active":"quiet",attr("value",id)+' aria-pressed="'+(recipeFilter===id)+'"')).join("")+'</div><input id="recipe-search" type="search" placeholder="Найти блюдо или продукт" aria-label="Найти блюдо или продукт" value="'+e(recipeQuery)+'"></div>'+
+ '<div class="filters"><div class="switch" aria-label="Приём пищи">'+[["all","Все приёмы"],...slots].map(([id,label])=>btn("meal-filter",label,mealFilter===id?"active":"quiet",attr("value",id)+' aria-pressed="'+(mealFilter===id)+'"')).join("")+'</div>'+viewsToggle("recipes")+'</div><div id="recipe-results">'+(state.views.recipes==="photo"?recipeCards(rows):recipeTable(rows))+'</div>';
 }
 function pantryPage(){
- const items=Object.entries(state.stock).sort((a,b)=>nameOf(a[0]).localeCompare(nameOf(b[0]),"ru"));
- const ideas=recipes.filter(r=>eligible(r,state.profile,active().prefs.exclude)&&matchStock(r).length).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
- return header("Что дома","Укажите продукты и количество. Меню предложит, где их использовать, а список покупок вычтет запас.")+
+ const items=[...new Set([...Object.keys(state.stock),...Object.keys(state.unknownStock)])].map(id=>[id,state.stock[id]]).sort((a,b)=>nameOf(a[0]).localeCompare(nameOf(b[0]),"ru"));
+ const ideas=recipes.filter(r=>currentRecipeOK(r)&&matchStock(r).length).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
+ return header("Что дома","Добавьте продукты и количество вручную или распознайте их по фото.",btn("scan","Фото продуктов","primary"))+
  '<div class="panel pantry"><form id="stock-form"><label>Продукт<input required name="name" list="foods" placeholder="Например, кабачки" maxlength="70"></label><label>Граммы<input required name="grams" type="number" min="1" max="100000" placeholder="800"></label><button class="btn primary">'+icon("plus")+' Добавить</button><datalist id="foods">'+Object.values(foods).map(f=>'<option value="'+e(f[0])+'">').join("")+'</datalist></form>'+
- (items.length?'<ul class="lineitems">'+items.map(([id,g])=>'<li><strong>'+e(nameOf(id))+'</strong><span>'+g+' г</span>'+btn("edit-stock","Изменить","quiet",attr("id",id))+btn("remove-stock",icon("close"),"quiet",attr("id",id)+' aria-label="Убрать '+e(nameOf(id))+'"')+'</li>').join("")+'</ul>':'<p class="muted">Добавьте первый продукт, чтобы увидеть идеи.</p>')+
+ (items.length?'<ul class="lineitems">'+items.map(([id,g])=>'<li><strong>'+e(nameOf(id))+'</strong><span>'+(g?g+' г':'Вес неизвестен')+'</span>'+btn("edit-stock","Изменить","quiet",attr("id",id))+btn("remove-stock",icon("close"),"quiet",attr("id",id)+' aria-label="Убрать '+e(nameOf(id))+'"')+'</li>').join("")+'</ul>':'<p class="muted">Добавьте первый продукт, чтобы увидеть идеи.</p>')+
  '</div><h2 class="gaphead">Что приготовить</h2>'+recipeCards(ideas);
 }
 function shopPage(){
  const plan=active();
- const missing=groceries(plan,state.profile,state.stock).filter(x=>x.buy);
+ const missing=sendableRows(plan);
  const groups=missing.reduce((result,item)=>{(result[foods[item.id][1]]??=[]).push(item);return result;},{});
- return header("Список покупок",titleRange()+' · '+e(plan.prefs.people.map(i=>state.profile.names[i]).join(", ")),btn("copy",icon("check")+" Скопировать","secondary"))+
- '<div class="shopgrid">'+(missing.length?Object.entries(groups).map(([group,items])=>'<section class="panel shop"><h2>'+group+'</h2>'+items.map(({id,buy})=>'<label class="shoprow"><input type="checkbox" data-check="'+id+'" '+(plan.checked[id]===buy?"checked":"")+'><span>'+e(nameOf(id))+'</span><b>'+buy+' г</b></label>').join("")+'</section>').join(""):'<p class="panel message">По текущему меню покупать ничего не нужно.</p>')+'</div>';
+ return header("Список покупок",titleRange()+' · '+e(plan.prefs.people.map(i=>state.profile.names[i]).join(", ")),'<div class="heading-actions">'+btn("cloud","Уведомления")+btn("copy",icon("check")+" Скопировать","secondary")+'</div>')+
+ '<div class="shopgrid">'+(missing.length?Object.entries(groups).map(([group,items])=>'<section class="panel shop"><h2>'+group+'</h2>'+items.map(({id,buy})=>'<div class="shop-item"><label class="shoprow"><input type="checkbox" data-check="'+id+'" '+(plan.checked[id]===buy?"checked":"")+' aria-label="Куплено '+e(nameOf(id))+'"><span>'+e(nameOf(id))+'</span><b>'+buy+' г</b></label><label class="tick shop-tg"><input type="checkbox" data-tobuy="'+id+'" '+(plan.toBuy?.[id]?"checked":"")+'> В Telegram</label></div>').join("")+'</section>').join(""):'<p class="panel message">По текущему меню покупать ничего не нужно.</p>')+'</div>';
 }
 function render(){
  if(!active().prefs.people.includes(person))person=active().prefs.people[0];
- app.innerHTML=mast()+'<main class="wrap">'+(storageFailed?'<p class="banner">Браузер заблокировал сохранение данных.</p>':'')+(notice?'<p role="status" class="banner">'+e(notice)+'</p>':'')+({plan:planPage,recipes:recipePage,pantry:pantryPage,shop:shopPage}[screen]())+'</main><footer class="wrap footer"><a href="https://mk.opalinskiy.ru/v2/" rel="noreferrer">Медкнижка '+icon("arrow")+'</a><span>Планы и настройки сохраняются в этом браузере. <a href="https://fdc.nal.usda.gov/" rel="noreferrer">Справочник БЖУ</a>.</span></footer>';
+ app.innerHTML=mast()+'<main class="wrap">'+(storageFailed?'<p class="banner">Браузер заблокировал сохранение данных.</p>':'')+(notice?'<p role="status" class="banner">'+e(notice)+'</p>':'')+({plan:planPage,recipes:recipePage,pantry:pantryPage,shop:shopPage,kids:kidsPage,tips:tipsPage}[screen]())+'</main><footer class="wrap footer"><a href="https://mk.opalinskiy.ru/v2/" rel="noreferrer">Медкнижка '+icon("arrow")+'</a><span><button class="btn quiet" data-act="cloud">Уведомления</button><span id="cloud-status"></span> · <a href="https://fdc.nal.usda.gov/" rel="noreferrer">Справочник БЖУ</a>.</span></footer>';
+ updateCloudBadge();
 }
 function show(content,wide=false){
  dialog.innerHTML='<div class="modalbody '+(wide?"wide":"")+'">'+btn("close",icon("close"),"icon x",'aria-label="Закрыть"')+content+'</div>';
  if(!dialog.open)dialog.showModal();
 }
-function recipeDetail(id,serving=1){
- const r=byId[id], photo=photoInfo(r);
- modal={kind:"detail",id};
+function recipeDetail(id,mode="base"){
+ const r=byId[id], photo=photoInfo(r), serving=mode==="family"?servingsOf():1;
+ modal={kind:"detail",id,mode};
  show('<div class="recipehero">'+img(r)+'</div><h2>'+e(r.title)+'</h2><p class="muted">'+r.time+' мин · БЖУ ≈ '+r.macros.slice(1).map(v=>Math.round(v)).join(" / ")+' г и '+Math.round(r.macros[0])+' ккал на базовую порцию</p>'+
- '<p class="banner">'+e(r.tip)+'</p><label>Масштаб продуктов <select id="portion"><option value="1" '+(serving===1?"selected":"")+'>Базовая порция</option><option value="'+servingsOf()+'" '+(serving!==1?"selected":"")+'>На выбранный состав семьи</option></select></label><ul class="ingredients">'+Object.entries(r.items).map(([id,g])=>'<li><span>'+nameOf(id)+'</span><b>'+Math.round(g*serving)+' г</b></li>').join("")+'</ul>'+
- '<h3>Как приготовить</h3><ol class="steps">'+r.steps.map(s=>'<li>'+e(s)+'</li>').join("")+'</ol><p class="credit">Фото для подачи · <a href="'+photo.source+'" target="_blank" rel="noreferrer">'+e(photo.author)+', Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/'+photo.license+'/" target="_blank" rel="noreferrer">CC '+photo.license.replace("/"," ").toUpperCase()+'</a></p>'+
- '<div class="formend">'+btn("fav-detail",icon("heart")+(state.favorites.includes(id)?" В избранном":" Сохранить"),"secondary",attr("id",id))+btn("pick-day","В меню", "primary",attr("id",id))+'</div>',true);
+ '<p class="banner">'+e(r.tip||"Острое и соусы можно подать отдельно.")+'</p><label>Масштаб продуктов <select id="portion"><option value="1" '+(mode==="base"?"selected":"")+'>Базовая порция</option><option value="family" '+(mode==="family"?"selected":"")+'>На выбранный состав семьи</option></select></label><ul class="ingredients">'+Object.entries(r.items).map(([id,g])=>'<li><span>'+nameOf(id)+'</span><b>'+Math.round(g*serving)+' г</b></li>').join("")+'</ul>'+
+ '<h3>Как приготовить</h3><ol class="steps">'+r.steps.map(s=>'<li>'+e(s)+'</li>').join("")+'</ol>'+
+ (r.portion?'<p class="muted">Базовая порция · '+e(r.portion)+'</p>':'')+
+ '<p class="credit"><a href="'+e(photo.source)+'" target="_blank" rel="noreferrer">Источник фотографии</a>'+(photo.note?' · '+e(photo.note):'')+'</p>'+
+ ratingForm(r)+'<div class="formend">'+favoriteButton(r,"fav-detail")+btn("pick-day","В меню", "primary",attr("id",id)+(currentRecipeOK(r)?"":" disabled"))+'</div>'+
+ (currentRecipeOK(r)?"":'<p class="muted">Блюдо не подходит под настройки общего стола для этой недели.</p>'),true);
 }
+
 function profileModal(){
  const p=state.profile;
  modal={kind:"profile"};
@@ -271,15 +625,54 @@ function profileModal(){
  (p.tips.length?'<div class="banner"><b>Правила вашего стола</b><ul>'+p.tips.map(t=>'<li>'+e(t)+'</li>').join("")+'</ul></div>':'')+
  '<div class="formend"><label class="btn secondary upload">Загрузить профиль<input type="file" id="import-profile" accept=".json,application/json"></label>'+btn("export-profile","Скачать профиль","secondary")+'<button class="btn primary">Сохранить</button></div><p class="muted">Файл профиля можно загрузить в браузере другого члена семьи.</p></form>',true);
 }
-function surveyModal(){
- const target=shift(week,7);
- const prefs=state.weeks[target]?.prefs||active().prefs;
+function surveyModal(target=shift(week,7), supplied=null){
+ const prefs=supplied||state.weeks[target]?.prefs||active().prefs;
  modal={kind:"survey"};
- show('<h2>План на новую неделю</h2><form id="survey"><label>Дата в нужной неделе<input type="date" name="date" required value="'+target+'"></label><fieldset><legend>Кто ест дома</legend><div class="choices">'+state.profile.names.map((name,i)=>'<label class="tick"><input type="checkbox" name="people" value="'+i+'" '+(prefs.people.includes(i)?"checked":"")+'>'+e(name)+'</label>').join("")+'</div></fieldset><label>Время на одно блюдо<select name="max">'+[20,25,30,35,45].map(i=>'<option value="'+i+'" '+(i===prefs.max?"selected":"")+'>'+i+' мин</option>').join("")+'</select></label><fieldset><legend>Дни, когда нужно быстро</legend><div class="choices">'+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((s,i)=>'<label class="tick"><input type="checkbox" name="fast" value="'+i+'" '+(prefs.fast.includes(i)?"checked":"")+'>'+s+'</label>').join("")+'</div></fieldset><label>Что хочется приготовить<select name="priorities" multiple size="5">'+recipes.filter(r=>eligible(r,state.profile)).map(r=>'<option value="'+r.id+'" '+(prefs.priorities.includes(r.id)?"selected":"")+'>'+e(r.title)+'</option>').join("")+'</select><small>Можно выбрать несколько блюд.</small></label><label>Что пропустить на этой неделе<input name="exclude" value="'+e(prefs.exclude.join(", "))+'" placeholder="Например, помидоры"></label><label class="tick"><input type="checkbox" name="favorites" '+(prefs.useFavorites?"checked":"")+'> Чаще предлагать избранное</label><p class="muted">Если на выбранную неделю есть план, его заменит новое меню.</p><div class="formend"><button class="btn primary">Собрать меню '+icon("arrow")+'</button></div></form>',true);
+ const wanted=new Set([...prefs.priorities,...state.queued]);
+ const choices=recipes.filter(r=>eligible(r,state.profile)).sort((a,b)=>
+   Number(wanted.has(b.id))-Number(wanted.has(a.id))||Number(state.favorites.includes(b.id))-Number(state.favorites.includes(a.id))||a.title.localeCompare(b.title,"ru"));
+ show('<h2>План на новую неделю</h2><form id="survey"><div class="survey-top"><label>Дата в нужной неделе<input type="date" name="date" required value="'+target+'"></label><label>Время на блюдо<select name="max">'+[20,25,30,35,45,60,90].map(i=>'<option value="'+i+'" '+(i===prefs.max?"selected":"")+'>'+i+' мин</option>').join("")+'</select></label></div>'+
+ '<fieldset><legend>Кто ест дома</legend><div class="choices">'+state.profile.names.map((name,i)=>'<label class="tick"><input type="checkbox" name="people" value="'+i+'" '+(prefs.people.includes(i)?"checked":"")+'>'+e(name)+'</label>').join("")+'</div></fieldset>'+
+ '<fieldset><legend>Дни, когда нужно быстро</legend><div class="choices">'+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((s,i)=>'<label class="tick"><input type="checkbox" name="fast" value="'+i+'" '+(prefs.fast.includes(i)?"checked":"")+'>'+s+'</label>').join("")+'</div></fieldset>'+
+ '<label>Какие продукты использовать<input name="products" value="'+e((prefs.products||[]).join(", "))+'" placeholder="Например, кабачки, брокколи"></label>'+
+ '<label>Что пропустить на этой неделе<input name="exclude" value="'+e(prefs.exclude.join(", "))+'" placeholder="Например, помидоры"></label>'+
+ '<details class="survey-dishes" '+(wanted.size?"open":"")+'><summary>Что хочется приготовить'+(wanted.size?' · '+wanted.size:'')+'</summary><div class="survey-choices">'+choices.map(r=>'<label class="tick"><input name="priorities" type="checkbox" value="'+r.id+'" '+(wanted.has(r.id)?"checked":"")+'>'+e(r.title)+(state.favorites.includes(r.id)?' ♥':'')+'</label>').join("")+'</div></details>'+
+ '<label class="tick"><input type="checkbox" name="favorites" '+(prefs.useFavorites?"checked":"")+'> Чаще предлагать избранное</label>'+
+ '<div class="formend"><button class="btn primary">Показать варианты '+icon("arrow")+'</button></div></form>',true);
+}
+function previewDraft(){
+ const {week:target,prefs,variants,selected}=draft;
+ modal={kind:"draft"};
+ const rows=variants[selected], ids=Object.values(rows).flatMap(Object.values);
+ const missed=prefs.priorities.filter(id=>byId[id]&&!ids.includes(id));
+  const average=Object.values(rows).map(total).reduce((sum,values)=>sum.map((v,i)=>v+values[i]/7),[0,0,0,0]);
+ const first=prefs.people[0], factor=state.profile.factors[first];
+ const firstGoals=state.profile.goals[first];
+ const averageForFirst=average.map(v=>v*factor);
+ const draftGroceries=groceries({prefs,rows},state.profile,state.stock).filter(row=>row.buy).length;
+ show('<h2>Варианты меню</h2><p class="muted">'+dateText(target,{day:"numeric",month:"long"})+' — '+dateText(shift(target,6),{day:"numeric",month:"long"})+'</p>'+
+ '<div class="switch draft-switch" aria-label="Варианты меню">'+["С учётом целей","Больше из запасов","Быстрее готовить"].map((label,i)=>btn("draft-select",label,i===selected?"active":"quiet",attr("value",i)+' aria-pressed="'+(i===selected)+'"')).join("")+'</div>'+
+ '<p class="muted">'+e(state.profile.names[first])+' · в среднем '+Math.round(averageForFirst[0])+' ккал и Б/Ж/У '+formatStats(averageForFirst)+' г в день'+(firstGoals[0]?' · цель '+firstGoals[0]+' ккал':'')+' · '+draftGroceries+' позиций купить</p>'+
+ (missed.length?'<p class="banner">Не вошли в этот вариант: '+e(missed.map(id=>byId[id].title).join(", "))+'</p>':'')+
+ '<div class="table-scroll panel"><table class="data-table draft-table"><thead><tr><th scope="col">День</th>'+slots.map(([,label])=>'<th scope="col">'+label+'</th>').join("")+'</tr></thead><tbody>'+
+ Object.entries(rows).map(([d,row])=>'<tr><th scope="row">'+dateText(d,{weekday:"short",day:"numeric"})+'</th>'+slots.map(([slot])=>'<td>'+e(byId[row[slot]]?.title||"Свободно")+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'+
+ (state.weeks[target]?'<p class="muted">Если сохранить вариант, он заменит существующее меню этой недели.</p>':'')+
+ '<div class="formend">'+btn("draft-back","К анкете")+btn("draft-save","Сохранить неделю","primary")+'</div>',true);
+}
+function commitDraft(){
+ const {week:target,prefs,variants,selected}=draft;
+ const rows=variants[selected];
+ const used=new Set(Object.values(rows).flatMap(Object.values));
+ state.queued=state.queued.filter(id=>!used.has(id));
+ state.weeks[target]={prefs,rows,checked:{},toBuy:{},touched:true};
+ week=target;day=week===current?today:week;scope="week";swapFrom=null;
+ save();closeDialog();
+ if(screen!=="plan"){location.hash="plan";screen="plan";}
+ announce("План на неделю сохранён.");
 }
 function replaceModal(d,slot){
  modal={kind:"replace",day:d,slot};
- const pool=recipes.filter(r=>r.slots.includes(slot)&&eligible(r,state.profile,active().prefs.exclude)).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
+ const pool=recipes.filter(r=>r.slots.includes(slot)&&currentRecipeOK(r)).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
  show('<h2>'+slots.find(s=>s[0]===slot)[1]+' · '+dateText(d,{weekday:"short",day:"numeric",month:"short"})+'</h2><div class="replacement">'+pool.map(r=>btn("place",img(r)+'<span><strong>'+e(r.title)+'</strong><small>'+r.time+' мин · ≈ '+Math.round(r.macros[0])+' ккал</small></span>',"pick",attr("id",r.id))).join("")+'</div>'+btn("place","Оставить свободным","quiet",attr("id","")),true);
 }
 function pickDay(id){
@@ -287,13 +680,13 @@ function pickDay(id){
  show('<h2>Добавить в меню</h2><p>'+e(r.title)+'</p><form id="add-dish"><label>День<select name="day">'+Object.keys(active().rows).map(d=>'<option value="'+d+'" '+(d===day?"selected":"")+'>'+dateText(d,{weekday:"long",day:"numeric",month:"short"})+'</option>').join("")+'</select></label><label>Приём пищи<select name="slot">'+slots.filter(([s])=>r.slots.includes(s)).map(([s,n])=>'<option value="'+s+'">'+n+'</option>').join("")+'</select></label><div class="formend"><button class="btn primary">Поставить в меню</button></div></form>');
 }
 
-function closeDialog(){if(dialog.open)dialog.close();modal=null;}
+function closeDialog(){if(dialog.open)dialog.close();modal=null;draft=null;}
 function announce(message){notice=message;render();}
 function setDish(d,slot,id){
- if(id&&!eligible(byId[id],state.profile,active().prefs.exclude))return false;
+ if(id&&(!currentRecipeOK(byId[id])||!byId[id].slots.includes(slot)))return false;
  const row=active().rows[d];
  if(id)row[slot]=id;else delete row[slot];
- save();return true;
+ active().touched=true;save();return true;
 }
 function swap(a,b){
  if(a.slot!==b.slot||a.day===b.day)return false;
@@ -301,7 +694,7 @@ function swap(a,b){
  const one=ra[a.slot],two=rb[b.slot];
  if(two)ra[a.slot]=two;else delete ra[a.slot];
  if(one)rb[b.slot]=one;else delete rb[b.slot];
- swapFrom=null;save();return true;
+ swapFrom=null;active().touched=true;save();return true;
 }
 function favorite(id){
  const f=state.favorites;
@@ -331,7 +724,7 @@ function applyProfile(profile,merge=false){
  state.profile=cleanProfile(profile);
  if(merge)state.favorites=[...new Set([...state.favorites,...state.profile.favorites])];
  for(const p of Object.values(state.weeks))for(const row of Object.values(p.rows))for(const [slot,id] of Object.entries(row)){
-   if(!eligible(byId[id],state.profile,p.prefs.exclude))delete row[slot];
+   if(!eligible(byId[id],state.profile,p.prefs.exclude,p.prefs.people))delete row[slot];
  }
  save();
 }
@@ -345,15 +738,30 @@ document.addEventListener("click",async event=>{
   case "close": closeDialog();break;
   case "survey": surveyModal();break;
   case "profile": profileModal();break;
+  case "cloud": cloudModal();break;
+  case "scan": scanModal();break;
+  case "cloud-reload":
+   try{await connectCloud(true);closeDialog();announce("Загружены данные семьи.");}catch{cloudModal();}break;
+  case "cloud-overwrite":
+   cloud.status="ready";saveCloud();closeDialog();announce("Сохраняю данные этого браузера.");break;
   case "detail": recipeDetail(id);break;
   case "pick-day": pickDay(id);break;
   case "fav": favorite(id);render();break;
-  case "fav-detail": favorite(id);render();recipeDetail(id);break;
+  case "fav-detail": {const mode=modal?.mode;favorite(id);render();recipeDetail(id,mode);break;}
   case "scope": scope=value;render();break;
   case "day": day=value;if(target.dataset.open)scope="day";render();break;
   case "prev":
   case "next": newDate(shift(week,act==="prev"?-7:7),active().prefs.people);render();break;
   case "filter": recipeFilter=value;render();break;
+  case "meal-filter": mealFilter=value;render();break;
+  case "view": state.views[target.dataset.area]=value;save();render();break;
+  case "tip": tipOffset+=Number(value);render();break;
+  case "queue":
+   state.queued=state.queued.includes(id)?state.queued.filter(x=>x!==id):[...state.queued,id];
+   save();render();break;
+  case "draft-select": if(draft){draft.selected=Number(value);previewDraft();}break;
+  case "draft-save": if(draft)commitDraft();break;
+  case "draft-back": if(draft)surveyModal(draft.week,draft.prefs);break;
   case "replace": replaceModal(when,slot);break;
   case "place":
    if(modal?.kind==="replace"&&setDish(modal.day,modal.slot,id)){closeDialog();announce("Меню и покупки обновлены.");}
@@ -363,8 +771,8 @@ document.addEventListener("click",async event=>{
    else if(!swapFrom||!swap(swapFrom,{day:when,slot})){swapFrom={day:when,slot};scope="week";}
    render();break;
   case "cancel-swap": swapFrom=null;render();break;
-  case "edit-stock": stockForm().elements.name.value=nameOf(id);stockForm().elements.grams.value=state.stock[id];stockForm().elements.grams.focus();break;
-  case "remove-stock": delete state.stock[id];save();render();break;
+  case "edit-stock": stockForm().elements.name.value=nameOf(id);stockForm().elements.grams.value=state.stock[id]||"";stockForm().elements.grams.focus();break;
+  case "remove-stock": delete state.stock[id];delete state.unknownStock[id];save();render();break;
   case "copy": {
    const rows=groceries(active(),state.profile,state.stock).filter(x=>x.buy&&active().checked[x.id]!==x.buy);
    const text=rows.map(x=>nameOf(x.id)+" — "+x.buy+" г").join("\n");
@@ -391,7 +799,12 @@ document.addEventListener("input",event=>{
 document.addEventListener("change",async event=>{
  const input=event.target;
  if(input.id==="person"){person=Number(input.value);render();}
- if(input.id==="portion"&&modal?.kind==="detail")recipeDetail(modal.id,input.selectedIndex===0?1:Number(input.value));
+ if(input.id==="portion"&&modal?.kind==="detail")recipeDetail(modal.id,input.selectedIndex===0?"base":"family");
+ if(input.dataset.tobuy){
+  const plan=active();plan.toBuy??={};
+  if(input.checked)plan.toBuy[input.dataset.tobuy]=true;else delete plan.toBuy[input.dataset.tobuy];
+  save();
+ }
  if(input.dataset.check){
   const id=input.dataset.check;
   if(input.checked)active().checked[id]=groceries(active(),state.profile,state.stock).find(x=>x.id===id).buy;
@@ -406,11 +819,46 @@ document.addEventListener("change",async event=>{
   }catch{input.value="";const old=dialog.querySelector("[role=alert]");if(!old)dialog.querySelector("form").insertAdjacentHTML("afterbegin",'<p class="banner" role="alert">Выберите файл профиля семейного меню.</p>');}
  }
 });
-document.addEventListener("submit",event=>{
+document.addEventListener("submit",async event=>{
  event.preventDefault();
  const form=event.target,data=new FormData(form);
+ if(form.id==="cloud-login"){
+  menuKey=String(data.get("key")).trim();
+  const button=form.querySelector("button");button.disabled=true;
+  try{await connectCloud();cloudModal();}catch{showFormError(form,"Не удалось подключиться. Проверьте код доступа медкнижки.");button.disabled=false;}
+  return;
+ }
+ if(form.id==="notify-form"){
+  state.notifications={enabled:data.has("enabled"),time:String(data.get("time")),zone:String(data.get("zone")),mode:String(data.get("mode"))};
+  save();closeDialog();announce("Настройки уведомлений сохранены.");return;
+ }
+ if(form.id==="scan-form"){
+  const button=form.querySelector("button");button.disabled=true;button.textContent="Распознаю…";
+  try{const result=await cloudCall("scan",{image:await compressPhoto(data.get("image"))});if(modal?.kind==="scan")scanResults(result.items);}
+  catch(err){showFormError(form,err.message==="vision_limit"?"Лимит распознавания на сегодня исчерпан.":"Не удалось распознать фото. Попробуйте другое изображение.");button.disabled=false;button.textContent="Распознать продукты";}
+  return;
+ }
+ if(form.id==="scan-confirm"){
+  for(const i of data.getAll("take")){
+   const key=foodKey(data.get("item-"+i)), grams=Number(data.get("grams-"+i));
+   if(!key||Object.hasOwn(Object.prototype,key))continue;
+   if(grams){state.stock[key]=grams;delete state.unknownStock[key];}
+   else if(!state.stock[key])state.unknownStock[key]=true;
+  }
+  save();closeDialog();announce("Запасы обновлены.");return;
+ }
+ if(form.id==="rate-form"){
+  const id=form.dataset.id,mode=modal?.mode;
+  state.ratings[id]=Object.fromEntries(state.profile.names.flatMap((_,i)=>{
+   const value=data.get("vote-"+i),note=String(data.get("note-"+i)).trim();
+   return value||note?[[i,{value,note}]]:[];
+  }));
+  save();recipeDetail(id,mode);showFormError(dialog.querySelector("#rate-form"),"Оценки сохранены.");return;
+ }
  if(form.id==="stock-form"){
-  state.stock[foodKey(data.get("name"))]=Number(data.get("grams"));save();announce("Запасы и список покупок обновлены.");
+  const key=foodKey(data.get("name"));
+  if(!key||Object.hasOwn(Object.prototype,key)){announce("Введите название продукта.");return;}
+  state.stock[key]=Number(data.get("grams"));delete state.unknownStock[key];save();announce("Запасы и список покупок обновлены.");
  }
  if(form.id==="profile-form"){
   applyProfile({...state.profile,names:family.map((_,i)=>data.get("name"+i).trim()),factors:family.map((_,i)=>Number(data.get("factor"+i))),goals:family.map((_,i)=>[0,1,2,3].map(j=>Number(data.get("macro"+i+"-"+j)))),excluded:list(data.get("exclude")),soft:data.has("soft"),maxCurd:Number(data.get("curd"))});
@@ -419,11 +867,12 @@ document.addEventListener("submit",event=>{
  if(form.id==="survey"){
   const people=data.getAll("people").map(Number);
   if(!people.length){if(!form.querySelector("[role=alert]"))form.insertAdjacentHTML("afterbegin",'<p role="alert" class="banner">Выберите хотя бы одного человека.</p>');return;}
-  week=monday(data.get("date"));day=week===current?today:week;
-  const prefs={people,max:Number(data.get("max")),fast:data.getAll("fast").map(Number),priorities:data.getAll("priorities"),exclude:list(data.get("exclude")),useFavorites:data.has("favorites")};
-  state.weeks[week]=makeWeek(week,prefs);scope="day";swapFrom=null;save();closeDialog();
-  if(screen!=="plan"){location.hash="plan";screen="plan";}
-  announce("План на неделю готов.");
+  const target=monday(data.get("date"));
+  const prefs={people,max:Number(data.get("max")),fast:data.getAll("fast").map(Number),
+    priorities:[...new Set([...data.getAll("priorities")])],exclude:list(data.get("exclude")),
+    products:list(data.get("products")),useFavorites:data.has("favorites")};
+  draft={week:target,prefs,selected:0,variants:[0,1,2].map(variant=>generate(target,prefs,state.profile,state.stock,state.favorites,variant))};
+  previewDraft();
  }
  if(form.id==="add-dish"&&modal?.kind==="pick-day"){
   if(setDish(data.get("day"),data.get("slot"),modal.id)){closeDialog();announce("Блюдо добавлено в меню.");}
@@ -431,21 +880,22 @@ document.addEventListener("submit",event=>{
 });
 let dragged=null;
 app.addEventListener("dragstart",event=>{
- const card=event.target.closest("article[draggable][data-day]");
+ const card=event.target.closest("[draggable=true][data-day]");
  if(!card)return;
  dragged={day:card.dataset.day,slot:card.dataset.slot};event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","meal");
 });
 app.addEventListener("dragover",event=>{
- const card=event.target.closest("article[data-day]");
+ const card=event.target.closest("[data-drop][data-day]");
  if(card&&dragged?.slot===card.dataset.slot)event.preventDefault();
 });
 app.addEventListener("drop",event=>{
- const card=event.target.closest("article[data-day]");
+ const card=event.target.closest("[data-drop][data-day]");
  if(card&&dragged){event.preventDefault();if(swap(dragged,{day:card.dataset.day,slot:card.dataset.slot}))render();}
  dragged=null;
 });
 app.addEventListener("dragend",()=>{dragged=null;});
 route();
+if(menuKey)void connectCloud().catch(()=>{});
 
 </script>
 </body>
