@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f6f7f0"><title>Семейное меню</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{color-scheme:light;--bg:#f6f7f0;--paper:#fffefa;--ink:#243426;--muted:#5e6c5e;--green:#305943;--deep:#20432f;--line:#e0e6d9;--pale:#edf3e8;--accent:#e1ebd9;--shadow:0 5px 19px #24342609;font-family:"DM Sans","Manrope",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button,select{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #729d72;outline-offset:2px}a{color:var(--deep)}h1,h2,h3,p{margin:0}h1,h2,h3{letter-spacing:-.025em}h1{font-weight:800;font-size:clamp(2.3rem,5vw,4.25rem);line-height:1.01}h2{font-size:1.42rem}h3{font-size:1.08rem}svg{flex:none;vertical-align:middle}
+.wrap{max-width:1216px;margin-inline:auto;padding-inline:32px}.top{background:#fffefa;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}.top-inner{min-height:70px;display:flex;align-items:center;gap:22px;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;white-space:nowrap;font-weight:800;font-size:1.04rem}.mark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--accent);color:var(--deep)}nav{display:flex;gap:7px}nav a{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;color:var(--muted);border-radius:9px;text-decoration:none;font-weight:600;white-space:nowrap}nav a:hover,nav a[aria-current]{color:var(--deep);background:var(--pale)}nav svg,.profile svg{width:17px;height:17px}
+.heading{padding:48px 0 28px;display:flex;align-items:end;justify-content:space-between;gap:20px}.heading p{margin-top:13px;max-width:640px;color:var(--muted);line-height:1.48;font-size:1.04rem}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:1px solid transparent;border-radius:10px;min-height:41px;padding:7px 13px;color:var(--deep);background:none;font-weight:700;white-space:nowrap}.btn.primary{background:var(--green);color:#fff;padding-inline:16px;box-shadow:0 2px 5px #27452a25}.btn.primary:hover{background:var(--deep)}.btn.secondary,.btn.profile,.btn.icon{border-color:var(--line);background:var(--paper)}.btn.quiet:hover,.btn.secondary:hover,.btn.icon:hover,.btn.profile:hover{background:var(--pale)}.btn.icon{width:39px;padding:0}.panel{background:var(--paper);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:10px}.weeknav{display:flex;align-items:center;gap:11px}.weeknav strong{min-width:151px;text-align:center;font-size:1.04rem}.switch{display:inline-flex;gap:3px;background:var(--pale);padding:3px;border-radius:12px}.switch .btn{min-height:35px}.switch .active{background:var(--paper);box-shadow:0 2px 5px #24342611}.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:13px 0 25px}.days button{border:1px solid var(--line);background:#fbfcf7;min-height:58px;flex-direction:column;gap:2px;padding:5px}.days span{font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.days b{font-size:1.13rem}.days button:hover{background:var(--pale)}.days button.chosen{background:var(--green);border-color:var(--green);color:white}.days button.chosen span{color:#e4eee5}
+.planlayout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,310px);gap:24px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 13px}.sectionhead h2:first-letter{text-transform:uppercase}.sectionhead>span{color:var(--green);font-size:.79rem;background:var(--accent);border-radius:20px;padding:4px 10px}.mealgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.weeklist .mealgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.weeklist section+section{margin-top:25px}.meal{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:var(--shadow)}.meal.selected{outline:3px solid #7a9c71;outline-offset:2px}.imagebox{position:relative;background:#e8ede1}.imagebutton{display:block;width:100%;background:none;padding:0;border:0;overflow:hidden}.imagebutton img,.recipehero img{display:block;width:100%;aspect-ratio:2.07;object-fit:cover;background:linear-gradient(125deg,#dce8d3,#f4f0e2);color:var(--deep);text-align:center}.mealbody{padding:14px 15px}.mealmeta,.mealactions{display:flex;align-items:center;justify-content:space-between;gap:8px}.mealmeta{font-size:.79rem;color:var(--muted)}.mealmeta svg{width:14px;height:14px;margin-right:4px}.mealtype{text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:var(--green);font-size:.72rem}.dish{padding:0;margin:7px 0 4px;display:block;text-align:left;border:0;background:transparent;color:var(--ink);font-size:1.23rem;font-weight:800;line-height:1.16}.dish:hover{text-decoration:underline}.dishstats{font-size:.85rem;color:var(--muted)}.mealactions{border-top:1px solid #eef0e8;margin-top:12px;padding-top:5px}.mealactions .btn{padding:3px 7px;min-height:32px;font-size:.82rem}.mealactions svg{width:17px}.heart{position:absolute;right:9px;top:9px;border:0;width:35px;height:35px;min-height:35px;padding:0;background:#fffefaee;border-radius:50%;box-shadow:0 1px 5px #0003}.heart svg{width:18px;height:18px}.heart.on{color:#a74046}.heart.on svg{fill:#a74046}.empty{padding:16px;display:grid;align-content:center;min-height:165px;gap:8px}.empty p{color:var(--muted)}
+.sides{display:grid;gap:14px;align-content:start;padding-top:38px}.macro,.sidebox,.pantry,.shop,.message{padding:17px}.sidehead{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:13px}.sidehead select{width:auto;max-width:48%;padding:6px}.metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{padding:10px;background:var(--pale);border-radius:10px;display:grid;gap:5px}.metric>span,.metric>small{font-size:.78rem;color:var(--muted)}.metric b{font-size:1.17rem}.metric b small{font-size:.7em}.track{height:4px;border-radius:8px;background:#d7e2d1;overflow:hidden}.track span{display:block;height:100%;background:#6b9569}.muted{color:var(--muted);font-size:.9rem;line-height:1.45}.macro>p,.sidebox p{margin:11px 0 7px}.macro>.btn{padding-left:0;min-height:29px}.sidebox a{width:100%;margin-top:4px}
+.filters,.pantry form{display:flex;gap:11px;flex-wrap:wrap;align-items:end;margin-bottom:16px}.filters{align-items:center;justify-content:space-between}.filters input{max-width:320px}.librarygrid,.shopgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.in-stock{color:var(--green);font-size:.83rem;margin-top:7px}.gaphead{margin:26px 0 14px}.lineitems,.ingredients{padding:0;list-style:none;margin:10px 0}.lineitems li,.ingredients li,.shoprow{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:8px 0}.lineitems strong,.ingredients li span,.shoprow span{flex:1}.pantry form label:first-child{flex:1;min-width:170px}.pantry form label:nth-child(2){max-width:140px}.shop h2{margin-bottom:8px}.shoprow input,.tick input{width:17px;height:17px;accent-color:var(--green);margin:0}.shoprow:has(input:checked) span{text-decoration:line-through;color:var(--muted)}.shoprow b{white-space:nowrap}.banner{background:#eaf1e5;border:1px solid #dce8d8;border-radius:10px;color:var(--deep);padding:10px 13px;margin:10px 0}.banner ul{margin:7px 0;padding-left:20px}
+.footer{display:flex;justify-content:space-between;gap:12px;margin-top:37px;padding-top:17px;padding-bottom:26px;color:var(--muted);font-size:.82rem}.footer a{text-decoration:none}.footer svg{width:15px;height:15px}dialog{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:0;width:min(600px,calc(100% - 24px));max-height:90vh;box-shadow:0 20px 60px #1a292d38}dialog:has(.wide){width:min(755px,calc(100% - 24px))}dialog::backdrop{background:#14281db3}.modalbody{padding:24px;position:relative}.modalbody>.x{position:absolute;right:11px;top:11px;z-index:1}.modalbody h2{margin:0 40px 10px 0}.modalbody form{margin-top:12px;display:grid;gap:12px}label{display:grid;gap:5px;font-weight:600}label small{color:var(--muted);font-weight:400}input,select,textarea{width:100%;min-width:0;background:#fbfcf7;color:var(--ink);border:1px solid #d8e0d2;border-radius:8px;padding:9px}select[multiple]{padding:3px}select[multiple] option{padding:5px}fieldset{border:1px solid var(--line);border-radius:10px;min-width:0;margin:0;padding:9px}legend{padding-inline:4px;font-weight:700}.choices{display:flex;flex-wrap:wrap;gap:9px}.tick{display:flex;align-items:center;gap:7px;font-size:.88rem}.choices .tick{padding:5px;background:var(--pale);border-radius:6px}.formend{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:7px}.profiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.profile-row,.profile-macros{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}.profile-macros label,.profile-row label{font-size:.8rem}.upload{position:relative;cursor:pointer}.upload input{position:absolute;inset:0;opacity:0;padding:0;cursor:pointer}.recipehero{margin:-24px -24px 15px;background:var(--pale)}.recipehero img{aspect-ratio:3}.steps{display:grid;gap:7px;padding-left:23px}.credit{font-size:.77rem;color:var(--muted);margin:12px 0}.replacement{display:grid;gap:6px;margin:12px 0}.pick{border-color:var(--line);white-space:normal;justify-content:flex-start;text-align:left}.pick img{width:63px;height:42px;object-fit:cover;border-radius:5px}.pick span{display:grid;gap:3px}.pick small{font-weight:400;color:var(--muted)}
+@media(max-width:850px){.wrap{padding-inline:20px}.top-inner{gap:10px}.planlayout{grid-template-columns:minmax(0,1fr) 255px;gap:12px}.weeklist .mealgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.librarygrid,.shopgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){.top-inner{display:grid;grid-template-columns:1fr auto;min-height:0;padding-top:9px;padding-bottom:6px}.top nav{grid-row:2;grid-column:1/-1;justify-content:space-between;overflow:auto;gap:0}.top nav a{padding:7px;font-size:.78rem}.top nav svg{width:15px}.profile{min-height:33px}.wrap{padding-inline:13px}.heading{padding:27px 0 19px;align-items:start;flex-wrap:wrap;gap:10px}.heading p{margin-top:8px}.toolbar{padding:6px}.weeknav{gap:3px}.weeknav strong{min-width:0;font-size:.84rem}.toolbar .btn{font-size:.82rem;padding-inline:7px}.toolbar .btn.icon{width:29px}.days{gap:4px;margin:8px 0 16px}.days button{min-height:48px}.planlayout{display:block}.sides{padding-top:13px}.mealgrid,.weeklist .mealgrid,.librarygrid,.shopgrid{gap:8px}.mealbody{padding:9px}.dish{font-size:1.05rem}.imagebutton img{aspect-ratio:1.38}.mealmeta{font-size:.72rem}.mealtype{font-size:.64rem}.mealactions{margin-top:6px}.footer{flex-direction:column;margin-top:21px}.profiles{grid-template-columns:1fr}.modalbody{padding:17px}.recipehero{margin:-17px -17px 13px}}
+@media(max-width:355px){.top nav a{gap:3px}.top nav svg{display:none}.toolbar{align-items:stretch;flex-direction:column}.weeknav{justify-content:space-between}.toolbar .switch{justify-content:center}}
+</style></head>
+<body><div id="app"></div><dialog id="dialog" aria-label="Настройки и рецепты"></dialog><noscript>Включите JavaScript, чтобы пользоваться семейным меню.</noscript>
+<script>
+
+
+const photos = {
+ oats:["Oatmeal with Blueberries (5076894938) 2.jpg","2/2d","TheCulinaryGeek","by/2.0"],
+ omelet:["Flickr - cyclonebill - Omelet med squash, forårsløg, gulerødder og gedeost.jpg","4/49","cyclonebill","by-sa/2.0"],
+ toast:["Fresh Avocado Toast with Egg.jpg","4/4e","Asramsey","by-sa/4.0"],
+ yogurt:["Yogurt fruit bowl.jpg","d/d1","Jumbocombo0811","by-sa/4.0"],
+ fritters:["Greek Zucchini Fritters.jpg","5/5a","Christin568","by-sa/4.0"],
+ balls:["Liat Portal for Foodie Disorder - Meatballs in tomato sauce.jpg","4/4d","HaJunkiyada","by-sa/4.0"],
+ cod:["Baked cod fillet.jpg","f/f3","Tiia Monto","by-sa/4.0"],
+ lentils:["Red lentil soup.jpg","1/1e","Gilabrand","by-sa/3.0"],
+ soup:["Bowl of chicken soup.jpg","b/b8","RWS","by-sa/3.0"],
+ rice:["Plate of food-boiled rice served with chicken.jpg","e/e5","Queen Asali","by-sa/4.0"],
+ boats:["Gefüllte Zucchini 1.jpg","3/34","Schnobby","by-sa/4.0"]
+};
+const foods = {
+ oats:["Овсяные хлопья","Крупы и хлеб",379,13.2,6.5,67.7,["овсянка","овсяные хлопья"]],
+ rice:["Рис","Крупы и хлеб",365,7.1,.7,80,["рис"]],
+ buck:["Гречка","Крупы и хлеб",343,13.3,3.4,71.5,["гречка","гречневая крупа"]],
+ pasta:["Паста","Крупы и хлеб",348,13,2.5,70,["паста","макароны"]],
+ bread:["Цельнозерновой хлеб","Крупы и хлеб",247,12,3.4,41,["хлеб","тосты"]],
+ flour:["Пшеничная мука","Крупы и хлеб",364,10.3,1,76,["мука"]],
+ lentil:["Красная чечевица","Крупы и хлеб",352,24.6,1.1,63.4,["чечевица"]],
+ egg:["Яйца","Яйца и молочное",143,12.6,9.5,.7,["яйцо","яйца"]],
+ yogurt:["Греческий йогурт 2%","Яйца и молочное",73,9.9,1.9,3.9,["йогурт","греческий йогурт"]],
+ curd:["Творог 5%","Яйца и молочное",121,17,5,1.8,["творог"]],
+ cheese:["Сыр","Яйца и молочное",290,20,22,2,["сыр"]],
+ chicken:["Куриное филе","Мясо и рыба",120,22.5,2.6,0,["курица","куриное филе","куриная грудка"]],
+ turkey:["Фарш индейки","Мясо и рыба",153,17.5,8.3,0,["индейка","фарш индейки"]],
+ beef:["Говяжий фарш 10%","Мясо и рыба",176,20,10,0,["говядина","говяжий фарш"]],
+ cod:["Филе трески","Мясо и рыба",82,17.8,.7,0,["треска","филе трески"]],
+ zucchini:["Кабачки","Овощи и фрукты",17,1.2,.3,3.1,["кабачок","кабачки","кабачков","цуккини"]],
+ carrot:["Морковь","Овощи и фрукты",41,.9,.2,9.6,["морковь","морковка"]],
+ broccoli:["Брокколи","Овощи и фрукты",34,2.8,.4,6.6,["брокколи"]],
+ potato:["Картофель","Овощи и фрукты",77,2,.1,17.5,["картошка","картофель"]],
+ tomato:["Помидоры","Овощи и фрукты",18,.9,.2,3.9,["помидоры","помидор","томат","томаты"]],
+ passata:["Пассата без добавок","Бакалея",32,1.6,.3,5.6,["пассата","томатное пюре"]],
+ mushroom:["Шампиньоны","Овощи и фрукты",22,3.1,.3,3.3,["грибы","шампиньоны"]],
+ onion:["Лук","Овощи и фрукты",40,1.1,.1,9.3,["лук"]],
+ garlic:["Чеснок","Овощи и фрукты",149,6.4,.5,33,["чеснок"]],
+ avocado:["Авокадо","Овощи и фрукты",160,2,14.7,8.5,["авокадо"]],
+ berries:["Черника","Овощи и фрукты",57,.7,.3,14.5,["черника","ягоды","голубика"]],
+ banana:["Бананы","Овощи и фрукты",89,1.1,.3,22.8,["банан","бананы"]],
+ lemon:["Лимон","Овощи и фрукты",29,1.1,.3,9.3,["лимон"]],
+ oil:["Растительное масло","Бакалея",884,0,100,0,["масло","оливковое масло","растительное масло"]]
+};
+const recipes = [
+ ["oats","Овсянка с черникой","breakfast",15,"oats",1,{oats:65,yogurt:170,berries:85,banana:90},["Свари хлопья на воде до мягкости.","Разомни банан, смешай с кашей. Чернику и йогурт подай сверху или отдельно."],"Йогурт и ягоды можно положить рядом с кашей."],
+ ["omelet","Омлет с грибами и помидорами","breakfast",20,"omelet",1,{egg:150,mushroom:90,tomato:110,bread:75,oil:5},["Нарежь грибы мелко, прогрей в масле, добавь помидоры.","Залей яйцами, накрой и готовь до схватывания. Подай с хлебом."],"Для детской порции овощи можно подать рядом."],
+ ["toast","Тосты с авокадо и яйцом","breakfast",15,"toast",0,{bread:100,avocado:95,egg:100,tomato:80,lemon:10},["Разомни авокадо с лимоном.","Приготовь яйца до полного схватывания и подай с авокадо и хлебом."],"Детям можно подать мягкий хлеб и начинку отдельно."],
+ ["curd","Творог с бананом и черникой","breakfast snack",8,"yogurt",1,{curd:190,banana:110,berries:90,oats:25},["Разомни банан с творогом.","Добавь мягкие хлопья и чернику или выложи всё рядом."],"Можно размешать творог до однородной текстуры."],
+ ["yogurt","Йогурт с черникой и бананом","snack",5,"yogurt",1,{yogurt:210,berries:95,banana:100,oats:25},["Нарежь банан, смешай йогурт с хлопьями и дай им размягчиться.","Добавь чернику непосредственно перед подачей."],"Используй йогурт без добавок."],
+ ["fritters","Кабачковые оладьи","breakfast dinner",25,"fritters",1,{zucchini:240,egg:100,flour:65,yogurt:85,oil:9},["Натри и слегка отожми кабачок, смешай с яйцами и мукой.","Выложи небольшими порциями на сковороду и доведи обе стороны до готовности. Йогурт поставь отдельно."],"Делай оладьи небольшими и мягкими."],
+ ["balls","Говяжьи тефтели с пастой","lunch dinner",35,"balls",1,{beef:155,zucchini:115,pasta:95,passata:160,onion:45,oil:6},["Смешай фарш, мелко тёртый кабачок и лук. Сформируй небольшие тефтели.","Туши в пассате до полной готовности. Отвари пасту и разложи по тарелкам."],"Можно подать тефтели и пасту раздельно, соус оставить взрослым."],
+ ["turkey","Тефтели из индейки с рисом","lunch dinner",30,"balls",1,{turkey:155,rice:95,zucchini:125,passata:120,onion:40,oil:5},["Натри кабачок, смешай с фаршем и мелким луком. Слепи небольшие тефтели.","Потуши тефтели в пассате до полной готовности, рис отвари отдельно."],"Кабачок делает фарш мягче. Соус добавляй при подаче."],
+ ["cod","Треска с картофелем и брокколи","lunch dinner",30,"cod",1,{cod:220,potato:350,broccoli:160,zucchini:95,oil:12,lemon:15},["Запеки треску с кабачком и частью масла, проверь, что рыба полностью готова, убери кости.","Отвари картофель и брокколи до мягкости. Лимон и оставшееся масло подай отдельно."],"Рыбу можно разобрать на мягкие хлопья, картофель размять."],
+ ["lentils","Крем-суп из красной чечевицы","lunch dinner",30,"lentils",1,{lentil:110,potato:160,zucchini:130,carrot:75,onion:40,oil:9,bread:55},["Промой чечевицу. Нарежь картофель, морковь, кабачок и лук, залей водой.","Отвари до мягкости и измельчи. Хлеб и масло добавляй по тарелкам."],"Густоту можно менять водой при подаче."],
+ ["soup","Куриный суп с рисом","lunch dinner",35,"soup",1,{chicken:170,rice:90,carrot:85,potato:175,zucchini:100,onion:30,oil:5},["Поставь воду, добавь рис и мелко нарезанные овощи.","Добавь курицу и вари до полной готовности. Для мягкой текстуры готовое филе можно измельчить или разобрать на волокна."],"Детям можно подать гуще и разложить компоненты отдельно."],
+ ["rice","Курица с рисом и овощами","lunch dinner",25,"rice",0,{chicken:180,rice:105,broccoli:100,carrot:90,oil:12,lemon:12},["Отвари рис и овощи до нужной мягкости.","Приготовь небольшие кусочки курицы до полной готовности. Лимон добавь при подаче."],"Тем, кто предпочитает мягкий фарш, подойдёт карточка с тефтелями."],
+ ["boats","Кабачки с индейкой и гречкой","lunch dinner",45,"boats",1,{zucchini:280,turkey:170,buck:95,onion:35,passata:100,oil:5},["Отвари гречку. Разрежь кабачок, вынь часть мякоти и измельчи её.","Смешай мякоть, фарш, лук и пассату. Наполни лодочки и запеки до полной готовности начинки. Подай с гречкой."],"Начинку можно вынуть из лодочки и подать отдельно от гарнира."],
+ ["paprika","Курица с томатами и лимоном","lunch dinner",25,"rice",0,{chicken:210,buck:100,tomato:145,garlic:6,lemon:15,oil:12},["Отвари гречку. Приготовь курицу с помидорами и чесноком до полной готовности.","Добавь лимон при подаче. Паприку или чили можно поставить на стол."],"Острое добавляй только в свою тарелку."]
+].map(([id,title,slots,time,photo,soft,items,steps,tip])=>({id,title,slots:slots.split(" "),time,photo,soft,items,steps,tip}));
+
+
+const byId = Object.fromEntries(recipes.map(r=>[r.id,r]));
+const slots = [["breakfast","Завтрак"],["lunch","Обед"],["snack","Перекус"],["dinner","Ужин"]];
+const family = ["Взрослый 1","Взрослый 2","Ребёнок 1","Ребёнок 2"];
+const generic = {names:family, goals:family.map(()=>[0,0,0,0]), factors:[1,1,0.65,0.5], excluded:[], soft:false, maxCurd:0, favorites:[], tips:[]};
+const privateFamily = null;
+const norm = s=>String(s).trim().toLowerCase().replaceAll("ё","е");
+const aliases = new Map(Object.entries(foods).flatMap(([id, row])=>[id,row[0],...row[6]].map(s=>[norm(s),id])));
+const foodKey = name=>aliases.get(norm(name)) || norm(name);
+const date = iso=>new Date(iso+"T12:00:00");
+const iso = d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+function shift(start,n){const d=date(start);d.setDate(d.getDate()+n);return iso(d)}
+function monday(start){return shift(start,-((date(start).getDay()+6)%7))}
+const today = iso(new Date());
+const current = monday(today);
+const dateText = (day,options)=>new Intl.DateTimeFormat("ru-RU",options).format(date(day));
+const counts = r=>Object.entries(r.items).reduce((sum,[id,g])=>sum.map((n,i)=>n+foods[id][i+2]*g/100),[0,0,0,0]);
+recipes.forEach(r=>r.macros=counts(r));
+const nameOf = id=>foods[id]?.[0] || id;
+const eligible = (recipe,profile,excluded=[])=>![...profile.excluded,...excluded].some(id=>Object.hasOwn(recipe.items,foodKey(id)));
+const total = rows=>Object.values(rows||{}).reduce((sum,id)=>byId[id]?sum.map((v,i)=>v+byId[id].macros[i]):sum,[0,0,0,0]);
+const usage = rows=>Object.values(rows||{}).reduce((sum,id)=>(id&&(sum[id]=(sum[id]||0)+1),sum),{});
+const fit = (numbers,goals)=>numbers.reduce((cost,x,i)=>goals[i]>0?cost+[4,3,2,2][i]*Math.abs(x-goals[i])/goals[i]:cost,0);
+const plannedGoals = (profile,people)=>[0,1,2,3].map(i=>{
+  const values=people.map(j=>profile.goals[j][i]/profile.factors[j]).filter(x=>x>0);
+  return values.length?values.reduce((sum,v)=>sum+v,0)/values.length:0;
+});
+function generate(week, prefs, profile, stock, favorites) {
+  const rows={};
+  const repeats={};
+  const left={...stock};
+  const servings=prefs.people.reduce((n,i)=>n+profile.factors[i],0);
+  const goals=plannedGoals(profile,prefs.people);
+  const candidates = recipes.filter(r=>eligible(r,profile,prefs.exclude));
+  const stockBonus = r=>Object.entries(r.items).reduce((bonus,[id,g])=>bonus+Math.min(1,(left[id]||0)/(g*servings))*0.38,0);
+  for(let day=0;day<7;day++){
+    const key=shift(week,day);
+    const limit=prefs.fast.includes(day)?Math.min(20,prefs.max):prefs.max;
+    let options=[{ids:{}, totals:[0,0,0,0], score:0}];
+    for(const [slot] of slots) {
+      const pool=candidates.filter(r=>r.time<=limit && r.slots.includes(slot) && !(r.id==="curd"&&profile.maxCurd&&repeats.curd>=profile.maxCurd));
+      if(!pool.length) continue;
+      options=options.flatMap(o=>pool.filter(r=>!Object.values(o.ids).includes(r.id)).map(r=>{
+        let score=o.score+(repeats[r.id]||0)*0.42-stockBonus(r);
+        if(profile.soft&&!r.soft) score+=2.2;
+        if(prefs.useFavorites&&favorites.includes(r.id)) score-=0.65;
+        if(prefs.priorities.includes(r.id)&&!repeats[r.id]) score-=4;
+        return {ids:{...o.ids,[slot]:r.id},totals:o.totals.map((v,i)=>v+r.macros[i]),score};
+      })).concat(options.map(o=>({...o, score:o.score+9})));
+    }
+    options.sort((a,b)=>(a.score+fit(a.totals,goals))-(b.score+fit(b.totals,goals)));
+    rows[key]=options[0].ids;
+    for(const id of Object.values(rows[key])){
+      repeats[id]=(repeats[id]||0)+1;
+      for(const [item,g] of Object.entries(byId[id].items)) left[item]=Math.max(0,(left[item]||0)-g*servings);
+    }
+  }
+  return rows;
+}
+function groceries(plan, profile, stock) {
+  const servings=plan.prefs.people.reduce((n,i)=>n+profile.factors[i],0);
+  const need={};
+  for(const row of Object.values(plan.rows)) for(const id of Object.values(row)){
+    for(const [item,g] of Object.entries(byId[id]?.items||{})) need[item]=(need[item]||0)+g*servings;
+  }
+  return Object.entries(need).map(([id,g])=>({id,need:Math.round(g),buy:Math.max(0,Math.round(g-(stock[id]||0)))})).sort((a,b)=>nameOf(a.id).localeCompare(nameOf(b.id),"ru"));
+}
+const basicPrefs=()=>({people:[0,1,2,3],max:45,fast:[],priorities:[],exclude:[],useFavorites:true});
+const initial=()=>({profile:structuredClone(privateFamily||generic),favorites:[...(privateFamily?.favorites||[])],stock:{},weeks:{}});
+const storageKey="family-menu-v1";
+function readState(){
+  try{const s=JSON.parse(localStorage.getItem(storageKey));if(s?.profile&&s.weeks&&s.stock&&Array.isArray(s.favorites)) return s;}catch{}
+  return initial();
+}
+let state=readState();
+let storageFailed=false;
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(state));}catch{storageFailed=true;}}
+const makeWeek=(week,prefs)=>({prefs,rows:generate(week,prefs,state.profile,state.stock,state.favorites),checked:{}});
+let week=current, day=today, screen="plan", scope="day", person=0, recipeFilter="all", recipeQuery="", modal=null, notice="", swapFrom=null;
+if(!state.weeks[week]){state.weeks[week]=makeWeek(week,basicPrefs());save();}
+const active=()=>state.weeks[week];
+const e = value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+const list = v=>v.split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
+const servingsOf=()=>active().prefs.people.reduce((n,i)=>n+state.profile.factors[i],0);
+const photoInfo=r=>{const [file,hash,author,license]=photos[r.photo];const filename=encodeURIComponent(file.replaceAll(" ","_"));return {src:"https://upload.wikimedia.org/wikipedia/commons/"+hash+"/"+filename,source:"https://commons.wikimedia.org/wiki/File:"+filename,author,license};};
+const icon = name=>{
+  const paths={
+    calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+    book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M8 7h8m-8 4h5"/>',
+    bag:'<path d="M4 8h16l1 13H3L4 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/>',
+    pantry:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14M9 5v2m0 6v4"/>',
+    sliders:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="currentColor"/><circle cx="15" cy="17" r="2" fill="currentColor"/>',
+    heart:'<path d="M20.8 8.4c0 4-5 7.7-8.8 10.6-3.8-2.9-8.8-6.6-8.8-10.6A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8.8 1.4Z"/>',
+    clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    swap:'<path d="M4 8h15l-3-3m4 11H5l3 3"/>',
+    left:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',
+    plus:'<path d="M12 5v14M5 12h14"/>', close:'<path d="m6 6 12 12M18 6 6 18"/>',
+    arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',
+    leaf:'<path d="M5 20c5-1 10-7 13-12M4 16C2 8 10 3 21 3c0 11-5 19-13 17"/>',
+    check:'<path d="m5 12 4 4L19 6"/>'
+  };
+  return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[name]+'</svg>';
+};
+
+const app=document.querySelector("#app");
+const dialog=document.querySelector("#dialog");
+const nav=[["plan","Меню","calendar"],["recipes","Рецепты","book"],["pantry","Что дома","pantry"],["shop","Покупки","bag"]];
+const btn=(act,label,style="secondary",attrs="")=>'<button type="button" class="btn '+style+'" data-act="'+act+'" '+attrs+'>'+label+'</button>';
+const attr=(k,v)=>'data-'+k+'="'+e(v)+'"';
+const img=(r,cls="")=>'<img class="'+cls+'" src="'+photoInfo(r).src+'" alt="'+e(r.title)+'" loading="lazy" referrerpolicy="no-referrer">';
+const titleRange=()=>dateText(week,{day:"numeric",month:"short"}).replace(".","")+" — "+dateText(shift(week,6),{day:"numeric",month:"long"});
+function mast(){
+ return '<header class="top"><div class="wrap top-inner"><a class="brand" href="#plan"><span class="mark">'+icon("leaf")+'</span><span>Семейное меню</span></a><nav aria-label="Разделы">'+nav.map(([id,label,i])=>'<a href="#'+id+'" '+(screen===id?'aria-current="page"':'')+'>'+icon(i)+label+'</a>').join("")+'</nav>'+btn("profile",icon("sliders")+'<span>Профиль</span>',"profile")+'</div></header>';
+}
+function header(title,sub,action=""){return '<div class="heading"><div><h1>'+title+'</h1><p>'+sub+'</p></div>'+action+'</div>';}
+function mealCard(r,slot,dateValue){
+ const [key,label]=slot;
+ const coords=attr("slot",key)+" "+attr("day",dateValue);
+ const selected=swapFrom?.day===dateValue&&swapFrom?.slot===key;
+ if(!r)return '<article class="meal empty"><span class="mealtype">'+label+'</span><p>Свободно</p><div>'+btn("replace",icon("plus")+" Выбрать блюдо","secondary",coords)+(swapFrom?.slot===key?btn("swap",icon("swap")+" Сюда","quiet",coords):"")+'</div></article>';
+ return '<article class="meal'+(selected?' selected':'')+'" draggable="true" '+coords+'><div class="imagebox"><button type="button" class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+btn("fav",icon("heart"),"heart "+(state.favorites.includes(r.id)?"on":""),attr("id",r.id)+' aria-label="Избранное" aria-pressed="'+state.favorites.includes(r.id)+'"')+'</div><div class="mealbody"><div class="mealmeta"><span class="mealtype">'+label+'</span><span>'+icon("clock")+r.time+' мин</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button><div class="dishstats">≈ '+Math.round(r.macros[0]*state.profile.factors[person])+' ккал · Б '+Math.round(r.macros[1]*state.profile.factors[person])+' г</div><div class="mealactions">'+btn("replace","Заменить","quiet",coords)+btn("swap",icon("swap"),"quiet",coords+' aria-label="Переставить '+label.toLowerCase()+'"')+'</div></div></article>';
+}
+function macroCard(){
+ const sum=total(active().rows[day]).map(v=>v*state.profile.factors[person]);
+ const goals=state.profile.goals[person];
+ const labels=["Калории","Белки","Жиры","Углеводы"];
+ return '<aside class="macro panel"><div class="sidehead"><h2>БЖУ за день</h2><select id="person" aria-label="Для кого показать БЖУ">'+active().prefs.people.map(i=>'<option value="'+i+'" '+(i===person?'selected':'')+'>'+e(state.profile.names[i])+'</option>').join("")+'</select></div><div class="metricgrid">'+labels.map((label,i)=>'<div class="metric"><span>'+label+'</span><b>'+Math.round(sum[i])+'<small> '+(i?"г":"ккал")+'</small></b>'+(goals[i]?'<div class="track"><span style="width:'+Math.min(100,100*sum[i]/goals[i])+'%"></span></div><small>Цель '+goals[i]+'</small>':'')+'</div>').join("")+'</div><p class="muted">Оценка по сырым ингредиентам. Упаковка и порции могут отличаться.</p>'+btn("profile",goals.some(Boolean)?"Изменить цели":"Задать цели","quiet")+'</aside>';
+}
+function planPage(){
+ const plan=active();
+ const items=groceries(plan,state.profile,state.stock).filter(x=>x.buy);
+ return header("Меню на неделю","Запланируйте блюда, используйте продукты дома и соберите покупки.",btn("survey",icon("plus")+" Новая неделя","primary"))+
+ '<div class="toolbar panel"><div class="weeknav">'+btn("prev",icon("left"),"icon",'aria-label="Предыдущая неделя"')+'<strong>'+titleRange()+'</strong>'+btn("next",icon("right"),"icon",'aria-label="Следующая неделя"')+'</div><div class="switch" aria-label="Вид меню">'+btn("scope","День",scope==="day"?"active":"quiet",attr("value","day"))+btn("scope","Неделя",scope==="week"?"active":"quiet",attr("value","week"))+'</div></div>'+
+ '<div class="days" aria-label="Дни недели">'+Array.from({length:7},(_,i)=>{const d=shift(week,i);return btn("day",'<span>'+dateText(d,{weekday:"short"})+'</span><b>'+date(d).getDate()+'</b>',d===day?"chosen":"",attr("value",d)+' aria-pressed="'+(d===day)+'"');}).join("")+'</div>'+
+ (swapFrom?'<div class="banner">Выберите такой же приём пищи в другом дне. '+btn("cancel-swap","Отмена","quiet")+'</div>':"")+
+ (scope==="day"?'<div class="planlayout"><section><div class="sectionhead"><h2>'+dateText(day,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+(day===today?'<span>Сегодня</span>':"")+'</div><div class="mealgrid">'+slots.map(s=>mealCard(byId[plan.rows[day]?.[s[0]]],s,day)).join("")+'</div></section><div class="sides">'+macroCard()+'<section class="panel sidebox"><h2>Покупки на неделю</h2><p class="muted">'+items.length+' позиций с учётом продуктов дома</p><a class="btn secondary" href="#shop">Открыть список '+icon("arrow")+'</a></section></div></div>':
+ '<div class="weeklist">'+Object.entries(plan.rows).map(([d,row])=>'<section><div class="sectionhead"><h2>'+dateText(d,{weekday:"long",day:"numeric",month:"long"})+'</h2>'+btn("day","Открыть день","quiet",attr("value",d)+' data-open="1"')+'</div><div class="mealgrid">'+slots.map(s=>mealCard(byId[row[s[0]]],s,d)).join("")+'</div></section>').join("")+'</div>');
+}
+const matchStock=r=>Object.keys(r.items).filter(id=>state.stock[id]>0);
+const stockNote=r=>matchStock(r).map(id=>nameOf(id));
+function recipeCards(rows){
+ if(!rows.length)return '<div class="panel message">Подходящих рецептов пока нет.</div>';
+ return '<div class="librarygrid">'+rows.map(r=>'<article class="meal"><div class="imagebox"><button class="imagebutton" data-act="detail" '+attr("id",r.id)+'>'+img(r)+'</button>'+btn("fav",icon("heart"),"heart "+(state.favorites.includes(r.id)?"on":""),attr("id",r.id)+' aria-label="Избранное" aria-pressed="'+state.favorites.includes(r.id)+'"')+'</div><div class="mealbody"><div class="mealmeta"><span>'+icon("clock")+r.time+' мин</span><span>≈ '+Math.round(r.macros[0])+' ккал</span></div><button class="dish" data-act="detail" '+attr("id",r.id)+'>'+e(r.title)+'</button>'+(stockNote(r).length?'<p class="in-stock">Дома есть '+e(stockNote(r).join(", "))+'</p>':'')+'</div></article>').join("")+'</div>';
+}
+function recipePage(){
+ const rows=recipes.filter(r=>eligible(r,state.profile,active().prefs.exclude))
+ .filter(r=>recipeFilter!=="favorite"||state.favorites.includes(r.id))
+ .filter(r=>recipeFilter!=="stock"||matchStock(r).length)
+ .filter(r=>!recipeQuery||norm(r.title+" "+Object.keys(r.items).map(nameOf).join(" ")).includes(norm(recipeQuery)));
+ return header("Рецепты","Выбирайте блюда для меню и сохраняйте те, которые хочется повторить.")+
+ '<div class="filters"><div class="switch">'+[["all","Все"],["favorite","Избранное"],["stock","Из продуктов дома"]].map(([id,label])=>btn("filter",label,recipeFilter===id?"active":"quiet",attr("value",id))).join("")+'</div><input id="recipe-search" type="search" placeholder="Найти блюдо или продукт" aria-label="Найти блюдо или продукт" value="'+e(recipeQuery)+'"></div><div id="recipe-results">'+recipeCards(rows)+'</div>';
+}
+function pantryPage(){
+ const items=Object.entries(state.stock).sort((a,b)=>nameOf(a[0]).localeCompare(nameOf(b[0]),"ru"));
+ const ideas=recipes.filter(r=>eligible(r,state.profile,active().prefs.exclude)&&matchStock(r).length).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
+ return header("Что дома","Укажите продукты и количество. Меню предложит, где их использовать, а список покупок вычтет запас.")+
+ '<div class="panel pantry"><form id="stock-form"><label>Продукт<input required name="name" list="foods" placeholder="Например, кабачки" maxlength="70"></label><label>Граммы<input required name="grams" type="number" min="1" max="100000" placeholder="800"></label><button class="btn primary">'+icon("plus")+' Добавить</button><datalist id="foods">'+Object.values(foods).map(f=>'<option value="'+e(f[0])+'">').join("")+'</datalist></form>'+
+ (items.length?'<ul class="lineitems">'+items.map(([id,g])=>'<li><strong>'+e(nameOf(id))+'</strong><span>'+g+' г</span>'+btn("edit-stock","Изменить","quiet",attr("id",id))+btn("remove-stock",icon("close"),"quiet",attr("id",id)+' aria-label="Убрать '+e(nameOf(id))+'"')+'</li>').join("")+'</ul>':'<p class="muted">Добавьте первый продукт, чтобы увидеть идеи.</p>')+
+ '</div><h2 class="gaphead">Что приготовить</h2>'+recipeCards(ideas);
+}
+function shopPage(){
+ const plan=active();
+ const missing=groceries(plan,state.profile,state.stock).filter(x=>x.buy);
+ const groups=missing.reduce((result,item)=>{(result[foods[item.id][1]]??=[]).push(item);return result;},{});
+ return header("Список покупок",titleRange()+' · '+e(plan.prefs.people.map(i=>state.profile.names[i]).join(", ")),btn("copy",icon("check")+" Скопировать","secondary"))+
+ '<div class="shopgrid">'+(missing.length?Object.entries(groups).map(([group,items])=>'<section class="panel shop"><h2>'+group+'</h2>'+items.map(({id,buy})=>'<label class="shoprow"><input type="checkbox" data-check="'+id+'" '+(plan.checked[id]===buy?"checked":"")+'><span>'+e(nameOf(id))+'</span><b>'+buy+' г</b></label>').join("")+'</section>').join(""):'<p class="panel message">По текущему меню покупать ничего не нужно.</p>')+'</div>';
+}
+function render(){
+ if(!active().prefs.people.includes(person))person=active().prefs.people[0];
+ app.innerHTML=mast()+'<main class="wrap">'+(storageFailed?'<p class="banner">Браузер заблокировал сохранение данных.</p>':'')+(notice?'<p role="status" class="banner">'+e(notice)+'</p>':'')+({plan:planPage,recipes:recipePage,pantry:pantryPage,shop:shopPage}[screen]())+'</main><footer class="wrap footer"><a href="https://mk.opalinskiy.ru/v2/" rel="noreferrer">Медкнижка '+icon("arrow")+'</a><span>Планы и настройки сохраняются в этом браузере. <a href="https://fdc.nal.usda.gov/" rel="noreferrer">Справочник БЖУ</a>.</span></footer>';
+}
+function show(content,wide=false){
+ dialog.innerHTML='<div class="modalbody '+(wide?"wide":"")+'">'+btn("close",icon("close"),"icon x",'aria-label="Закрыть"')+content+'</div>';
+ if(!dialog.open)dialog.showModal();
+}
+function recipeDetail(id,serving=1){
+ const r=byId[id], photo=photoInfo(r);
+ modal={kind:"detail",id};
+ show('<div class="recipehero">'+img(r)+'</div><h2>'+e(r.title)+'</h2><p class="muted">'+r.time+' мин · БЖУ ≈ '+r.macros.slice(1).map(v=>Math.round(v)).join(" / ")+' г и '+Math.round(r.macros[0])+' ккал на базовую порцию</p>'+
+ '<p class="banner">'+e(r.tip)+'</p><label>Масштаб продуктов <select id="portion"><option value="1" '+(serving===1?"selected":"")+'>Базовая порция</option><option value="'+servingsOf()+'" '+(serving!==1?"selected":"")+'>На выбранный состав семьи</option></select></label><ul class="ingredients">'+Object.entries(r.items).map(([id,g])=>'<li><span>'+nameOf(id)+'</span><b>'+Math.round(g*serving)+' г</b></li>').join("")+'</ul>'+
+ '<h3>Как приготовить</h3><ol class="steps">'+r.steps.map(s=>'<li>'+e(s)+'</li>').join("")+'</ol><p class="credit">Фото для подачи · <a href="'+photo.source+'" target="_blank" rel="noreferrer">'+e(photo.author)+', Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/'+photo.license+'/" target="_blank" rel="noreferrer">CC '+photo.license.replace("/"," ").toUpperCase()+'</a></p>'+
+ '<div class="formend">'+btn("fav-detail",icon("heart")+(state.favorites.includes(id)?" В избранном":" Сохранить"),"secondary",attr("id",id))+btn("pick-day","В меню", "primary",attr("id",id))+'</div>',true);
+}
+function profileModal(){
+ const p=state.profile;
+ modal={kind:"profile"};
+ show('<h2>Семейный профиль</h2><p class="muted">Цели и размер порций можно настроить для каждого. Оставьте цель пустой, если её нет.</p><form id="profile-form"><div class="profiles">'+p.names.map((name,i)=>'<fieldset><legend>'+e(name)+'</legend><div class="profile-row"><label>Имя<input name="name'+i+'" maxlength="36" required value="'+e(name)+'"></label><label>Доля порции<input name="factor'+i+'" type="number" min="0.1" max="3" step="0.05" required value="'+p.factors[i]+'"></label></div><div class="profile-macros">'+["Ккал","Белки, г","Жиры, г","Углеводы, г"].map((label,j)=>'<label>'+label+'<input type="number" min="0" max="'+(j?1500:9000)+'" name="macro'+i+'-'+j+'" value="'+(p.goals[i][j]||"")+'"></label>').join("")+'</div></fieldset>').join("")+'</div><label>Исключить из общей еды<input name="exclude" value="'+e(p.excluded.join(", "))+'" placeholder="Через запятую"></label><label class="tick"><input type="checkbox" name="soft" '+(p.soft?"checked":"")+'> Предлагать мягкие блюда чаще</label><label>Творог · максимум раз в неделю<input type="number" name="curd" min="0" max="28" value="'+p.maxCurd+'"><small>0 — без ограничения</small></label>'+
+ (p.tips.length?'<div class="banner"><b>Правила вашего стола</b><ul>'+p.tips.map(t=>'<li>'+e(t)+'</li>').join("")+'</ul></div>':'')+
+ '<div class="formend"><label class="btn secondary upload">Загрузить профиль<input type="file" id="import-profile" accept=".json,application/json"></label>'+btn("export-profile","Скачать профиль","secondary")+'<button class="btn primary">Сохранить</button></div><p class="muted">Файл профиля можно загрузить в браузере другого члена семьи.</p></form>',true);
+}
+function surveyModal(){
+ const target=shift(week,7);
+ const prefs=state.weeks[target]?.prefs||active().prefs;
+ modal={kind:"survey"};
+ show('<h2>План на новую неделю</h2><form id="survey"><label>Дата в нужной неделе<input type="date" name="date" required value="'+target+'"></label><fieldset><legend>Кто ест дома</legend><div class="choices">'+state.profile.names.map((name,i)=>'<label class="tick"><input type="checkbox" name="people" value="'+i+'" '+(prefs.people.includes(i)?"checked":"")+'>'+e(name)+'</label>').join("")+'</div></fieldset><label>Время на одно блюдо<select name="max">'+[20,25,30,35,45].map(i=>'<option value="'+i+'" '+(i===prefs.max?"selected":"")+'>'+i+' мин</option>').join("")+'</select></label><fieldset><legend>Дни, когда нужно быстро</legend><div class="choices">'+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((s,i)=>'<label class="tick"><input type="checkbox" name="fast" value="'+i+'" '+(prefs.fast.includes(i)?"checked":"")+'>'+s+'</label>').join("")+'</div></fieldset><label>Что хочется приготовить<select name="priorities" multiple size="5">'+recipes.filter(r=>eligible(r,state.profile)).map(r=>'<option value="'+r.id+'" '+(prefs.priorities.includes(r.id)?"selected":"")+'>'+e(r.title)+'</option>').join("")+'</select><small>Можно выбрать несколько блюд.</small></label><label>Что пропустить на этой неделе<input name="exclude" value="'+e(prefs.exclude.join(", "))+'" placeholder="Например, помидоры"></label><label class="tick"><input type="checkbox" name="favorites" '+(prefs.useFavorites?"checked":"")+'> Чаще предлагать избранное</label><p class="muted">Если на выбранную неделю есть план, его заменит новое меню.</p><div class="formend"><button class="btn primary">Собрать меню '+icon("arrow")+'</button></div></form>',true);
+}
+function replaceModal(d,slot){
+ modal={kind:"replace",day:d,slot};
+ const pool=recipes.filter(r=>r.slots.includes(slot)&&eligible(r,state.profile,active().prefs.exclude)).sort((a,b)=>matchStock(b).length-matchStock(a).length||a.time-b.time);
+ show('<h2>'+slots.find(s=>s[0]===slot)[1]+' · '+dateText(d,{weekday:"short",day:"numeric",month:"short"})+'</h2><div class="replacement">'+pool.map(r=>btn("place",img(r)+'<span><strong>'+e(r.title)+'</strong><small>'+r.time+' мин · ≈ '+Math.round(r.macros[0])+' ккал</small></span>',"pick",attr("id",r.id))).join("")+'</div>'+btn("place","Оставить свободным","quiet",attr("id","")),true);
+}
+function pickDay(id){
+ const r=byId[id]; modal={kind:"pick-day",id};
+ show('<h2>Добавить в меню</h2><p>'+e(r.title)+'</p><form id="add-dish"><label>День<select name="day">'+Object.keys(active().rows).map(d=>'<option value="'+d+'" '+(d===day?"selected":"")+'>'+dateText(d,{weekday:"long",day:"numeric",month:"short"})+'</option>').join("")+'</select></label><label>Приём пищи<select name="slot">'+slots.filter(([s])=>r.slots.includes(s)).map(([s,n])=>'<option value="'+s+'">'+n+'</option>').join("")+'</select></label><div class="formend"><button class="btn primary">Поставить в меню</button></div></form>');
+}
+
+function closeDialog(){if(dialog.open)dialog.close();modal=null;}
+function announce(message){notice=message;render();}
+function setDish(d,slot,id){
+ if(id&&!eligible(byId[id],state.profile,active().prefs.exclude))return false;
+ const row=active().rows[d];
+ if(id)row[slot]=id;else delete row[slot];
+ save();return true;
+}
+function swap(a,b){
+ if(a.slot!==b.slot||a.day===b.day)return false;
+ const ra=active().rows[a.day],rb=active().rows[b.day];
+ const one=ra[a.slot],two=rb[b.slot];
+ if(two)ra[a.slot]=two;else delete ra[a.slot];
+ if(one)rb[b.slot]=one;else delete rb[b.slot];
+ swapFrom=null;save();return true;
+}
+function favorite(id){
+ const f=state.favorites;
+ state.favorites=f.includes(id)?f.filter(x=>x!==id):[...f,id];
+ save();
+}
+function newDate(value,people){
+ week=value; day=week===current?today:week; swapFrom=null;
+ if(!state.weeks[week]){state.weeks[week]=makeWeek(week,{...basicPrefs(),people:[...people]});save();}
+}
+
+function route(){
+ const hash=location.hash.slice(1);
+ screen=nav.some(x=>x[0]===hash)?hash:"plan";notice="";swapFrom=null;
+ render();
+}
+window.addEventListener("hashchange",route);
+const cleanProfile=p=>{
+ if(!p||![p.names,p.goals,p.factors].every(a=>Array.isArray(a)&&a.length===4))throw Error();
+ if(!p.names.every(x=>typeof x==="string"&&x.trim()&&x.length<=36))throw Error();
+ if(!p.goals.every(a=>Array.isArray(a)&&a.length===4&&a.every((x,i)=>Number.isFinite(x)&&x>=0&&x<=(i?1500:9000))))throw Error();
+ if(!p.factors.every(x=>Number.isFinite(x)&&x>=0.1&&x<=3))throw Error();
+ const strings=(x,max,len)=>Array.isArray(x)?x.filter(v=>typeof v==="string").slice(0,max).map(v=>v.slice(0,len)):[];
+ return {names:p.names,goals:p.goals,factors:p.factors,excluded:strings(p.excluded,100,80),soft:!!p.soft,maxCurd:Math.max(0,Math.min(28,Math.floor(Number(p.maxCurd)||0))),favorites:strings(p.favorites,50,40).filter(id=>Object.hasOwn(byId,id)),tips:strings(p.tips,20,320)};
+};
+function applyProfile(profile,merge=false){
+ state.profile=cleanProfile(profile);
+ if(merge)state.favorites=[...new Set([...state.favorites,...state.profile.favorites])];
+ for(const p of Object.values(state.weeks))for(const row of Object.values(p.rows))for(const [slot,id] of Object.entries(row)){
+   if(!eligible(byId[id],state.profile,p.prefs.exclude))delete row[slot];
+ }
+ save();
+}
+const stockForm=()=>document.querySelector("#stock-form");
+document.addEventListener("click",async event=>{
+ const target=event.target.closest("[data-act]");
+ if(!target)return;
+ const {act,id,value,day:when,slot}=target.dataset;
+ notice="";
+ switch(act){
+  case "close": closeDialog();break;
+  case "survey": surveyModal();break;
+  case "profile": profileModal();break;
+  case "detail": recipeDetail(id);break;
+  case "pick-day": pickDay(id);break;
+  case "fav": favorite(id);render();break;
+  case "fav-detail": favorite(id);render();recipeDetail(id);break;
+  case "scope": scope=value;render();break;
+  case "day": day=value;if(target.dataset.open)scope="day";render();break;
+  case "prev":
+  case "next": newDate(shift(week,act==="prev"?-7:7),active().prefs.people);render();break;
+  case "filter": recipeFilter=value;render();break;
+  case "replace": replaceModal(when,slot);break;
+  case "place":
+   if(modal?.kind==="replace"&&setDish(modal.day,modal.slot,id)){closeDialog();announce("Меню и покупки обновлены.");}
+   break;
+  case "swap":
+   if(swapFrom?.day===when&&swapFrom.slot===slot)swapFrom=null;
+   else if(!swapFrom||!swap(swapFrom,{day:when,slot})){swapFrom={day:when,slot};scope="week";}
+   render();break;
+  case "cancel-swap": swapFrom=null;render();break;
+  case "edit-stock": stockForm().elements.name.value=nameOf(id);stockForm().elements.grams.value=state.stock[id];stockForm().elements.grams.focus();break;
+  case "remove-stock": delete state.stock[id];save();render();break;
+  case "copy": {
+   const rows=groceries(active(),state.profile,state.stock).filter(x=>x.buy&&active().checked[x.id]!==x.buy);
+   const text=rows.map(x=>nameOf(x.id)+" — "+x.buy+" г").join("\n");
+   if(!text){announce("Все покупки отмечены.");break;}
+   try{await navigator.clipboard.writeText(text);announce("Список скопирован.");}
+   catch{modal={kind:"copy"};show('<h2>Список для копирования</h2><textarea readonly rows="11" aria-label="Список покупок">'+e(text)+'</textarea>');dialog.querySelector("textarea").select();}
+   break;
+  }
+  case "export-profile": {
+    const url=URL.createObjectURL(new Blob([JSON.stringify({...state.profile,favorites:state.favorites},null,2)],{type:"application/json"}));
+    const link=document.createElement("a");link.href=url;link.download="family-profile.json";link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    break;
+  }
+ }
+});
+dialog.addEventListener("close",()=>{if(!dialog.open)modal=null;});
+document.addEventListener("input",event=>{
+ if(event.target.id!=="recipe-search")return;
+ recipeQuery=event.target.value;
+ const temp=document.createElement("template");temp.innerHTML=recipePage();
+ document.querySelector("#recipe-results").replaceChildren(...temp.content.querySelector("#recipe-results").childNodes);
+});
+document.addEventListener("change",async event=>{
+ const input=event.target;
+ if(input.id==="person"){person=Number(input.value);render();}
+ if(input.id==="portion"&&modal?.kind==="detail")recipeDetail(modal.id,input.selectedIndex===0?1:Number(input.value));
+ if(input.dataset.check){
+  const id=input.dataset.check;
+  if(input.checked)active().checked[id]=groceries(active(),state.profile,state.stock).find(x=>x.id===id).buy;
+  else delete active().checked[id];
+  save();
+ }
+ if(input.id==="import-profile"&&input.files[0]){
+  try{
+   if(input.files[0].size>50000)throw Error();
+   const p=JSON.parse(await input.files[0].text());applyProfile(p,true);
+   closeDialog();announce("Семейный профиль загружен. Пожелания можно применить при сборке недели.");
+  }catch{input.value="";const old=dialog.querySelector("[role=alert]");if(!old)dialog.querySelector("form").insertAdjacentHTML("afterbegin",'<p class="banner" role="alert">Выберите файл профиля семейного меню.</p>');}
+ }
+});
+document.addEventListener("submit",event=>{
+ event.preventDefault();
+ const form=event.target,data=new FormData(form);
+ if(form.id==="stock-form"){
+  state.stock[foodKey(data.get("name"))]=Number(data.get("grams"));save();announce("Запасы и список покупок обновлены.");
+ }
+ if(form.id==="profile-form"){
+  applyProfile({...state.profile,names:family.map((_,i)=>data.get("name"+i).trim()),factors:family.map((_,i)=>Number(data.get("factor"+i))),goals:family.map((_,i)=>[0,1,2,3].map(j=>Number(data.get("macro"+i+"-"+j)))),excluded:list(data.get("exclude")),soft:data.has("soft"),maxCurd:Number(data.get("curd"))});
+  closeDialog();announce("Семейный профиль сохранён.");
+ }
+ if(form.id==="survey"){
+  const people=data.getAll("people").map(Number);
+  if(!people.length){if(!form.querySelector("[role=alert]"))form.insertAdjacentHTML("afterbegin",'<p role="alert" class="banner">Выберите хотя бы одного человека.</p>');return;}
+  week=monday(data.get("date"));day=week===current?today:week;
+  const prefs={people,max:Number(data.get("max")),fast:data.getAll("fast").map(Number),priorities:data.getAll("priorities"),exclude:list(data.get("exclude")),useFavorites:data.has("favorites")};
+  state.weeks[week]=makeWeek(week,prefs);scope="day";swapFrom=null;save();closeDialog();
+  if(screen!=="plan"){location.hash="plan";screen="plan";}
+  announce("План на неделю готов.");
+ }
+ if(form.id==="add-dish"&&modal?.kind==="pick-day"){
+  if(setDish(data.get("day"),data.get("slot"),modal.id)){closeDialog();announce("Блюдо добавлено в меню.");}
+ }
+});
+let dragged=null;
+app.addEventListener("dragstart",event=>{
+ const card=event.target.closest("article[draggable][data-day]");
+ if(!card)return;
+ dragged={day:card.dataset.day,slot:card.dataset.slot};event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","meal");
+});
+app.addEventListener("dragover",event=>{
+ const card=event.target.closest("article[data-day]");
+ if(card&&dragged?.slot===card.dataset.slot)event.preventDefault();
+});
+app.addEventListener("drop",event=>{
+ const card=event.target.closest("article[data-day]");
+ if(card&&dragged){event.preventDefault();if(swap(dragged,{day:card.dataset.day,slot:card.dataset.slot}))render();}
+ dragged=null;
+});
+app.addEventListener("dragend",()=>{dragged=null;});
+route();
+
+</script>
+</body>
+</html>
