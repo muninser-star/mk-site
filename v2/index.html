@@ -1083,6 +1083,7 @@ body.sv-lock{overflow:hidden}
 .study-series{min-width:0;margin:18px 0}.tbl.study-series-table{table-layout:fixed}.tbl.study-series-table th,.tbl.study-series-table td{white-space:normal;overflow-wrap:anywhere;vertical-align:top}.tbl.study-series-table th:first-child{width:180px;text-align:left}.tbl.study-series-table tbody th{font-weight:600;font-size:13px}.tbl.study-series-table td{font-variant-numeric:tabular-nums}.study-series [aria-current="true"]{font-weight:700;border-color:var(--accent)}.study-series .tbl-wrap:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .tbl { width: 100%; border-collapse: collapse; font: 400 14px/20px var(--font); letter-spacing: -.3px; }
 .study-scroll-hint{display:none}@media(max-width:560px){.study-scroll-hint{display:block;font-size:12px;margin:0 0 8px}}
+@media(min-width:768px){.mbox:has(.study-series){max-width:960px;width:calc(100vw - 32px)}.study-summary-text{max-width:70ch}}
 .tbl th { text-align: left; padding: 8px 12px; font: 600 12px/16px var(--font); color: var(--text-secondary); border-bottom: 1px solid var(--surface-2); white-space: nowrap; }
 .tbl td { padding: 12px; border-bottom: 1px solid var(--surface-2); vertical-align: middle; }
 .tbl tr:last-child td { border-bottom: 0; }
@@ -5771,7 +5772,7 @@ function logLines(list,eps){
 // ---- Правки, сделанные в книжке. Держим локально, чтобы действовали сразу
 // и переживали закрытие вкладки. Когда правка доедет до реестра, наложение снимается само.
 const OVKEY="mkOverlay";
-const BUILD="21.11.2026 · ТЗ-074 УЗИ печени";   // подставляется при публикации
+const BUILD="21.11.2026 · ТЗ-074 r2";   // подставляется при публикации
 // Входящие: то, что добавлено кнопками «+» и «✎», ждёт в базе (inbox_rows), пока агент перенесёт в реестр.
 // Корзины: journal_add, journal_edit, disease_new, body, shopping, ideas (ТЗ-001 блок 1)
 const INBOX="journal_add", EDITS="journal_edit", NEWEP="disease_new", BODY="body", SHOP="shopping", IDEAS="ideas";
