@@ -1,4 +1,5 @@
 /* ТЗ-075: one immutable authorised snapshot feeds print and CSV. */
+function bpDiaryDate(day){return /^\d{4}-\d{2}-\d{2}$/.test(String(day))?day.slice(8,10)+'.'+day.slice(5,7)+'.'+day.slice(0,4):String(day||'');}
 function bpDiaryDay(iso){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));}
 function bpDiaryExcluded(name){const n=String(name||'').toLowerCase().replace(/ё/g,'е').replace(/[«»„“”"']/g,'').replace(/\s+/g,' ').trim();return ['мирена','вмс мирена'].includes(n);}
 const BP_DIARY_LEGEND='Утро 00:00–11:59 · День 12:00–17:59 · Вечер 18:00–23:59 · Europe/Moscow';
@@ -9,7 +10,7 @@ function bpDiaryRows(rows,intakes,from,to,meds){
  const groups=[[],[],[]],comments=[];
  r.forEach((x,i)=>{const time=clock(x.measured_at),hour=Number(time.slice(0,2)),label=time+' №'+(i+1);groups[hour<12?0:hour<18?1:2].push(label+' — '+x.sys+'/'+x.dia+(x.pulse!=null?'; пульс '+x.pulse:''));const comment=String(x.comment||'').trim(),legacy=comment.toLowerCase()==='в покое',condition=String(x.note||'').trim()||(legacy?comment:'');if(condition)groups[hour<12?0:hour<18?1:2][groups[hour<12?0:hour<18?1:2].length-1]+='\n  Условия: '+condition;if(comment&&!legacy)comments.push(label+' — '+comment);});
  const facts=intakes.filter(x=>x.date===day&&!bpDiaryExcluded(x.name));
- out.push([day,...groups.map(x=>x.join('\n')||'—'),comments.join('\n')||'—',[...meds(day),...facts.map(x=>'Прием: '+x.name+(x.time?' · '+x.time:''))].join('\n')||'—']);
+ out.push([bpDiaryDate(day),...groups.map(x=>x.join('\n')||'—'),comments.join('\n')||'—',[...meds(day),...facts.map(x=>'Прием: '+x.name+(x.time?' · '+x.time:''))].join('\n')||'—']);
  }return out;
 }
 function bpDiaryCSV(rows){return '\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/^(\s*[=+@-])/,'\'$1').replace(/"/g,'""')+'"').join(';')).join('\r\n');}
@@ -35,14 +36,14 @@ function bpDiaryOpen(){
  if(!start||start>day)return !start?['Период назначения не установлен: '+m.n]:[];
  if(p?.declined_on&&p.declined_on<=day)return [];
  const end=p?.stop_on||m.to;
- if(end&&day>=end)return ['Плановое завершение '+end+' · дальнейший приём не подтверждён: '+m.n];
+ if(end&&day>=end)return ['Плановое завершение '+bpDiaryDate(end)+' · дальнейший приём не подтверждён: '+m.n];
  const scheme=medSchemes(p).filter(x=>x.on<=day).sort((x,y)=>y.on.localeCompare(x.on))[0];
  return [(s.confirmedStart?'Курс начат (дозы не подтверждены): ':'Назначено: ')+m.n+(scheme?.text?' · '+scheme.text:m.how?' · '+m.how:'')];
  }))];
  const headers=['Дата','Утро','День','Вечер','Комментарий','Лекарство'], rows=bpDiaryRows(pressure.rows,pressure.intakes,a,b,meds), name=d.name||d.short||person;
  const cell=(v,i)=>i>0&&i<4?String(v).split('\n').map(line=>line.startsWith('  Условия: ')?'<span style="display:block;white-space:normal;overflow-wrap:anywhere">'+esc(line.trim())+'</span>':'<span style="display:block;white-space:nowrap">'+esc(line)+'</span>').join(''):esc(v);
  const table='<table><thead><tr>'+headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((v,i)=>'<td>'+cell(v,i)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
- const html='<!doctype html><html lang="ru"><meta charset="utf-8"><title>Дневник давления</title><style>@page{size:A4 landscape;margin:12mm}body{font:11px Arial;color:#000}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:auto}h1{font-size:18px}@media print{button{display:none}}</style><h1>Дневник давления — '+esc(name)+'</h1><p>'+esc(a)+' — '+esc(b)+' · Europe/Moscow</p><p>'+BP_DIARY_LEGEND+'</p>'+table+'</html>';
+ const html='<!doctype html><html lang="ru"><meta charset="utf-8"><title>Дневник давления</title><style>@page{size:A4 landscape;margin:12mm}body{font:11px Arial;color:#000}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:auto}h1{font-size:18px}@media print{button{display:none}}</style><h1>Дневник давления — '+esc(name)+'</h1><p>'+esc(bpDiaryDate(a))+' — '+esc(bpDiaryDate(b))+' · Europe/Moscow</p><p>'+BP_DIARY_LEGEND+'</p>'+table+'</html>';
  status.textContent='Измерений: '+pressure.rows.length+'. Проверьте дневник перед печатью.';
  result.innerHTML='<p class="muted bp-diary-note">'+BP_DIARY_LEGEND+'</p><div class="bp-diary-actions"><button class="btn btn-primary" id="bpDiaryPrint">Просмотр и печать / PDF</button> <button class="btn btn-secondary" id="bpDiaryCSV">Скачать для Excel / Google Таблиц</button></div><p class="muted bp-diary-note">Файл CSV: в Excel выберите импорт UTF-8, разделитель «;». В Google Таблицах: Файл → Импорт → Загрузить, разделитель «;». Это снимок, без автоматической синхронизации.</p><div class="bp-diary-scroll" tabindex="0" role="region" aria-label="Дневник давления, таблица с горизонтальной прокруткой">'+table.replace('<table>','<table class="tbl bp-diary-table">')+'</div>';
  result.querySelector('#bpDiaryPrint').onclick=()=>{if(cur!==person)return;const w=window.open('','_blank');if(!w){status.textContent='Разрешите открытие окна для печати.';return;}w.document.write(html);w.document.close();w.focus();w.print();};
