@@ -3,14 +3,14 @@
 /* MEDBOOK_WATCH_BRIDGE_V2 — separate wearable timeline events, clickable trends. No credentials stored here. */
 const API="https://cuhplpukqhdfutcymtmv.supabase.co/functions/v1/wearable-metrics";
 const TITLES={steps:"👣 Шаги",heart_rate_avg:"❤️ Пульс за день",heart_rate_min:"Пульс минимум",heart_rate_max:"Пульс максимум",resting_heart_rate:"🫀 Пульс в покое",sleep_minutes:"🌙 Сон",active_kcal:"🔥 Активные калории",resting_kcal:"🌿 Калории в покое",total_kcal:"⚡ Всего калорий"};
-const ORDER=["steps","heart_rate_avg","resting_heart_rate","sleep_minutes","active_kcal"];
+const ORDER=["steps","heart_rate_avg","heart_rate_min","heart_rate_max","resting_heart_rate","sleep_minutes","active_kcal"];
 const PERSONS=new Set(["denis","anya"]);
 const STATES=new Map();
 function state(person){if(!STATES.has(person))STATES.set(person,{rows:[],started:0,pending:false,ready:false});return STATES.get(person);}
 const urlFor=person=>"/v2/watch/?person="+encodeURIComponent(person);
 const validDay=d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d);
 const fmt=(x,digits=0)=>Number(x).toLocaleString("ru-RU",{maximumFractionDigits:digits});
-const val=(row,type)=>row==null?null:type==="sleep_minutes"?fmt(Number(row.value_num)/60,1)+" ч":type==="steps"?fmt(row.value_num)+" шагов":type==="heart_rate_avg"||type==="resting_heart_rate"?fmt(row.value_num,1)+" уд/мин":fmt(row.value_num)+" ккал";
+const val=(row,type)=>row==null?null:type==="sleep_minutes"?fmt(Number(row.value_num)/60,1)+" ч":type==="steps"?fmt(row.value_num)+" шагов":type==="heart_rate_avg"||type==="heart_rate_min"||type==="heart_rate_max"||type==="resting_heart_rate"?fmt(row.value_num,1)+" уд/мин":fmt(row.value_num)+" ккал";
 const safe=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function group(person){
  const days=new Map();
