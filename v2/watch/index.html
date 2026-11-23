@@ -122,12 +122,15 @@ function login(msg){show('auth',true);show('body',false);show('loading',false);b
 async function load(){
  if(!key){login('');return}show('loading',true);byId('loading').textContent='Обновляем показатели…';
  try{var response=await fetch(url,{method:'POST',headers:{'content-type':'application/json','x-mk-key':key},body:JSON.stringify({action:'list',person:person,from:'2026-10-01',to:dayBack(0)}),cache:'no-store'});var j=await response.json();
- if(response.status===401||response.status===403){login('Код не подходит — войдите через Медкнижку.');return}
+ if(response.status===401){login('Код не подходит — войдите через Медкнижку.');return}
+ if(response.status===403){login('У этого кода нет доступа к выбранному профилю. Откройте Медкнижку с нужным доступом.');return}
  if(!response.ok||j.status!=='ok'||!Array.isArray(j.rows))throw Error(j.code||'ошибка ответа');
  data=j.rows.filter(function(r){return types[r.metric]&&/^\d{4}-\d{2}-\d{2}$/.test(r.day)&&isFinite(Number(r.value_num))});
+ // A key entered here must survive switching between family profiles.
+ try{if(localStorage.getItem('mk2_key')!==key)localStorage.setItem('mk2_key',key)}catch(e){}
  show('auth',false);show('body',true);show('loading',false);
  var last=data.map(function(r){return r.ingested_at||''}).sort().slice(-1)[0];
- byId('synctime').textContent=last?'Обновлено '+new Date(last).toLocaleString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'Измерений пока нет';
+ byId('synctime').textContent=(last?'Обновлено '+new Date(last).toLocaleString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'Измерений пока нет')+' · '+(person==='anya'?'Аня':'Денис')+' · '+data.length+' показателей за '+new Set(data.map(function(r){return r.day})).size+' дней';
  render();
  }catch(e){byId('loading').textContent='Не удалось получить данные: '+e.message}
 }
