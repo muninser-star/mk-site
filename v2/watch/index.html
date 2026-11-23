@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><title>Показатели часов — Медкнижка</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--bg:#f3f5f7;--card:#fff;--ink:#101518;--muted:#5c7384;--line:#dae1e7;--soft:#e5f3fd;--accent:#199af0}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141a;--card:#171e27;--ink:#e6edf3;--muted:#a3b1c0;--line:#2a3541;--soft:#1b2a3d;--accent:#60a5fa}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+main{max-width:700px;margin:0 auto;padding:18px 14px 70px}a{color:var(--accent)}h1{font-size:28px;margin:8px 0 5px}h2{font-size:18px;margin:0 0 14px}.muted,small{color:var(--muted)}small{font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:13px 0}
+.top,.line{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.top{margin-bottom:18px}
+.tabs,.periods{display:flex;gap:7px;flex-wrap:wrap}button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:8px 14px;background:var(--soft);color:var(--ink)}button.active{background:var(--accent);color:#fff}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{background:var(--bg);color:var(--ink);text-align:left;border:1px solid var(--line);padding:12px}.stat.active{border-color:var(--accent);background:var(--soft)}
+.stat strong{display:block;font-size:23px}.stat span{display:block;color:var(--muted);font-size:12px}
+#graph svg{width:100%;display:block}.event{border-bottom:1px solid var(--line);padding:12px 0}.event:last-child{border:0}
+.date{font-size:12px;color:var(--muted)}.chip{display:inline-block;border-radius:7px;padding:3px 7px;margin:5px 7px 0 0;background:var(--bg);font-size:13px}
+.hidden{display:none}input{padding:10px;border:1px solid var(--line);border-radius:9px;color:var(--ink);background:var(--card);max-width:100%}
+.datepickers{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.datepickers label{font-size:12px;color:var(--muted)}.datepickers input{display:block;margin-top:4px}
+@media(min-width:580px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style></head><body>
+<main><div class="top"><a href="/v2/">← Медкнижка</a><strong>medemo</strong></div>
+<h1>Показатели часов</h1><div class="muted">Huawei Watch → Health Sync → Медкнижка</div>
+<section class="card hidden" id="auth"><h2>Вход в Медкнижку</h2><p>Используйте свой код доступа или откройте основную Медкнижку по персональной ссылке.</p>
+<input type="password" id="key" placeholder="Код доступа" autocomplete="off"> <button id="enter">Открыть</button><p id="autherror" class="muted"></p></section>
+<div id="loading" class="card">Загружаем данные…</div>
+<div id="body" class="hidden">
+  <div class="line" style="margin:17px 0"><small id="synctime"></small><button id="refresh">Обновить</button></div>
+  <div class="card"><div class="tabs"><button id="viewmetrics" class="active">Показатели</button><button id="viewfeed">Лента событий</button></div></div>
+  <div class="card"><div class="line"><h2>Период</h2><div class="periods" id="periods">
+    <button data-period="7">7 дней</button><button data-period="30" class="active">30 дней</button><button data-period="90">90 дней</button><button data-period="365">Год</button>
+  </div></div><div class="datepickers"><label>С даты<input type="date" id="from"></label><label>По дату<input type="date" id="to"></label></div></div>
+  <section id="metrics"><div class="card"><h2>Ключевые показатели</h2><div class="stats" id="stats"></div></div>
+    <div class="card"><div class="line"><h2 id="charttitle"></h2><small id="chartunit"></small></div><div id="graph"></div><small id="graphdesc"></small></div>
+    <div class="card"><h2>История значений</h2><div id="history"></div></div></section>
+  <section class="card hidden" id="feed"><h2>Лента событий</h2><p class="muted">Одна запись за день — без сотен измерений пульса в ленте.</p><div id="feedlist"></div></section>
+</div>
+<small style="display:block;text-align:center;margin:20px">Измерения часов носят справочный характер и не являются медицинским заключением.</small>
+</main><script>
+(function(){
+'use strict';
+var url='https://cuhplpukqhdfutcymtmv.supabase.co/functions/v1/wearable-metrics';
+var types={
+ steps:['Шаги','шагов','bar'],
+ heart_rate_avg:['Средний пульс','уд/мин','line'],
+ resting_heart_rate:['Пульс в покое','уд/мин','line'],
+ sleep_minutes:['Сон','час','bar'],
+ active_kcal:['Активные калории','ккал','bar']
+};
+var order=Object.keys(types), key='',data=[],selected='steps',tab='metrics',from='',to='';
+var byId=function(x){return document.getElementById(x)};
+try{key=localStorage.getItem('mk2_key')||''}catch(e){}
+function localDay(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function dayBack(n){var d=new Date();d.setDate(d.getDate()-n);return localDay(d)}
+function date(s){return new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}
+function show(n,val){byId(n).classList.toggle('hidden',!val)}
+function format(n,f){return Number(n).toLocaleString('ru-RU',{maximumFractionDigits:f==null?1:f})}
+function val(r,t){if(!r)return '—';var v=Number(r.value_num);return t==='sleep_minutes'?format(v/60,1)+' ч':format(v,t==='heart_rate_avg'?1:0)}
+function rangeRows(){return data.filter(function(r){return r.day>=from&&r.day<=to})}
+function series(type){return rangeRows().filter(function(r){return r.metric===type}).sort(function(a,b){return a.day.localeCompare(b.day)})}
+function latest(type){return series(type).slice(-1)[0]}
+function eventDays(){var res={};rangeRows().forEach(function(r){(res[r.day]||(res[r.day]={}))[r.metric]=r});return Object.keys(res).sort().reverse().map(function(d){return {day:d,m:res[d]}})}
+function addText(parent,tag,text,cls){var el=document.createElement(tag);el.textContent=text;if(cls)el.className=cls;parent.appendChild(el);return el}
+function clear(id){byId(id).replaceChildren()}
+function render(){
+  byId('from').value=from;byId('to').value=to;
+  show('metrics',tab==='metrics');show('feed',tab==='feed');
+  byId('viewmetrics').classList.toggle('active',tab==='metrics');
+  byId('viewfeed').classList.toggle('active',tab==='feed');
+  document.querySelectorAll('[data-period]').forEach(function(b){b.classList.toggle('active',to===dayBack(0)&&from===dayBack(Number(b.dataset.period)-1))});
+  clear('stats');
+  order.forEach(function(type){
+    var r=latest(type),button=document.createElement('button');button.className='stat'+(selected===type?' active':'');
+    addText(button,'span',types[type][0]);addText(button,'strong',val(r,type));addText(button,'span',r?date(r.day)+(r.quality==='partial'?' · неполный день':''):'Нет данных');
+    button.addEventListener('click',function(){selected=type;render()});byId('stats').appendChild(button);
+  });
+  chart();listHistory();listFeed();
+}
+function chart(){
+  var a=series(selected),box=byId('graph');box.replaceChildren();byId('charttitle').textContent=types[selected][0];byId('chartunit').textContent=types[selected][1];
+  byId('graphdesc').textContent=a.length?a.length+' дн. с измерениями · пропуски не заменяются нулями':'За период данных нет. Проверьте Health Sync.';
+  if(!a.length)return;
+  var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 640 240');svg.setAttribute('role','img');svg.setAttribute('aria-label','Динамика: '+types[selected][0]);
+  var min=Math.min.apply(null,a.map(function(r){return Number(r.value_num)})),max=Math.max.apply(null,a.map(function(r){return Number(r.value_num)}));
+  if(types[selected][2]==='bar')min=0;else min=Math.max(0,min-8);
+  max=Math.max(min+1,max+(max-min)*.12);
+  var left=42,right=626,top=14,bottom=202;
+  var tmin=Date.parse(from+'T12:00:00Z'),tmax=Date.parse(to+'T12:00:00Z'),span=Math.max(86400000,tmax-tmin);
+  function x(r){return left+(Date.parse(r.day+'T12:00:00Z')-tmin)/span*(right-left)}
+  function y(r){return bottom-(Number(r.value_num)-min)/(max-min)*(bottom-top)}
+  function svgEl(tag,attrs,title){var n=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.keys(attrs).forEach(function(k){n.setAttribute(k,attrs[k])});if(title){var a=document.createElementNS('http://www.w3.org/2000/svg','title');a.textContent=title;n.appendChild(a)}svg.appendChild(n);return n}
+  [0,.25,.5,.75,1].forEach(function(i){var yy=top+(bottom-top)*i;svgEl('line',{x1:left,y1:yy,x2:right,y2:yy,stroke:'var(--line)'});
+    var t=svgEl('text',{x:left-7,y:yy+3,fill:'var(--muted)','text-anchor':'end','font-size':'11'});t.textContent=Math.round(max-(max-min)*i)});
+  if(types[selected][2]==='line'){
+    var g=[];a.forEach(function(r){if(g.length&&x(r)-x(g[g.length-1])>(right-left)*1.8*86400000/span){drawLine(g);g=[]}g.push(r)});if(g.length)drawLine(g);
+    function drawLine(points){svgEl('polyline',{points:points.map(function(r){return x(r)+','+y(r)}).join(' '),fill:'none',stroke:'var(--accent)','stroke-width':3,'stroke-linejoin':'round'})}
+    a.forEach(function(r){svgEl('circle',{cx:x(r),cy:y(r),r:4,fill:'var(--accent)',opacity:r.quality==='partial'?.4:1},r.day+': '+val(r,selected))});
+  }else{
+    var width=Math.max(2,Math.min(14,(right-left)*.7/Math.max(7,Math.ceil(span/86400000))));
+    a.forEach(function(r){svgEl('rect',{x:x(r)-width/2,y:y(r),width:width,height:Math.max(1,bottom-y(r)),rx:2,fill:'var(--accent)',opacity:r.quality==='partial'?.4:1},r.day+': '+val(r,selected))});
+  }
+  [[from,left,'start'],[to,right,'end']].forEach(function(q){var e=svgEl('text',{x:q[1],y:232,fill:'var(--muted)','font-size':12,'text-anchor':q[2]});e.textContent=date(q[0])});
+  box.appendChild(svg);
+}
+function listHistory(){clear('history');var rs=series(selected).reverse().slice(0,60);if(!rs.length){addText(byId('history'),'p','Данных пока нет.','muted');return}
+  rs.forEach(function(r){var e=document.createElement('div');e.className='event';addText(e,'div',date(r.day),'date');
+  addText(e,'strong',types[selected][0]+': '+val(r,selected)+' '+(selected==='steps'?'':types[selected][1]));
+  addText(e,'div',(r.source==='huawei_health'?'Huawei Health':'Health Connect')+(r.quality==='partial'?' · день ещё не завершён':''),'date');byId('history').appendChild(e)})}
+function listFeed(){clear('feedlist');var rows=eventDays().slice(0,100);if(!rows.length){addText(byId('feedlist'),'p','Нет событий за этот период','muted');return}
+  rows.forEach(function(r){var el=document.createElement('div');el.className='event';addText(el,'div',date(r.day),'date');
+  addText(el,'strong','Данные с часов'+(Object.values(r.m).some(function(x){return x.quality==='partial'})?' · неполный день':''));
+  order.filter(function(t){return r.m[t]}).forEach(function(t){addText(el,'span',types[t][0]+': '+val(r.m[t],t)+(t==='heart_rate_avg'||t==='resting_heart_rate'?' уд/мин':t==='active_kcal'?' ккал':''),'chip')});
+  byId('feedlist').appendChild(el)})}
+function login(msg){show('auth',true);show('body',false);show('loading',false);byId('autherror').textContent=msg||''}
+async function load(){
+ if(!key){login('');return}show('loading',true);byId('loading').textContent='Обновляем показатели…';
+ try{var response=await fetch(url,{method:'POST',headers:{'content-type':'application/json','x-mk-key':key},body:JSON.stringify({action:'list',person:'denis',from:'2026-10-01',to:dayBack(0)}),cache:'no-store'});var j=await response.json();
+ if(response.status===401||response.status===403){login('Код не подходит — войдите через Медкнижку.');return}
+ if(!response.ok||j.status!=='ok'||!Array.isArray(j.rows))throw Error(j.code||'ошибка ответа');
+ data=j.rows.filter(function(r){return types[r.metric]&&/^\d{4}-\d{2}-\d{2}$/.test(r.day)&&isFinite(Number(r.value_num))});
+ show('auth',false);show('body',true);show('loading',false);
+ var last=data.map(function(r){return r.ingested_at||''}).sort().slice(-1)[0];
+ byId('synctime').textContent=last?'Обновлено '+new Date(last).toLocaleString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'Измерений пока нет';
+ render();
+ }catch(e){byId('loading').textContent='Не удалось получить данные: '+e.message}
+}
+byId('enter').addEventListener('click',function(){key=byId('key').value.trim();if(key.length<20){byId('autherror').textContent='Проверьте код доступа';return}load()});
+byId('viewmetrics').addEventListener('click',function(){tab='metrics';render()});
+byId('viewfeed').addEventListener('click',function(){tab='feed';render()});
+byId('refresh').addEventListener('click',load);
+document.querySelectorAll('[data-period]').forEach(function(b){b.addEventListener('click',function(){to=dayBack(0);from=dayBack(Number(b.dataset.period)-1);render()})});
+byId('from').addEventListener('change',function(e){if(e.target.value&&e.target.value<=to){from=e.target.value;render()}});
+byId('to').addEventListener('change',function(e){if(e.target.value&&e.target.value>=from){to=e.target.value;render()}});
+from=dayBack(29);to=dayBack(0);load();
+})();
+</script></body></html>
