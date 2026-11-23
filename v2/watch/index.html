@@ -14,12 +14,12 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .stat strong{display:block;font-size:23px}.stat span{display:block;color:var(--muted);font-size:12px}
 #graph svg{width:100%;display:block}.event{border-bottom:1px solid var(--line);padding:12px 0}.event:last-child{border:0}
 .date{font-size:12px;color:var(--muted)}.chip{display:inline-block;border-radius:7px;padding:3px 7px;margin:5px 7px 0 0;background:var(--bg);font-size:13px}
-.hidden{display:none}input{padding:10px;border:1px solid var(--line);border-radius:9px;color:var(--ink);background:var(--card);max-width:100%}
+.hidden{display:none}input,select{padding:10px;border:1px solid var(--line);border-radius:9px;color:var(--ink);background:var(--card);max-width:100%}
 .datepickers{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.datepickers label{font-size:12px;color:var(--muted)}.datepickers input{display:block;margin-top:4px}
 @media(min-width:580px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style></head><body>
 <main><div class="top"><a href="/v2/">← Медкнижка</a><strong>medemo</strong></div>
-<h1>Показатели часов</h1><div class="muted">Huawei Watch → Health Sync → Медкнижка</div>
+<h1>Показатели часов</h1><div class="line"><div class="muted">Huawei Health → Health Sync → Медкнижка</div><label for="person" class="muted">Профиль <select id="person" aria-label="Выбрать профиль"><option value="denis">Денис</option><option value="anya">Аня</option></select></label></div>
 <section class="card hidden" id="auth"><h2>Вход в Медкнижку</h2><p>Используйте свой код доступа или откройте основную Медкнижку по персональной ссылке.</p>
 <input type="password" id="key" placeholder="Код доступа" autocomplete="off"> <button id="enter">Открыть</button><p id="autherror" class="muted"></p></section>
 <div id="loading" class="card">Загружаем данные…</div>
@@ -51,6 +51,8 @@ var types={
  total_kcal:['⚡ Всего калорий','ккал','bar']
 };
 var order=Object.keys(types), key='',data=[],selected='steps',tab='metrics',from='',to='';
+var params=new URLSearchParams(location.search);
+var person=params.get('person')==='anya'?'anya':'denis';
 var byId=function(x){return document.getElementById(x)};
 try{key=localStorage.getItem('mk2_key')||''}catch(e){}
 function localDay(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
@@ -73,6 +75,7 @@ function render(){
   document.querySelectorAll('[data-period]').forEach(function(b){b.classList.toggle('active',to===dayBack(0)&&from===dayBack(Number(b.dataset.period)-1))});
   clear('stats');
   order.forEach(function(type){
+    if(person==='anya'&&!data.some(function(row){return row.metric===type}))return;
     var r=latest(type),button=document.createElement('button');button.className='stat'+(selected===type?' active':'');
     addText(button,'span',types[type][0]);addText(button,'strong',val(r,type));addText(button,'span',r?date(r.day)+(r.quality==='partial'?' · неполный день':r.quality==='suspect'?' · источник требует проверки':''):'Нет данных');
     button.addEventListener('click',function(){selected=type;render()});byId('stats').appendChild(button);
@@ -111,14 +114,14 @@ function listHistory(){clear('history');var rs=series(selected).reverse().slice(
   addText(e,'div',(r.source==='huawei_health'?'Huawei Health':'Health Connect')+(r.quality==='partial'?' · день ещё не завершён':r.quality==='suspect'?' · возможны шаги телефона':''),'date');byId('history').appendChild(e)})}
 function listFeed(){clear('feedlist');var rows=eventDays().slice(0,100);if(!rows.length){addText(byId('feedlist'),'p','Нет событий за этот период','muted');return}
   rows.forEach(function(r){var el=document.createElement('div');el.className='event';addText(el,'div',date(r.day),'date');
-  addText(el,'strong','Данные с часов'+(Object.values(r.m).some(function(x){return x.quality==='partial'})?' · неполный день':''));
+  if(Object.values(r.m).some(function(x){return x.quality==='partial'}))addText(el,'span','⏳ День ещё не завершён','date');
   if(Object.values(r.m).some(function(x){return x.quality==='suspect'}))addText(el,'div','Часть данных из Health Connect: возможно, учтены шаги телефона.','date');
   order.filter(function(t){return r.m[t]}).forEach(function(t){addText(el,'span',types[t][0]+': '+val(r.m[t],t)+(t==='heart_rate_avg'||t==='resting_heart_rate'?' уд/мин':t==='active_kcal'?' ккал':''),'chip')});
   byId('feedlist').appendChild(el)})}
 function login(msg){show('auth',true);show('body',false);show('loading',false);byId('autherror').textContent=msg||''}
 async function load(){
  if(!key){login('');return}show('loading',true);byId('loading').textContent='Обновляем показатели…';
- try{var response=await fetch(url,{method:'POST',headers:{'content-type':'application/json','x-mk-key':key},body:JSON.stringify({action:'list',person:'denis',from:'2026-10-01',to:dayBack(0)}),cache:'no-store'});var j=await response.json();
+ try{var response=await fetch(url,{method:'POST',headers:{'content-type':'application/json','x-mk-key':key},body:JSON.stringify({action:'list',person:person,from:'2026-10-01',to:dayBack(0)}),cache:'no-store'});var j=await response.json();
  if(response.status===401||response.status===403){login('Код не подходит — войдите через Медкнижку.');return}
  if(!response.ok||j.status!=='ok'||!Array.isArray(j.rows))throw Error(j.code||'ошибка ответа');
  data=j.rows.filter(function(r){return types[r.metric]&&/^\d{4}-\d{2}-\d{2}$/.test(r.day)&&isFinite(Number(r.value_num))});
@@ -132,6 +135,8 @@ byId('enter').addEventListener('click',function(){key=byId('key').value.trim();i
 byId('viewmetrics').addEventListener('click',function(){tab='metrics';render()});
 byId('viewfeed').addEventListener('click',function(){tab='feed';render()});
 byId('refresh').addEventListener('click',load);
+byId('person').value=person;
+byId('person').addEventListener('change',function(e){var q=new URLSearchParams(location.search);q.set('person',e.target.value);q.delete('day');location.search=q.toString();});
 document.querySelectorAll('[data-period]').forEach(function(b){b.addEventListener('click',function(){to=dayBack(0);from=dayBack(Number(b.dataset.period)-1);render()})});
 byId('from').addEventListener('change',function(e){if(e.target.value&&e.target.value<=to){from=e.target.value;render()}});
 byId('to').addEventListener('change',function(e){if(e.target.value&&e.target.value>=from){to=e.target.value;render()}});

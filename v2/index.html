@@ -3659,7 +3659,7 @@ function bpReadingOpen(id,person){
 
 function tlEvents(d){
   const out=vacEvents(d);
-  if(cur==="denis") out.push(...(window.mkWatch?.events(cur)||[]));
+  if(cur==="denis"||cur==="anya") out.push(...(window.mkWatch?.events(cur)||[]));
   const person=medPersonOf(d);
   if(person) out.push(...bpTimelineEvents(BPS[person]||[],person).filter(e=>!query||hit(bpTimelineHay(e))));
   (d.rec||[]).filter(matches).forEach(r=>out.push({d:r.d,k:r.t,t:r.title,sys:r.sys,st:r.st,r,id:idOf(r)}));
@@ -3668,7 +3668,7 @@ function tlEvents(d){
   // болезни — по дате начала, чтобы и их было видно и править прямо из ленты (ТЗ-002 блок 8)
   ((d.sym||{}).ep||[]).forEach(e=>{ if(!query||matches({title:e.dx||"",res:e.t||"",d:e.d1}))
     out.push({d:e.d1,k:"ep",t:e.dx||"Болезнь без диагноза",sys:null,st:"",r:e}) });
-  eventsFor(cur).forEach(v=>{ if(v.author==="health_sync"&&window.mkWatch?.isReady())return; if(!query||matches({title:v.title,res:(v.note||"")+" "+(v.symptom||""),d:v.occurred_on}))
+  eventsFor(cur).forEach(v=>{ if(v.author==="health_sync"&&window.mkWatch?.isReady(cur))return; if(!query||matches({title:v.title,res:(v.note||"")+" "+(v.symptom||""),d:v.occurred_on}))
     out.push({d:v.occurred_on,k:"event",t:v.title,sys:null,st:"",r:v}) });
   (d.own||[]).forEach(o=>{ if(!query||matches({title:o.t,res:(o.l||[]).join(" "),d:o.d}))
     out.push({d:o.d,k:"own",ic:o.i,t:o.t,sys:null,st:"",r:o}) });
@@ -7225,7 +7225,10 @@ document.addEventListener("click",e=>{ if(window.__hSup){ e.stopPropagation(); e
 const EVK="mk_events";
 let EVENTS=(()=>{ try{ return JSON.parse(localStorage.getItem(EVK)||"[]")||[]; }catch(e){ return []; } })();
 const eventsSave=()=>{ try{ localStorage.setItem(EVK,JSON.stringify(EVENTS)); }catch(e){} };
-const eventsFor=p=>(EVENTS||[]).filter(x=>x.person===p);
+// Legacy Health Sync summaries are duplicates of the wearable_daily_metrics feed.
+// The event_list API and locally cached events may lack the author field.
+const isLegacyWatchEvent=v=>!!v&&(v.author==="health_sync"||(v.person==="denis"&&/^(?:👣\s*[\d\s.,]+\s*шаг|Данные с часов\s*[·—]?\s*неделя)/i.test(String(v.title||""))));
+const eventsFor=p=>(EVENTS||[]).filter(x=>x.person===p&&!isLegacyWatchEvent(x));
 function eventsLoad(force){
   if(!window.__MK_KEY||(window.__evLoaded&&!force)||window.__evLoading) return; window.__evLoading=1;
   mkApi("event_list").then(j=>{ EVENTS=j.rows||[]; eventsSave(); window.__evLoaded=1; window.__evLoading=0; render(); }).catch(()=>{ window.__evLoading=0; });
@@ -11548,7 +11551,7 @@ function profAboutHtml(d){
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   polLoad();   // плитка ДМС в шапке
-  return profAboutHtml(d)+(cur==="denis"?`<div class="card" style="margin-bottom:14px"><h2>Активность и восстановление</h2><a class="eplink" href="/v2/watch/" style="display:flex;gap:8px;align-items:center;padding:8px 0">${icon("dynamics")} Графики шагов, пульса, сна и калорий →</a></div>`:"")+bmCircProfile(cur)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
+  return profAboutHtml(d)+(["denis","anya"].includes(cur)?`<div class="card" style="margin-bottom:14px"><h2>Активность и восстановление</h2><a class="eplink" href="/v2/watch/?person=${encodeURIComponent(cur)}" style="display:flex;gap:8px;align-items:center;padding:8px 0">${icon("dynamics")} Графики шагов и пульса →</a></div>`:"")+bmCircProfile(cur)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
 }
 // плитка «Профиль здоровья» (ТЗ-025 блок 5): сколько органов известно, чего мало, куда нажать; без процента
 function hpTileModel(scores,organs){ return {known:scores.filter(s=>s>=50).length,total:scores.length,missing:organs.filter((o,i)=>!(scores[i]>=50)).map(o=>o.name)}; }
@@ -17476,7 +17479,7 @@ function render(){
     return;
   }
 
-  if(cur==="denis") window.mkWatch?.load(window.__MK_KEY,cur,()=>{if(cur==="denis")render();});
+  if(cur==="denis"||cur==="anya") window.mkWatch?.load(window.__MK_KEY,cur,()=>{if(cur==="denis"||cur==="anya")render();});
   illLoad();   // решения человека о связях болезней (ТЗ-049)
   const inCard=CARDK.includes(tab);
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
@@ -17506,7 +17509,7 @@ function render(){
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2>${window.__homeEdit?`<span class="muted hedit__t">Править главную</span><button type="button" class="linkbtn" data-hedit="all" style="min-height:44px">Все блоки</button><button type="button" class="btn btn-primary" data-hedit="done" style="min-height:44px">Готово</button>`:`<button type="button" class="lgear" data-hedit="on" aria-label="Править главную" title="Править главную">⚙</button>`}</div>
     <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{person:cur,adult:d.age!=null&&d.age>=18,hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today)),order:(LAY.tile_order&&LAY.tile_order.meas)||[],temp:tempLastRec((d.sym||{}).log,today)})}
 
-    <!--B:wearable-->${window.mkWatch?.homeHtml(cur,esc)||(cur==="denis"?`<div class="card"><h2>Активность с часов</h2><a class="eplink" href="/v2/watch/">Графики шагов, пульса и калорий →</a></div>`:"")}
+    <!--B:wearable-->${window.mkWatch?.homeHtml(cur,esc)||(["denis","anya"].includes(cur)?`<div class="card"><h2>Активность с часов</h2><a class="eplink" href="/v2/watch/?person=${encodeURIComponent(cur)}">Графики шагов и пульса →</a></div>`:"")}
     <!--B:weight-->${weightHome(d)}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
