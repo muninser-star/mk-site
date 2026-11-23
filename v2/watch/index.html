@@ -40,11 +40,15 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 'use strict';
 var url='https://cuhplpukqhdfutcymtmv.supabase.co/functions/v1/wearable-metrics';
 var types={
- steps:['Шаги','шагов','bar'],
- heart_rate_avg:['Средний пульс','уд/мин','line'],
- resting_heart_rate:['Пульс в покое','уд/мин','line'],
- sleep_minutes:['Сон','час','bar'],
- active_kcal:['Активные калории','ккал','bar']
+ steps:['👣 Шаги','шагов','bar'],
+ heart_rate_avg:['❤️ Пульс за день','уд/мин','line'],
+ heart_rate_min:['❤️ Минимальный пульс','уд/мин','line'],
+ heart_rate_max:['❤️ Максимальный пульс','уд/мин','line'],
+ resting_heart_rate:['🫀 Пульс в покое','уд/мин','line'],
+ sleep_minutes:['🌙 Сон','час','bar'],
+ active_kcal:['🔥 Активные калории','ккал','bar'],
+ resting_kcal:['🌿 Калории в покое','ккал','bar'],
+ total_kcal:['⚡ Всего калорий','ккал','bar']
 };
 var order=Object.keys(types), key='',data=[],selected='steps',tab='metrics',from='',to='';
 var byId=function(x){return document.getElementById(x)};
@@ -70,7 +74,7 @@ function render(){
   clear('stats');
   order.forEach(function(type){
     var r=latest(type),button=document.createElement('button');button.className='stat'+(selected===type?' active':'');
-    addText(button,'span',types[type][0]);addText(button,'strong',val(r,type));addText(button,'span',r?date(r.day)+(r.quality==='partial'?' · неполный день':''):'Нет данных');
+    addText(button,'span',types[type][0]);addText(button,'strong',val(r,type));addText(button,'span',r?date(r.day)+(r.quality==='partial'?' · неполный день':r.quality==='suspect'?' · источник требует проверки':''):'Нет данных');
     button.addEventListener('click',function(){selected=type;render()});byId('stats').appendChild(button);
   });
   chart();listHistory();listFeed();
@@ -104,10 +108,11 @@ function chart(){
 function listHistory(){clear('history');var rs=series(selected).reverse().slice(0,60);if(!rs.length){addText(byId('history'),'p','Данных пока нет.','muted');return}
   rs.forEach(function(r){var e=document.createElement('div');e.className='event';addText(e,'div',date(r.day),'date');
   addText(e,'strong',types[selected][0]+': '+val(r,selected)+' '+(selected==='steps'?'':types[selected][1]));
-  addText(e,'div',(r.source==='huawei_health'?'Huawei Health':'Health Connect')+(r.quality==='partial'?' · день ещё не завершён':''),'date');byId('history').appendChild(e)})}
+  addText(e,'div',(r.source==='huawei_health'?'Huawei Health':'Health Connect')+(r.quality==='partial'?' · день ещё не завершён':r.quality==='suspect'?' · возможны шаги телефона':''),'date');byId('history').appendChild(e)})}
 function listFeed(){clear('feedlist');var rows=eventDays().slice(0,100);if(!rows.length){addText(byId('feedlist'),'p','Нет событий за этот период','muted');return}
   rows.forEach(function(r){var el=document.createElement('div');el.className='event';addText(el,'div',date(r.day),'date');
   addText(el,'strong','Данные с часов'+(Object.values(r.m).some(function(x){return x.quality==='partial'})?' · неполный день':''));
+  if(Object.values(r.m).some(function(x){return x.quality==='suspect'}))addText(el,'div','Часть данных из Health Connect: возможно, учтены шаги телефона.','date');
   order.filter(function(t){return r.m[t]}).forEach(function(t){addText(el,'span',types[t][0]+': '+val(r.m[t],t)+(t==='heart_rate_avg'||t==='resting_heart_rate'?' уд/мин':t==='active_kcal'?' ккал':''),'chip')});
   byId('feedlist').appendChild(el)})}
 function login(msg){show('auth',true);show('body',false);show('loading',false);byId('autherror').textContent=msg||''}
@@ -130,6 +135,12 @@ byId('refresh').addEventListener('click',load);
 document.querySelectorAll('[data-period]').forEach(function(b){b.addEventListener('click',function(){to=dayBack(0);from=dayBack(Number(b.dataset.period)-1);render()})});
 byId('from').addEventListener('change',function(e){if(e.target.value&&e.target.value<=to){from=e.target.value;render()}});
 byId('to').addEventListener('change',function(e){if(e.target.value&&e.target.value>=from){to=e.target.value;render()}});
-from=dayBack(29);to=dayBack(0);load();
+from=dayBack(29);to=dayBack(0);
+var requested=new URLSearchParams(location.search).get("day");
+if(/^\d{4}-\d{2}-\d{2}$/.test(requested||"")&&requested>="2026-10-01"&&requested<=to){
+ var chosen=new Date(requested+"T12:00:00");chosen.setDate(chosen.getDate()-29);
+ from=localDay(chosen)<"2026-10-01"?"2026-10-01":localDay(chosen);to=requested;
+}
+load();
 })();
 </script></body></html>

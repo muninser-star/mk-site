@@ -2722,6 +2722,7 @@ input[type=date]:not(.input):focus{box-shadow:0 0 0 2px var(--accent)}
 <div class="verline" title="Если версия старая — обновите страницу с очисткой кэша">Версия страницы: <span id="ver"></span><br><span id="dstat"></span></div>
 <div class="modal" id="modal"></div>
 
+<script src="/v2/watch/bridge.js"></script>
 <script type="text/plain" id="mk-main">
 // ─────────────────────────── ДАННЫЕ ───────────────────────────
 // sys — система/орган, связывает запись с пиктограммой на силуэте
@@ -3501,7 +3502,7 @@ function idOf(r){return DATA[cur].rec.indexOf(r)}   // это ИНДЕКС: у �
 // Проверять только через !=null — на «e.id?» верхняя запись в ленте переставала открываться (21.09.2026)
 
 // ── Таймлайн: месяц → день → события. Записи, симптомы и старты препаратов в одной ленте
-const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"],["event","События"],["cal","Календарь"]];
+const TL_FILTERS=[["all","Всё"],["sym","Симптомы"],["visit","Приёмы"],["lab","Анализы"],["instr","Исследования"],["med","Лекарства"],["event","События"],["watch","С часов"],["cal","Календарь"]];
 const TL_ICON={event:"calendar",vac:"vaccines",visit:"visits",lab:"labs",instr:"studies",sym:"symptoms",ep:"illness",note:"note",med:"meds",medend:"clock",own:"star",meas:"scale"};   // id значков набора
 function tlIc(e){ return e.ic||(TL_ICON[e.k]?icon(TL_ICON[e.k]):"")||"•"; }
 const TL_KIND={event:"событие",vac:"прививка",visit:"приём",lab:"анализ",instr:"исследование",sym:"симптом",ep:"болезнь",note:"заметка",med:"начало курса",medend:"плановая дата окончания",own:"своё решение",meas:"замер"};
@@ -3658,6 +3659,7 @@ function bpReadingOpen(id,person){
 
 function tlEvents(d){
   const out=vacEvents(d);
+  if(cur==="denis") out.push(...(window.mkWatch?.events(cur)||[]));
   const person=medPersonOf(d);
   if(person) out.push(...bpTimelineEvents(BPS[person]||[],person).filter(e=>!query||hit(bpTimelineHay(e))));
   (d.rec||[]).filter(matches).forEach(r=>out.push({d:r.d,k:r.t,t:r.title,sys:r.sys,st:r.st,r,id:idOf(r)}));
@@ -3666,7 +3668,7 @@ function tlEvents(d){
   // болезни — по дате начала, чтобы и их было видно и править прямо из ленты (ТЗ-002 блок 8)
   ((d.sym||{}).ep||[]).forEach(e=>{ if(!query||matches({title:e.dx||"",res:e.t||"",d:e.d1}))
     out.push({d:e.d1,k:"ep",t:e.dx||"Болезнь без диагноза",sys:null,st:"",r:e}) });
-  eventsFor(cur).forEach(v=>{ if(!query||matches({title:v.title,res:(v.note||"")+" "+(v.symptom||""),d:v.occurred_on}))
+  eventsFor(cur).forEach(v=>{ if(v.author==="health_sync"&&window.mkWatch?.isReady())return; if(!query||matches({title:v.title,res:(v.note||"")+" "+(v.symptom||""),d:v.occurred_on}))
     out.push({d:v.occurred_on,k:"event",t:v.title,sys:null,st:"",r:v}) });
   (d.own||[]).forEach(o=>{ if(!query||matches({title:o.t,res:(o.l||[]).join(" "),d:o.d}))
     out.push({d:o.d,k:"own",ic:o.i,t:o.t,sys:null,st:"",r:o}) });
@@ -3761,6 +3763,17 @@ function tlTempItem(e){
 }
 // одна строка события (Лента, карточка симптома): значок, название, тип, подробности, правка
 function tlItem(e){
+  // Health Sync daily entries are measurements, not generic editable life events.
+  if(e.k==="event"&&e.r&&e.r.author==="health_sync"){
+    const lines=[];  // No service metadata or long notes inside a wearable timeline item.
+    return `<a class="tl-item tl-item--nodate is-link" href="/v2/watch/?day=${encodeURIComponent(e.d)}" style="color:inherit;text-decoration:none" aria-label="Графики показателей за ${esc(e.d)}">
+      <div class="tl-ic">${icon("dynamics")}</div>
+      <div><div class="tl-title">${hl(e.t)}</div>
+        ${lines.map(x=>`<div class="tl-meta">${esc(x)}</div>`).join("")}
+        <div class="tl-meta">📈 Смотреть динамику →</div>
+      </div></a>`;
+  }
+  if(e.k==="watch") return window.mkWatch?.eventHtml(e,esc,icon)||"";
   if(e.k==="bp") return tlBpItem(e);
   if(e.k==="illday") return tlIllItem(e);
   if(e.k==="tempday") return tlTempItem(e);
@@ -5564,7 +5577,9 @@ function symTlLines(r,ep){
   return out;
 }
 function tlKindFilter(ev,kind){
-  const K={sym:["sym"],visit:["visit"],lab:["lab"],instr:["instr"],med:["med","medend"],event:["event"]}[kind];
+  if(kind==="watch")return ev.filter(e=>e.k==="watch"||(e.k==="event"&&e.r?.author==="health_sync"));
+  if(kind==="event")return ev.filter(e=>e.k==="event"&&e.r?.author!=="health_sync");
+  const K={sym:["sym"],visit:["visit"],lab:["lab"],instr:["instr"],med:["med","medend"]}[kind];
   return K?ev.filter(e=>K.includes(e.k)):ev;
 }
 function symAgg(list,from,to){
@@ -11533,7 +11548,7 @@ function profAboutHtml(d){
 function profileHealthHtml(d){
   if(hpOrgan&&ORGANS.some(o=>o.id===hpOrgan)) return hpHtml(d);   // страница органа — без шапки профиля
   polLoad();   // плитка ДМС в шапке
-  return profAboutHtml(d)+bmCircProfile(cur)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
+  return profAboutHtml(d)+(cur==="denis"?`<div class="card" style="margin-bottom:14px"><h2>Активность и восстановление</h2><a class="eplink" href="/v2/watch/" style="display:flex;gap:8px;align-items:center;padding:8px 0">${icon("dynamics")} Графики шагов, пульса, сна и калорий →</a></div>`:"")+bmCircProfile(cur)+profKpiHtml(d)+vacCardHtml(d,window.__vacOpen)+hpHtml(d);
 }
 // плитка «Профиль здоровья» (ТЗ-025 блок 5): сколько органов известно, чего мало, куда нажать; без процента
 function hpTileModel(scores,organs){ return {known:scores.filter(s=>s>=50).length,total:scores.length,missing:organs.filter((o,i)=>!(scores[i]>=50)).map(o=>o.name)}; }
@@ -11852,7 +11867,7 @@ function homeAssemble(html,saved,key,defaults,hidden){
 // ── Раскладка главной (ТЗ-053): порядок и скрытые блоки у каждого человека и кода доступа свои, хранятся на сервере (mk → layout_get / layout_set)
 // Каталог: «todo» скрыть нельзя; старые ключи diary, body, bp читаются как track, meas, meas (при записи заменяются)
 const LAYOUT_OLD={diary:"track",body:"meas",bp:"meas"}, LAYOUT_PAGE={track:["diary","track"],meas:["meas"]};
-const LAYOUT_NAMES={todo:"План здоровья",track:"Слежу",meas:"Замеры",watch:"Ключевые показатели",changes:"Что изменилось",now:"Сейчас",hp:"Профиль здоровья",kpi:"Карточка здоровья",reg:"Регулярные визиты",rzrec:"Советы по разборам",reco:"На ближайшие две недели",weight:"Вес",system:"Система",plan:"План на ближайшее",signal:"Пора к врачу"};
+const LAYOUT_NAMES={todo:"План здоровья",track:"Слежу",meas:"Замеры",wearable:"Активность с часов",watch:"Ключевые показатели",changes:"Что изменилось",now:"Сейчас",hp:"Профиль здоровья",kpi:"Карточка здоровья",reg:"Регулярные визиты",rzrec:"Советы по разборам",reco:"На ближайшие две недели",weight:"Вес",system:"Система",plan:"План на ближайшее",signal:"Пора к врачу"};
 const layoutCat=id=>LAYOUT_OLD[id]||id;
 let LAYOUT={}, LAYOUTLOADED={};
 try{ LAYOUT=JSON.parse(localStorage.getItem("mk_layout")||"{}")||{}; }catch(e){ LAYOUT={}; }
@@ -17461,6 +17476,7 @@ function render(){
     return;
   }
 
+  if(cur==="denis") window.mkWatch?.load(window.__MK_KEY,cur,()=>{if(cur==="denis")render();});
   illLoad();   // решения человека о связях болезней (ТЗ-049)
   const inCard=CARDK.includes(tab);
   if((tab==="nutr"||tab==="diary")&&!d.nutrition) tab="home";
@@ -17490,6 +17506,7 @@ function render(){
     <div class="phead phead--home"><h2>${esc(d.short||d.name)}</h2>${window.__homeEdit?`<span class="muted hedit__t">Править главную</span><button type="button" class="linkbtn" data-hedit="all" style="min-height:44px">Все блоки</button><button type="button" class="btn btn-primary" data-hedit="done" style="min-height:44px">Готово</button>`:`<button type="button" class="lgear" data-hedit="on" aria-label="Править главную" title="Править главную">⚙</button>`}</div>
     <!--B:meas-->${measTileHtml(measSummaryFor(d,today),today,{person:cur,adult:d.age!=null&&d.age>=18,hidden:(LAY.hidden_tiles&&LAY.hidden_tiles.meas)||[],nutrition:!!d.nutrition,ser:measSerAll(cur,measSummaryFor(d,today)),order:(LAY.tile_order&&LAY.tile_order.meas)||[],temp:tempLastRec((d.sym||{}).log,today)})}
 
+    <!--B:wearable-->${window.mkWatch?.homeHtml(cur,esc)||(cur==="denis"?`<div class="card"><h2>Активность с часов</h2><a class="eplink" href="/v2/watch/">Графики шагов, пульса и калорий →</a></div>`:"")}
     <!--B:weight-->${weightHome(d)}
 
     <!--B:todo--><div class="card"><h2>План здоровья</h2>
@@ -18759,7 +18776,6 @@ function fitTables(root){
 </script>
 </body>
 </html>
-
 
 
 
