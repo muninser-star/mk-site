@@ -29,7 +29,7 @@ async function bpWeatherLoad(from,to){
  const promise=(async()=>{
   const out=new Map(), cutoff=bpWeatherShift(today,-6);
   const fetchRange=async(a,b,recent)=>{
-   const params=new URLSearchParams({latitude:'55.75',longitude:'37.62',hourly:'surface_pressure,precipitation,temperature_2m,relative_humidity_2m',timezone:'GMT',start_date:bpWeatherShift(a,-1),end_date:b});
+   const params=new URLSearchParams({latitude:'55.75',longitude:'37.62',hourly:'surface_pressure,precipitation,temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,is_day',wind_speed_unit:'ms',timezone:'GMT',start_date:bpWeatherShift(a,-1),end_date:b});
    const endpoint=recent?'https://api.open-meteo.com/v1/forecast':'https://archive-api.open-meteo.com/v1/archive';
    const response=await fetch(endpoint+'?'+params,{referrerPolicy:'no-referrer',credentials:'omit',signal:AbortSignal.timeout(15000)});
    if(!response.ok)throw Error('weather');
@@ -40,7 +40,7 @@ async function bpWeatherLoad(from,to){
     if(!Number.isFinite(ts)||ts>Date.now())return;
     const num=k=>typeof h[k]?.[i]==='number'&&Number.isFinite(h[k][i])?h[k][i]:null;
     const p=num('surface_pressure');
-    out.set(ts,{p:p==null?null:p*0.750061683,prec:num('precipitation'),temp:num('temperature_2m'),rh:num('relative_humidity_2m'),recent});
+    out.set(ts,{p:p==null?null:p*0.750061683,prec:num('precipitation'),temp:num('temperature_2m'),rh:num('relative_humidity_2m'),code:num('weather_code'),wind:num('wind_speed_10m'),isDay:num('is_day'),recent});
    });
   };
   const jobs=[];
@@ -57,12 +57,34 @@ async function bpWeatherLoad(from,to){
  if(bpWeatherCache.size>8)bpWeatherCache.delete(bpWeatherCache.keys().next().value);
  try{return await promise}catch(e){bpWeatherCache.delete(key);throw e}
 }
+function bpWeatherCondition(w){
+ const c=w.code;
+ let condition='';
+ if(c===0)condition=w.isDay===0?'🌙 Ясно':'☀️ Ясно';
+ else if(c===1||c===2)condition='⛅ Переменная облачность';
+ else if(c===3)condition='☁️ Пасмурно';
+ else if([45,48].includes(c))condition='🌫️ Туман';
+ else if([51,53,55,56,57].includes(c))condition='🌦️ Морось';
+ else if([61,63,65,66,67,80,81,82].includes(c))condition='🌧️ Дождь';
+ else if([71,73,75,77,85,86].includes(c))condition='❄️ Снег';
+ else if([95,96,99].includes(c))condition='⛈️ Гроза';
+ const wind=Number.isFinite(w.wind)?'💨 Ветер '+w.wind.toFixed(1).replace('.',',')+' м/с':'';
+ return [condition,wind].filter(Boolean).join(' · ');
+}
+function bpWeatherHTML(value){
+ return esc(String(value??'')).replace(/(?:осадки )?(?:-?\d+(?:[,.]\d+)?|—) (?:мм рт\. ст\.|мм)(?!\S)/g,m=>'<strong>'+m+'</strong>');
+}
+function bpDiaryReadingHTML(line){
+ return esc(line).replace(/( — )(\d{2,3}\/\d{2,3})(?=;|$)/,(_,prefix,bp)=>prefix+'<strong>'+bp+'</strong>');
+}
+
 function bpWeatherAt(map,iso){
  const t=Math.floor(Date.parse(iso)/3600000)*3600000, w=map.get(t);
  if(!w)return 'Нет данных';
  const fmt=(n,d=1)=>n==null?'—':n.toFixed(d).replace('.',',');
  const delta=[3,6,12,24,48].map(h=>{const prev=map.get(t-h*3600000)?.p,d=w.p==null||prev==null?null:w.p-prev;return h+'ч '+(d==null?'—':(d>0?'+':'')+fmt(d));}).join(' · ');
- return fmt(w.p)+' мм рт. ст. · осадки '+fmt(w.prec)+' мм · '+fmt(w.temp)+' °C · влажность '+fmt(w.rh,0)+'%\nΔ давления: '+delta+(w.recent?' · оперативная модель':'');
+ const condition=bpWeatherCondition(w);
+ return fmt(w.p)+' мм рт. ст. · осадки '+fmt(w.prec)+' мм'+(condition?'\n'+condition:'')+'\n'+fmt(w.temp)+' °C · влажность '+fmt(w.rh,0)+'%\nΔ давления: '+delta+(w.recent?' · оперативная модель':'');
 }
 function bpWeatherDay(map,day,rows){
  const start=Date.parse(day+'T00:00:00+03:00'), end=start+86400000, now=Date.now();
@@ -104,7 +126,7 @@ function bpDiaryOpen(){
  const headers=['Дата','Утро','День','Вечер','Комментарий','Лекарство'], rows=bpDiaryRows(pressure.rows,pressure.intakes,a,b,meds,pressure.symptoms), name=d.name||d.short||person;
  const withWeather=modal.querySelector('#bpDiaryWeather').checked;let weatherWarning='';if(withWeather){headers.push('Погода · Москва');status.textContent='Загружаем погоду…';let weather;try{weather=await bpWeatherLoad(a,b)}catch(e){weatherWarning=' Погода недоступна; данные давления сохранены.';}if(cur!==person||!result.isConnected||ticket!==request)return;rows.forEach((r,i)=>r.push(weather?bpWeatherDay(weather,bpWeatherShift(a,i),pressure.rows):'Нет данных'));}
  const weatherLegend=withWeather?' · '+BP_WEATHER_NOTE:'';
- const cell=(v,i)=>i>0&&i<4?String(v).split('\n').map(line=>line.startsWith('  Условия: ')?'<span style="display:block;white-space:normal;overflow-wrap:anywhere">'+esc(line.trim())+'</span>':'<span style="display:block;white-space:nowrap">'+esc(line)+'</span>').join(''):esc(v);
+ const cell=(v,i)=>withWeather&&i===6?bpWeatherHTML(v):i>0&&i<4?String(v).split('\n').map(line=>line.startsWith('  Условия: ')?'<span style="display:block;white-space:normal;overflow-wrap:anywhere">'+esc(line.trim())+'</span>':'<span style="display:block;white-space:nowrap">'+bpDiaryReadingHTML(line)+'</span>').join(''):esc(v);
  const table='<table>'+bpDiaryColgroup(withWeather)+'<thead><tr>'+headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((v,i)=>'<td>'+cell(v,i)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  const html='<!doctype html><html lang="ru"><meta charset="utf-8"><title>Дневник давления</title><style>@page{size:A4 landscape;margin:12mm}body{font:11px Arial;color:#000}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:auto}h1{font-size:18px}@media print{button{display:none}td span{white-space:normal!important;overflow-wrap:break-word}}</style><h1>Дневник давления — '+esc(name)+'</h1><p>'+esc(bpDiaryDate(a))+' — '+esc(bpDiaryDate(b))+' · Europe/Moscow</p><p>' +BP_DIARY_LEGEND+esc(weatherLegend)+'</p>'+table+'</html>';
  status.textContent='Измерений: '+pressure.rows.length+'. Проверьте дневник перед печатью.'+weatherWarning;
