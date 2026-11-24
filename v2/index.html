@@ -3081,6 +3081,16 @@ function medicineSearchHtml(rows){
   return `<section class="card medicine-search" id="s-med"><h2>Лекарства - ${rows.length}</h2>${rows.map(r=>`<div class="medicine-search__row"><button type="button" class="linkbtn medlink" data-medname="${esc(r.name)}">${esc(r.name)}</button><div class="muted">${esc(r.sourceText)}${r.logCount?` · записей в журнале: ${r.logCount}`:''}</div></div>`).join('')}<p class="muted">Откройте лекарство, чтобы посмотреть справку, назначения и случаи применения. Назначение не подтверждает приём.</p></section>`;
 }
 
+function neverCurrent(d){
+  const key=n=>labName(String(n||"").trim(),"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ");
+  const records=(d.rec||[]).filter(r=>r.t==="lab"&&r.d&&String(r.v??"").trim()!=="");
+  return (d.never||[]).filter(n=>{
+    const m=String(n).match(/^(.+?)\s+после\s+(\d{2})\.(\d{4})\s*$/i);
+    const k=key(m?m[1]:n), after=m?m[3]+"-"+m[2]:null;
+    const dates=records.filter(r=>key(r.title)===k).map(r=>r.d).concat((d.series||[]).filter(x=>key(x.name)===k).flatMap(x=>(x.pts||[]).map(p=>p[2]?.iso||serDate(p[0])).filter(Boolean)));
+    return !dates.some(date=>!after||String(date).slice(0,7)>after);
+  });
+}
 function searchIn(k){
   const d=DATA[k],sn=(x)=>x?sysNameIn(k,x):"";
   const at=d.attention.map(a=>{
@@ -3099,7 +3109,7 @@ function searchIn(k){
     org:d.organs.filter(o=>hit([o.name,o.txt,o.sh].join(" "))),
     ser:d.series.filter(x=>hit([x.name,x.unit,sn(x.sys)].join(" "))),
     fam:(d.family||[]).filter(f=>hit(f.who+" "+f.what)),
-    nev:(d.never||[]).filter(n=>hit(n)),
+    nev:neverCurrent(d).filter(n=>hit(n)),
     kpi:kpiLive(d).filter(x=>hit([x.lab,x.val,x.sub||""].join(" ")))
   };
   R.total=R.bp.length+R.med.length+R.rec.length+R.dx.length+R.ep.length+R.rs.length+R.at.length+R.org.length+R.ser.length+R.fam.length+R.nev.length+R.kpi.length;
@@ -3659,7 +3669,7 @@ function bpReadingOpen(id,person){
 
 function tlEvents(d){
   const out=vacEvents(d);
-  if(cur==="denis"||cur==="anya") out.push(...(window.mkWatch?.events(cur)||[]));
+  if(cur==="denis"||cur==="anya") out.push(...(window.mkWatch?.events(cur)||[]).filter(e=>!query||hit([e.t,e.r?.title,e.r?.note,e.d].filter(Boolean).join(" "))));
   const person=medPersonOf(d);
   if(person) out.push(...bpTimelineEvents(BPS[person]||[],person).filter(e=>!query||hit(bpTimelineHay(e))));
   (d.rec||[]).filter(matches).forEach(r=>out.push({d:r.d,k:r.t,t:r.title,sys:r.sys,st:r.st,r,id:idOf(r)}));
@@ -17751,7 +17761,7 @@ function render(){
       ${todoSelf.length?`<h2 style="margin-top:26px">Рекомендации — что делать самому, ${todoSelf.length} <span class="hint" tabindex="0" title="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность." aria-label="Режим, питание, сон, нагрузка, дневники. Ни от кого не зависит, записи и направления не нужны — только регулярность.">?</span></h2>
       ${todoTable(todoSelf)}`:""}
       <button class="btn btn-primary btn-block" style="margin-top:12px" id="todoAll">${todoAll?"← Показать только ближайшие":`Все записи (${todoFull.length}) →`}</button>
-      <div class="note"><b>Никогда не сдавалось / отсутствует:</b> ${d.never.map(esc).join(" · ")}</div>
+      <div class="note"><b>Никогда не сдавалось / отсутствует:</b> ${neverCurrent(d).map(esc).join(" · ")}</div>
     </div>
 
     ${planOverviewCard()}
