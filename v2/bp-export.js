@@ -174,6 +174,19 @@ function bpWorkText(map,day){
  return ['Всего: '+bpWorkFmt(d.work_hours),...BP_WORK_FACTORS.slice(1).filter(([k])=>d[k]>0).map(([k,n])=>n+': '+bpWorkFmt(d[k])),...(d.partial?['День неполный']:[])].join('\n');
 }
 function bpWorkHTML(v){return esc(String(v)).replace(/^Всего: [^\n]+/,'<strong>$&</strong>');}
+function bpWorkAlignedPressure(days,from,to){
+ const keys=[['sys','Верхнее','#b45309'],['dia','Нижнее','#2563eb']];
+ const ts=d=>Date.parse(d+'T12:00:00Z'),count=Math.max(1,Math.round((ts(to)-ts(from))/86400000)+1);
+ const width=Math.max(320,count*48+60),x=i=>48+i*(width-60)/count+(width-60)/count/2;
+ const vals=days.flatMap(d=>keys.map(([k])=>d[k]).filter(Number.isFinite)).concat([80,120]);
+ const lo=Math.floor((Math.min(...vals)-5)/10)*10,hi=Math.ceil((Math.max(...vals)+5)/10)*10,y=v=>174-(v-lo)*140/(hi-lo);
+ const fmt=v=>Number(v.toFixed(1)).toLocaleString('ru-RU');
+ const grid=Array.from({length:5},(_,i)=>{const v=lo+(hi-lo)*i/4,Y=y(v);return '<line x1="44" x2="'+(width-8)+'" y1="'+Y+'" y2="'+Y+'" stroke="currentColor" opacity=".15"/><text x="38" y="'+(Y+4)+'" text-anchor="end">'+fmt(v)+'</text>';}).join('');
+ const dates=Array.from({length:count},(_,i)=>'<text x="'+x(i)+'" y="194" text-anchor="middle">'+esc(bpWeatherShift(from,i).slice(8)+'.'+bpWeatherShift(from,i).slice(5,7))+'</text>').join('');
+ const guides=[[120,'#b45309'],[80,'#2563eb']].map(([v,c])=>'<line x1="44" x2="'+(width-8)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+c+'" stroke-dasharray="6 4"/>').join('');
+ const marks=keys.map(([k,n,c])=>{let path='',last=-2,points='';for(const d of days){if(!Number.isFinite(d[k]))continue;const i=Math.round((ts(d.day)-ts(from))/86400000);path+=(i===last+1?' L':' M')+x(i)+' '+y(d[k]);last=i;points+='<circle cx="'+x(i)+'" cy="'+y(d[k])+'" r="3" fill="'+c+'"><title>'+esc(bpDiaryDate(d.day)+' · '+n+': '+fmt(d[k]))+'</title></circle>';}return '<path d="'+path+'" fill="none" stroke="'+c+'" stroke-width="2.5"/>'+points;}).join('');
+ return '<div style="margin:12px 0;min-width:0"><strong>Среднее артериальное давление · мм рт. ст.</strong><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px"><span style="color:#b45309">● Верхнее · ориентир 120</span><span style="color:#2563eb">● Нижнее · ориентир 80</span></div><svg viewBox="0 0 '+width+' 205" style="display:block;width:100%;min-width:'+width+'px;height:auto" role="img" aria-label="Среднее давление по дням"><g fill="currentColor" font-size="11">'+grid+dates+'</g>'+guides+marks+'</svg></div>';
+}
 function bpWorkStackedPlot(days,from,to){
  const keys=[['work_document_hours','Документы','#2563eb'],['work_call_hours','Созвоны','#f59e0b'],['work_other_hours','Прочее','#64748b']];
  if(!days.length)return '<p class="muted">Рабочая нагрузка: нет данных</p>';
@@ -189,7 +202,7 @@ function bpWorkStackedPlot(days,from,to){
  const incomplete=d.partial||keys.some(([k])=>!valid(d[k]))||Math.abs(sum-d.work_hours)>.02;
  if(d.work_hours>sum+.02)out+='<rect x="'+(X-bar/2)+'" y="'+y(d.work_hours)+'" width="'+bar+'" height="'+((d.work_hours-sum)*140/hi)+'" fill="none" stroke="currentColor" stroke-dasharray="3 2"><title>Часы без разбивки по видам</title></rect>';
  return out+'<text x="'+X+'" y="'+(y(Math.max(sum,d.work_hours))-7)+'" text-anchor="middle" font-weight="600">'+esc(fmt(d.work_hours)+(incomplete?'*':''))+'</text>';}).join('');
- return '<div style="margin:12px 0;min-width:0"><strong>Рабочая нагрузка · ч</strong><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">'+keys.map(([,n,c])=>'<span><b style="color:'+c+'">■</b> '+esc(n)+'</span>').join('')+'</div><div style="overflow-x:auto;max-width:100%;min-width:0;overscroll-behavior-x:contain" tabindex="0" aria-label="График рабочей нагрузки, прокрутка по датам"><svg viewBox="0 0 '+width+' 205" style="display:block;width:100%;min-width:'+width+'px;height:auto" role="img" aria-label="Рабочая нагрузка по дням, часы"><g fill="currentColor" font-size="11">'+grid+marks+'</g></svg></div><p class="muted" style="font-size:12px">— нет данных; * неполная запись или разбивка; пунктир — часы без разбивки.</p></div>';
+ return '<div style="margin:12px 0;min-width:0"><strong>Рабочая нагрузка · ч</strong><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">'+keys.map(([,n,c])=>'<span><b style="color:'+c+'">■</b> '+esc(n)+'</span>').join('')+'</div><div><svg viewBox="0 0 '+width+' 205" style="display:block;width:100%;min-width:'+width+'px;height:auto" role="img" aria-label="Рабочая нагрузка по дням, часы"><g fill="currentColor" font-size="11">'+grid+marks+'</g></svg></div><p class="muted" style="font-size:12px">— нет данных; * неполная запись или разбивка; пунктир — часы без разбивки.</p></div>';
 }
 function bpWorkAnalysisHTML(map,rows,from,to,withWeather){
  const bp=bpWeatherAnalysisRows(new Map(),rows).filter(d=>d.day>=from&&d.day<=to);
@@ -199,8 +212,7 @@ function bpWorkAnalysisHTML(map,rows,from,to,withWeather){
  const groups=[['С записью о работе',bp.filter(d=>map.has(d.day)&&!map.get(d.day).partial)],['Без записи о работе',bp.filter(d=>!map.has(d.day))]];
  const fmt=n=>n==null?'—':n.toFixed(1).replace('.',',');
  return '<section style="border:1px solid var(--surface-2);border-radius:12px;padding:12px;margin:16px 0;min-width:0"><h3 style="margin:0 0 8px">Связь давления с работой</h3><p class="muted" style="font-size:12px">Google Sheets · Часы точно · дней с записью о работе: '+plotted.length+'. Незарегистрированные дни не считаются выходными или нулём часов.</p>'+
- (withWeather?'':bpWeatherPlot(bp,[['sys','Верхнее','#b45309'],['dia','Нижнее','#2563eb']],from,to,'Среднее артериальное давление','мм рт. ст.'))+
- bpWorkStackedPlot(plotted,from,to)+
+ '<div style="overflow-x:auto;max-width:100%;min-width:0;overscroll-behavior-x:contain" tabindex="0" aria-label="Давление и рабочая нагрузка, общая прокрутка по датам">'+bpWorkAlignedPressure(bp,from,to)+bpWorkStackedPlot(plotted,from,to)+'</div>'+
  '<h4 style="margin:12px 0 6px">Корреляция Пирсона (r)</h4><div style="overflow-x:auto"><table class="tbl" style="min-width:420px;width:100%"><thead><tr><th>Вид работы</th><th>Верхнее АД</th><th>Нижнее АД</th><th>Макс. верхнее</th></tr></thead><tbody>'+BP_WORK_FACTORS.map(([k,n])=>'<tr><td>'+esc(n)+'</td><td>'+stats(k,'sys')+'</td><td>'+stats(k,'dia')+'</td><td>'+stats(k,'max')+'</td></tr>').join('')+'</tbody></table></div>'+
  '<h4 style="margin:12px 0 6px">Сравнение дней</h4><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Группа</th><th>Дней</th><th>Среднее АД</th></tr></thead><tbody>'+groups.map(([n,a])=>'<tr><td>'+esc(n)+'</td><td>'+a.length+'</td><td>'+fmt(bpWeatherMean(a.map(d=>d.sys)))+'/'+fmt(bpWeatherMean(a.map(d=>d.dia)))+'</td></tr>').join('')+'</tbody></table></div><p class="muted" style="font-size:12px">Корреляция только для завершённых дней с записью о работе и замерами; каждый день имеет одинаковый вес. При n &lt; 10 или неизменном факторе коэффициент не вычисляется. При n &lt; 30 и редких созвонах выводы предварительные. Работа могла быть после измерения; причинность не установлена.</p></section>';
 }
