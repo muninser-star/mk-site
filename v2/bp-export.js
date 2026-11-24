@@ -136,13 +136,17 @@ function bpWeatherPlot(days,keys,from,to,label,unit){
  const series=keys.map(([key,name,color])=>({key,name,color,points:days.filter(d=>Number.isFinite(d[key]))}));
  const vals=series.flatMap(s=>s.points.map(d=>d[s.key]));
  if(!vals.length)return '<p class="muted">'+esc(label)+': нет данных</p>';
- const min=Math.min(...vals),max=Math.max(...vals),pad=Math.max((max-min)*.12,1),lo=keys[0][0]==='rain'?0:min-pad,hi=max+pad;
+ const refs=keys[0][0]==='sys'?[[120,'Ориентир верхнего','#b45309'],[80,'Ориентир нижнего','#2563eb']]:keys[0][0]==='p'?[[746,'Нижняя граница ориентира','#64748b'],[748,'Верхняя граница ориентира','#64748b']]:[];
+ const scaleVals=vals.concat(refs.map(r=>r[0]));
+ const min=Math.min(...scaleVals),max=Math.max(...scaleVals),pad=Math.max((max-min)*.12,1),lo=keys[0][0]==='rain'?0:min-pad,hi=max+pad;
  const ts=d=>Date.parse(d+'T12:00:00Z'),span=Math.max(86400000,ts(to)-ts(from)),x=d=>52+(ts(d)-ts(from))*530/span,y=v=>118-(v-lo)*94/(hi-lo);
  const f=v=>v.toFixed(1).replace('.',','),grid=[0,.5,1].map(q=>{const v=lo+(hi-lo)*q,Y=y(v);return '<line x1="52" x2="582" y1="'+Y+'" y2="'+Y+'" stroke="currentColor" opacity=".13"/><text x="46" y="'+(Y+4)+'" text-anchor="end">'+f(v)+'</text>';}).join('');
  const ticks=[...new Set([from,bpWeatherShift(from,Math.floor((ts(to)-ts(from))/172800000)),to])].map((d,i,a)=>'<text x="'+x(d)+'" y="140" text-anchor="'+(i===0?'start':i===a.length-1?'end':'middle')+'">'+esc(d.slice(8)+'.'+d.slice(5,7))+'</text>').join('');
+ const guides=refs.map(([v,name,color])=>'<line x1="52" x2="582" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+color+'" stroke-width="1.3" stroke-dasharray="6 4" opacity=".85"><title>'+esc(name+': '+v+' '+unit)+'</title></line>').join('');
+ const guideLegend=refs.map(([v,name,color])=>'<span><b style="color:'+color+'">┄</b> '+esc(name+' '+v)+'</span>').join('');
  const marks=series.map(s=>{let path='',last=null;for(const d of s.points){path+=(last!==null&&ts(d.day)-ts(last)===86400000?' L':' M')+x(d.day)+' '+y(d[s.key]);last=d.day;}
  return '<path d="'+path+'" fill="none" stroke="'+s.color+'" stroke-width="2.5"/>'+s.points.map(d=>'<circle cx="'+x(d.day)+'" cy="'+y(d[s.key])+'" r="3" fill="'+s.color+'"><title>'+esc(bpDiaryDate(d.day)+' · '+s.name+': '+f(d[s.key])+' '+unit)+'</title></circle>').join('');}).join('');
- return '<div style="margin:12px 0"><strong>'+esc(label)+' · '+esc(unit)+'</strong><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">'+series.map(s=>'<span><b style="color:'+s.color+'">●</b> '+esc(s.name)+'</span>').join('')+'</div><svg viewBox="0 0 600 150" style="display:block;width:100%;height:auto;max-height:200px" role="img" aria-label="'+esc(label)+'"><g fill="currentColor" font-size="11">'+grid+ticks+'</g>'+marks+'</svg></div>';
+ return '<div style="margin:12px 0"><strong>'+esc(label)+' · '+esc(unit)+'</strong><div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">'+series.map(s=>'<span><b style="color:'+s.color+'">●</b> '+esc(s.name)+'</span>').join('')+guideLegend+'</div><svg viewBox="0 0 600 150" style="display:block;width:100%;height:auto;max-height:200px" role="img" aria-label="'+esc(label)+'"><g fill="currentColor" font-size="11">'+grid+ticks+'</g>'+guides+marks+'</svg></div>';
 }
 function bpWeatherAnalysisHTML(map,rows,from,to){
  const days=bpWeatherAnalysisRows(map,rows).filter(d=>d.day>=from&&d.day<=to);
