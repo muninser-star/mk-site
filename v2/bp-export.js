@@ -185,7 +185,7 @@ function bpWorkAlignedPressure(days,from,to,mode='max'){
  const lo=Math.floor((Math.min(...vals)-5)/10)*10,hi=Math.ceil((Math.max(...vals)+5)/10)*10,y=v=>174-(v-lo)*140/(hi-lo);
  const fmt=v=>Number(v.toFixed(1)).toLocaleString('ru-RU');
  const grid=Array.from({length:5},(_,i)=>{const v=lo+(hi-lo)*i/4,Y=y(v);return '<line x1="44" x2="'+(width-8)+'" y1="'+Y+'" y2="'+Y+'" stroke="currentColor" opacity=".15"/><text x="38" y="'+(Y+4)+'" text-anchor="end">'+fmt(v)+'</text>';}).join('');
- const dates=Array.from({length:count},(_,i)=>'<text x="'+x(i)+'" y="194" text-anchor="middle">'+esc(bpWeatherShift(from,i).slice(8)+'.'+bpWeatherShift(from,i).slice(5,7))+'</text>').join('');
+ const dates=Array.from({length:count},(_,i)=>{const day=bpWeatherShift(from,i),weekend=[0,6].includes(new Date(ts(day)).getUTCDay());return '<text x="'+x(i)+'" y="194" text-anchor="middle"'+(weekend?' fill="#dc2626" font-weight="600"':'')+'>'+esc(day.slice(8)+'.'+day.slice(5,7))+'</text>';}).join('');
  const guides=[[120,'#b45309'],[80,'#2563eb']].map(([v,c])=>'<line x1="44" x2="'+(width-8)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+c+'" stroke-dasharray="6 4"/>').join('');
  const outside=(k,v)=>k==='sys'?(v<90||v>=140):(v<60||v>=90);
  const flagged=new Set(days.filter(d=>(d.readings||[]).some(r=>keys.some(([k])=>Number.isFinite(r[k])&&outside(k,r[k])))||keys.some(([k])=>Number.isFinite(d[k])&&outside(k,d[k]))).map(d=>d.day));
@@ -203,7 +203,7 @@ function bpWorkStackedPlot(days,from,to){
  const hi=Math.ceil(max/4)*4, width=Math.max(320,count*48+60), y=v=>174-v*140/hi, x=i=>48+i*(width-60)/count+(width-60)/count/2, bar=Math.min(30,(width-60)/count*.7);
  const byDay=new Map(days.map(d=>[d.day,d]));
  const grid=Array.from({length:5},(_,i)=>{const v=hi*i/4,Y=y(v);return '<line x1="44" x2="'+(width-8)+'" y1="'+Y+'" y2="'+Y+'" stroke="currentColor" opacity=".15"/><text x="38" y="'+(Y+4)+'" text-anchor="end">'+fmt(v)+'</text>';}).join('');
- const marks=Array.from({length:count},(_,i)=>{const day=bpWeatherShift(from,i),d=byDay.get(day),X=x(i);let out='<text x="'+X+'" y="194" text-anchor="middle">'+esc(day.slice(8)+'.'+day.slice(5,7))+'</text>';if(!d)return out+'<text x="'+X+'" y="169" text-anchor="middle" opacity=".65"><title>Нет данных</title>—</text>';
+ const marks=Array.from({length:count},(_,i)=>{const day=bpWeatherShift(from,i),d=byDay.get(day),X=x(i);const weekend=[0,6].includes(new Date(ts(day)).getUTCDay());let out='<text x="'+X+'" y="194" text-anchor="middle"'+(weekend?' fill="#dc2626" font-weight="600"':'')+'>'+esc(day.slice(8)+'.'+day.slice(5,7))+'</text>';if(!d)return out+'<text x="'+X+'" y="169" text-anchor="middle" opacity=".65"><title>Нет данных</title>—</text>';
  let sum=0;for(const [k,n,c] of keys){if(!valid(d[k]))continue;const v=d[k];if(v>0)out+='<rect x="'+(X-bar/2)+'" y="'+y(sum+v)+'" width="'+bar+'" height="'+(v*140/hi)+'" fill="'+c+'"><title>'+esc(bpDiaryDate(day)+' · '+n+': '+fmt(v)+' ч')+'</title></rect>';sum+=v;}
  const incomplete=d.partial||keys.some(([k])=>!valid(d[k]))||Math.abs(sum-d.work_hours)>.02;
  if(d.work_hours>sum+.02)out+='<rect x="'+(X-bar/2)+'" y="'+y(d.work_hours)+'" width="'+bar+'" height="'+((d.work_hours-sum)*140/hi)+'" fill="none" stroke="currentColor" stroke-dasharray="3 2"><title>Часы без разбивки по видам</title></rect>';
