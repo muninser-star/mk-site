@@ -72,26 +72,31 @@ function bpWeatherCondition(w){
  return [condition,wind].filter(Boolean).join(' · ');
 }
 function bpWeatherHTML(value){
- return esc(String(value??'')).replace(/(?:осадки )?(?:-?\d+(?:[,.]\d+)?|—) (?:мм рт\. ст\.|мм)(?!\S)/g,m=>'<strong>'+m+'</strong>');
+ return esc(String(value??'')).replace(/(?:осадки (?:менее )?)?(?:-?\d+(?:[,.]\d+)?|—) (?:мм рт\. ст\.|мм)(?!\S)/g,m=>'<strong>'+m+'</strong>');
 }
 function bpDiaryReadingHTML(line){
  return esc(line).replace(/( — )(\d{2,3}\/\d{2,3})(?=;|$)/,(_,prefix,bp)=>prefix+'<strong>'+bp+'</strong>');
 }
 
+function bpWeatherPrecipText(value){
+ if(!Number.isFinite(value)||value<0)return ' · осадки: нет данных';
+ if(value===0)return '';
+ return ' · осадки '+(value<0.05?'менее 0,1':value.toFixed(1).replace('.',','))+' мм';
+}
 function bpWeatherAt(map,iso){
  const t=Math.floor(Date.parse(iso)/3600000)*3600000, w=map.get(t);
  if(!w)return 'Нет данных';
  const fmt=(n,d=1)=>n==null?'—':n.toFixed(d).replace('.',',');
  const delta=[3,6,12,24,48].map(h=>{const prev=map.get(t-h*3600000)?.p,d=w.p==null||prev==null?null:w.p-prev;return h+'ч '+(d==null?'—':(d>0?'+':'')+fmt(d));}).join(' · ');
  const condition=bpWeatherCondition(w);
- return fmt(w.p)+' мм рт. ст. · осадки '+fmt(w.prec)+' мм'+(condition?'\n'+condition:'')+'\n'+fmt(w.temp)+' °C · влажность '+fmt(w.rh,0)+'%\nΔ давления: '+delta+(w.recent?' · оперативная модель':'');
+ return fmt(w.p)+' мм рт. ст.'+bpWeatherPrecipText(w.prec)+(condition?'\n'+condition:'')+'\n'+fmt(w.temp)+' °C · влажность '+fmt(w.rh,0)+'%\nΔ давления: '+delta+(w.recent?' · оперативная модель':'');
 }
 function bpWeatherDay(map,day,rows){
  const start=Date.parse(day+'T00:00:00+03:00'), end=start+86400000, now=Date.now();
  const hours=Array.from({length:24},(_,i)=>map.get(start+(i+1)*3600000)).filter(Boolean);
  const p=hours.map(w=>w.p).filter(Number.isFinite), rain=hours.map(w=>w.prec).filter(Number.isFinite);
  const f=n=>n.toFixed(1).replace('.',',');
- const daily=end<=now&&hours.length===24&&p.length===24&&rain.length===24?'Среднее за сутки: '+f(p.reduce((a,b)=>a+b,0)/24)+' мм рт. ст. · осадки '+f(rain.reduce((a,b)=>a+b,0))+' мм':'Суточные данные неполные';
+ const daily=end<=now&&hours.length===24&&p.length===24&&rain.length===24?'Среднее за сутки: '+f(p.reduce((a,b)=>a+b,0)/24)+' мм рт. ст.'+bpWeatherPrecipText(rain.reduce((a,b)=>a+b,0)):'Суточные данные неполные';
  const lines=rows.filter(r=>bpDiaryDay(r.measured_at)===day).sort((a,b)=>a.measured_at.localeCompare(b.measured_at)).map(r=>new Intl.DateTimeFormat('ru',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit'}).format(new Date(r.measured_at))+' — '+bpWeatherAt(map,r.measured_at));
  return [daily,...lines].join('\n');
 }
